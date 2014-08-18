@@ -1,0 +1,9 @@
+param:
+0.000001
+model:
+/local/home/b2049657/models/controlled-bouncing-ball/cbb.pdrh
+/local/home/b2049657/models/controlled-bouncing-ball/cbb-c.pdrh
+dReach:
+2
+dReal:
+-precision=0.000000000001

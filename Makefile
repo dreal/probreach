@@ -1,14 +1,14 @@
 # a list of all the programs in your project
-PROGS = ProbReach
+PROGS = src/ProbReach
 # a list of all your units to be linked with your programs (space separated)
-OTHERS = Entry Integral Distribution RV CartesianProduct
+OTHERS = src/Entry src/Integral src/Distribution src/RV src/CartesianProduct
 # directory where capd scripts are (e.g. capd-config)
-CAPDBINDIR =/home/fedor/capd/dreal-2.14.06/build/release/bin
+CAPDBINDIR =/home/fedor/dreal-2.14.06/build/release/bin/
 # setting compiler and linker flags
 CAPDFLAGS = `${CAPDBINDIR}capd-config --cflags`
 CAPDLIBS = `${CAPDBINDIR}capd-config --libs`
 CXXFLAGS += ${CAPDFLAGS} -O2 -Wall
-LDFLAGS= -lboost_regex
+LDFLAGS = -lboost_regex -L/home/fedor/boost_1_55_0
 # directory where object and dependancy files will be created
 OBJDIR = .obj/
 #============ the following should not be changed =========

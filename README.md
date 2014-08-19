@@ -1,6 +1,6 @@
 ProbReach
 =========
-ProbReach - application for calculating bounded probabilistic reachability in hybrid systems with random continuous initial parameters.
+ProbReach - application for calculating bounded probabilistic reachability in hybrid systems with random continuous initial parameters. Currently one continuous random variable is supported.
 
 1. Required packages
 =========
@@ -22,13 +22,16 @@ ProbReach - application for calculating bounded probabilistic reachability in hy
 3. Usage
 =========
 
-- run `./ProbReach <settings-file>` where the settings file should be of the following structure:
-`param:
+Run `./ProbReach <settings-file>` where the settings file should be of the following structure:
+
+```
+param:
 <integral precision>
 model:
-<model-file.pdrh> - 
-<model-file-c.pdrh> - 
+<model-file.pdrh> - bounded reachability encoded in pdrh format
+<model-file-c.pdrh> - complement of bounded reachability encoded in pdrh format
 dReach:
 <depth of reachability analysis>
 dReal:
-<list of options passed to the dReal>`
+<list of dReal options>
+```

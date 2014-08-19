@@ -14,10 +14,8 @@ ProbReach - application for calculating bounded probabilistic reachability in hy
 =========
 
 - Edit Makefile:
-
---* CAPDBINDIR = path/to/capd/bin
-
---* LDFLAGS = -lboost_regex -L/path/to/boost
+ * CAPDBINDIR = path/to/capd/bin
+ * LDFLAGS = -lboost_regex -L/path/to/boost
 
 - Run `make` command in the `ProbReach` directory
 

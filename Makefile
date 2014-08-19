@@ -8,7 +8,7 @@ CAPDBINDIR =/home/fedor/dreal-2.14.06/build/release/bin/
 CAPDFLAGS = `${CAPDBINDIR}capd-config --cflags`
 CAPDLIBS = `${CAPDBINDIR}capd-config --libs`
 CXXFLAGS += ${CAPDFLAGS} -O2 -Wall
-LDFLAGS = -lboost_regex -L/home/fedor/boost_1_55_0
+LDFLAGS = -lboost_regex
 # directory where object and dependancy files will be created
 OBJDIR = .obj/
 #============ the following should not be changed =========

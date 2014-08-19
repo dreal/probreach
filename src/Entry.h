@@ -1,6 +1,9 @@
-/*
- * The header file: Entry.h
- */ 
+/**
+ * Entry class declaration
+ *
+ * @author: Fedor Shmarov
+ * @e-mail: f.shmarov@ncl.ac.uk
+ */
  
 #ifndef ENTRY_H  
 #define ENTRY_H  

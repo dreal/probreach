@@ -1,6 +1,9 @@
-/*
- * The header file: RV.h
- */ 
+/**
+ * RV class declaration
+ *
+ * @author: Fedor Shmarov
+ * @e-mail: f.shmarov@ncl.ac.uk
+ */
  
 #ifndef RV_H  
 #define RV_H  

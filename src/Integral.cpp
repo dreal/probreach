@@ -1,3 +1,10 @@
+/**
+ * Class containing methods for calculating the interval of an arbitrary positive length
+ * containing the exact value of the integral of the continuous function on the interval
+ *
+ * @author: Fedor Shmarov
+ * @e-mail: f.shmarov@ncl.ac.uk
+ */
 #include "Integral.h"
 #include "Entry.h"
 #include<capd/capdlib.h>
@@ -79,7 +86,11 @@ vector<DInterval> Integral::getIntervals()
 }
 
 /**
- * Calculating fourth derivative of function
+ * Calculating the interval enclosing the value of the fourth derivative of the function on the interval
+ *
+ * @param v interval on which the value of the fourth derivatives should be found
+ *
+ * @returm fourth derivative of the function on the interval
  */
 DInterval Integral::f4(DInterval v)
 {
@@ -94,13 +105,22 @@ DInterval Integral::f4(DInterval v)
 }
 
 /**
- * Calculating an interval extension of integral subsum
+ * Calculating the interval enclosing the value of the partial sum of the function on the interval
+ *
+ * @param x interval on which the value of the partial sum should be found
+ *
+ * @returm partial sum of the function on the interval x
  */
 DInterval Integral::calculateS(DInterval x)
 {
 	return (width(x) / 6) * (f(x.leftBound()) + 4 * f(x.mid()) + f(x.rightBound())) - (width(x) * width(x) * width(x) * width(x) * width(x) / 2880) * f4(x);
 }
 
+/**
+ * Calculating the interval enclosing the value of the intergal
+ *
+ * @returm interval containing the value of the integral
+ */
 DInterval Integral::solve()
 {
 	while (intervals.size() > 0)
@@ -120,18 +140,6 @@ DInterval Integral::solve()
 		{
 			entries.push_back(Entry(x, S));
 			I += S;
-			if (entries.size() == 10000)
-			{
-				cout << "WARNING 10000 INTERVALS" << endl;
-			}
-			if (entries.size() == 100000)
-			{
-				cout << "WARNING 100000 INTERVALS" << endl;
-			}
-			if (entries.size() == 1000000)
-			{
-				cout << "WARNING 1000000 INTERVALS" << endl;
-			}
 		}
 
 	}

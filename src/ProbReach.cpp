@@ -228,15 +228,6 @@ int main(int argc, char *argv[])
 	vector<double> a;
 	vector<double> b;
 	
-	/*
-	for(int i = 0; i < rv.size(); i++)
-	{
-		var.push_back(rv.at(i).getVar());
-		fun.push_back(rv.at(i).getFun());
-		a.push_back(rv.at(i).getLeft());
-		b.push_back(rv.at(i).getRight());
-	}*/
-	
 	var.push_back(rv.at(0).getVar());
 	fun.push_back(rv.at(0).getFun());
 	a.push_back(rv.at(0).getLeft());
@@ -251,19 +242,6 @@ int main(int argc, char *argv[])
 	vector<Integral> integral;
 	vector< vector<Entry> > vectors;
 	vector<double> infError;
-/*
-	for(int i = 0; i < rv.size(); i++)
-	{	
-		Integral itg = Integral(var.at(i), fun.at(i), a.at(i), b.at(i), precision);
-		DInterval I = itg.solve();
-		cout << i << ") I([" << a.at(i) << ", " << b.at(i) << "]) = " << setprecision(16) << I << endl;
-		vectors.push_back(itg.getEntries());
-		cout << i << ") " << var.at(i) << " " << itg.getEntries().size() << " elements" << endl;
-	}
-	*/
-	
-	//vector< vector<Entry> > oneVariable;
-	//oneVariable.push_back(vectors.at(0));
 	
 	Integral itg = Integral(var.at(0), fun.at(0), a.at(0), b.at(0), precision);
 	DInterval I = itg.solve();
@@ -273,13 +251,9 @@ int main(int argc, char *argv[])
 	infError.push_back(1 - I.leftBound());
 		
 	vector< vector<Entry> > cartProduct = cartesianProduct(vectors);
-
-	//writeEntriesToFile(entries, "entries.txt");
 	
 	vector<Entry> extraEntries;
-	//ofstream divisions;
-	//divisions.open("divisions.txt");
-	
+
 	int counter = 0;
 	
 	for(int i = 0; i < cartProduct.size(); i++)
@@ -321,7 +295,6 @@ int main(int argc, char *argv[])
 		}
 
 		cartProduct.clear();
-		//cartProduct.push_back(extraEntries);
 		
 		for (long int i = 0; i < extraEntries.size(); i++)
 		{

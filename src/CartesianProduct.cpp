@@ -1,3 +1,9 @@
+/**
+ * Class for generating a cartesian product of vectors.
+ *
+ * Author: Fedor Shmarov
+ * E-mail: f.shmarov@ncl.ac.uk
+ */
 #include<iostream>
 #include<string>
 #include<iomanip>
@@ -10,7 +16,9 @@
 
 using namespace std;
 
-//template <typename Type>
+/**
+ * Generates a cartesian product of vectors contained in the input vector
+ */
 vector< vector<Entry> > cartesianProduct(vector< vector<Entry> > input)
 {
 	vector< vector<Entry> > output;

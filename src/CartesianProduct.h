@@ -1,5 +1,8 @@
 /**
- * Integral class declaration
+ * CartesianProduct class declaration
+ *
+ * Author: Fedor Shmarov
+ * E-mail: f.shmarov@ncl.ac.uk
  */
  
 #ifndef CARTESIANPRODUCT_H  
@@ -10,7 +13,6 @@
 
 using namespace std;
 
-//template <typename Type>
 vector< vector<Entry> > cartesianProduct(vector< vector<Entry> >);
 
 #endif 

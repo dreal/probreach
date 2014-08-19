@@ -3,9 +3,8 @@ PROGS = ProbReach
 # a list of all your units to be linked with your programs (space separated)
 OTHERS = Entry Integral Distribution RV CartesianProduct
 # directory where capd scripts are (e.g. capd-config)
-CAPDBINDIR =/local/home/b2049657/capd/bin/
+CAPDBINDIR =/home/fedor/capd/dreal-2.14.06/build/release/bin
 # setting compiler and linker flags
-# NOTE!!! does not work with -c++11 flag
 CAPDFLAGS = `${CAPDBINDIR}capd-config --cflags`
 CAPDLIBS = `${CAPDBINDIR}capd-config --libs`
 CXXFLAGS += ${CAPDFLAGS} -O2 -Wall

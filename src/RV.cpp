@@ -1,3 +1,9 @@
+/**
+ * Class for storing the information about the random varibale
+ *
+ * @author: Fedor Shmarov
+ * @e-mail: f.shmarov@ncl.ac.uk
+ */
 #include<string>
 #include<sstream>
 #include "RV.h"

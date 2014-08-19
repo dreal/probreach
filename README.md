@@ -1,5 +1,6 @@
 ProbReach
 =========
+ProbReach - application for calculating bounded probabilistic reachability in hybrid systems with random continuous initial parameters.
 
 1. Required packages
 =========
@@ -11,6 +12,11 @@ ProbReach
 
 2. Installation requirements
 =========
+
+- Edit Makefile:
+-- CAPDBINDIR = path/to/capd/bin
+-- LDFLAGS = -lboost_regex -L/path/to/boost
+- Run `make` command in the `ProbReach` directory
 
 
 3. Usage

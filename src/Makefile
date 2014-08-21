@@ -3,12 +3,12 @@ PROGS = ProbReach
 # a list of all your units to be linked with your programs (space separated)
 OTHERS = Entry Integral Distribution RV CartesianProduct
 # directory where capd scripts are (e.g. capd-config)
-CAPDBINDIR =/home/fedor/capd/dreal-2.14.06/build/release/bin
+CAPDBINDIR =/home/fedor/capd-4/bin/
 # setting compiler and linker flags
 CAPDFLAGS = `${CAPDBINDIR}capd-config --cflags`
 CAPDLIBS = `${CAPDBINDIR}capd-config --libs`
-CXXFLAGS += ${CAPDFLAGS} -O2 -Wall
-LDFLAGS= -lboost_regex
+CXXFLAGS += ${CAPDFLAGS} -O2 -Wall -std=c++11
+#LDFLAGS = -lboost_regex
 # directory where object and dependancy files will be created
 OBJDIR = .obj/
 #============ the following should not be changed =========
@@ -18,7 +18,7 @@ OBJ_FILES = ${OTHERS_OBJ} ${PROGS:%=${OBJDIR}%.o}
 all: ${PROGS}
 # rule to link executables
 ${PROGS}: % : ${OBJDIR}%.o ${OTHERS_OBJ}
-	${CXX} -o $@ $< ${OTHERS_OBJ} ${CAPDLIBS} ${LDFLAGS}
+	${CXX} -o $@ $< ${OTHERS_OBJ} ${CAPDLIBS} #${LDFLAGS}
 # include files with dependencies
 -include ${OBJ_FILES:%=%.d}
 #rule to compile .cpp files and generate corresponding files with dependencies
@@ -29,3 +29,8 @@ ${OBJ_FILES}: ${OBJDIR}%.o : %.cpp
 .PHONY: clean
 clean:
 	rm -f ${OBJDIR}*.o ${OBJDIR}*.o.d ${PROGS}
+
+install:
+	mkdir -p ../bin
+	cp ${PROGS} ../bin
+	rm ${PROGS}

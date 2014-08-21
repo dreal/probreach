@@ -2,7 +2,6 @@
 #define C 0.0025
 #define m 7.0
 #define g 9.8
-N(9,1) x;
 
 [-100, 100] v;
 [0, 10] time;

@@ -2,10 +2,10 @@
 #define C 0.0025
 #define m 7.0
 #define g 9.8
-N(9,1) x;
 
 [-100, 100] v;
 [0, 10] time;
+
 
 { mode 1;
   invt:
@@ -29,4 +29,4 @@ init:
 @1	(and (x >= x_a) (x <= x_b) (v = 0));
 
 goal:
-@1	(and (x >= 7.0));
+@1	(and (x < 7.0) (v = 0.0001));

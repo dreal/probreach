@@ -9,8 +9,8 @@
 #include<iomanip>
 #include<fstream>
 #include<math.h>
-#include<gsl/gsl_cdf.h>
-#include<gsl/gsl_rng.h>
+//#include<gsl/gsl_cdf.h>
+//#include<gsl/gsl_rng.h>
 #include "CartesianProduct.h"
 #include "Entry.h"
 

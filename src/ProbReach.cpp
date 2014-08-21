@@ -1,4 +1,4 @@
-#include<boost/regex.hpp>
+#include<regex>
 #include<iostream>
 #include<fstream>
 #include<capd/capdlib.h>
@@ -7,8 +7,8 @@
 #include<iomanip>
 #include<fstream>
 #include<math.h>
-#include<gsl/gsl_cdf.h>
-#include<gsl/gsl_rng.h>
+//#include<gsl/gsl_cdf.h>
+//#include<gsl/gsl_rng.h>
 #include "Entry.h"
 #include "Integral.h"
 #include "Distribution.h"
@@ -20,8 +20,8 @@ using namespace capd;
 //using namespace boost;
 
 //vector<RV> rv;
-const boost::regex normalRegEx("(\\s)*(N)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s)*([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*");
-const boost::regex uniformRegEx("(\\s)*(U)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s)*([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*");
+const regex normalRegEx("(\\s)*(N)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s)*([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*");
+const regex uniformRegEx("(\\s)*(U)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s)*([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*");
 
 /**
  * Takes name of the template, depth and interval of the random variable
@@ -74,7 +74,7 @@ bool dReach(vector<string> var, vector<double> a, vector<double> b, string fileN
 	}
 	else
 	{
-		cout << "COULD NOT OPEN THE FILE" << endl;
+		cout << "COULD NOT OPEN THE FILE: " << resultFileName << endl;
 	}
 
 }
@@ -102,7 +102,7 @@ vector<RV> getRVs(string pdrhFilename)
 	vector<RV> result;
 	ifstream pdrhFile;
 	ofstream drhFile;
-	boost::cmatch matches;
+	smatch matches;
 	pdrhFile.open(pdrhFilename.c_str());
 	
 	if(pdrhFile.is_open())
@@ -113,22 +113,22 @@ vector<RV> getRVs(string pdrhFilename)
 			string line;
 			while (getline(pdrhFile, line))
 			{
-				if (boost::regex_match(line.c_str(), matches, normalRegEx)) 
+				if (regex_match(line, matches, normalRegEx)) 
 				{
-					string param1 = string() + matches[5];
+					string param1 = string() + matches[5].str();
 					double mean = atof(param1.c_str());
-					string param2 = string() + matches[9];
+					string param2 = string() + matches[9].str();
 					double deviation = atof(param2.c_str());
-					string var = string() + matches[13];
+					string var = string() + matches[13].str();
 					result.push_back(RV("n", var, normalString(var, mean, deviation), mean - 10 * deviation, mean + 10 * deviation));
 				} else
-				if (boost::regex_match(line.c_str(), matches, uniformRegEx)) 
+				if (regex_match(line, matches, uniformRegEx)) 
 				{
-					string param1 = string() + matches[5];
+					string param1 = string() + matches[5].str();
 					double left = atof(param1.c_str());
-					string param2 = string() + matches[9];
+					string param2 = string() + matches[9].str();
 					double right =atof(param2.c_str());
-					string var = string() + matches[13];
+					string var = string() + matches[13].str();
 					result.push_back(RV("u", var, uniformString(left, right), left, right));
 				} 
 				else 
@@ -180,24 +180,23 @@ int main(int argc, char *argv[])
 			if (line == "dReach:")
 			{
 				dReachOptions = "";
-				while (line != "dReal:")
-				{
-					getline(settingsFile, line);
-					if (line != "dReal:")
+					while (!settingsFile.eof())
 					{
-						dReachOptions += line;
-					}
-					else
-					{	
-						dRealOptions = "";
-						while (!settingsFile.eof())
+						getline(settingsFile, line);
+						smatch matches;
+						cout << line << endl;
+						regex depthRegex("(\\s)*([0-9]+)(\\s)*");
+						if (regex_match(line, matches, depthRegex)) 
 						{
-							getline(settingsFile, line);
-							dRealOptions += line + " ";
+							cout << "matches" << endl;
+							for(int i = 0; i < matches.length(); i++)
+							{
+								cout << matches[i] << endl;
+							}
+							dReachOptions += matches[0];
 						}
-						break;
 					}
-				}				
+					break;
 			}
 			
 			
@@ -214,10 +213,7 @@ int main(int argc, char *argv[])
 		
 	cout << "dReach options: " << endl;
 	cout << dReachOptions << endl;
-	
-	cout << "dReal options: " << endl;
-	cout << dRealOptions << endl;
-	
+
 	vector<RV> rv = getRVs(modelFile);
 	cout << "There are " << rv.size() << " random variables in the model. Only the first one will be used" << endl;
 	
@@ -256,6 +252,7 @@ int main(int argc, char *argv[])
 
 	int counter = 0;
 	
+	/*
 	for(int i = 0; i < cartProduct.size(); i++)
 	{
 		cout << counter << ") ";
@@ -266,6 +263,7 @@ int main(int argc, char *argv[])
 		counter++;
 		cout << endl;
 	}
+	*/
 	
 	//main loop	
 	counter = 0;
@@ -280,6 +278,7 @@ int main(int argc, char *argv[])
 				overIntg += cartProduct.at(i).at(0).getPartialSum();
 				if (dReach(var, a, b, modelFileCompliment, dReachOptions, dRealOptions, delta, cartProduct.at(i)))
 				{
+
 					DInterval left(cartProduct.at(i).at(0).getSubInterval().leftBound(), cartProduct.at(i).at(0).getSubInterval().mid().rightBound());
 					DInterval right(cartProduct.at(i).at(0).getSubInterval().mid().leftBound(), cartProduct.at(i).at(0).getSubInterval().rightBound());
 					extraEntries.push_back(Entry(left, integral.at(0).calculateS(left)));
@@ -316,9 +315,11 @@ int main(int argc, char *argv[])
 		cout << "Starting extra division" << endl;
 
 		overIntg = underIntg;
-		
+		counter = 0;
 
 	}
+	
+	cout << "end" << endl;
 	return 0;
 }
 

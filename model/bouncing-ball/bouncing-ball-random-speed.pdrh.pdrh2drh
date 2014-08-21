@@ -1,0 +1,24 @@
+[0.7854] alpha;
+[9.8] g;
+[0, 100] Sy;
+[0, 1000] Sx;
+[0, 15] t;
+[0, 15] time;
+
+{ mode 1;
+  
+  flow:
+        d/dt[Sx] = v0 * cos(alpha);
+        d/dt[Sy] = v0 * sin(alpha) - g * t;
+        d/dt[t] = 1.0;
+        d/dt[v0] = 0.0;
+  jump:
+        (and (t >= 0.000001) (Sy = 0)) ==> @1 (and (Sx' = Sx) (Sy' = 0) (t' = 0) (v0' = 0.9 * v0));
+}
+
+init:
+@1    (and (Sx = 0) (Sy = 0) (t = 0) (v0 <= v0_b) (v0 >= v0_a));
+
+goal:
+@1    (and (Sx >= 100.0) (Sy >= 0));
+

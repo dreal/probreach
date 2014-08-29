@@ -38,6 +38,7 @@ bool dReach(vector<string> var, vector<double> a, vector<double> b, string fileN
 			drhFile << "#define " << var.at(i) << "_a " << x.at(i).getSubInterval().leftBound() << endl;
 			drhFile << "#define " << var.at(i) << "_b " << x.at(i).getSubInterval().rightBound() << endl;
 			drhFile << "[" << a.at(i) << ", " << b.at(i) << "] " << var.at(i) << ";" << endl;
+			//drhFile << "[" << a.at(i) - 1000 * (b.at(i) - a.at(i)) << ", " << b.at(i) + 1000 * (b.at(i) - a.at(i)) << "] " << var.at(i) << ";" << endl;
 		}
 		ifstream drhTemplate;
 		drhTemplate.open(string(fileName + ".pdrh2drh").c_str());
@@ -120,7 +121,7 @@ vector<RV> getRVs(string pdrhFilename)
 					string param2 = string() + matches[9].str();
 					double deviation = atof(param2.c_str());
 					string var = string() + matches[13].str();
-					result.push_back(RV("n", var, normalString(var, mean, deviation), mean - 10 * deviation, mean + 10 * deviation));
+					result.push_back(RV("n", var, normalString(var, mean, deviation), mean - 20 * deviation, mean + 20 * deviation));
 				} else
 				if (regex_match(line, matches, uniformRegEx)) 
 				{
@@ -272,13 +273,15 @@ int main(int argc, char *argv[])
 		//going through all the vector<vector<Entry>>
 		for (long int i = 0; i < cartProduct.size(); i++)
 		{
+			cout << "interval ---> " << cartProduct.at(i).at(0).getSubInterval() << endl;
+			cout << "NORMAL PROBLEM" << endl;
 			double delta = width(cartProduct.at(i).at(0).getSubInterval()) / 1000;
 			if (dReach(var, a, b, modelFile, dReachOptions, dRealOptions, delta, cartProduct.at(i)))
 			{	
+				cout << "CONVERTED PROBLEM" << endl;
 				overIntg += cartProduct.at(i).at(0).getPartialSum();
 				if (dReach(var, a, b, modelFileCompliment, dReachOptions, dRealOptions, delta, cartProduct.at(i)))
 				{
-
 					DInterval left(cartProduct.at(i).at(0).getSubInterval().leftBound(), cartProduct.at(i).at(0).getSubInterval().mid().rightBound());
 					DInterval right(cartProduct.at(i).at(0).getSubInterval().mid().leftBound(), cartProduct.at(i).at(0).getSubInterval().rightBound());
 					extraEntries.push_back(Entry(left, integral.at(0).calculateS(left)));
@@ -319,7 +322,6 @@ int main(int argc, char *argv[])
 
 	}
 	
-	cout << "end" << endl;
 	return 0;
 }
 

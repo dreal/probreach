@@ -33,3 +33,6 @@ install:
 	mkdir -p ../bin
 	cp ${PROGS} ../bin
 	rm ${PROGS}
+
+test:
+	./../bin/${PROGS} ../example/bouncing-ball-settings.txt

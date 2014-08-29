@@ -7,8 +7,6 @@
 #include<iomanip>
 #include<fstream>
 #include<math.h>
-//#include<gsl/gsl_cdf.h>
-//#include<gsl/gsl_rng.h>
 #include "Entry.h"
 #include "Integral.h"
 #include "Distribution.h"
@@ -17,9 +15,12 @@
 
 using namespace std;
 using namespace capd;
-//using namespace boost;
 
-//vector<RV> rv;
+double precision;
+string modelFile = "";
+string modelFileComplement = "";
+string dReachOptions = "";
+
 const regex normalRegEx("(\\s)*(N)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s)*([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*");
 const regex uniformRegEx("(\\s)*(U)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s)*([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*");
 
@@ -27,18 +28,17 @@ const regex uniformRegEx("(\\s)*(U)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s
  * Takes name of the template, depth and interval of the random variable
  * and returns true if formula is SAT and false otherwise
  */
-bool dReach(vector<string> var, vector<double> a, vector<double> b, string fileName, string k, string dRealOptions, double delta, vector<Entry> x)
+bool dReach(vector<RV> rv, string fileName, string k, double delta, vector<Entry> x)
 {
 	ofstream drhFile;
 	drhFile.open(string(fileName + ".drh").c_str());
 	if (drhFile.is_open())
 	{
-		for(int i = 0; i < var.size(); i++)
+		for(int i = 0; i < 1; i++)
 		{
-			drhFile << "#define " << var.at(i) << "_a " << x.at(i).getSubInterval().leftBound() << endl;
-			drhFile << "#define " << var.at(i) << "_b " << x.at(i).getSubInterval().rightBound() << endl;
-			drhFile << "[" << a.at(i) << ", " << b.at(i) << "] " << var.at(i) << ";" << endl;
-			//drhFile << "[" << a.at(i) - 1000 * (b.at(i) - a.at(i)) << ", " << b.at(i) + 1000 * (b.at(i) - a.at(i)) << "] " << var.at(i) << ";" << endl;
+			drhFile << "#define " << rv.at(i).getVar() << "_a " << x.at(i).getSubInterval().leftBound() << endl;
+			drhFile << "#define " << rv.at(i).getVar() << "_b " << x.at(i).getSubInterval().rightBound() << endl;
+			drhFile << "[" << rv.at(i).getLeft() << ", " << rv.at(i).getRight() << "] " << rv.at(i).getVar() << ";" << endl;
 		}
 		ifstream drhTemplate;
 		drhTemplate.open(string(fileName + ".pdrh2drh").c_str());
@@ -57,7 +57,7 @@ bool dReach(vector<string> var, vector<double> a, vector<double> b, string fileN
 	ostringstream calldReachStream;
 	calldReachStream << "dReach -k " << k << " " << fileName << ".drh -precision=" << delta << endl; //<< " > /dev/null";
 	string calldReach(calldReachStream.str());
-	int res = system(calldReach.c_str());
+	system(calldReach.c_str());
 	
 	string resultFileName(fileName + "_" + k + "_0.output");
 	ifstream resultFile;
@@ -80,6 +80,11 @@ bool dReach(vector<string> var, vector<double> a, vector<double> b, string fileN
 
 }
 
+/**
+ * Writes entries to the file
+ *
+ * @param entries entries to be stored in the file fileName
+ */
 void writeEntriesToFile(vector<Entry> entries, string fileName)
 {
 	ofstream file;
@@ -95,7 +100,9 @@ void writeEntriesToFile(vector<Entry> entries, string fileName)
 }
 
 /**
- * Derives random parameters from pdrh file
+ * Extracts random parameters from pdrh file
+ *
+ * @param pdrhFilename name of file containing pdrh model
  */
 vector<RV> getRVs(string pdrhFilename)
 {
@@ -145,21 +152,10 @@ vector<RV> getRVs(string pdrhFilename)
 	return result;
 }
 
-int main(int argc, char *argv[])
+bool getSettings(string filename)
 {
-	
-	double precision;
-	string modelFile;
-	string modelFileCompliment;
-	string dReachOptions;
-	string dRealOptions;
-
-	string settings = argv[1];
-	cout << "Your settings file name: " << settings << endl;	
-	
 	ifstream settingsFile;
-	cout << "Your file is:" << endl;
-	settingsFile.open(settings.c_str());
+	settingsFile.open(filename.c_str());
 	if (settingsFile.is_open())
 	{
 		while (!settingsFile.eof())
@@ -175,12 +171,11 @@ int main(int argc, char *argv[])
 			if (line == "model:")
 			{
 				getline(settingsFile, modelFile);
-				getline(settingsFile, modelFileCompliment);
+				getline(settingsFile, modelFileComplement);
 			}
 						
 			if (line == "dReach:")
 			{
-				dReachOptions = "";
 					while (!settingsFile.eof())
 					{
 						getline(settingsFile, line);
@@ -199,27 +194,40 @@ int main(int argc, char *argv[])
 					}
 					break;
 			}
-			
-			
 		}
-		settingsFile.close();		
+		settingsFile.close();
+		return true;		
+	}
+	return false;
+}
+
+int main(int argc, char *argv[])
+{
+	
+	if(!getSettings(argv[1]))
+	{
+		cout << "Invalid settings file" << endl;
+		return EXIT_FAILURE;
 	}
 
+	/*
 	cout << "Parameters: " << endl;
 	cout << precision << endl;
 	
 	cout << "Model: " << endl;
 	cout << modelFile << endl;
-	cout << modelFileCompliment << endl;
+	cout << modelFileComplement << endl;
 		
 	cout << "dReach options: " << endl;
 	cout << dReachOptions << endl;
+	*/
 
 	vector<RV> rv = getRVs(modelFile);
 	cout << "There are " << rv.size() << " random variables in the model. Only the first one will be used" << endl;
 	
 	for (int i = 0; i < rv.size(); i++) cout << rv.at(i).toString() << endl;
 	
+	/*
 	vector<string> var;
 	vector<string> fun;
 	vector<double> a;
@@ -229,20 +237,17 @@ int main(int argc, char *argv[])
 	fun.push_back(rv.at(0).getFun());
 	a.push_back(rv.at(0).getLeft());
 	b.push_back(rv.at(0).getRight());
-	
+	*/
+
 	DInterval overIntg(0.0), underIntg(0.0), realIntg(0.0, 1.0);
-	list<DInterval> mixedIntervals;
-	list<DInterval> dReachIntervals;
-	list<string> dReachResult;
-	list<string> dReachResultInverse;
 	
 	vector<Integral> integral;
 	vector< vector<Entry> > vectors;
 	vector<double> infError;
 	
-	Integral itg = Integral(var.at(0), fun.at(0), a.at(0), b.at(0), precision);
+	Integral itg = Integral(rv.at(0), precision);
 	DInterval I = itg.solve();
-	cout << 0 << ") I([" << a.at(0) << ", " << b.at(0) << "]) = " << setprecision(16) << I << endl;
+	cout << 0 << ") I([" << rv.at(0).getLeft() << ", " << rv.at(0).getRight() << "]) = " << setprecision(16) << I << endl;
 	vectors.push_back(itg.getEntries());
 	integral.push_back(itg);
 	infError.push_back(1 - I.leftBound());
@@ -276,11 +281,11 @@ int main(int argc, char *argv[])
 			cout << "interval ---> " << cartProduct.at(i).at(0).getSubInterval() << endl;
 			cout << "NORMAL PROBLEM" << endl;
 			double delta = width(cartProduct.at(i).at(0).getSubInterval()) / 1000;
-			if (dReach(var, a, b, modelFile, dReachOptions, dRealOptions, delta, cartProduct.at(i)))
+			if (dReach(rv, modelFile, dReachOptions, delta, cartProduct.at(i)))
 			{	
 				cout << "CONVERTED PROBLEM" << endl;
 				overIntg += cartProduct.at(i).at(0).getPartialSum();
-				if (dReach(var, a, b, modelFileCompliment, dReachOptions, dRealOptions, delta, cartProduct.at(i)))
+				if (dReach(rv, modelFileComplement, dReachOptions, delta, cartProduct.at(i)))
 				{
 					DInterval left(cartProduct.at(i).at(0).getSubInterval().leftBound(), cartProduct.at(i).at(0).getSubInterval().mid().rightBound());
 					DInterval right(cartProduct.at(i).at(0).getSubInterval().mid().leftBound(), cartProduct.at(i).at(0).getSubInterval().rightBound());
@@ -322,7 +327,7 @@ int main(int argc, char *argv[])
 
 	}
 	
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 

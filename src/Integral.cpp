@@ -7,6 +7,7 @@
  */
 #include "Integral.h"
 #include "Entry.h"
+#include "RV.h"
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include<iomanip>
@@ -22,13 +23,13 @@ Integral::Integral()
 /**
  * Constructor
  */
-Integral::Integral(string var, string funString, double a, double b, double precision)
+Integral::Integral(RV rv, double precision)
 {
 	this->I = DInterval(0.0);
-	this->a = a;
-	this->b = b;
-	this->f = IFunction("var:" + var + ";fun:" + funString + ";");
-	this->_f = IMap("var:" + var + ";fun:" + funString + ";");
+	this->a = rv.getLeft();
+	this->b = rv.getRight();
+	this->f = IFunction("var:" + rv.getVar() + ";fun:" + rv.getFun() + ";");
+	this->_f = IMap("var:" + rv.getVar() + ";fun:" + rv.getFun() + ";");
 	this->_f.setDegree(4);
 	this->precision = precision;
 	this->intervals.push_back(DInterval(a, (b + a) / 2));

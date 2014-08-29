@@ -12,6 +12,7 @@
 #include<capd/intervals/lib.h>
 #include<string>
 #include "Entry.h"
+#include "RV.h"
 
 using namespace std;
 using namespace capd;
@@ -30,7 +31,7 @@ class Integral
 		
 	public:
 		Integral();
-		Integral(string, string, double, double, double);
+		Integral(RV, double);
 		void setFunctionFromString(string, string);
 		IFunction getFunction();
 		void setFunction(IFunction);

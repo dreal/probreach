@@ -1,0 +1,7 @@
+param:
+0.001
+model:
+/home/fedor/VBoxShare/godel/ProbReach/model/starvation-det/starvation.pdrh
+/home/fedor/VBoxShare/godel/ProbReach/model/starvation-det/starvation-c.pdrh
+dReach:
+0

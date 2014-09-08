@@ -1,0 +1,5343 @@
+0
+matches
+0
+
+There are 1 random variables in the model. Only the first one will be used
+k; (1 / (1 * sqrt(2 * 3.14159265359)) * exp(- (( k - 10.96) * (k - 10.96)) / (2 * 1 * 1))); -9.04; 30.96
+0) I([-9.04, 30.96]) = [0.9999999999512201, 1.000000000038082]
+interval ---> [-9.039999999999999, 0.9600000000000009]
+NORMAL PROBLEM
+dReal Options: -precision=1e-05
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+0 of 456
+interval ---> [20.96, 30.96]
+NORMAL PROBLEM
+dReal Options: -precision=1e-05
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1e-05
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 456
+interval ---> [0.9600000000000009, 2.210000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.25e-06
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+2 of 456
+interval ---> [2.210000000000001, 3.460000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.25e-06
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+3 of 456
+interval ---> [18.46, 19.71]
+NORMAL PROBLEM
+dReal Options: -precision=1.25e-06
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.25e-06
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+4 of 456
+interval ---> [19.71, 20.96]
+NORMAL PROBLEM
+dReal Options: -precision=1.25e-06
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.25e-06
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+5 of 456
+interval ---> [3.460000000000001, 4.085000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=6.25e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+6 of 456
+interval ---> [17.835, 18.46]
+NORMAL PROBLEM
+dReal Options: -precision=6.25e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=6.25e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+7 of 456
+interval ---> [4.085000000000001, 4.397500000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.125e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+8 of 456
+interval ---> [4.397500000000001, 4.710000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.125e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+9 of 456
+interval ---> [17.21, 17.5225]
+NORMAL PROBLEM
+dReal Options: -precision=3.125e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.125e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+10 of 456
+interval ---> [17.5225, 17.835]
+NORMAL PROBLEM
+dReal Options: -precision=3.125e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.125e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+11 of 456
+interval ---> [4.710000000000001, 4.866250000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+12 of 456
+interval ---> [4.866250000000001, 5.022500000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+13 of 456
+interval ---> [5.022500000000001, 5.178750000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+14 of 456
+interval ---> [5.178750000000001, 5.335000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+15 of 456
+interval ---> [5.335000000000001, 5.491250000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+16 of 456
+interval ---> [16.42875, 16.585]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+17 of 456
+interval ---> [16.585, 16.74125]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+18 of 456
+interval ---> [16.74125, 16.8975]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+19 of 456
+interval ---> [16.8975, 17.05375]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+20 of 456
+interval ---> [17.05375, 17.21]
+NORMAL PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.5625e-07
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+21 of 456
+interval ---> [5.491250000000001, 5.569375000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+22 of 456
+interval ---> [5.569375000000001, 5.647500000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+23 of 456
+interval ---> [5.647500000000001, 5.725625000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+24 of 456
+interval ---> [5.725625000000001, 5.803750000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+25 of 456
+interval ---> [5.803750000000001, 5.881875000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+26 of 456
+interval ---> [5.881875000000001, 5.960000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+27 of 456
+interval ---> [5.960000000000001, 6.038125000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+28 of 456
+interval ---> [6.038125000000001, 6.116250000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+29 of 456
+interval ---> [6.116250000000001, 6.194375000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+30 of 456
+interval ---> [6.194375000000001, 6.272500000000001]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+31 of 456
+interval ---> [15.6475, 15.725625]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+32 of 456
+interval ---> [15.725625, 15.80375]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+33 of 456
+interval ---> [15.80375, 15.881875]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+34 of 456
+interval ---> [15.881875, 15.96]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+35 of 456
+interval ---> [15.96, 16.038125]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+36 of 456
+interval ---> [16.038125, 16.11625]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+37 of 456
+interval ---> [16.11625, 16.194375]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+38 of 456
+interval ---> [16.194375, 16.2725]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+39 of 456
+interval ---> [16.2725, 16.350625]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+40 of 456
+interval ---> [16.350625, 16.42875]
+NORMAL PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.8125e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+41 of 456
+interval ---> [6.272500000000001, 6.311562500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+42 of 456
+interval ---> [6.311562500000001, 6.350625000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+43 of 456
+interval ---> [6.350625000000001, 6.389687500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+44 of 456
+interval ---> [6.389687500000001, 6.428750000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+45 of 456
+interval ---> [6.428750000000001, 6.467812500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+46 of 456
+interval ---> [6.467812500000001, 6.506875000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+47 of 456
+interval ---> [6.506875000000001, 6.545937500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+48 of 456
+interval ---> [6.545937500000001, 6.585000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+49 of 456
+interval ---> [6.585000000000001, 6.624062500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+50 of 456
+interval ---> [6.624062500000001, 6.663125000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+51 of 456
+interval ---> [6.663125000000001, 6.702187500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+52 of 456
+interval ---> [6.702187500000001, 6.741250000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+53 of 456
+interval ---> [6.741250000000001, 6.780312500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+54 of 456
+interval ---> [6.780312500000001, 6.819375000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+55 of 456
+interval ---> [6.819375000000001, 6.858437500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+56 of 456
+interval ---> [6.858437500000001, 6.897500000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+57 of 456
+interval ---> [6.897500000000001, 6.936562500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+58 of 456
+interval ---> [6.936562500000001, 6.975625000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+59 of 456
+interval ---> [6.975625000000001, 7.014687500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+60 of 456
+interval ---> [7.014687500000001, 7.053750000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+61 of 456
+interval ---> [7.053750000000001, 7.092812500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+62 of 456
+interval ---> [7.092812500000001, 7.131875000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+63 of 456
+interval ---> [7.131875000000001, 7.170937500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+64 of 456
+interval ---> [7.170937500000001, 7.210000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+65 of 456
+interval ---> [7.210000000000001, 7.249062500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+66 of 456
+interval ---> [7.249062500000001, 7.288125000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+67 of 456
+interval ---> [7.288125000000001, 7.327187500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+68 of 456
+interval ---> [7.327187500000001, 7.366250000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+69 of 456
+interval ---> [7.366250000000001, 7.405312500000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+70 of 456
+interval ---> [7.405312500000001, 7.444375000000001]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+71 of 456
+interval ---> [10.8428125, 10.881875]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+72 of 456
+interval ---> [10.881875, 10.9209375]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+73 of 456
+interval ---> [10.9209375, 10.96]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+74 of 456
+interval ---> [10.96, 10.9990625]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+75 of 456
+interval ---> [10.9990625, 11.038125]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+76 of 456
+interval ---> [11.038125, 11.0771875]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+77 of 456
+interval ---> [14.475625, 14.5146875]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+78 of 456
+interval ---> [14.5146875, 14.55375]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+79 of 456
+interval ---> [14.55375, 14.5928125]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+80 of 456
+interval ---> [14.5928125, 14.631875]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+81 of 456
+interval ---> [14.631875, 14.6709375]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+82 of 456
+interval ---> [14.6709375, 14.71]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+83 of 456
+interval ---> [14.71, 14.7490625]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+84 of 456
+interval ---> [14.7490625, 14.788125]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+85 of 456
+interval ---> [14.788125, 14.8271875]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+86 of 456
+interval ---> [14.8271875, 14.86625]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+87 of 456
+interval ---> [14.86625, 14.9053125]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+88 of 456
+interval ---> [14.9053125, 14.944375]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+89 of 456
+interval ---> [14.944375, 14.9834375]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+90 of 456
+interval ---> [14.9834375, 15.0225]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+91 of 456
+interval ---> [15.0225, 15.0615625]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+92 of 456
+interval ---> [15.0615625, 15.100625]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+93 of 456
+interval ---> [15.100625, 15.1396875]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+94 of 456
+interval ---> [15.1396875, 15.17875]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+95 of 456
+interval ---> [15.17875, 15.2178125]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+96 of 456
+interval ---> [15.2178125, 15.256875]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+97 of 456
+interval ---> [15.256875, 15.2959375]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+98 of 456
+interval ---> [15.2959375, 15.335]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+99 of 456
+interval ---> [15.335, 15.3740625]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+100 of 456
+interval ---> [15.3740625, 15.413125]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+101 of 456
+interval ---> [15.413125, 15.4521875]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+102 of 456
+interval ---> [15.4521875, 15.49125]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+103 of 456
+interval ---> [15.49125, 15.5303125]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+104 of 456
+interval ---> [15.5303125, 15.569375]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+105 of 456
+interval ---> [15.569375, 15.6084375]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+106 of 456
+interval ---> [15.6084375, 15.6475]
+NORMAL PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.90625e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+107 of 456
+interval ---> [7.444375000000001, 7.463906250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+108 of 456
+interval ---> [7.463906250000001, 7.483437500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+109 of 456
+interval ---> [7.483437500000001, 7.502968750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+110 of 456
+interval ---> [7.502968750000001, 7.522500000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+111 of 456
+interval ---> [7.522500000000001, 7.542031250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+112 of 456
+interval ---> [7.542031250000001, 7.561562500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+113 of 456
+interval ---> [7.561562500000001, 7.581093750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+114 of 456
+interval ---> [7.581093750000001, 7.600625000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+115 of 456
+interval ---> [7.600625000000001, 7.620156250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+116 of 456
+interval ---> [7.620156250000001, 7.639687500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+117 of 456
+interval ---> [7.639687500000001, 7.659218750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+118 of 456
+interval ---> [7.659218750000001, 7.678750000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+119 of 456
+interval ---> [7.678750000000001, 7.698281250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+120 of 456
+interval ---> [7.698281250000001, 7.717812500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+121 of 456
+interval ---> [7.717812500000001, 7.737343750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+122 of 456
+interval ---> [7.737343750000001, 7.756875000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+123 of 456
+interval ---> [7.756875000000001, 7.776406250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+124 of 456
+interval ---> [7.776406250000001, 7.795937500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+125 of 456
+interval ---> [7.795937500000001, 7.815468750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+126 of 456
+interval ---> [7.815468750000001, 7.835000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+127 of 456
+interval ---> [7.835000000000001, 7.854531250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+128 of 456
+interval ---> [7.854531250000001, 7.874062500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+129 of 456
+interval ---> [7.874062500000001, 7.893593750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+130 of 456
+interval ---> [7.893593750000001, 7.913125000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+131 of 456
+interval ---> [7.913125000000001, 7.932656250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+132 of 456
+interval ---> [7.932656250000001, 7.952187500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+133 of 456
+interval ---> [7.952187500000001, 7.971718750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+134 of 456
+interval ---> [7.971718750000001, 7.991250000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+135 of 456
+interval ---> [7.991250000000001, 8.010781250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+136 of 456
+interval ---> [8.010781250000001, 8.030312500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+137 of 456
+interval ---> [8.030312500000001, 8.049843750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+138 of 456
+interval ---> [8.049843750000001, 8.069375000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+139 of 456
+interval ---> [8.069375000000001, 8.088906250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+140 of 456
+interval ---> [8.088906250000001, 8.108437500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+141 of 456
+interval ---> [8.108437500000001, 8.127968750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+142 of 456
+interval ---> [8.127968750000001, 8.147500000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+143 of 456
+interval ---> [8.147500000000001, 8.167031250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+144 of 456
+interval ---> [8.167031250000001, 8.186562500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+145 of 456
+interval ---> [8.186562500000001, 8.206093750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+146 of 456
+interval ---> [8.206093750000001, 8.225625000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+147 of 456
+interval ---> [8.225625000000001, 8.245156250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+148 of 456
+interval ---> [8.245156250000001, 8.264687500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+149 of 456
+interval ---> [8.264687500000001, 8.284218750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+150 of 456
+interval ---> [8.284218750000001, 8.303750000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+151 of 456
+interval ---> [8.303750000000001, 8.323281250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+152 of 456
+interval ---> [8.323281250000001, 8.342812500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+153 of 456
+interval ---> [8.342812500000001, 8.362343750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+154 of 456
+interval ---> [8.362343750000001, 8.381875000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+155 of 456
+interval ---> [8.381875000000001, 8.401406250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+156 of 456
+interval ---> [8.401406250000001, 8.420937500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+157 of 456
+interval ---> [8.420937500000001, 8.440468750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+158 of 456
+interval ---> [8.440468750000001, 8.460000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+159 of 456
+interval ---> [8.460000000000001, 8.479531250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+160 of 456
+interval ---> [8.479531250000001, 8.499062500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+161 of 456
+interval ---> [8.499062500000001, 8.518593750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+162 of 456
+interval ---> [8.518593750000001, 8.538125000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+163 of 456
+interval ---> [8.538125000000001, 8.557656250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+164 of 456
+interval ---> [8.557656250000001, 8.577187500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+165 of 456
+interval ---> [8.577187500000001, 8.596718750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+166 of 456
+interval ---> [8.596718750000001, 8.616250000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+167 of 456
+interval ---> [8.616250000000001, 8.635781250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+168 of 456
+interval ---> [8.635781250000001, 8.655312500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+169 of 456
+interval ---> [8.655312500000001, 8.674843750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+170 of 456
+interval ---> [8.674843750000001, 8.694375000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+171 of 456
+interval ---> [8.694375000000001, 8.713906250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+172 of 456
+interval ---> [8.713906250000001, 8.733437500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+173 of 456
+interval ---> [8.733437500000001, 8.752968750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+174 of 456
+interval ---> [8.752968750000001, 8.772500000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+175 of 456
+interval ---> [8.772500000000001, 8.792031250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+176 of 456
+interval ---> [8.792031250000001, 8.811562500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+177 of 456
+interval ---> [8.811562500000001, 8.831093750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+178 of 456
+interval ---> [8.831093750000001, 8.850625000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+179 of 456
+interval ---> [8.850625000000001, 8.870156250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+180 of 456
+interval ---> [8.870156250000001, 8.889687500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+181 of 456
+interval ---> [8.889687500000001, 8.909218750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+182 of 456
+interval ---> [8.909218750000001, 8.928750000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+183 of 456
+interval ---> [8.928750000000001, 8.948281250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+184 of 456
+interval ---> [8.948281250000001, 8.967812500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+185 of 456
+interval ---> [8.967812500000001, 8.987343750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+186 of 456
+interval ---> [8.987343750000001, 9.006875000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+187 of 456
+interval ---> [9.006875000000001, 9.026406250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+188 of 456
+interval ---> [9.026406250000001, 9.045937500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+189 of 456
+interval ---> [9.045937500000001, 9.065468750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+190 of 456
+interval ---> [9.065468750000001, 9.085000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+191 of 456
+interval ---> [9.085000000000001, 9.104531250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+192 of 456
+interval ---> [9.104531250000001, 9.124062500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+193 of 456
+interval ---> [9.124062500000001, 9.143593750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+194 of 456
+interval ---> [9.143593750000001, 9.163125000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+195 of 456
+interval ---> [9.163125000000001, 9.182656250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+196 of 456
+interval ---> [9.182656250000001, 9.202187500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+197 of 456
+interval ---> [9.202187500000001, 9.221718750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+198 of 456
+interval ---> [9.221718750000001, 9.241250000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+199 of 456
+interval ---> [9.241250000000001, 9.260781250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+200 of 456
+interval ---> [9.260781250000001, 9.280312500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+201 of 456
+interval ---> [9.280312500000001, 9.299843750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+202 of 456
+interval ---> [9.299843750000001, 9.319375000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+203 of 456
+interval ---> [9.319375000000001, 9.338906250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+204 of 456
+interval ---> [9.338906250000001, 9.358437500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+205 of 456
+interval ---> [9.358437500000001, 9.377968750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+206 of 456
+interval ---> [9.377968750000001, 9.397500000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+207 of 456
+interval ---> [9.397500000000001, 9.417031250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+208 of 456
+interval ---> [9.417031250000001, 9.436562500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+209 of 456
+interval ---> [9.436562500000001, 9.456093750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+210 of 456
+interval ---> [9.456093750000001, 9.475625000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+211 of 456
+interval ---> [9.475625000000001, 9.495156250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+212 of 456
+interval ---> [9.495156250000001, 9.514687500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+213 of 456
+interval ---> [9.514687500000001, 9.534218750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+214 of 456
+interval ---> [9.534218750000001, 9.553750000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+215 of 456
+interval ---> [9.553750000000001, 9.573281250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+216 of 456
+interval ---> [9.573281250000001, 9.592812500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+217 of 456
+interval ---> [9.592812500000001, 9.612343750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+218 of 456
+interval ---> [9.612343750000001, 9.631875000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+219 of 456
+interval ---> [9.631875000000001, 9.651406250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+220 of 456
+interval ---> [9.651406250000001, 9.670937500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+221 of 456
+interval ---> [9.670937500000001, 9.690468750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+222 of 456
+interval ---> [9.690468750000001, 9.710000000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+223 of 456
+interval ---> [9.710000000000001, 9.729531250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+224 of 456
+interval ---> [9.729531250000001, 9.749062500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+225 of 456
+interval ---> [9.749062500000001, 9.768593750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+226 of 456
+interval ---> [9.768593750000001, 9.788125000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+227 of 456
+interval ---> [9.788125000000001, 9.807656250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+228 of 456
+interval ---> [9.807656250000001, 9.827187500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+229 of 456
+interval ---> [9.827187500000001, 9.846718750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+230 of 456
+interval ---> [9.846718750000001, 9.866250000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+231 of 456
+interval ---> [9.866250000000001, 9.885781250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+232 of 456
+interval ---> [9.885781250000001, 9.905312500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+233 of 456
+interval ---> [9.905312500000001, 9.924843750000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+234 of 456
+interval ---> [9.924843750000001, 9.944375000000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+235 of 456
+interval ---> [9.944375000000001, 9.963906250000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+236 of 456
+interval ---> [9.963906250000001, 9.983437500000001]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+237 of 456
+interval ---> [9.983437500000001, 10.00296875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+238 of 456
+interval ---> [10.00296875, 10.0225]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+239 of 456
+interval ---> [10.0225, 10.04203125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+240 of 456
+interval ---> [10.04203125, 10.0615625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+241 of 456
+interval ---> [10.0615625, 10.08109375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+242 of 456
+interval ---> [10.08109375, 10.100625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+243 of 456
+interval ---> [10.100625, 10.12015625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+244 of 456
+interval ---> [10.12015625, 10.1396875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+245 of 456
+interval ---> [10.1396875, 10.15921875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+246 of 456
+interval ---> [10.15921875, 10.17875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+247 of 456
+interval ---> [10.17875, 10.19828125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+248 of 456
+interval ---> [10.19828125, 10.2178125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+249 of 456
+interval ---> [10.2178125, 10.23734375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+250 of 456
+interval ---> [10.23734375, 10.256875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+251 of 456
+interval ---> [10.256875, 10.27640625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+252 of 456
+interval ---> [10.27640625, 10.2959375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+253 of 456
+interval ---> [10.2959375, 10.31546875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+254 of 456
+interval ---> [10.31546875, 10.335]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+255 of 456
+interval ---> [10.335, 10.35453125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+256 of 456
+interval ---> [10.35453125, 10.3740625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+257 of 456
+interval ---> [10.3740625, 10.39359375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+258 of 456
+interval ---> [10.39359375, 10.413125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+259 of 456
+interval ---> [10.413125, 10.43265625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+260 of 456
+interval ---> [10.43265625, 10.4521875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+261 of 456
+interval ---> [10.4521875, 10.47171875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+262 of 456
+interval ---> [10.47171875, 10.49125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+263 of 456
+interval ---> [10.49125, 10.51078125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+264 of 456
+interval ---> [10.51078125, 10.5303125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+265 of 456
+interval ---> [10.5303125, 10.54984375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+266 of 456
+interval ---> [10.54984375, 10.569375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+267 of 456
+interval ---> [10.569375, 10.58890625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+268 of 456
+interval ---> [10.58890625, 10.6084375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+269 of 456
+interval ---> [10.6084375, 10.62796875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+270 of 456
+interval ---> [10.62796875, 10.6475]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+271 of 456
+interval ---> [10.6475, 10.66703125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+272 of 456
+interval ---> [10.66703125, 10.6865625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+273 of 456
+interval ---> [10.6865625, 10.70609375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+274 of 456
+interval ---> [10.70609375, 10.725625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+275 of 456
+interval ---> [10.725625, 10.74515625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+276 of 456
+interval ---> [10.74515625, 10.7646875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+277 of 456
+interval ---> [10.7646875, 10.78421875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+278 of 456
+interval ---> [10.78421875, 10.80375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+279 of 456
+interval ---> [10.80375, 10.82328125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+280 of 456
+interval ---> [10.82328125, 10.8428125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+281 of 456
+interval ---> [11.0771875, 11.09671875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+282 of 456
+interval ---> [11.09671875, 11.11625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+283 of 456
+interval ---> [11.11625, 11.13578125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+284 of 456
+interval ---> [11.13578125, 11.1553125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+285 of 456
+interval ---> [11.1553125, 11.17484375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+286 of 456
+interval ---> [11.17484375, 11.194375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+287 of 456
+interval ---> [11.194375, 11.21390625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+288 of 456
+interval ---> [11.21390625, 11.2334375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+289 of 456
+interval ---> [11.2334375, 11.25296875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+290 of 456
+interval ---> [11.25296875, 11.2725]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+291 of 456
+interval ---> [11.2725, 11.29203125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+292 of 456
+interval ---> [11.29203125, 11.3115625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+293 of 456
+interval ---> [11.3115625, 11.33109375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+294 of 456
+interval ---> [11.33109375, 11.350625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+295 of 456
+interval ---> [11.350625, 11.37015625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+296 of 456
+interval ---> [11.37015625, 11.3896875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+297 of 456
+interval ---> [11.3896875, 11.40921875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+298 of 456
+interval ---> [11.40921875, 11.42875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+299 of 456
+interval ---> [11.42875, 11.44828125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+300 of 456
+interval ---> [11.44828125, 11.4678125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+301 of 456
+interval ---> [11.4678125, 11.48734375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+302 of 456
+interval ---> [11.48734375, 11.506875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+303 of 456
+interval ---> [11.506875, 11.52640625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+304 of 456
+interval ---> [11.52640625, 11.5459375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+305 of 456
+interval ---> [11.5459375, 11.56546875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+306 of 456
+interval ---> [11.56546875, 11.585]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+307 of 456
+interval ---> [11.585, 11.60453125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+308 of 456
+interval ---> [11.60453125, 11.6240625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+309 of 456
+interval ---> [11.6240625, 11.64359375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+310 of 456
+interval ---> [11.64359375, 11.663125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+311 of 456
+interval ---> [11.663125, 11.68265625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+312 of 456
+interval ---> [11.68265625, 11.7021875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+313 of 456
+interval ---> [11.7021875, 11.72171875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+314 of 456
+interval ---> [11.72171875, 11.74125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+315 of 456
+interval ---> [11.74125, 11.76078125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+316 of 456
+interval ---> [11.76078125, 11.7803125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+317 of 456
+interval ---> [11.7803125, 11.79984375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+318 of 456
+interval ---> [11.79984375, 11.819375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+319 of 456
+interval ---> [11.819375, 11.83890625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+320 of 456
+interval ---> [11.83890625, 11.8584375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+321 of 456
+interval ---> [11.8584375, 11.87796875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+322 of 456
+interval ---> [11.87796875, 11.8975]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+323 of 456
+interval ---> [11.8975, 11.91703125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+324 of 456
+interval ---> [11.91703125, 11.9365625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+325 of 456
+interval ---> [11.9365625, 11.95609375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+326 of 456
+interval ---> [11.95609375, 11.975625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+327 of 456
+interval ---> [11.975625, 11.99515625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+328 of 456
+interval ---> [11.99515625, 12.0146875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+329 of 456
+interval ---> [12.0146875, 12.03421875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+330 of 456
+interval ---> [12.03421875, 12.05375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+331 of 456
+interval ---> [12.05375, 12.07328125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+332 of 456
+interval ---> [12.07328125, 12.0928125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+333 of 456
+interval ---> [12.0928125, 12.11234375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+334 of 456
+interval ---> [12.11234375, 12.131875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+335 of 456
+interval ---> [12.131875, 12.15140625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+336 of 456
+interval ---> [12.15140625, 12.1709375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+337 of 456
+interval ---> [12.1709375, 12.19046875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+338 of 456
+interval ---> [12.19046875, 12.21]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+339 of 456
+interval ---> [12.21, 12.22953125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+340 of 456
+interval ---> [12.22953125, 12.2490625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+341 of 456
+interval ---> [12.2490625, 12.26859375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+342 of 456
+interval ---> [12.26859375, 12.288125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+343 of 456
+interval ---> [12.288125, 12.30765625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+344 of 456
+interval ---> [12.30765625, 12.3271875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+345 of 456
+interval ---> [12.3271875, 12.34671875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+346 of 456
+interval ---> [12.34671875, 12.36625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+347 of 456
+interval ---> [12.36625, 12.38578125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+348 of 456
+interval ---> [12.38578125, 12.4053125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+349 of 456
+interval ---> [12.4053125, 12.42484375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+350 of 456
+interval ---> [12.42484375, 12.444375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+351 of 456
+interval ---> [12.444375, 12.46390625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+352 of 456
+interval ---> [12.46390625, 12.4834375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+353 of 456
+interval ---> [12.4834375, 12.50296875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+354 of 456
+interval ---> [12.50296875, 12.5225]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+355 of 456
+interval ---> [12.5225, 12.54203125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+356 of 456
+interval ---> [12.54203125, 12.5615625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+357 of 456
+interval ---> [12.5615625, 12.58109375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+358 of 456
+interval ---> [12.58109375, 12.600625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+359 of 456
+interval ---> [12.600625, 12.62015625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+360 of 456
+interval ---> [12.62015625, 12.6396875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+361 of 456
+interval ---> [12.6396875, 12.65921875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+362 of 456
+interval ---> [12.65921875, 12.67875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+363 of 456
+interval ---> [12.67875, 12.69828125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+364 of 456
+interval ---> [12.69828125, 12.7178125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+365 of 456
+interval ---> [12.7178125, 12.73734375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+366 of 456
+interval ---> [12.73734375, 12.756875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+367 of 456
+interval ---> [12.756875, 12.77640625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+368 of 456
+interval ---> [12.77640625, 12.7959375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+369 of 456
+interval ---> [12.7959375, 12.81546875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+370 of 456
+interval ---> [12.81546875, 12.835]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+371 of 456
+interval ---> [12.835, 12.85453125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+372 of 456
+interval ---> [12.85453125, 12.8740625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+373 of 456
+interval ---> [12.8740625, 12.89359375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+374 of 456
+interval ---> [12.89359375, 12.913125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+375 of 456
+interval ---> [12.913125, 12.93265625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+376 of 456
+interval ---> [12.93265625, 12.9521875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+377 of 456
+interval ---> [12.9521875, 12.97171875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+378 of 456
+interval ---> [12.97171875, 12.99125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+379 of 456
+interval ---> [12.99125, 13.01078125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+380 of 456
+interval ---> [13.01078125, 13.0303125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+381 of 456
+interval ---> [13.0303125, 13.04984375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+382 of 456
+interval ---> [13.04984375, 13.069375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+383 of 456
+interval ---> [13.069375, 13.08890625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+384 of 456
+interval ---> [13.08890625, 13.1084375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+385 of 456
+interval ---> [13.1084375, 13.12796875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+386 of 456
+interval ---> [13.12796875, 13.1475]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+387 of 456
+interval ---> [13.1475, 13.16703125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+388 of 456
+interval ---> [13.16703125, 13.1865625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+389 of 456
+interval ---> [13.1865625, 13.20609375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+390 of 456
+interval ---> [13.20609375, 13.225625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+391 of 456
+interval ---> [13.225625, 13.24515625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+392 of 456
+interval ---> [13.24515625, 13.2646875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+393 of 456
+interval ---> [13.2646875, 13.28421875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+394 of 456
+interval ---> [13.28421875, 13.30375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+395 of 456
+interval ---> [13.30375, 13.32328125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+396 of 456
+interval ---> [13.32328125, 13.3428125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+397 of 456
+interval ---> [13.3428125, 13.36234375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+398 of 456
+interval ---> [13.36234375, 13.381875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+399 of 456
+interval ---> [13.381875, 13.40140625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+400 of 456
+interval ---> [13.40140625, 13.4209375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+401 of 456
+interval ---> [13.4209375, 13.44046875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+402 of 456
+interval ---> [13.44046875, 13.46]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+403 of 456
+interval ---> [13.46, 13.47953125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+404 of 456
+interval ---> [13.47953125, 13.4990625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+405 of 456
+interval ---> [13.4990625, 13.51859375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+406 of 456
+interval ---> [13.51859375, 13.538125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+407 of 456
+interval ---> [13.538125, 13.55765625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+408 of 456
+interval ---> [13.55765625, 13.5771875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+409 of 456
+interval ---> [13.5771875, 13.59671875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+410 of 456
+interval ---> [13.59671875, 13.61625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+411 of 456
+interval ---> [13.61625, 13.63578125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+412 of 456
+interval ---> [13.63578125, 13.6553125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+413 of 456
+interval ---> [13.6553125, 13.67484375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+414 of 456
+interval ---> [13.67484375, 13.694375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+415 of 456
+interval ---> [13.694375, 13.71390625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+416 of 456
+interval ---> [13.71390625, 13.7334375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+417 of 456
+interval ---> [13.7334375, 13.75296875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+418 of 456
+interval ---> [13.75296875, 13.7725]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+419 of 456
+interval ---> [13.7725, 13.79203125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+420 of 456
+interval ---> [13.79203125, 13.8115625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+421 of 456
+interval ---> [13.8115625, 13.83109375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+422 of 456
+interval ---> [13.83109375, 13.850625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+423 of 456
+interval ---> [13.850625, 13.87015625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+424 of 456
+interval ---> [13.87015625, 13.8896875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+425 of 456
+interval ---> [13.8896875, 13.90921875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+426 of 456
+interval ---> [13.90921875, 13.92875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+427 of 456
+interval ---> [13.92875, 13.94828125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+428 of 456
+interval ---> [13.94828125, 13.9678125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+429 of 456
+interval ---> [13.9678125, 13.98734375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+430 of 456
+interval ---> [13.98734375, 14.006875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+431 of 456
+interval ---> [14.006875, 14.02640625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+432 of 456
+interval ---> [14.02640625, 14.0459375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+433 of 456
+interval ---> [14.0459375, 14.06546875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+434 of 456
+interval ---> [14.06546875, 14.085]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+435 of 456
+interval ---> [14.085, 14.10453125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+436 of 456
+interval ---> [14.10453125, 14.1240625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+437 of 456
+interval ---> [14.1240625, 14.14359375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+438 of 456
+interval ---> [14.14359375, 14.163125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+439 of 456
+interval ---> [14.163125, 14.18265625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+440 of 456
+interval ---> [14.18265625, 14.2021875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+441 of 456
+interval ---> [14.2021875, 14.22171875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+442 of 456
+interval ---> [14.22171875, 14.24125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+443 of 456
+interval ---> [14.24125, 14.26078125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+444 of 456
+interval ---> [14.26078125, 14.2803125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+445 of 456
+interval ---> [14.2803125, 14.29984375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+446 of 456
+interval ---> [14.29984375, 14.319375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+447 of 456
+interval ---> [14.319375, 14.33890625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+448 of 456
+interval ---> [14.33890625, 14.3584375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+449 of 456
+interval ---> [14.3584375, 14.37796875]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+450 of 456
+interval ---> [14.37796875, 14.3975]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+451 of 456
+interval ---> [14.3975, 14.41703125]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+452 of 456
+interval ---> [14.41703125, 14.4365625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+453 of 456
+interval ---> [14.4365625, 14.45609375]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+454 of 456
+interval ---> [14.45609375, 14.475625]
+NORMAL PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.95313e-08
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+455 of 456
+************
+Division number 456
+underIntg: [0.9201750491510448, 0.9201750492010098]
+overIntg: [0.9230342525772112, 0.9230342526273083]
+realIntg: [0.9201750491510448, 0.9230342526273083]
+realIntgInf: [0.9201750491510448, 0.9230342526760882]
+Starting extra division
+interval ---> [9.534218750000001, 9.543984375000001]
+NORMAL PROBLEM
+dReal Options: -precision=9.76563e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=9.76563e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.543984375000001, 9.553750000000001]
+NORMAL PROBLEM
+dReal Options: -precision=9.76563e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=9.76563e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9216145350927669, 0.9216145351427342]
+overIntg: [0.9230342525772748, 0.9230342526272443]
+realIntg: [0.9216145350927669, 0.9230342526272443]
+realIntgInf: [0.9216145350927669, 0.9230342526760241]
+Starting extra division
+interval ---> [9.534218750000001, 9.539101562500001]
+NORMAL PROBLEM
+dReal Options: -precision=4.88281e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+0 of 2
+interval ---> [9.539101562500001, 9.543984375000001]
+NORMAL PROBLEM
+dReal Options: -precision=4.88281e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=4.88281e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+1 of 2
+************
+Division number 2
+underIntg: [0.9216145350927669, 0.9216145351427342]
+overIntg: [0.9223268563133608, 0.9223268563633281]
+realIntg: [0.9216145350927669, 0.9223268563633281]
+realIntgInf: [0.9216145350927669, 0.922326856412108]
+Starting extra division
+interval ---> [9.539101562500001, 9.541542968750001]
+NORMAL PROBLEM
+dReal Options: -precision=2.44141e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=2.44141e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.541542968750001, 9.543984375000001]
+NORMAL PROBLEM
+dReal Options: -precision=2.44141e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=2.44141e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9219713123995557, 0.921971312449523]
+overIntg: [0.9223268563133608, 0.9223268563633282]
+realIntg: [0.9219713123995557, 0.9223268563633282]
+realIntgInf: [0.9219713123995557, 0.9223268564121081]
+Starting extra division
+interval ---> [9.539101562500001, 9.540322265625001]
+NORMAL PROBLEM
+dReal Options: -precision=1.2207e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+0 of 2
+interval ---> [9.540322265625001, 9.541542968750001]
+NORMAL PROBLEM
+dReal Options: -precision=1.2207e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.2207e-09
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+1 of 2
+************
+Division number 2
+underIntg: [0.9219713123995557, 0.921971312449523]
+overIntg: [0.9221492383962497, 0.9221492384462172]
+realIntg: [0.9219713123995557, 0.9221492384462172]
+realIntgInf: [0.9219713123995557, 0.9221492384949971]
+Starting extra division
+interval ---> [9.540322265625001, 9.540932617187501]
+NORMAL PROBLEM
+dReal Options: -precision=6.10352e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=6.10352e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540932617187501, 9.541542968750001]
+NORMAL PROBLEM
+dReal Options: -precision=6.10352e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=6.10352e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9220603139246597, 0.9220603139746272]
+overIntg: [0.9221492383962497, 0.9221492384462173]
+realIntg: [0.9220603139246597, 0.9221492384462173]
+realIntgInf: [0.9220603139246597, 0.9221492384949972]
+Starting extra division
+interval ---> [9.540322265625001, 9.540627441406251]
+NORMAL PROBLEM
+dReal Options: -precision=3.05176e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.05176e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540627441406251, 9.540932617187501]
+NORMAL PROBLEM
+dReal Options: -precision=3.05176e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.05176e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221047857900438, 0.9221047858400114]
+overIntg: [0.9221492383962496, 0.9221492384462173]
+realIntg: [0.9221047857900438, 0.9221492384462173]
+realIntgInf: [0.9221047857900438, 0.9221492384949972]
+Starting extra division
+interval ---> [9.540322265625001, 9.540474853515626]
+NORMAL PROBLEM
+dReal Options: -precision=1.52588e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.52588e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540474853515626, 9.540627441406251]
+NORMAL PROBLEM
+dReal Options: -precision=1.52588e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.52588e-10
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221270145002815, 0.9221270145502491]
+overIntg: [0.9221492383962496, 0.9221492384462174]
+realIntg: [0.9221270145002815, 0.9221492384462174]
+realIntgInf: [0.9221270145002815, 0.9221492384949973]
+Starting extra division
+interval ---> [9.540322265625001, 9.540398559570313]
+NORMAL PROBLEM
+dReal Options: -precision=7.62939e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.62939e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540398559570313, 9.540474853515626]
+NORMAL PROBLEM
+dReal Options: -precision=7.62939e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.62939e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221381270500163, 0.9221381270999841]
+overIntg: [0.9221492383962495, 0.9221492384462174]
+realIntg: [0.9221381270500163, 0.9221492384462174]
+realIntgInf: [0.9221381270500163, 0.9221492384949973]
+Starting extra division
+interval ---> [9.540322265625001, 9.540360412597657]
+NORMAL PROBLEM
+dReal Options: -precision=3.8147e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+0 of 2
+interval ---> [9.540360412597657, 9.540398559570313]
+NORMAL PROBLEM
+dReal Options: -precision=3.8147e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.8147e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+1 of 2
+************
+Division number 2
+underIntg: [0.9221381270500163, 0.9221381270999841]
+overIntg: [0.9221436828735665, 0.9221436829235344]
+realIntg: [0.9221381270500163, 0.9221436829235344]
+realIntgInf: [0.9221381270500163, 0.9221436829723143]
+Starting extra division
+interval ---> [9.540360412597657, 9.540379486083985]
+NORMAL PROBLEM
+dReal Options: -precision=1.90735e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+0 of 2
+interval ---> [9.540379486083985, 9.540398559570313]
+NORMAL PROBLEM
+dReal Options: -precision=1.90735e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.90735e-11
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+1 of 2
+************
+Division number 2
+underIntg: [0.9221381270500163, 0.9221381270999841]
+overIntg: [0.9221409049994003, 0.9221409050493682]
+realIntg: [0.9221381270500163, 0.9221409050493682]
+realIntgInf: [0.9221381270500163, 0.9221409050981481]
+Starting extra division
+interval ---> [9.540379486083985, 9.540389022827149]
+NORMAL PROBLEM
+dReal Options: -precision=9.53674e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=9.53674e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540389022827149, 9.540398559570313]
+NORMAL PROBLEM
+dReal Options: -precision=9.53674e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=9.53674e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221395160341106, 0.9221395160840785]
+overIntg: [0.9221409049994003, 0.9221409050493683]
+realIntg: [0.9221395160341106, 0.9221409050493683]
+realIntgInf: [0.9221395160341106, 0.9221409050981482]
+Starting extra division
+interval ---> [9.540379486083985, 9.540384254455567]
+NORMAL PROBLEM
+dReal Options: -precision=4.76837e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+0 of 2
+interval ---> [9.540384254455567, 9.540389022827149]
+NORMAL PROBLEM
+dReal Options: -precision=4.76837e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=4.76837e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+1 of 2
+************
+Division number 2
+underIntg: [0.9221395160341106, 0.9221395160840785]
+overIntg: [0.922140210519106, 0.922140210569074]
+realIntg: [0.9221395160341106, 0.922140210569074]
+realIntgInf: [0.9221395160341106, 0.9221402106178539]
+Starting extra division
+interval ---> [9.540384254455567, 9.540386638641358]
+NORMAL PROBLEM
+dReal Options: -precision=2.38419e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=2.38419e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540386638641358, 9.540389022827149]
+NORMAL PROBLEM
+dReal Options: -precision=2.38419e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=2.38419e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221398632771959, 0.9221398633271639]
+overIntg: [0.9221402105191059, 0.922140210569074]
+realIntg: [0.9221398632771959, 0.922140210569074]
+realIntgInf: [0.9221398632771959, 0.9221402106178539]
+Starting extra division
+interval ---> [9.540384254455567, 9.540385446548463]
+NORMAL PROBLEM
+dReal Options: -precision=1.19209e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.19209e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540385446548463, 9.540386638641358]
+NORMAL PROBLEM
+dReal Options: -precision=1.19209e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.19209e-12
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221400368982978, 0.922140036948266]
+overIntg: [0.9221402105191059, 0.9221402105690741]
+realIntg: [0.9221400368982978, 0.9221402105690741]
+realIntgInf: [0.9221400368982978, 0.922140210617854]
+Starting extra division
+interval ---> [9.540384254455567, 9.540384850502015]
+NORMAL PROBLEM
+dReal Options: -precision=5.96046e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+0 of 2
+interval ---> [9.540384850502015, 9.540385446548463]
+NORMAL PROBLEM
+dReal Options: -precision=5.96046e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=5.96046e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+1 of 2
+************
+Division number 2
+underIntg: [0.9221400368982978, 0.922140036948266]
+overIntg: [0.9221401237087385, 0.9221401237587068]
+realIntg: [0.9221400368982978, 0.9221401237587068]
+realIntgInf: [0.9221400368982978, 0.9221401238074867]
+Starting extra division
+interval ---> [9.540384850502015, 9.540385148525239]
+NORMAL PROBLEM
+dReal Options: -precision=2.98023e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=2.98023e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540385148525239, 9.540385446548463]
+NORMAL PROBLEM
+dReal Options: -precision=2.98023e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=2.98023e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221400803035273, 0.9221400803534956]
+overIntg: [0.9221401237087385, 0.9221401237587069]
+realIntg: [0.9221400803035273, 0.9221401237587069]
+realIntgInf: [0.9221400803035273, 0.9221401238074868]
+Starting extra division
+interval ---> [9.540384850502015, 9.540384999513627]
+NORMAL PROBLEM
+dReal Options: -precision=1.49012e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+0 of 2
+interval ---> [9.540384999513627, 9.540385148525239]
+NORMAL PROBLEM
+dReal Options: -precision=1.49012e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.49012e-13
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+1 of 2
+************
+Division number 2
+underIntg: [0.9221400803035273, 0.9221400803534956]
+overIntg: [0.9221401020061352, 0.9221401020561035]
+realIntg: [0.9221400803035273, 0.9221401020561035]
+realIntgInf: [0.9221400803035273, 0.9221401021048834]
+Starting extra division
+interval ---> [9.540384999513627, 9.540385074019433]
+NORMAL PROBLEM
+dReal Options: -precision=7.45058e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.45058e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540385074019433, 9.540385148525239]
+NORMAL PROBLEM
+dReal Options: -precision=7.45058e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=7.45058e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221400911548319, 0.9221400912048002]
+overIntg: [0.9221401020061352, 0.9221401020561036]
+realIntg: [0.9221400911548319, 0.9221401020561036]
+realIntgInf: [0.9221400911548319, 0.9221401021048835]
+Starting extra division
+interval ---> [9.540384999513627, 9.54038503676653]
+NORMAL PROBLEM
+dReal Options: -precision=3.72529e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.72529e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.54038503676653, 9.540385074019433]
+NORMAL PROBLEM
+dReal Options: -precision=3.72529e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=3.72529e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221400965804837, 0.9221400966304522]
+overIntg: [0.9221401020061352, 0.9221401020561037]
+realIntg: [0.9221400965804837, 0.9221401020561037]
+realIntgInf: [0.9221400965804837, 0.9221401021048836]
+Starting extra division
+interval ---> [9.540384999513627, 9.540385018140078]
+NORMAL PROBLEM
+dReal Options: -precision=1.86265e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.86265e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540385018140078, 9.54038503676653]
+NORMAL PROBLEM
+dReal Options: -precision=1.86265e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=1.86265e-14
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221400992933094, 0.922140099343278]
+overIntg: [0.9221401020061351, 0.9221401020561037]
+realIntg: [0.9221400992933094, 0.9221401020561037]
+realIntgInf: [0.9221400992933094, 0.9221401021048836]
+Starting extra division
+interval ---> [9.540384999513627, 9.540385008826853]
+NORMAL PROBLEM
+dReal Options: -precision=9.31323e-15
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=9.31323e-15
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.540385008826853, 9.540385018140078]
+NORMAL PROBLEM
+dReal Options: -precision=9.31323e-15
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=9.31323e-15
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221401006497223, 0.922140100699691]
+overIntg: [0.9221401020061351, 0.9221401020561039]
+realIntg: [0.9221401006497223, 0.9221401020561039]
+realIntgInf: [0.9221401006497223, 0.9221401021048837]
+Starting extra division
+interval ---> [9.540384999513627, 9.54038500417024]
+NORMAL PROBLEM
+dReal Options: -precision=4.65661e-15
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=4.65661e-15
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+0 of 2
+interval ---> [9.54038500417024, 9.540385008826853]
+NORMAL PROBLEM
+dReal Options: -precision=4.65661e-15
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation.pdrh_0_0.smt2, PATH : [1]
+sat
+sat -- [1]
+CONVERTED PROBLEM
+dReal Options: -precision=4.65661e-15
+SMT: /home/b2049657/ProbReach/model/starvation-det/starvation-c.pdrh_0_0.smt2, PATH : [1]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 2
+************
+Division number 2
+underIntg: [0.9221401013279287, 0.9221401013778975]
+overIntg: [0.9221401020061351, 0.922140102056104]
+realIntg: [0.9221401013279287, 0.922140102056104]
+realIntgInf: [0.9221401013279287, 0.9221401021048838]
+Starting extra division

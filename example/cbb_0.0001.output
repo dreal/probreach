@@ -1,0 +1,11 @@
+not in parallel
+
+********************
+RESULT:
+P in [0.2048867722327902, 0.2049854629766789]
+Interval width = 9.869074388871302e-05
+Desired precision (epsilon) = 0.0001
+Time: 385
+********************
+
+partition in parallel

@@ -38,7 +38,7 @@ flow:
   
     d/dt[G] = - p1 * G - X * (G + Gb) + Gmeal / V1;
     d/dt[X] = - p2 * X + p3 * I;
-	d/dt[I] = - n * ( I + Ib) + U / V1;
+	d/dt[I] = - n * (I + Ib) + U / V1;
 	d/dt[tau] = 1;
 
 jump: 

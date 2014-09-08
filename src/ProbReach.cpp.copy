@@ -22,8 +22,6 @@ double precision;
 string modelFile = "";
 string modelFileComplement = "";
 string dReachOptions = "";
-vector<string> drhTemplate;
-vector<string> drhTemplateInverse;
 bool verbose = false;
 
 #ifdef _OPENMP
@@ -33,210 +31,11 @@ bool verbose = false;
 const regex normalRegEx("(\\s)*(N)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s)*([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*");
 const regex uniformRegEx("(\\s)*(U)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s)*([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*");
 
-
-/**
- * Takes name of pdrh template and return the drh
- * if rvIgnore is false then random variables are ignored
- */
-void getTempFromFile(string filepath, vector<string> &temp, vector<RV> &rv)
-{
-	ifstream file;
-	file.open(filepath.c_str());
-	smatch matches;
-	
-	if(file.is_open())
-	{
-		string line;
-		while (getline(file, line))
-		{
-			if (regex_match(line, matches, normalRegEx)) 
-			{
-				string param1 = string() + matches[5].str();
-				double mean = atof(param1.c_str());
-				string param2 = string() + matches[9].str();
-				double deviation = atof(param2.c_str());
-				string var = string() + matches[13].str();
-				rv.push_back(RV("n", var, normalString(var, mean, deviation), mean - 20 * deviation, mean + 20 * deviation));
-			} else
-			if (regex_match(line, matches, uniformRegEx)) 
-			{
-				string param1 = string() + matches[5].str();
-				double left = atof(param1.c_str());
-				string param2 = string() + matches[9].str();
-				double right =atof(param2.c_str());
-				string var = string() + matches[13].str();
-				rv.push_back(RV("u", var, uniformString(left, right), left, right));
-			} 
-			else 
-			{
-				temp.push_back(line);
-			}
-		}
-		file.close();
-	}
-	else
-	{
-		cout << "Could not open the file " << filepath << endl;
-	}
-
-}
-
-/**
- * Takes name of pdrh template and return the drh
- * if rvIgnore is false then random variables are ignored
- */
-void getTempFromFile(string filepath, vector<string> &temp)
-{
-	ifstream file;
-	file.open(filepath.c_str());
-	smatch matches;
-	if(file.is_open())
-	{
-		string line;
-		while (getline(file, line))
-		{
-			temp.push_back(line);
-		}
-		file.close();
-	}
-	else
-	{
-		cout << "Could not open the file " << filepath << endl;
-	}
-
-}
-
-bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, vector<Entry> x)
-{
-	//creating a unique name for drh file
-
-	#ifdef _OPENMP
-    	omp_set_lock(&lock);
- 	#endif
-	ostringstream tempStream;
-	tempStream << tempFilepath;
-
-	for (int i = 0; i < 1; i++)
-	{
-		tempStream << "_" << x.at(i).getSubInterval().leftBound() << "_" << x.at(i).getSubInterval().rightBound();
-	}
-	string drhFilepath = tempStream.str();
-	ofstream drhFile;
-	drhFile.open(string(drhFilepath + ".drh").c_str());
-	if (drhFile.is_open())
-	{
-		//defining the random variables
-		for(int i = 0; i < 1; i++)
-		{
-			drhFile << "#define " << rv.at(i).getVar() << "_a " << x.at(i).getSubInterval().leftBound() << endl;
-			drhFile << "#define " << rv.at(i).getVar() << "_b " << x.at(i).getSubInterval().rightBound() << endl;
-			drhFile << "[" << rv.at(i).getLeft() << ", " << rv.at(i).getRight() << "] " << rv.at(i).getVar() << ";" << endl;
-		}
-		ifstream drhTemplate;
-		/*
-		#ifdef _OPENMP
-			omp_init_lock(&lock);
-		#endif
-		*/
-
-		//adding the leftovers to the drh file
-		for(int i = 0; i < temp.size(); i++)
-		{
-			drhFile << temp.at(i) << endl;
-		}
-		drhFile.close();
-		/*
-		#ifdef _OPENMP
-     		omp_destroy_lock(&lock);
- 		#endif
- 		*/
-	}
-
-	ostringstream callStream;
-	string programOutput = "";
-	if (!verbose)
-	{
-		programOutput = " > /dev/null";
-	}
-	
-	callStream << "dReach -k " << k << " " << drhFilepath << ".drh -precision=" << width(x.at(0).getSubInterval()) / 1000 << programOutput << endl;
-	#ifdef _OPENMP
-    	omp_unset_lock(&lock);
- 	#endif
-
-	//string calldReach(calldReachStream.str());
-	system((callStream.str()).c_str());
-
-	//removing auxilary files
-
-	#ifdef _OPENMP
-    	omp_set_lock(&lock);
-   	#endif
-	if(remove(string(drhFilepath + ".drh").c_str()) != 0)
-	{
-		cout << "COULD NOT REMOVE FILE " << string(drhFilepath + ".drh") << endl;
-	}
-	if(remove(string(drhFilepath + ".preprocessed.drh").c_str()) != 0)
-	{
-		cout << "COULD NOT REMOVE FILE " << string(drhFilepath + ".preprocessed.drh") << endl;
-	}
-	if(remove(string(drhFilepath + "_" + k + "_0.smt2").c_str()) != 0)
-	{
-		cout << "COULD NOT REMOVE FILE " << string(drhFilepath + "_" + k + "_0.smt2") << endl;
-	}
-
-	string outputFilepath(drhFilepath + "_" + k + "_0.output");
-	ifstream outputFile;
-	outputFile.open(outputFilepath.c_str());
-
-	if (outputFile.is_open())
-	{
-
-		string line;
-		getline(outputFile, line);
-		outputFile.close();
-		if(remove(outputFilepath.c_str()) != 0)
-		{
-			cout << "COULD NOT REMOVE FILE " << outputFilepath << endl;
-		}
-		if (line == "sat")
-		{
-			
-			//DInterval result(1.0, 1.0);
-			//for(int i = 0; i < 1; i++)
-			//{
-			//	result *= x.at(i).getPartialSum();
-			//}	
-			//return result;
-			
-			//return x.at(0).getPartialSum();
-			#ifdef _OPENMP
-    			omp_unset_lock(&lock);
-   			#endif
-			return true;
-		}
-		#ifdef _OPENMP
-    		omp_unset_lock(&lock);
-   		#endif
-		//return DInterval(0.0, 0.0);
-		return false;
-	}
-	else
-	{
-		cout << "COULD NOT OPEN THE FILE: " << outputFilepath << endl;
-		#ifdef _OPENMP
-    		omp_unset_lock(&lock);
-   		#endif
-	}
-
-}
-
-
 /**
  * Takes name of the template, depth and interval of the random variable
  * and returns true if formula is SAT and false otherwise
  */
- /*
+/*
 bool dReach(vector<RV> rv, string fileName, string k, double delta, vector<Entry> x)
 {
 	ostringstream drhFilenameStream;
@@ -253,11 +52,9 @@ bool dReach(vector<RV> rv, string fileName, string k, double delta, vector<Entry
 			drhFile << "[" << rv.at(i).getLeft() << ", " << rv.at(i).getRight() << "] " << rv.at(i).getVar() << ";" << endl;
 		}
 		ifstream drhTemplate;
-		
 		#ifdef _OPENMP
 			omp_init_lock(&lock);
 		#endif
-		
 		drhTemplate.open(string(fileName + ".pdrh2drh").c_str());
 		if (drhTemplate.is_open())
 		{
@@ -269,11 +66,9 @@ bool dReach(vector<RV> rv, string fileName, string k, double delta, vector<Entry
 			drhTemplate.close();
 		}
 		drhFile.close();
-		
 		#ifdef _OPENMP
      		omp_destroy_lock(&lock);
  		#endif
- 		
 	}
 
 	ostringstream calldReachStream;
@@ -347,7 +142,58 @@ void writeEntriesToFile(vector<Entry> entries, string fileName)
 	}
 }
 
+/**
+ * Extracts random parameters from pdrh file
+ *
+ * @param pdrhFilename name of file containing pdrh model
+ */
+vector<RV> getRVs(string pdrhFilename)
+{
 
+	vector<RV> result;
+	ifstream pdrhFile;
+	ofstream drhFile;
+	smatch matches;
+	pdrhFile.open(pdrhFilename.c_str());
+	
+	if(pdrhFile.is_open())
+	{
+		drhFile.open(string(pdrhFilename + ".pdrh2drh").c_str());
+		if(drhFile.is_open())
+		{
+			string line;
+			while (getline(pdrhFile, line))
+			{
+				if (regex_match(line, matches, normalRegEx)) 
+				{
+					string param1 = string() + matches[5].str();
+					double mean = atof(param1.c_str());
+					string param2 = string() + matches[9].str();
+					double deviation = atof(param2.c_str());
+					string var = string() + matches[13].str();
+					result.push_back(RV("n", var, normalString(var, mean, deviation), mean - 20 * deviation, mean + 20 * deviation));
+				} else
+				if (regex_match(line, matches, uniformRegEx)) 
+				{
+					string param1 = string() + matches[5].str();
+					double left = atof(param1.c_str());
+					string param2 = string() + matches[9].str();
+					double right =atof(param2.c_str());
+					string var = string() + matches[13].str();
+					result.push_back(RV("u", var, uniformString(left, right), left, right));
+				} 
+				else 
+				{
+					drhFile << line << endl;
+				}
+			}
+		}
+		drhFile.close();
+	}
+	pdrhFile.close();
+	
+	return result;
+}
 
 bool getSettings(string filename)
 {
@@ -392,7 +238,6 @@ bool getSettings(string filename)
 	return false;
 }
 
-
 int simulateNotParallel(int argc, char *argv[])
 {
 	if(!getSettings(argv[1]))
@@ -409,36 +254,7 @@ int simulateNotParallel(int argc, char *argv[])
 		}
 	}
 
-	vector<RV> rv;
-	vector<string> temp;
-	vector<string> tempInv;
-
-	getTempFromFile(modelFile, temp, rv);
-	getTempFromFile(modelFileComplement, tempInv);
-
-	//printing out the rvs and templates
-	/*
-	cout << "Random variables " << endl;
-	for (int i = 0; i < rv.size(); i++)
-	{
-		cout << rv.at(i).toString() << endl;
-	}
-
-	cout << "Template " << endl;
-	for (int i = 0; i < temp.size(); i++)
-	{
-		cout << temp.at(i) << endl;
-	}
-
-	cout << "Inverted template " << endl;
-	for (int i = 0; i < tempInv.size(); i++)
-	{
-		cout << tempInv.at(i) << endl;
-	}
-	*/
-
-	
-	//vector<RV> rv = getRVs(modelFile);
+	vector<RV> rv = getRVs(modelFile);
 	if (rv.size() > 1)
 	{
 		cout << "WARNING!!! There are " << rv.size() << " random variables in the model. Only the first one will be considered" << endl;
@@ -476,12 +292,12 @@ int simulateNotParallel(int argc, char *argv[])
 				cout << counter << " of " << cartProduct.size()  << ") Interval: " << cartProduct.at(i).at(0).getSubInterval() << endl;
 			}
 			//cout << "NORMAL PROBLEM" << endl;
-			//double delta = width(cartProduct.at(i).at(0).getSubInterval()) / 1000;
-			if (dReach(rv, modelFile, temp, dReachOptions, cartProduct.at(i)))
+			double delta = width(cartProduct.at(i).at(0).getSubInterval()) / 1000;
+			if (dReach(rv, modelFile, dReachOptions, delta, cartProduct.at(i)))
 			{	
 				//cout << "CONVERTED PROBLEM" << endl;
 				overIntg += cartProduct.at(i).at(0).getPartialSum();
-				if (dReach(rv, modelFileComplement, tempInv, dReachOptions, cartProduct.at(i)))
+				if (dReach(rv, modelFileComplement, dReachOptions, delta, cartProduct.at(i)))
 				{
 					DInterval left(cartProduct.at(i).at(0).getSubInterval().leftBound(), cartProduct.at(i).at(0).getSubInterval().mid().rightBound());
 					DInterval right(cartProduct.at(i).at(0).getSubInterval().mid().leftBound(), cartProduct.at(i).at(0).getSubInterval().rightBound());
@@ -533,9 +349,9 @@ int simulateNotParallel(int argc, char *argv[])
 	cout << "Time: " << time(NULL) - startTime << endl;
 	cout << "********************"<< endl;
 	cout << endl;
-	
 	return EXIT_SUCCESS;
 }
+
 
 int simulatePartitionInParallel(int argc, char *argv[])
 {
@@ -553,41 +369,12 @@ int simulatePartitionInParallel(int argc, char *argv[])
 		}
 	}
 
-	vector<RV> rv;
-	vector<string> temp;
-	vector<string> tempInv;
-
-	getTempFromFile(modelFile, temp, rv);
-	getTempFromFile(modelFileComplement, tempInv);
-
-	//printing out the rvs and templates
-	/*
-	cout << "Random variables " << endl;
-	for (int i = 0; i < rv.size(); i++)
-	{
-		cout << rv.at(i).toString() << endl;
-	}
-
-	cout << "Template " << endl;
-	for (int i = 0; i < temp.size(); i++)
-	{
-		cout << temp.at(i) << endl;
-	}
-
-	cout << "Inverted template " << endl;
-	for (int i = 0; i < tempInv.size(); i++)
-	{
-		cout << tempInv.at(i) << endl;
-	}
-	*/
-
-	
-	//vector<RV> rv = getRVs(modelFile);
+	vector<RV> rv = getRVs(modelFile);
 	if (rv.size() > 1)
 	{
 		cout << "WARNING!!! There are " << rv.size() << " random variables in the model. Only the first one will be considered" << endl;
 	}
-	
+
 	double startTime = time(NULL);
 
 	DInterval overIntg(0.0), underIntg(0.0), realIntg(0.0, 1.0), realIntgInf(0.0, 1.0);
@@ -609,14 +396,12 @@ int simulatePartitionInParallel(int argc, char *argv[])
 	int counter = 0;
 	
 	//main loop	
+
 	counter = 0;
-	#ifdef _OPENMP
-    	omp_init_lock(&lock);
-    	omp_set_num_threads(omp_get_max_threads() - 1);
- 	#endif
 	while (width(realIntg) > precision)
 	{
-		#pragma omp parallel
+		//going through all the vector<vector<Entry>>
+		#pragma omp parallel num_threads(30)
 		{
 			#pragma omp for
 			for (int i = 0; i < cartProduct.size(); i++)
@@ -626,11 +411,12 @@ int simulatePartitionInParallel(int argc, char *argv[])
 					cout << counter << " of " << cartProduct.size()  << ") Interval: " << cartProduct.at(i).at(0).getSubInterval() << endl;
 				}
 				//cout << "NORMAL PROBLEM" << endl;
-				if (dReach(rv, modelFile, temp, dReachOptions, cartProduct.at(i)))
+				double delta = width(cartProduct.at(i).at(0).getSubInterval()) / 1000;
+				if (dReach(rv, modelFile, dReachOptions, delta, cartProduct.at(i)))
 				{	
 					//cout << "CONVERTED PROBLEM" << endl;
 					overIntg += cartProduct.at(i).at(0).getPartialSum();
-					if (dReach(rv, modelFileComplement, tempInv, dReachOptions, cartProduct.at(i)))
+					if (dReach(rv, modelFileComplement, dReachOptions, delta, cartProduct.at(i)))
 					{
 						DInterval left(cartProduct.at(i).at(0).getSubInterval().leftBound(), cartProduct.at(i).at(0).getSubInterval().mid().rightBound());
 						DInterval right(cartProduct.at(i).at(0).getSubInterval().mid().leftBound(), cartProduct.at(i).at(0).getSubInterval().rightBound());
@@ -673,9 +459,6 @@ int simulatePartitionInParallel(int argc, char *argv[])
 		overIntg = underIntg;
 		counter = 0;
 	}
-	#ifdef _OPENMP
-    	omp_destroy_lock(&lock);
- 	#endif
 
 	cout << endl;
 	cout << "********************" << endl;
@@ -686,16 +469,17 @@ int simulatePartitionInParallel(int argc, char *argv[])
 	cout << "Time: " << time(NULL) - startTime << endl;
 	cout << "********************"<< endl;
 	cout << endl;
-	
 	return EXIT_SUCCESS;
 }
+
+
 
 int main(int argc, char* argv[])
 {
 	cout << "not in parallel" << endl;
 	simulateNotParallel(argc, argv);
-	cout << "partition in parallel" << endl;
-	simulatePartitionInParallel(argc, argv);
+	//cout << "partition in parallel" << endl;
+	//simulatePartitionInParallel(argc, argv);
 	return EXIT_SUCCESS;
 }
 

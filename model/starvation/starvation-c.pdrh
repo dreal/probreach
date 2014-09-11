@@ -26,7 +26,7 @@
 //!!! when [8.22, 13.7] k throws division by zero
 
 //rate of ketone use in the brain
-[0.05, 0.051] b;
+[0.05, 0.075] b;
 //[0.05, 0.05] b;
 
 [0, 100] time;

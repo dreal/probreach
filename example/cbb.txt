@@ -1,7 +1,7 @@
 param:
-0.000001
+0.001
 model:
-/home/fedor/VBoxShare/godel/ProbReach/model/controlled-bouncing-ball/cbb.pdrh
-/home/fedor/VBoxShare/godel/ProbReach/model/controlled-bouncing-ball/cbb-c.pdrh
+/home/b2049657/ProbReach/model/controlled-bouncing-ball/cbb.pdrh
+/home/b2049657/ProbReach/model/controlled-bouncing-ball/cbb-c.pdrh
 dReach:
 2

@@ -3,7 +3,7 @@ PROGS = ProbReach
 # a list of all your units to be linked with your programs (space separated)
 OTHERS = Entry Integral Distribution RV CartesianProduct
 # directory where capd scripts are (e.g. capd-config)
-CAPDBINDIR =/home/fedor/capd-4/bin/
+CAPDBINDIR =/home/b2049657/capd-4/bin/
 # setting compiler and linker flags
 CAPDFLAGS = `${CAPDBINDIR}capd-config --cflags`
 CAPDLIBS = `${CAPDBINDIR}capd-config --libs`

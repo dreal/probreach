@@ -539,6 +539,7 @@ int simulateNotParallel(int argc, char *argv[])
 
 int simulatePartitionInParallel(int argc, char *argv[])
 {
+	
 	if(!getSettings(argv[1]))
 	{
 		cout << "Invalid settings file" << endl;
@@ -552,13 +553,15 @@ int simulatePartitionInParallel(int argc, char *argv[])
 			verbose = true;
 		}
 	}
-
+	
 	vector<RV> rv;
 	vector<string> temp;
 	vector<string> tempInv;
 
 	getTempFromFile(modelFile, temp, rv);
 	getTempFromFile(modelFileComplement, tempInv);
+	//cout << dReachOptions << endl;
+
 
 	//printing out the rvs and templates
 	/*
@@ -612,9 +615,9 @@ int simulatePartitionInParallel(int argc, char *argv[])
 	counter = 0;
 	#ifdef _OPENMP
     	omp_init_lock(&lock);
-    	omp_set_num_threads(omp_get_max_threads() - 1);
+    	omp_set_num_threads(omp_get_max_threads() - 8);
  	#endif
-	while (width(realIntg) > precision)
+	while (width(realIntgInf) > precision)
 	{
 		#pragma omp parallel
 		{
@@ -692,8 +695,8 @@ int simulatePartitionInParallel(int argc, char *argv[])
 
 int main(int argc, char* argv[])
 {
-	cout << "not in parallel" << endl;
-	simulateNotParallel(argc, argv);
+	//cout << "not in parallel" << endl;
+	//simulateNotParallel(argc, argv);
 	cout << "partition in parallel" << endl;
 	simulatePartitionInParallel(argc, argv);
 	return EXIT_SUCCESS;

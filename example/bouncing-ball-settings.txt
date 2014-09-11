@@ -1,7 +1,7 @@
 param:
 0.000000001
 model:
-/home/fedor/VBoxShare/godel/ProbReach/model/bouncing-ball/bouncing-ball-random-speed.pdrh
-/home/fedor/VBoxShare/godel/ProbReach/model/bouncing-ball/bouncing-ball-random-speed-c.pdrh
+/home/b2049657/ProbReach/model/bouncing-ball/bouncing-ball-random-speed.pdrh
+/home/b2049657/ProbReach/model/bouncing-ball/bouncing-ball-random-speed-c.pdrh
 dReach:
 0

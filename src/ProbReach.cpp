@@ -118,7 +118,7 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
 
 	for (int i = 0; i < 1; i++)
 	{
-		tempStream << "_" << x.at(i).getSubInterval().leftBound() << "_" << x.at(i).getSubInterval().rightBound();
+		tempStream << setprecision(16) << "_" << x.at(i).getSubInterval().leftBound() << "_" << x.at(i).getSubInterval().rightBound();
 	}
 	string drhFilepath = tempStream.str();
 	ofstream drhFile;
@@ -130,7 +130,7 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
 		{
 			drhFile << "#define " << rv.at(i).getVar() << "_a " << x.at(i).getSubInterval().leftBound() << endl;
 			drhFile << "#define " << rv.at(i).getVar() << "_b " << x.at(i).getSubInterval().rightBound() << endl;
-			drhFile << "[" << rv.at(i).getLeft() << ", " << rv.at(i).getRight() << "] " << rv.at(i).getVar() << ";" << endl;
+			drhFile << "[" << rv.at(i).getLeft() - (rv.at(i).getRight() - rv.at(i).getLeft()) * 10 << ", " << rv.at(i).getRight() + (rv.at(i).getRight() - rv.at(i).getLeft()) * 10<< "] " << rv.at(i).getVar() << ";" << endl;
 		}
 		ifstream drhTemplate;
 		/*
@@ -231,102 +231,6 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
 
 }
 
-
-/**
- * Takes name of the template, depth and interval of the random variable
- * and returns true if formula is SAT and false otherwise
- */
- /*
-bool dReach(vector<RV> rv, string fileName, string k, double delta, vector<Entry> x)
-{
-	ostringstream drhFilenameStream;
-	drhFilenameStream << fileName << "_" << x.at(0).getSubInterval();
-	string drhFileName = drhFilenameStream.str();
-	ofstream drhFile;
-	drhFile.open(string(drhFileName + ".drh").c_str());
-	if (drhFile.is_open())
-	{
-		for(int i = 0; i < 1; i++)
-		{
-			drhFile << "#define " << rv.at(i).getVar() << "_a " << x.at(i).getSubInterval().leftBound() << endl;
-			drhFile << "#define " << rv.at(i).getVar() << "_b " << x.at(i).getSubInterval().rightBound() << endl;
-			drhFile << "[" << rv.at(i).getLeft() << ", " << rv.at(i).getRight() << "] " << rv.at(i).getVar() << ";" << endl;
-		}
-		ifstream drhTemplate;
-		
-		#ifdef _OPENMP
-			omp_init_lock(&lock);
-		#endif
-		
-		drhTemplate.open(string(fileName + ".pdrh2drh").c_str());
-		if (drhTemplate.is_open())
-		{
-			string line;
-			while (getline(drhTemplate, line))
-			{
-				drhFile << line << endl;
-			}
-			drhTemplate.close();
-		}
-		drhFile.close();
-		
-		#ifdef _OPENMP
-     		omp_destroy_lock(&lock);
- 		#endif
- 		
-	}
-
-	ostringstream calldReachStream;
-	string programOutput = "";
-	if (!verbose)
-	{
-		programOutput = " > /dev/null";
-	}
-	
-	calldReachStream << "dReach -k " << k << " " << drhFileName << ".drh -precision=" << delta << programOutput << endl;
-	string calldReach(calldReachStream.str());
-	system(calldReach.c_str());
-
-	if(remove(string(drhFileName + ".drh").c_str()) != 0)
-	{
-		cout << "COULD NOT REMOVE FILE " << string(drhFileName + ".drh") << endl;
-	}
-	
-	string resultFileName(drhFileName + "_" + k + "_0.output");
-	ifstream resultFile;
-	resultFile.open(resultFileName.c_str());
-	if (resultFile.is_open())
-	{
-		string line;
-		getline(resultFile, line);
-		resultFile.close();
-		if(remove(resultFileName.c_str()) != 0)
-		{
-			cout << "COULD NOT REMOVE FILE " << resultFileName << endl;
-		}
-		if (line == "sat")
-		{
-			
-			//DInterval result(1.0, 1.0);
-			//for(int i = 0; i < 1; i++)
-			//{
-			//	result *= x.at(i).getPartialSum();
-			//}	
-			//return result;
-			
-			//return x.at(0).getPartialSum();
-			return true;
-		}
-		//return DInterval(0.0, 0.0);
-		return false;
-	}
-	else
-	{
-		cout << "COULD NOT OPEN THE FILE: " << resultFileName << endl;
-	}
-
-}
-*/
 
 /**
  * Writes entries to the file
@@ -593,7 +497,7 @@ int simulatePartitionInParallel(int argc, char *argv[])
 	
 	double startTime = time(NULL);
 
-	DInterval overIntg(0.0), underIntg(0.0), realIntg(0.0, 1.0), realIntgInf(0.0, 1.0);
+	DInterval overIntg(1.0), underIntg(0.0), realIntg(0.0, 1.0), realIntgInf(0.0, 1.0);
 	
 	vector<Integral> integral;
 	vector< vector<Entry> > vectors;
@@ -601,6 +505,7 @@ int simulatePartitionInParallel(int argc, char *argv[])
 	
 	Integral itg = Integral(rv.at(0), precision);
 	DInterval I = itg.solve();
+	overIntg =+ I.rightBound();
 	vectors.push_back(itg.getEntries());
 	integral.push_back(itg);
 	infError.push_back(1 - I.leftBound());
@@ -609,87 +514,94 @@ int simulatePartitionInParallel(int argc, char *argv[])
 	
 	vector<Entry> extraEntries;
 
-	int counter = 0;
-	
 	//main loop	
-	counter = 0;
+	int counter = 0;
 	#ifdef _OPENMP
     	omp_init_lock(&lock);
     	omp_set_num_threads(omp_get_max_threads() - 8);
  	#endif
-	while (width(realIntgInf) > precision)
+    //cout.precision(12);
+    cout << "Required precision: " << scientific << precision << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| Probability interval         | Precision    | Time per iteration | Total time       |" << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+	while (overIntg - underIntg > precision)
 	{
 		#pragma omp parallel
 		{
 			#pragma omp for
 			for (int i = 0; i < cartProduct.size(); i++)
 			{
+				double operationTime = time(NULL);
 				if(verbose)
 				{
 					cout << counter << " of " << cartProduct.size()  << ") Interval: " << cartProduct.at(i).at(0).getSubInterval() << endl;
 				}
-				//cout << "NORMAL PROBLEM" << endl;
+				
 				if (dReach(rv, modelFile, temp, dReachOptions, cartProduct.at(i)))
 				{	
-					//cout << "CONVERTED PROBLEM" << endl;
-					overIntg += cartProduct.at(i).at(0).getPartialSum();
 					if (dReach(rv, modelFileComplement, tempInv, dReachOptions, cartProduct.at(i)))
 					{
-						DInterval left(cartProduct.at(i).at(0).getSubInterval().leftBound(), cartProduct.at(i).at(0).getSubInterval().mid().rightBound());
-						DInterval right(cartProduct.at(i).at(0).getSubInterval().mid().leftBound(), cartProduct.at(i).at(0).getSubInterval().rightBound());
-						extraEntries.push_back(Entry(left, integral.at(0).calculateS(left)));
-						extraEntries.push_back(Entry(right, integral.at(0).calculateS(right)));
+						extraEntries.push_back(cartProduct.at(i).at(0));
 					}
 					else
 					{
 						underIntg += cartProduct.at(i).at(0).getPartialSum();
+						counter++;
+						cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
 					}
 				}
-				counter++;
+				else
+				{
+					overIntg -= cartProduct.at(i).at(0).getPartialSum();
+					counter++;
+					cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;			
+				}
 			}
 		}
 
 		cartProduct.clear();
+		
+		
+		#ifdef _OPENMP
+	    	int numThreads = omp_get_max_threads();
+	    #else
+	    	int numThreads = 2;	
+ 		#endif
+		
+		while (extraEntries.size() < numThreads)
+    	{
+    		Entry entry = extraEntries.front();
+    		extraEntries.erase(extraEntries.begin());
+    		DInterval left(entry.getSubInterval().leftBound(), entry.getSubInterval().mid().rightBound());
+			DInterval right(entry.getSubInterval().mid().leftBound(), entry.getSubInterval().rightBound());
+			extraEntries.push_back(Entry(left, integral.at(0).calculateS(left)));
+			extraEntries.push_back(Entry(right, integral.at(0).calculateS(right)));
+    	}
 		
 		for (int i = 0; i < extraEntries.size(); i++)
 		{
 			vector<Entry> tmp;
 			tmp.push_back(extraEntries.at(i));
 			cartProduct.push_back(tmp);
-		}		
+		}
 		
 		extraEntries.clear();
-
-		realIntg = DInterval(underIntg.leftBound(), overIntg.rightBound());
-		realIntgInf = DInterval(realIntg.leftBound(), realIntg.rightBound() + infError.at(0));
 		
-		if(verbose)
-		{
-			cout << "************" << endl;
-			cout << "Division number " << counter << endl;
-			cout << "underIntg: " << setprecision(16) << underIntg << endl;
-			cout << "overIntg: " << setprecision(16) << overIntg << endl;
-			cout << "realIntg: " << setprecision(16) << realIntg << endl;
-			cout << "realIntgInf: " << setprecision(16) << realIntgInf << endl;	
-		}
 
-		overIntg = underIntg;
-		counter = 0;
 	}
 	#ifdef _OPENMP
     	omp_destroy_lock(&lock);
  	#endif
 
-	cout << endl;
-	cout << "********************" << endl;
-	cout << "RESULT:" << endl;
-	cout << "P in " << setprecision(16) << realIntgInf << endl;
-	cout << "Interval width = " << setprecision(16) << width(realIntgInf) << endl;
-	cout << "Desired precision (epsilon) = " << precision << endl;
-	cout << "Time: " << time(NULL) - startTime << endl;
-	cout << "********************"<< endl;
-	cout << endl;
-	
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| Probability interval         | Precision    | Required precision | Total time       |" << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << precision << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec |" << endl;
+	cout << "|-------------------------------------------------------------------------------------|" << endl;
+
 	return EXIT_SUCCESS;
 }
 

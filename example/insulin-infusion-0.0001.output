@@ -1,0 +1,499 @@
+partition in parallel
+0000 of 0 of 0 of 5656) Interval: 00) Interval: [ of [00 of 0 of 56 of 5656560 of 5600.06875, 0.0703125]
+ of  of 0 of 56) Interval: [0.075) Interval:  of 56) Interval: [00.0375) Interval: 5656) Interval: 56, ) Interval: 0.059375, 0.0601563]
+ of [) Interval: 0.0875, 0.1]
+0.08125, [) Interval: [[]
+0) Interval: [000.050.0382813, ]
+ of  of 560.03125) Interval: 0.07187500.0515625[ of 0.0515625) Interval: 56[][,  of 5656) Interval: [, 0.04531250.0328125, ) Interval: 56
+0.0640625, 0.0625[0 of 56) Interval: [0 of 56) Interval: ) Interval: 00.0390625) Interval: [[[ of 0.057812556) Interval: , 0.0546875, 0.0398438]
+0.05546880.05234380.0750.046875 of ] of ], 56) Interval: [0.053125
+
+]
+]
+[0.0351563, 0.0359375]
+0.0476563]
+56) Interval: [0.04375, 0.0445313]
+, [0.0539063]
+0.0460938]
+, , 0.0632813]
+0 of 56) Interval: [0 of 56) Interval: [0.040625, 0.06093750.0414063]
+0.0648438]
+, 0.04218750.0617188]
+, 0.056250.0429688], 
+0.0570313]
+-0.05, 3.46945e-18]
+, 0.0585938]
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=1.5625e-06
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=6.25e-06
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0625_0.0632813_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.059375_0.0601563_1_0.smt2, PATH : [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0546875_0.0554688_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.06875_0.0703125_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0390625_0.0398438_1_0.smt2, PATH : [1,2]
+dReal Options: -precision=1.25e-05
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0578125_0.0585938_1_0.smt2, PATH : [1,2]
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=5e-05
+dReal Options: -precision=3.125e-06
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.046875_0.0476563_1_0.smt2, PATH : [1,2]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0351563_0.0359375_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0609375_0.0617188_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.053125_0.0539063_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0453125_0.0460938_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0421875_0.0429688_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.040625_0.0414063_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0875_0.1_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0640625_0.0648438_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.075_0.08125_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0375_0.0382813_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0515625_0.0523438_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.04375_0.0445313_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.03125_0.0328125_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_-0.05_3.46945e-18_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.071875_0.075_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.05625_0.0570313_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.05_0.0515625_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+1 of 56) Interval: [0.1, 0.15]
+dReal Options: -precision=5e-05
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.1_0.15_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+2 of 56) Interval: [3.46945e-18, 0.0125]
+dReal Options: -precision=1.25e-05
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_3.46945e-18_0.0125_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+3 of 56) Interval: [0.08125, 0.0875]
+dReal Options: -precision=6.25e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.08125_0.0875_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+4 of 56) Interval: [0.028125, 0.0296875]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.028125_0.0296875_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+5 of 56) Interval: [0.0703125, 0.071875]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0703125_0.071875_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+6 of 56) Interval: [0.025, 0.028125]
+dReal Options: -precision=3.125e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.025_0.028125_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+7 of 56) Interval: [0.034375, 0.0351563]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.034375_0.0351563_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+8 of 56) Interval: [0.0125, 0.01875]
+dReal Options: -precision=6.25e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0125_0.01875_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.059375_0.0601563_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+9 of 56) Interval: [0.0601563, 0.0609375]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0601563_0.0609375_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.034375_0.0351563_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0609375_0.0617188_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+11 of 56) Interval: [0.0617188, 0.0625]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0617188_0.0625_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0546875_0.0554688_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+12 of 56) Interval: [0.0554688, 0.05625]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0554688_0.05625_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.053125_0.0539063_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+13 of 56) Interval: [0.0539063, 0.0546875]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0539063_0.0546875_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0578125_0.0585938_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+14 of 56) Interval: [0.0585938, 0.059375]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0585938_0.059375_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0453125_0.0460938_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+15 of 56) Interval: [0.0460938, 0.046875]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0460938_0.046875_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0640625_0.0648438_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+16 of 56) Interval: [0.0648438, 0.065625]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0648438_0.065625_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.03125_0.0328125_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+17 of 56) Interval: [0.0328125, 0.034375]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0328125_0.034375_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.046875_0.0476563_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+18 of 56) Interval: [0.0476563, 0.0484375]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0476563_0.0484375_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0351563_0.0359375_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+19 of 56) Interval: [0.0359375, 0.0367188]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0359375_0.0367188_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.040625_0.0414063_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+20 of 56) Interval: [0.0414063, 0.0421875]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0414063_0.0421875_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0515625_0.0523438_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+21 of 56) Interval: [0.0523438, 0.053125]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0523438_0.053125_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.05625_0.0570313_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+22 of 56) Interval: [0.0570313, 0.0578125]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0570313_0.0578125_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.04375_0.0445313_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+23 of 56) Interval: [0.0445313, 0.0453125]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0445313_0.0453125_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.028125_0.0296875_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+24 of 56) Interval: [0.0296875, 0.03125]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0296875_0.03125_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0390625_0.0398438_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+25 of 56) Interval: [0.0398438, 0.040625]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0398438_0.040625_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.05_0.0515625_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+26 of 56) Interval: [0.065625, 0.0671875]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.065625_0.0671875_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0375_0.0382813_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+27 of 56) Interval: [0.0382813, 0.0390625]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0382813_0.0390625_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0539063_0.0546875_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0476563_0.0484375_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0554688_0.05625_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0359375_0.0367188_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+31 of 56) Interval: [0.0367188, 0.0375]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0367188_0.0375_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0617188_0.0625_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0570313_0.0578125_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0601563_0.0609375_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0648438_0.065625_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0414063_0.0421875_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=6.25e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0125_0.01875_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+37 of 56) Interval: [0.01875, 0.025]
+dReal Options: -precision=6.25e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.01875_0.025_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0460938_0.046875_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0328125_0.034375_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+39 of 56) Interval: [0.0484375, 0.05]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0484375_0.05_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=1.25e-05
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_3.46945e-18_0.0125_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0625_0.0632813_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+41 of 56) Interval: [0.0632813, 0.0640625]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0632813_0.0640625_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0296875_0.03125_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0445313_0.0453125_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0421875_0.0429688_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+44 of 56) Interval: [0.0429688, 0.04375]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0429688_0.04375_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0585938_0.059375_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0398438_0.040625_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0382813_0.0390625_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=3.125e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.025_0.028125_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0484375_0.05_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.065625_0.0671875_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0632813_0.0640625_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0429688_0.04375_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0523438_0.053125_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+dReal Options: -precision=6.25e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.01875_0.025_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+sat
+sat -- [1,2]
+54 of 56) Interval: [0.0671875, 0.06875]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0671875_0.06875_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+dReal Options: -precision=1.5625e-06
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0671875_0.06875_1_0.smt2, PATH : [1,2]
+sat
+sat -- [1,2]
+sat
+Tried 1 feasible paths, all of them are unsat.
+COULD NOT REMOVE FILE /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0367188_0.0375.drh
+COULD NOT REMOVE FILE /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0367188_0.0375.preprocessed.drh
+COULD NOT REMOVE FILE /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0367188_0.0375_1_0.smt2
+COULD NOT OPEN THE FILE: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0367188_0.0375_1_0.output
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh_0.0367188_0.0375_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+************
+Division number 56
+underIntg: [0.9991070200955144, 0.9991128712187443]
+overIntg: [0.9999072174374751, 0.9999137778289433]
+realIntg: [0.9991070200955144, 0.9999137778289433]
+realIntgInf: [0.9991070200955144, 0.999921062771584]
+0 of 4) Interval: [0.06718750000000004, 0.06796875000000004]
+0 of 4) Interval: [0.06562500000000003, 0.06640625000000004]
+0 of 4) Interval: [00.06796875000000004,  of 0.06875000000000003]4
+) Interval: [0.06640625000000004, 0.06718750000000004]
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+dReal Options: -precision=7.8125e-07
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0671875_0.0679688_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.065625_0.0664063_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0664063_0.0671875_1_0.smt2, PATH : [1,2]
+SMT: /home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh_0.0679688_0.06875_1_0.smt2, PATH : [1,2]
+unsat
+Tried 1 feasible paths, all of them are unsat.
+unsat
+Tried 1 feasible paths, all of them are unsat.

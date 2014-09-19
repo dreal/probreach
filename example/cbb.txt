@@ -1,5 +1,5 @@
 param:
-0.001
+0.000001
 model:
 /home/b2049657/ProbReach/model/controlled-bouncing-ball/cbb.pdrh
 /home/b2049657/ProbReach/model/controlled-bouncing-ball/cbb-c.pdrh

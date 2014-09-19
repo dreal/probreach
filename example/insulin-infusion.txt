@@ -1,0 +1,7 @@
+param:
+0.0001
+model:
+/home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified.pdrh
+/home/b2049657/ProbReach/model/insulin-infusion/glucoregulation-simplified-c.pdrh
+dReach:
+1

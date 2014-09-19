@@ -1,0 +1,34 @@
+#define x_a 9.82422
+#define x_b 9.82423
+[-411, 429] x;
+#define R 5.0
+#define C 0.0025
+#define m 7.0
+#define g 9.8
+
+[-100, 100] v;
+[0, 10] time;
+
+{ mode 1;
+  invt:
+	(x >= 0);
+  flow:
+	d/dt[x] = v;
+	d/dt[v] = - g;
+  jump:
+	(x <= 0) ==> @2 (and (x' = x) (v' = v));
+}
+{ mode 2;
+  invt:
+	(x <= 0);
+  flow:
+	d/dt[x] = v;
+	d/dt[v] = - g - (R * v + x / C) / m;
+  jump:
+        (x >= 0) ==> @1 (and (x' = x) (v' = v));
+}
+init:
+@1	(and (x >= x_a) (x <= x_b) (v = 0));
+
+goal:
+@1	(and (x >= 7.0));

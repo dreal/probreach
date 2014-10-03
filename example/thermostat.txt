@@ -1,0 +1,7 @@
+param:
+0.000000001
+model:
+/home/b2049657/ProbReach/model/thermostat-ed/thermostat-ed.pdrh
+/home/b2049657/ProbReach/model/thermostat-ed/thermostat-ed-c.pdrh
+dReach:
+7

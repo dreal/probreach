@@ -26,6 +26,16 @@ vector<string> drhTemplate;
 vector<string> drhTemplateInverse;
 bool verbose = false;
 
+//for the output
+vector<DInterval> json_intervals;
+vector<DInterval> json_partial_sums;
+vector<DInterval> json_probability;
+vector<double> json_precision;
+vector<double> json_operation_time;
+vector<double> json_total_time;
+DInterval json_domain;
+string json_filename;
+
 #ifdef _OPENMP
 	omp_lock_t lock;
 #endif
@@ -133,23 +143,13 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
 			drhFile << "[" << rv.at(i).getLeft() - (rv.at(i).getRight() - rv.at(i).getLeft()) * 10 << ", " << rv.at(i).getRight() + (rv.at(i).getRight() - rv.at(i).getLeft()) * 10<< "] " << rv.at(i).getVar() << ";" << endl;
 		}
 		ifstream drhTemplate;
-		/*
-		#ifdef _OPENMP
-			omp_init_lock(&lock);
-		#endif
-		*/
 
-		//adding the leftovers to the drh file
+		//adding the rest to the drh file
 		for(int i = 0; i < temp.size(); i++)
 		{
 			drhFile << temp.at(i) << endl;
 		}
 		drhFile.close();
-		/*
-		#ifdef _OPENMP
-     		omp_destroy_lock(&lock);
- 		#endif
- 		*/
 	}
 
 	ostringstream callStream;
@@ -164,7 +164,6 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
     	omp_unset_lock(&lock);
  	#endif
 
-	//string calldReach(calldReachStream.str());
 	system((callStream.str()).c_str());
 
 	//removing auxilary files
@@ -202,14 +201,6 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
 		if (line == "sat")
 		{
 			
-			//DInterval result(1.0, 1.0);
-			//for(int i = 0; i < 1; i++)
-			//{
-			//	result *= x.at(i).getPartialSum();
-			//}	
-			//return result;
-			
-			//return x.at(0).getPartialSum();
 			#ifdef _OPENMP
     			omp_unset_lock(&lock);
    			#endif
@@ -218,7 +209,6 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
 		#ifdef _OPENMP
     		omp_unset_lock(&lock);
    		#endif
-		//return DInterval(0.0, 0.0);
 		return false;
 	}
 	else
@@ -227,8 +217,8 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
 		#ifdef _OPENMP
     		omp_unset_lock(&lock);
    		#endif
+    	exit(EXIT_FAILURE);
 	}
-
 }
 
 
@@ -237,18 +227,25 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
  *
  * @param entries entries to be stored in the file fileName
  */
-void writeEntriesToFile(vector<Entry> entries, string fileName)
+void updateJSON(string filename, Entry entry, DInterval probability, double operationTime, double totalTime, int borel)
 {
-	ofstream file;
-	file.open(fileName.c_str());
-	if (file.is_open())
-	{
-		for (long int i = 0; i < entries.size(); i++)
-		{
-			file << i << ") " << entries.at(i).toString() << endl;
-		}
-		file.close();
-	}
+	/*
+	ofstream JSON;
+	JSON.open(filename.c_str(), fstream::app);
+
+	JSON << "{\"interval\": " << entry.getSubInterval() << ",";
+	JSON << "\"partial_sum\": " << entry.getPartialSum() << ",";
+	JSON << "\"probability\": " << probability << ",";
+	JSON << "\"precision\": " << width(probability) << ",";
+	JSON << "\"time\": " << operationTime << ",";
+	JSON << "\"total_time\": " << totalTime << ",";// << endl;
+	JSON << "\"borel\": " << borel << "},";
+
+	JSON.close();
+	*/
+
+	ofstream JSON;
+	JSON.close;
 }
 
 
@@ -295,23 +292,9 @@ bool getSettings(string filename)
 	}
 	return false;
 }
-
-
-int simulateNotParallel(int argc, char *argv[])
+/*
+int oldApproach(int argc, char *argv[])
 {
-	if(!getSettings(argv[1]))
-	{
-		cout << "Invalid settings file" << endl;
-		return EXIT_FAILURE;
-	}
-
-	if(argc > 2)
-	{
-		if((strcmp(argv[2], "--verbose") == 0) || (strcmp(argv[2], "-verbose") == 0))
-		{
-			verbose = true;
-		}
-	}
 
 	vector<RV> rv;
 	vector<string> temp;
@@ -320,28 +303,6 @@ int simulateNotParallel(int argc, char *argv[])
 	getTempFromFile(modelFile, temp, rv);
 	getTempFromFile(modelFileComplement, tempInv);
 
-	//printing out the rvs and templates
-	/*
-	cout << "Random variables " << endl;
-	for (int i = 0; i < rv.size(); i++)
-	{
-		cout << rv.at(i).toString() << endl;
-	}
-
-	cout << "Template " << endl;
-	for (int i = 0; i < temp.size(); i++)
-	{
-		cout << temp.at(i) << endl;
-	}
-
-	cout << "Inverted template " << endl;
-	for (int i = 0; i < tempInv.size(); i++)
-	{
-		cout << tempInv.at(i) << endl;
-	}
-	*/
-
-	
 	//vector<RV> rv = getRVs(modelFile);
 	if (rv.size() > 1)
 	{
@@ -440,56 +401,18 @@ int simulateNotParallel(int argc, char *argv[])
 	
 	return EXIT_SUCCESS;
 }
+*/
 
-int simulatePartitionInParallel(int argc, char *argv[])
+
+int solveParallel(int argc, char *argv[])
 {
-	
-	if(!getSettings(argv[1]))
-	{
-		cout << "Invalid settings file" << endl;
-		return EXIT_FAILURE;
-	}
-
-	if(argc > 2)
-	{
-		if((strcmp(argv[2], "--verbose") == 0) || (strcmp(argv[2], "-verbose") == 0))
-		{
-			verbose = true;
-		}
-	}
-	
 	vector<RV> rv;
 	vector<string> temp;
 	vector<string> tempInv;
 
 	getTempFromFile(modelFile, temp, rv);
 	getTempFromFile(modelFileComplement, tempInv);
-	//cout << dReachOptions << endl;
-
-
-	//printing out the rvs and templates
-	/*
-	cout << "Random variables " << endl;
-	for (int i = 0; i < rv.size(); i++)
-	{
-		cout << rv.at(i).toString() << endl;
-	}
-
-	cout << "Template " << endl;
-	for (int i = 0; i < temp.size(); i++)
-	{
-		cout << temp.at(i) << endl;
-	}
-
-	cout << "Inverted template " << endl;
-	for (int i = 0; i < tempInv.size(); i++)
-	{
-		cout << tempInv.at(i) << endl;
-	}
-	*/
-
 	
-	//vector<RV> rv = getRVs(modelFile);
 	if (rv.size() > 1)
 	{
 		cout << "WARNING!!! There are " << rv.size() << " random variables in the model. Only the first one will be considered" << endl;
@@ -497,23 +420,63 @@ int simulatePartitionInParallel(int argc, char *argv[])
 	
 	double startTime = time(NULL);
 
-	DInterval overIntg(1.0), underIntg(0.0), realIntg(0.0, 1.0), realIntgInf(0.0, 1.0);
+	DInterval overIntg(1.0), underIntg(0.0);
 	
 	vector<Integral> integral;
 	vector< vector<Entry> > vectors;
-	vector<double> infError;
 	
 	Integral itg = Integral(rv.at(0), precision);
 	DInterval I = itg.solve();
 	overIntg =+ I.rightBound();
 	vectors.push_back(itg.getEntries());
 	integral.push_back(itg);
-	infError.push_back(1 - I.leftBound());
+	//infError.push_back(1 - I.leftBound());
 		
 	vector< vector<Entry> > cartProduct = cartesianProduct(vectors);
-	
-	vector<Entry> extraEntries;
 
+	//extra splits
+	/*
+	vector<Entry> entries;
+	vector<Entry> divisions;
+	for(int i = 0; i < cartProduct.size(); i++)
+	{
+		entries.push_back(cartProduct.at(i).at(0));
+	}
+
+	cout << "size before " << cartProduct.size() << endl;
+	for(int i = 0; i < entries.size(); i++)
+	{
+		double step = width(entries.at(i).getSubInterval()) / 1;
+		double position = entries.at(i).getSubInterval().leftBound();
+		while(position < entries.at(i).getSubInterval().rightBound())
+		{
+			divisions.push_back(Entry(DInterval(position, position + step), integral.at(0).calculateS(DInterval(position, position + step))));
+			position += step;
+		}
+	}
+	
+	cartProduct.clear();
+	*/
+
+	ofstream JSON;
+	string JSONFilename("../example/insulin-infusion.json");
+	JSON.open(JSONFilename.c_str());
+	JSON << "{ \"domain\": " << DInterval(rv.at(0).getLeft(), rv.at(0).getRight()) << ",";// << endl;
+	JSON << "\"values\": [";// << endl; 
+	JSON.close();
+
+	/*
+	for (int i = 0; i < divisions.size(); i++)
+	{
+		vector<Entry> tmp;
+		tmp.push_back(divisions.at(i));
+		cartProduct.push_back(tmp);
+	}
+	
+	cout << "size after " << cartProduct.size() << endl;
+	*/
+	vector<Entry> extraEntries;
+	
 	//main loop	
 	int counter = 0;
 	#ifdef _OPENMP
@@ -530,7 +493,7 @@ int simulatePartitionInParallel(int argc, char *argv[])
 	{
 		#pragma omp parallel
 		{
-			#pragma omp for
+			#pragma omp for schedule(dynamic)
 			for (int i = 0; i < cartProduct.size(); i++)
 			{
 				double operationTime = time(NULL);
@@ -543,13 +506,17 @@ int simulatePartitionInParallel(int argc, char *argv[])
 				{	
 					if (dReach(rv, modelFileComplement, tempInv, dReachOptions, cartProduct.at(i)))
 					{
-						extraEntries.push_back(cartProduct.at(i).at(0));
-					}
+						DInterval left(cartProduct.at(i).at(0).getSubInterval().leftBound(), cartProduct.at(i).at(0).getSubInterval().mid().rightBound());
+						DInterval right(cartProduct.at(i).at(0).getSubInterval().mid().leftBound(), cartProduct.at(i).at(0).getSubInterval().rightBound());
+						extraEntries.push_back(Entry(left, integral.at(0).calculateS(left)));
+						extraEntries.push_back(Entry(right, integral.at(0).calculateS(right)));
+    				}
 					else
 					{
 						underIntg += cartProduct.at(i).at(0).getPartialSum();
 						counter++;
 						cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+						updateJSON(JSONFilename, cartProduct.at(i).at(0), DInterval(underIntg.leftBound(), overIntg.rightBound()), time(NULL) - operationTime, time(NULL) - startTime, 1);
 					}
 				}
 				else
@@ -557,6 +524,7 @@ int simulatePartitionInParallel(int argc, char *argv[])
 					overIntg -= cartProduct.at(i).at(0).getPartialSum();
 					counter++;
 					cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;			
+					updateJSON(JSONFilename, cartProduct.at(i).at(0), DInterval(underIntg.leftBound(), overIntg.rightBound()), time(NULL) - operationTime, time(NULL) - startTime, 0);
 				}
 			}
 		}
@@ -595,6 +563,10 @@ int simulatePartitionInParallel(int argc, char *argv[])
     	omp_destroy_lock(&lock);
  	#endif
 
+    JSON.open(JSONFilename.c_str(), fstream::app);
+	JSON << "]}";// << endl;
+	JSON.close();
+
    	cout << "|-------------------------------------------------------------------------------------|" << endl;
    	cout << "|-------------------------------------------------------------------------------------|" << endl;
    	cout << "| Probability interval         | Precision    | Required precision | Total time       |" << endl;
@@ -605,12 +577,271 @@ int simulatePartitionInParallel(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
+/*
+int solveNotParallel(int argc, char *argv[])
+{
+	vector<RV> rv;
+	vector<string> temp;
+	vector<string> tempInv;
+
+	getTempFromFile(modelFile, temp, rv);
+	getTempFromFile(modelFileComplement, tempInv);
+	
+	if (rv.size() > 1)
+	{
+		cout << "WARNING!!! There are " << rv.size() << " random variables in the model. Only the first one will be considered" << endl;
+	}
+	
+	double startTime = time(NULL);
+
+	DInterval overIntg(1.0), underIntg(0.0), realIntg(0.0, 1.0), realIntgInf(0.0, 1.0);
+	
+	vector<Integral> integral;
+	vector< vector<Entry> > vectors;
+	vector<double> infError;
+	
+	Integral itg = Integral(rv.at(0), precision);
+	DInterval I = itg.solve();
+	overIntg =+ I.rightBound();
+	vectors.push_back(itg.getEntries());
+	integral.push_back(itg);
+	infError.push_back(1 - I.leftBound());
+		
+	vector< vector<Entry> > cartProduct = cartesianProduct(vectors);
+	
+	vector<Entry> extraEntries;
+
+	//main loop	
+	int counter = 0;
+    cout << "Required precision: " << scientific << precision << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| Probability interval         | Precision    | Time per iteration | Total time       |" << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+	while (overIntg - underIntg > precision)
+	{
+			for (int i = 0; i < cartProduct.size(); i++)
+			{
+				double operationTime = time(NULL);
+				if(verbose)
+				{
+					cout << counter << " of " << cartProduct.size()  << ") Interval: " << cartProduct.at(i).at(0).getSubInterval() << endl;
+				}
+				
+				if (dReach(rv, modelFile, temp, dReachOptions, cartProduct.at(i)))
+				{	
+					if (dReach(rv, modelFileComplement, tempInv, dReachOptions, cartProduct.at(i)))
+					{
+						DInterval left(cartProduct.at(i).at(0).getSubInterval().leftBound(), cartProduct.at(i).at(0).getSubInterval().mid().rightBound());
+						DInterval right(cartProduct.at(i).at(0).getSubInterval().mid().leftBound(), cartProduct.at(i).at(0).getSubInterval().rightBound());
+						extraEntries.push_back(Entry(left, integral.at(0).calculateS(left)));
+						extraEntries.push_back(Entry(right, integral.at(0).calculateS(right)));
+    				}
+					else
+					{
+						underIntg += cartProduct.at(i).at(0).getPartialSum();
+						counter++;
+						cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+					}
+				}
+				else
+				{
+					overIntg -= cartProduct.at(i).at(0).getPartialSum();
+					counter++;
+					cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;			
+				}
+			}
+
+		cartProduct.clear();
+		
+		
+    	int numThreads = 2;	
+		
+		while (extraEntries.size() < numThreads)
+    	{
+    		Entry entry = extraEntries.front();
+    		extraEntries.erase(extraEntries.begin());
+    		DInterval left(entry.getSubInterval().leftBound(), entry.getSubInterval().mid().rightBound());
+			DInterval right(entry.getSubInterval().mid().leftBound(), entry.getSubInterval().rightBound());
+			extraEntries.push_back(Entry(left, integral.at(0).calculateS(left)));
+			extraEntries.push_back(Entry(right, integral.at(0).calculateS(right)));
+    	}
+		
+		for (int i = 0; i < extraEntries.size(); i++)
+		{
+			vector<Entry> tmp;
+			tmp.push_back(extraEntries.at(i));
+			cartProduct.push_back(tmp);
+		}
+		
+		extraEntries.clear();
+		
+
+	}
+
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| Probability interval         | Precision    | Required precision | Total time       |" << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << precision << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec |" << endl;
+	cout << "|-------------------------------------------------------------------------------------|" << endl;
+
+	return EXIT_SUCCESS;
+}
+*/
+
+/*
+int solveParallelWhile(int argc, char *argv[])
+{
+	vector<RV> rv;
+	vector<string> temp;
+	vector<string> tempInv;
+
+	getTempFromFile(modelFile, temp, rv);
+	getTempFromFile(modelFileComplement, tempInv);
+	
+	if (rv.size() > 1)
+	{
+		cout << "WARNING!!! There are " << rv.size() << " random variables in the model. Only the first one will be considered" << endl;
+	}
+	
+	double startTime = time(NULL);
+
+	DInterval overIntg(1.0), underIntg(0.0), realIntg(0.0, 1.0), realIntgInf(0.0, 1.0);
+	
+	vector<Integral> integral;
+	vector< vector<Entry> > vectors;
+	vector<double> infError;
+	
+	Integral itg = Integral(rv.at(0), precision);
+	DInterval I = itg.solve();
+	overIntg =+ I.rightBound();
+	vectors.push_back(itg.getEntries());
+	integral.push_back(itg);
+	infError.push_back(1 - I.leftBound());
+		
+	vector< vector<Entry> > cartProduct = cartesianProduct(vectors);
+
+	
+
+	ofstream JSON;
+	string JSONFilename("../output.json");
+	JSON.open(JSONFilename.c_str());
+	JSON << "{ \"domain\": " << DInterval(rv.at(0).getLeft(), rv.at(0).getRight()) << "," << endl;
+	JSON << "\"values\": [" << endl; 
+	JSON.close();
+
+	vector<Entry> extraEntries;
+	
+	//main loop	
+	int counter = 0;
+	#ifdef _OPENMP
+    	omp_init_lock(&lock);
+    	omp_set_num_threads(omp_get_max_threads() - 8);
+ 	#endif
+    //cout.precision(12);
+    cout << "Required precision: " << scientific << precision << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| Probability interval         | Precision    | Time per iteration | Total time       |" << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+	#pragma omp parallel
+	{
+		while (overIntg - underIntg > precision)
+		{
+			
+			vector<Entry> entries;
+			#pragma omp critical
+			{
+				if (cartProduct.size() > 0)
+				{	
+					entries = cartProduct.front();
+					cartProduct.erase(cartProduct.begin());
+				}
+			}	
+
+			double operationTime = time(NULL);
+			if (dReach(rv, modelFile, temp, dReachOptions, entries))
+			{	
+				if (dReach(rv, modelFileComplement, tempInv, dReachOptions, entries))
+				{
+					#pragma omp critical
+					{
+						DInterval left(entries.at(0).getSubInterval().leftBound(), entries.at(0).getSubInterval().mid().rightBound());
+						DInterval right(entries.at(0).getSubInterval().mid().leftBound(), entries.at(0).getSubInterval().rightBound());
+						vector<Entry> tmp;
+						tmp.push_back(Entry(left, integral.at(0).calculateS(left)));
+						cartProduct.push_back(tmp);
+						tmp.clear();
+						tmp.push_back(Entry(right, integral.at(0).calculateS(right)));
+						cartProduct.push_back(tmp);
+						tmp.clear();
+					}
+				}
+				else
+				{
+					#pragma omp critical
+					{
+						underIntg += entries.at(0).getPartialSum();
+						counter++;
+						cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+						updateJSON(JSONFilename, entries.at(0), DInterval(underIntg.leftBound(), overIntg.rightBound()), time(NULL) - operationTime, time(NULL) - startTime);
+					}
+				}
+			}
+			else
+			{
+				#pragma omp critical
+				{
+					overIntg -= entries.at(0).getPartialSum();
+					counter++;
+					cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;			
+					updateJSON(JSONFilename, entries.at(0), DInterval(underIntg.leftBound(), overIntg.rightBound()), time(NULL) - operationTime, time(NULL) - startTime);
+				}
+			}
+		}
+	}
+	#ifdef _OPENMP
+    	omp_destroy_lock(&lock);
+ 	#endif
+
+    JSON.open(JSONFilename.c_str(), fstream::app);
+	JSON << "]}" << endl;
+	JSON.close();
+
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| Probability interval         | Precision    | Required precision | Total time       |" << endl;
+   	cout << "|-------------------------------------------------------------------------------------|" << endl;
+   	cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << precision << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec |" << endl;
+	cout << "|-------------------------------------------------------------------------------------|" << endl;
+
+	return EXIT_SUCCESS;
+}
+*/
+
 int main(int argc, char* argv[])
 {
-	//cout << "not in parallel" << endl;
-	//simulateNotParallel(argc, argv);
-	cout << "partition in parallel" << endl;
-	simulatePartitionInParallel(argc, argv);
+	if(!getSettings(argv[1]))
+	{
+		cout << "Invalid settings file" << endl;
+		return EXIT_FAILURE;
+	}
+
+	if(argc > 2)
+	{
+		if((strcmp(argv[2], "--verbose") == 0) || (strcmp(argv[2], "-verbose") == 0))
+		{
+			verbose = true;
+		}
+	}
+	
+	cout << "parallel" << endl;
+	solveParallel(argc, argv);
+	//cout << "parallel" << endl;
+	//solveParallelWhile(argc, argv);
+	//cout << "not parallel" << endl;
+	//solveNotParallel(argc, argv);
 	return EXIT_SUCCESS;
 }
 

@@ -1,0 +1,7 @@
+param:
+0.000000001
+model:
+thermostat-ed-1.pdrh
+thermostat-ed-1-c.pdrh
+dReach:
+6

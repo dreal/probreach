@@ -27,10 +27,10 @@ Run `./ProbReach <settings-file>` where the settings file should be structured a
 
 ```
 param:
-<integral precision> - length of the interval containing the exact value of probability
+<precision> - length of the interval containing the exact value of probability
 model:
-<model-file.pdrh> - bounded reachability encoded in `pdrh` format
-<model-file-c.pdrh> - negation of bounded reachability encoded in `pdrh` format
+<path/to/model/file.pdrh> - bounded reachability encoded in `pdrh` format
+<path/to/model/file-c.pdrh> - negation of bounded reachability encoded in `pdrh` format
 dReach:
-<depth of reachability analysis>
+<depth> - depth of reachability analysis>
 ```

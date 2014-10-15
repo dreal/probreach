@@ -1,7 +1,0 @@
-param:
-0.01
-model:
-/home/b2049657/ProbReach/model/starvation/starvation.pdrh
-/home/b2049657/ProbReach/model/starvation/starvation-c.pdrh
-dReach:
-0

@@ -25,16 +25,19 @@ string dReachOptions = "";
 vector<string> drhTemplate;
 vector<string> drhTemplateInverse;
 bool verbose = false;
+string settingsFilePath = "";
+double id = time(NULL);
 
-//for the output
+//for json output
 vector<DInterval> json_intervals;
 vector<DInterval> json_partial_sums;
 vector<DInterval> json_probability;
-vector<double> json_precision;
 vector<double> json_operation_time;
 vector<double> json_total_time;
+vector<int> json_borel;
 DInterval json_domain;
 string json_filename;
+string json_pdf;
 
 #ifdef _OPENMP
 	omp_lock_t lock;
@@ -66,7 +69,17 @@ void getTempFromFile(string filepath, vector<string> &temp, vector<RV> &rv)
 				string param2 = string() + matches[9].str();
 				double deviation = atof(param2.c_str());
 				string var = string() + matches[13].str();
-				rv.push_back(RV("n", var, normalString(var, mean, deviation), mean - 20 * deviation, mean + 20 * deviation));
+				if (rv.size() == 0)					
+				{
+					stringstream json_pdf_stream;
+					json_pdf_stream << "{";
+					json_pdf_stream << "\"type\":\"" << "n" << "\",";
+					json_pdf_stream << "\"mean\":\"" << mean << "\",";
+					json_pdf_stream << "\"deviation\":\"" << deviation << "\"";
+					json_pdf_stream << "}";
+					json_pdf = json_pdf_stream.str();
+					rv.push_back(RV("n", var, normalString(var, mean, deviation), mean - 20 * deviation, mean + 20 * deviation));
+				}
 			} else
 			if (regex_match(line, matches, uniformRegEx)) 
 			{
@@ -75,7 +88,17 @@ void getTempFromFile(string filepath, vector<string> &temp, vector<RV> &rv)
 				string param2 = string() + matches[9].str();
 				double right =atof(param2.c_str());
 				string var = string() + matches[13].str();
-				rv.push_back(RV("u", var, uniformString(left, right), left, right));
+				if (rv.size() == 0)
+				{
+					stringstream json_pdf_stream;
+					json_pdf_stream << "{";
+					json_pdf_stream << "\"type\":\"" << "u" << "\",";
+					json_pdf_stream << "\"left\":\"" << left << "\",";
+					json_pdf_stream << "\"right\":\"" << right << "\"";
+					json_pdf_stream << "}";
+					json_pdf = json_pdf_stream.str();
+					rv.push_back(RV("u", var, uniformString(left, right), left, right));
+				}
 			} 
 			else 
 			{
@@ -222,33 +245,43 @@ bool dReach(vector<RV> rv, string tempFilepath, vector<string> temp, string k, v
 }
 
 
-/**
- * Writes entries to the file
- *
- * @param entries entries to be stored in the file fileName
- */
-void updateJSON(string filename, Entry entry, DInterval probability, double operationTime, double totalTime, int borel)
+void saveJSON()
 {
-	/*
+	stringstream ss;
+	ss << settingsFilePath << ".json";
+	string filename = ss.str();
+	
 	ofstream JSON;
-	JSON.open(filename.c_str(), fstream::app);
+	JSON.open(filename.c_str());
+	JSON.precision(16);
 
-	JSON << "{\"interval\": " << entry.getSubInterval() << ",";
-	JSON << "\"partial_sum\": " << entry.getPartialSum() << ",";
-	JSON << "\"probability\": " << probability << ",";
-	JSON << "\"precision\": " << width(probability) << ",";
-	JSON << "\"time\": " << operationTime << ",";
-	JSON << "\"total_time\": " << totalTime << ",";// << endl;
-	JSON << "\"borel\": " << borel << "},";
+	JSON << "{ \"domain\": " << scientific << json_domain << "," << endl;
+	JSON << "\"pdf\": " << json_pdf << "," << endl;
+	JSON << "\"values\": [" << endl; 
+	
+	for(int i = 0; i < json_intervals.size() - 1; i++)
+	{
+		JSON << "{\"interval\": " << scientific << json_intervals.at(i) << ",";
+		JSON << "\"partial_sum\": " << scientific << json_partial_sums.at(i) << ",";
+		JSON << "\"probability\": " << scientific << json_probability.at(i) << ",";
+		JSON << "\"precision\": " << scientific << width(json_probability.at(i)) << ",";
+		JSON << "\"time\": " << json_operation_time.at(i) << ",";
+		JSON << "\"total_time\": " << json_total_time.at(i) << ",";
+		JSON << "\"borel\": " << json_borel.at(i) << "}," << endl;
+	}
 
+	JSON << "{\"interval\": " << json_intervals.at(json_intervals.size() - 1) << ",";
+	JSON << "\"partial_sum\": " << json_partial_sums.at(json_intervals.size() - 1) << ",";
+	JSON << "\"probability\": " << json_probability.at(json_intervals.size() - 1) << ",";
+	JSON << "\"precision\": " << width(json_probability.at(json_intervals.size() - 1)) << ",";
+	JSON << "\"time\": " << json_operation_time.at(json_intervals.size() - 1) << ",";
+	JSON << "\"total_time\": " << json_total_time.at(json_intervals.size() - 1) << ",";
+	JSON << "\"borel\": " << json_borel.at(json_intervals.size() - 1) << "}" << endl;
+
+	JSON << "]}" << endl;
 	JSON.close();
-	*/
-
-	ofstream JSON;
-	JSON.close;
+	
 }
-
-
 
 bool getSettings(string filename)
 {
@@ -458,13 +491,14 @@ int solveParallel(int argc, char *argv[])
 	cartProduct.clear();
 	*/
 
+	/*
 	ofstream JSON;
 	string JSONFilename("../example/insulin-infusion.json");
 	JSON.open(JSONFilename.c_str());
 	JSON << "{ \"domain\": " << DInterval(rv.at(0).getLeft(), rv.at(0).getRight()) << ",";// << endl;
 	JSON << "\"values\": [";// << endl; 
 	JSON.close();
-
+	*/
 	/*
 	for (int i = 0; i < divisions.size(); i++)
 	{
@@ -475,6 +509,7 @@ int solveParallel(int argc, char *argv[])
 	
 	cout << "size after " << cartProduct.size() << endl;
 	*/
+	json_domain = DInterval(rv.at(0).getLeft(), rv.at(0).getRight());
 	vector<Entry> extraEntries;
 	
 	//main loop	
@@ -489,7 +524,7 @@ int solveParallel(int argc, char *argv[])
    	cout << "| Probability interval         | Precision    | Time per iteration | Total time       |" << endl;
    	cout << "|-------------------------------------------------------------------------------------|" << endl;
    	cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
-	while (overIntg - underIntg > precision)
+	while (overIntg.rightBound() - underIntg.leftBound() > precision)
 	{
 		#pragma omp parallel
 		{
@@ -513,18 +548,36 @@ int solveParallel(int argc, char *argv[])
     				}
 					else
 					{
-						underIntg += cartProduct.at(i).at(0).getPartialSum();
-						counter++;
-						cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
-						updateJSON(JSONFilename, cartProduct.at(i).at(0), DInterval(underIntg.leftBound(), overIntg.rightBound()), time(NULL) - operationTime, time(NULL) - startTime, 1);
+						#pragma omp critical
+						{
+							underIntg += cartProduct.at(i).at(0).getPartialSum();
+							counter++;
+							cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+							json_intervals.push_back(cartProduct.at(i).at(0).getSubInterval());
+							json_partial_sums.push_back(cartProduct.at(i).at(0).getPartialSum());
+							json_probability.push_back(DInterval(underIntg.leftBound(), overIntg.rightBound()));
+							json_operation_time.push_back(time(NULL) - operationTime);
+							json_total_time.push_back(time(NULL) - startTime);
+							json_borel.push_back(1);
+							saveJSON();
+						}
 					}
 				}
 				else
 				{
-					overIntg -= cartProduct.at(i).at(0).getPartialSum();
-					counter++;
-					cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;			
-					updateJSON(JSONFilename, cartProduct.at(i).at(0), DInterval(underIntg.leftBound(), overIntg.rightBound()), time(NULL) - operationTime, time(NULL) - startTime, 0);
+					#pragma omp critical
+					{
+						overIntg -= cartProduct.at(i).at(0).getPartialSum();
+						counter++;
+						cout << "| [" << setprecision(12) << scientific << underIntg.leftBound() << ", " << overIntg.rightBound() << "] | " << overIntg.rightBound() - underIntg.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;			
+						json_intervals.push_back(cartProduct.at(i).at(0).getSubInterval());
+						json_partial_sums.push_back(cartProduct.at(i).at(0).getPartialSum());
+						json_probability.push_back(DInterval(underIntg.leftBound(), overIntg.rightBound()));
+						json_operation_time.push_back(time(NULL) - operationTime);
+						json_total_time.push_back(time(NULL) - startTime);
+						json_borel.push_back(0);
+						saveJSON();
+					}
 				}
 			}
 		}
@@ -563,9 +616,12 @@ int solveParallel(int argc, char *argv[])
     	omp_destroy_lock(&lock);
  	#endif
 
+    /*
     JSON.open(JSONFilename.c_str(), fstream::app);
 	JSON << "]}";// << endl;
 	JSON.close();
+	*/
+	saveJSON();
 
    	cout << "|-------------------------------------------------------------------------------------|" << endl;
    	cout << "|-------------------------------------------------------------------------------------|" << endl;
@@ -827,6 +883,8 @@ int main(int argc, char* argv[])
 		cout << "Invalid settings file" << endl;
 		return EXIT_FAILURE;
 	}
+
+	settingsFilePath = argv[1];
 
 	if(argc > 2)
 	{

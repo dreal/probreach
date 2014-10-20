@@ -5,7 +5,7 @@ ProbReach - software for calculating bounded probabilistic reachability in hybri
 1. Required packages
 --------------------
 - [gcc-4.9](https://gcc.gnu.org/gcc-4.9/) or [clang-3.5](http://clang.llvm.org/docs/ReleaseNotes.html)
-- [dReal/dReach](http://dreal.cs.cmu.edu/)
+- [dReal/dReach](https://github.com/dreal/dreal)
 - [CAPD-4.0](http://capd.ii.uj.edu.pl/) library
 
 2. Compilation

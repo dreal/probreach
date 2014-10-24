@@ -1,7 +1,7 @@
 param:
 0.000000001
 model:
-bouncing-ball-random-speed.pdrh
-bouncing-ball-random-speed-c.pdrh
+/absolute/path/to/file/bouncing-ball-random-speed.pdrh
+/absolute/path/to/file/bouncing-ball-random-speed-c.pdrh
 dReach:
 0

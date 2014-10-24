@@ -1,7 +1,7 @@
 param:
 0.000001
 model:
-cbb.pdrh
-cbb-c.pdrh
+/absolute/path/to/file/cbb.pdrh
+/absolute/path/to/file/cbb-c.pdrh
 dReach:
 2

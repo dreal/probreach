@@ -1,7 +1,7 @@
 param:
 0.0001
 model:
-insulin-infusion.pdrh
-insulin-infusion-c.pdrh
+/absolute/path/to/file/insulin-infusion.pdrh
+/absolute/path/to/file/insulin-infusion-c.pdrh
 dReach:
 1

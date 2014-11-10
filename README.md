@@ -1,6 +1,6 @@
 ProbReach
 =========
-ProbReach - software for calculating bounded probabilistic reachability in hybrid systems with random continuous initial parameters. Currently one continuous random variable is supported.
+ProbReach - software for calculating bounded probabilistic reachability in hybrid systems with random continuous initial parameters. Currently one continuous random variable is supported. A version supporting multiple random variables will be released soon.
 
 1. Required packages
 --------------------

@@ -1,7 +1,7 @@
-param:
-0.000000001
+precision:
+0.000001
 model:
-/absolute/path/to/file/thermostat-ed.pdrh
-/absolute/path/to/file/thermostat-ed-c.pdrh
-dReach:
-5
+/home/b2049657/ProbReach-dev/model/thermostat-ed/thermostat-ed.pdrh
+/home/b2049657/ProbReach-dev/model/thermostat-ed/thermostat-ed-c.pdrh
+depth:
+7

@@ -1,40 +1,39 @@
-// Integral class implements a verified integration
-// procedure for an arbitrary four times differentiable 
-// function using interval version of (1/3) Simpson's rule.
-// The result of computation is an interval of arbitrarily
-// small positive length containing the exact value of the
-// definite integral
+// RVIntegral class implements a verified integration
+// procedure for probability density funtion of an arbitrary
+// continuous random variable. The result of computation is an
+// interval of arbitrarily small positive length containing
+// the exact value of the definite integral
 //
 // @author: Fedor Shmarov
 // @e-mail: f.shmarov@ncl.ac.uk
-#ifndef INTEGRAL_H  
-#define INTEGRAL_H  
+#ifndef RVINTEGRAL_H  
+#define RVINTEGRAL_H  
 
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include<string>
 #include "PartialSum.h"
 #include "RV.h"
+#include "nRV.h"
 
 using namespace std;
 using namespace capd;
 
-// Integral class declaration
-class Integral
+// RVIntegral class declaration 
+class RVIntegral
 {
 	private:
 
 		// Required width of the interval containing the value of the integral
 		double precision;
 
-		// Four times differentiable function in the string format
-		string fun;
+		// Coefficient determining the bounds of the integration interval
+		double coef;
 
-		// The name of the variable with respect to ehich the 
-		// integration is performed
-		string var;
+		// Random variable
+		RV* rv;
 
-		// The interval where the definite integral is calculated
+		// Integration interval
 		DInterval interval;
 
 		// The interval containing the exact value of the integral
@@ -44,26 +43,20 @@ class Integral
 		// definite integral
 		vector<PartialSum> partial_sums;
 
-		// Temporary list of the partial sums
-		vector<PartialSum> temp_vector;
-
 		// The method performs calculation of the integral
 		void calculate_value();
-		
+
 	public:
 
 		// Constructor of the class
 		//
-		// @param name of the variable, inegrated function,
-		// integration interval and precision
-		Integral(string, string, DInterval, double);
+		// @param continuous random variable, coefficient
+		// and precision
+		RVIntegral(RV*, double, double);
 
-		// The methods returns the integrated function
-		string get_fun();
-
-		// The method returns the name of the variable
-		// with respect to which the integration is performed
-		string get_var();
+		// The method returns the random variable which
+		// probability density function is integrated
+		RV* get_rv();
 
 		// The method returns the value of the integral
 		DInterval get_value();
@@ -71,9 +64,13 @@ class Integral
 		// The method returns the integration interval
 		DInterval get_interval();
 
-		// The method retuns precision used for
+		// The method returns precision used for
 		// calculating the integral
 		double get_precision();
+
+		// The method returns coefficient determining
+		// the bounds of the integration interval
+		double get_coef();
 
 		// The method sets a precision on the
 		// integral calculation

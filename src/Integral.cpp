@@ -1,149 +1,95 @@
-/**
- * Class containing methods for calculating the interval of an arbitrary positive length
- * containing the exact value of the integral of the continuous function on the interval
- *
- * @author: Fedor Shmarov
- * @e-mail: f.shmarov@ncl.ac.uk
- */
+// Integral class implements a verified integration
+// procedure for an arbitrary four times differentiable 
+// function using interval version of (1/3) Simpson's rule.
+// The result of computation is an interval of arbitrarily
+// small positive length containing the exact value of the
+// definite integral
+//
+// @author: Fedor Shmarov
+// @e-mail: f.shmarov@ncl.ac.uk
 #include "Integral.h"
-#include "Entry.h"
+#include "PartialSum.h"
 #include "RV.h"
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include<iomanip>
 #include<string>
 
-/**
- * Default constructor
- */
-Integral::Integral()
+// Constructor of the class
+//
+// @param name of the variable, inegrated function,
+// integration interval and precision
+Integral::Integral(string var, string fun, DInterval interval, double precision)
 {
-}
-
-/**
- * Constructor
- */
-Integral::Integral(RV rv, double precision)
-{
-	this->I = DInterval(0.0);
-	this->a = rv.getLeft();
-	this->b = rv.getRight();
-	this->f = IFunction("var:" + rv.getVar() + ";fun:" + rv.getFun() + ";");
-	this->_f = IMap("var:" + rv.getVar() + ";fun:" + rv.getFun() + ";");
-	this->_f.setDegree(4);
+	this->var = var;
+	this->fun = fun;
+	this->interval = interval;
 	this->precision = precision;
-	this->intervals.push_back(DInterval(a, (b + a) / 2));
-	this->intervals.push_back(DInterval((b + a) / 2, b));
+	this->temp_vector.push_back(PartialSum(var, fun, DInterval(interval.leftBound(), interval.mid().rightBound())));
+	this->temp_vector.push_back(PartialSum(var, fun, DInterval(interval.mid().leftBound(), interval.rightBound())));
+	this->value = DInterval(0.0);
+	calculate_value();
 }
 
-/**
- * Getters and setters
- */
-double Integral::getPrecision()
+// The method retuns precision used for
+// calculating the integral
+double Integral::get_precision()
 {
 	return precision;
 }
 
-void Integral::setPrecision(double precision)
+// The method returns the name of the variable
+// with respect to which the integration is performed
+string Integral::get_var()
+{
+	return var;
+}
+
+// The methods returns the integrated function
+string Integral::get_fun()
+{
+	return fun;
+}
+
+// The method returns the value of the integral
+DInterval Integral::get_value()
+{
+	return value;
+}
+
+// The method sets a precision on the
+// integral calculation
+//
+// @param precision
+void Integral::set_precision(double precision)
 {
 	this->precision = precision;
 }
 
-IFunction Integral::getFunction()
+// The method returns partial sums forming
+// the value of the integral
+vector<PartialSum> Integral::get_partial_sums()
 {
-	return f;
+	return this->partial_sums;
 }
 
-void Integral::setFunction(IFunction f)
+// The method performs calculation of the integral
+void Integral::calculate_value()
 {
-	this->f = f;
-}
-
-IMap Integral::getMap()
-{
-	return _f;
-}
-
-void Integral::setMap(IMap _f)
-{
-	this->_f = _f;
-}
-
-void Integral::setFunctionFromString(string var, string funString)
-{
-	this->f = IFunction("var:" + var + ";fun:" + funString + ";");
-	this->_f = IMap("var:" + var + ";fun:" + funString + ";");
-	this->_f.setDegree(4);
-}
-
-vector<Entry> Integral::getEntries()
-{
-	return this->entries;
-}
-
-vector<DInterval> Integral::getIntervals()
-{
-	return this->intervals;
-}
-
-/**
- * Calculating the interval enclosing the value of the fourth derivative of the function on the interval
- *
- * @param v interval on which the value of the fourth derivatives should be found
- *
- * @returm fourth derivative of the function on the interval
- */
-DInterval Integral::f4(DInterval v)
-{
-	DInterval vArray[] = {v};
-  	IVector x(1,vArray);
-
-	IJet jet(1,1,4);
-	_f(x,jet);
-
-	//multiply by 24 because jet(0, 3) is the value of the fourth Taylor coefficient = (f4) / 4!)
-	return jet(0, 3) * 24;
-}
-
-/**
- * Calculating the interval enclosing the value of the partial sum of the function on the interval
- *
- * @param x interval on which the value of the partial sum should be found
- *
- * @returm partial sum of the function on the interval x
- */
-DInterval Integral::calculateS(DInterval x)
-{
-	return (width(x) / 6) * (f(x.leftBound()) + 4 * f(x.mid()) + f(x.rightBound())) - (width(x) * width(x) * width(x) * width(x) * width(x) / 2880) * f4(x);
-}
-
-/**
- * Calculating the interval enclosing the value of the intergal
- *
- * @returm interval containing the value of the integral
- */
-DInterval Integral::solve()
-{
-	while (intervals.size() > 0)
+	while (temp_vector.size() > 0)
 	{
-				
-		DInterval x = intervals.front();
-		intervals.erase(intervals.begin());
-		
-		DInterval S = calculateS(x);
+		PartialSum p_sum = temp_vector.front();
+		temp_vector.erase(temp_vector.begin());
 	
-		if (width(S) > precision * (width(x) / (b - a)))
+		if (width(p_sum.get_value()) > precision * (width(p_sum.get_interval()) / width(interval)))
 		{
-			intervals.push_back(DInterval(x.leftBound(), x.mid().rightBound()));
-			intervals.push_back(DInterval(x.mid().leftBound(), x.rightBound()));
+			temp_vector.push_back(PartialSum(var, fun, DInterval(p_sum.get_interval().leftBound(), p_sum.get_interval().mid().rightBound())));
+			temp_vector.push_back(PartialSum(var, fun, DInterval(p_sum.get_interval().mid().leftBound(), p_sum.get_interval().rightBound())));
 		}
 		else
 		{
-			entries.push_back(Entry(x, S));
-			I += S;
+			partial_sums.push_back(p_sum);
+			value += p_sum.get_value();
 		}
-
 	}
-
-	return I;
 }

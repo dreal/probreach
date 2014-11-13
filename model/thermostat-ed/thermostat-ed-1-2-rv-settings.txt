@@ -1,0 +1,7 @@
+precision:
+0.01
+model:
+/home/b2049657/ProbReach-dev/model/thermostat-ed/thermostat-ed-1-2-rv.pdrh
+/home/b2049657/ProbReach-dev/model/thermostat-ed/thermostat-ed-1-2-rv-c.pdrh
+depth:
+1

@@ -1,7 +1,7 @@
-param:
+precision:
 0.0001
 model:
-/absolute/path/to/file/insulin-infusion.pdrh
-/absolute/path/to/file/insulin-infusion-c.pdrh
-dReach:
+/home/b2049657/ProbReach-dev/model/insulin-infusion/insulin-infusion.pdrh
+/home/b2049657/ProbReach-dev/model/insulin-infusion/insulin-infusion-c.pdrh
+depth:
 1

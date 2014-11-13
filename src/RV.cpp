@@ -1,52 +1,82 @@
-/**
- * Class for storing the information about the random varibale
- *
- * @author: Fedor Shmarov
- * @e-mail: f.shmarov@ncl.ac.uk
- */
+// RV class implements a generic random variable.
+//
+// @author: Fedor Shmarov
+// @e-mail: f.shmarov@ncl.ac.uk
 #include<string>
 #include<sstream>
+#include<capd/capdlib.h>
+#include<capd/intervals/lib.h>
 #include "RV.h"
 
 using namespace std;
 
-RV::RV(string name, string var, string fun, double left, double right)
+// Class contructor
+// 
+// @param name of the random variable in a string format
+RV::RV(string var)
 {
-	this->name = name;
 	this->var = var;
-	this->fun = fun;
-	this->left = left;
-	this->right = right;
 }
 
-string RV::getName()
+// The method returns a notation of the random variable
+// in defined form (e.g. N(0,1) for a random variable with 
+// mean = 0 and standard deviation = 1)
+string RV::get_notation()
 {
-	return this->name;
+	return this->notation;
 }
 
-string RV::getVar()
+// The method returns the name of the random variable
+// in a string format
+string RV::get_var()
 {
 	return this->var;
 }
 
-string RV::getFun()
+// The method returns the probability density
+// function of the random variable in a string format
+string RV::get_pdf()
 {
-	return this->fun;
+	return this->pdf;
 }
 
-double RV::getLeft()
+// The method returns the bounds set on the random
+// variable (needed to support integral computation)
+DInterval RV::get_domain()
 {
-	return this->left;
+	return this->domain;
 }
 
-double RV::getRight()
+// The method sets a notation for the defined random
+// variable
+//
+// @param notation of the random variable
+void RV::set_notation(string notation)
 {
-	return this->right;
+	this->notation = notation;
 }
 
-string RV::toString()
+// The method sets a probabilty density function
+// for the defined random variable
+//
+// @param notation of the random variable
+void RV::set_pdf(string pdf)
 {
-	stringstream s;
-	s << this->var << "; " << this->fun << "; " << this->left << "; " << this->right;
-	return s.str();
+	this->pdf = pdf;
+}
+
+// The method sets a bounded domain for the defined
+// random variable (in order to support the integral
+// computation)
+//
+// @param bounded domain of the random variable
+void RV::set_domain(DInterval domain)
+{
+	this->domain = domain;
+}
+
+// Class destructor
+RV::~RV()
+{
+	
 }

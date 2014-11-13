@@ -1,8 +1,7 @@
-#define K 1.0
 [0, 5] time;
 [0, 1000] tau;
 N(30, 1) x;
-
+N(1.0, 0.1) K;
 
 { mode 1;
   invt:
@@ -10,6 +9,7 @@ N(30, 1) x;
   flow:
 	d/dt[x] = - x * K;
 	d/dt[tau] = 10.0;
+  d/dt[K] = 0.0;
   jump:
         (x <= 18) ==> @2 (and (x' = x) (tau' = tau));
 }
@@ -19,6 +19,7 @@ N(30, 1) x;
   flow:
 	d/dt[x] = - K * (x - 30);
 	d/dt[tau] = 10.0;
+  d/dt[K] = 0.0;
   jump:
         (x >= 22) ==> @1 (and (x' = x) (tau' = tau));
 }
@@ -26,4 +27,4 @@ init:
 @1	(and (tau = 0));
 
 goal:
-@2	(and (x >= 19.9) (x <= 20.1) (tau = 18));
+@2	(and (x >= 19.9) (x <= 20.1) (tau = 6));

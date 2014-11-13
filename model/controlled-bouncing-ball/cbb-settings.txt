@@ -1,7 +1,7 @@
-param:
+precision:
 0.000001
 model:
-/absolute/path/to/file/cbb.pdrh
-/absolute/path/to/file/cbb-c.pdrh
-dReach:
+/home/b2049657/ProbReach-dev/model/controlled-bouncing-ball/cbb.pdrh
+/home/b2049657/ProbReach-dev/model/controlled-bouncing-ball/cbb-c.pdrh
+depth:
 2

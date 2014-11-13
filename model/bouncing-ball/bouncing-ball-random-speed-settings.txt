@@ -1,7 +1,7 @@
-param:
+precision:
 0.000000001
 model:
-/absolute/path/to/file/bouncing-ball-random-speed.pdrh
-/absolute/path/to/file/bouncing-ball-random-speed-c.pdrh
-dReach:
+/home/b2049657/ProbReach-dev/model/bouncing-ball/bouncing-ball-random-speed.pdrh
+/home/b2049657/ProbReach-dev/model/bouncing-ball/bouncing-ball-random-speed-c.pdrh
+depth:
 0

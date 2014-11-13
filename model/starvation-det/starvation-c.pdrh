@@ -42,7 +42,6 @@ flow:
     d/dt[F] = F * (- a / (1 + K) - (1 / lambdaF) * ((C + k * L0) / (F + M) + k));
     d/dt[M] = (- M / lambdaM) * ((C + k * L0) / (F + M) + k);
 	d/dt[K] = (V * a * F) / (1 + K) - b;
-	d/dt[k] = 0;
 	d/dt[b] = 0;
 	d/dt[tau] = 1;
 
@@ -51,15 +50,7 @@ jump:
 }
 
 init:
-
-@1 (and 
-		(tau = 0)
-		(F = 25)
-		(M = M0)
-		(K = 0.02)
-		(k >= k_a)
-		(k <= k_b)
-	);
+@1 (and (tau = 0) (F = 25) (M = M0) (K = 0.02));
 
 goal:
 

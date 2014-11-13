@@ -9,11 +9,11 @@
 #define CARTESIANPRODUCT_H  
 
 #include<iostream>
-#include "Entry.h"
+#include "PartialSum.h"
 
 using namespace std;
 
-vector< vector<Entry> > cartesianProduct(vector< vector<Entry> >);
+vector< vector<PartialSum> > cartesianProduct(vector< vector<PartialSum> >);
 
 #endif 
 

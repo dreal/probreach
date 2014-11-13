@@ -23,7 +23,7 @@ N(30, 1) x;
         (x >= 22) ==> @1 (and (x' = x) (tau' = tau));
 }
 init:
-@1	(and (x >= x_a) (x <= x_b) (tau = 0));
+@1	(and (tau = 0));
 
 goal:
 @2	(and (x >= 19.9) (x <= 20.1) (tau = 24));

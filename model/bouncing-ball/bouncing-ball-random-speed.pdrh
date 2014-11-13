@@ -12,13 +12,16 @@ N(20.0, 3.0) v0;
         d/dt[Sx] = v0 * cos(alpha);
         d/dt[Sy] = v0 * sin(alpha) - g * t;
         d/dt[t] = 1.0;
-        d/dt[v0] = 0.0;
   jump:
-        (and (t >= 0.000001) (Sy = 0)) ==> @1 (and (Sx' = Sx) (Sy' = 0) (t' = 0) (v0' = 0.9 * v0));
+        (and (t > 0.000001) (Sy = 0)) ==> @1 (and (Sx' = Sx) (Sy' = 0) (t' = 0) (v0' = 0.9 * v0));
 }
 
 init:
-@1    (and (Sx = 0) (Sy = 0) (t = 0) (v0 <= v0_b) (v0 >= v0_a));
+@1    (and 
+			(Sx = 0)
+			(Sy = 0)
+			(t = 0)
+		);
 
 goal:
 @1    (and (Sx >= 100.0) (Sy >= 0));

@@ -1,13 +1,13 @@
 # a list of all the programs in your project
 PROGS = ProbReach
 # a list of all your units to be linked with your programs (space separated)
-OTHERS = Entry Integral Distribution RV CartesianProduct
+OTHERS = PartialSum Integral RVIntegral MulRVIntegral DecisionProcedure FileParser Box RV nRV BoxFactory
 # directory where capd scripts are (e.g. capd-config)
 CAPDBINDIR =/home/b2049657/capd-4/bin/
 # setting compiler and linker flags
 CAPDFLAGS = `${CAPDBINDIR}capd-config --cflags`
 CAPDLIBS = `${CAPDBINDIR}capd-config --libs`
-CXXFLAGS += ${CAPDFLAGS}  -fopenmp -O2 -Wall -std=c++11
+CXXFLAGS += ${CAPDFLAGS} -fopenmp -O2 -Wall -std=c++11
 LDFLAGS = -fopenmp
 # directory where object and dependancy files will be created
 OBJDIR = .obj/

@@ -75,7 +75,7 @@ string DecisionProcedure::generate_drh(Box box, bool flag)
 		{
 			drh_file << "#define " << box.get_var_of(i) << "_a " << box.get_interval_of(i).leftBound() << endl;
 			drh_file << "#define " << box.get_var_of(i) << "_b " << box.get_interval_of(i).rightBound() << endl;
-			double radius = rv.at(i)->get_domain().rightBound() - rv.at(i)->get_domain().leftBound();
+			double radius = 100 * (rv.at(i)->get_domain().rightBound() - rv.at(i)->get_domain().leftBound());
 			drh_file << "[" << rv.at(i)->get_domain().leftBound() - radius << ", " << rv.at(i)->get_domain().rightBound() + radius << "] " << box.get_var_of(i) << ";" << endl;
 		}
 		

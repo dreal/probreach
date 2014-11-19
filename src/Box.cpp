@@ -22,6 +22,10 @@ Box::Box(vector<PartialSum> dimensions)
 	calculate_params();
 }
 
+Box::Box()
+{
+	
+}
 
 // Method for calculating parameters such as 
 // box value and width of the shortest and
@@ -66,6 +70,11 @@ DInterval Box::get_value()
 	return value;
 }
 
+void Box::set_value(DInterval value)
+{
+	this->value = value;
+}
+
 // The method returns the width of the shortest
 // interval in the box dimensions
 double Box::get_min_width()
@@ -105,6 +114,15 @@ DInterval Box::get_interval_of(int index)
 string Box::get_var_of(int index)
 {
 	return get_dimension(index).get_var();
+}
+
+// The method returns the name of the  
+// random variable at the dimension
+// 
+// @param dimension index
+string Box::get_fun_of(int index)
+{
+	return get_dimension(index).get_fun();
 }
 
 // The method returns the number of dimensions

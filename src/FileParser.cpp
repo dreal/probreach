@@ -44,13 +44,13 @@ void FileParser::modify_init()
 	
 	for(int i = 0; i < temp.size(); i++)
 	{
-		if(regex_match(temp.at(i), regex(".*(init).*(:).*")))
+		if(regex_match(temp.at(i), regex(".*(init:).*")))
 		{
 			smatch matches;
 			int start_init = i + 1;
 			stringstream init_stream;
 			int j = i + 1;
-			while(!regex_match(temp.at(j), regex(".*(goal).*(:).*")))
+			while(!regex_match(temp.at(j), regex(".*(goal:).*")))
 			{
 				if(regex_match(temp.at(j), matches, line))
 				{
@@ -79,13 +79,13 @@ void FileParser::modify_init()
 	
 	for(int i = 0; i < temp_inv.size(); i++)
 	{
-		if(regex_match(temp_inv.at(i), regex(".*(init).*(:).*")))
+		if(regex_match(temp_inv.at(i), regex(".*(init:).*")))
 		{
 			smatch matches;
 			int start_init = i + 1;
 			stringstream init_stream;
 			int j = i + 1;
-			while(!regex_match(temp_inv.at(j), regex(".*(goal).*(:).*")))
+			while(!regex_match(temp_inv.at(j), regex(".*(goal:).*")))
 			{
 				if(regex_match(temp_inv.at(j), matches, line))
 				{

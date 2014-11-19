@@ -66,6 +66,8 @@ class MulRVIntegral
 		// and precision
 		MulRVIntegral(vector<RV*>, double, double);
 
+		DInterval calculate_box(Box);
+
 		// The method returns the vector of random variables
 		vector<RV*> get_rv();
 

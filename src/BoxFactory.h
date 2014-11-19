@@ -28,6 +28,8 @@ class BoxFactory
 		// a vector of 2^n boxes obtained by dividing each edge of the primary 
 		// box in halves
 		static vector<Box> branch_box(Box);
+
+		static bool compare_boxes_des(Box, Box);
 		
 }; 
 #endif  

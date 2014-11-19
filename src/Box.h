@@ -45,11 +45,15 @@ class Box
 		// @param the dimensions of the box	
 		Box(vector<PartialSum>);
 
+		Box();
+
 		// The method returns the box dimensions
 		vector<PartialSum> get_dimensions();
 
 		// The methods return the box value
 		DInterval get_value();
+
+		void set_value(DInterval);
 
 		// The method returns the width of the shortest
 		// interval in the box dimensions
@@ -81,6 +85,8 @@ class Box
 		// 
 		// @param dimension index
 		string get_var_of(int);
+
+		string get_fun_of(int);
 
 		// The method returns the number of dimensions
 		// in the box

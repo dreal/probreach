@@ -12,6 +12,7 @@
 #include "RV.h"
 #include "nRV.h"
 #include "Box.h"
+#include "Integral.h"
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include<iomanip>
@@ -27,6 +28,17 @@ MulRVIntegral::MulRVIntegral(vector<RV*> rv, double coef, double precision)
 	this->precision = precision;
 	this->coef = coef;
 	calculate_value();
+}
+
+DInterval MulRVIntegral::calculate_box(Box box)
+{
+	DInterval prod = 1;
+	for(int i = 0; i < box.get_dimension_size(); i++)
+	{
+		Integral integral(box.get_dimension(i).get_var(), box.get_dimension(i).get_fun(), box.get_dimension(i).get_interval(), precision);
+		prod *= integral.get_value();
+	}
+	return prod;
 }
 
 // The method returns precision used for calculating the 
@@ -112,8 +124,8 @@ void MulRVIntegral::calculate_local_error()
 void MulRVIntegral::calculate_value()
 {
 	calculate_local_error();
-	cout << "local precision = " << local_precision << endl;
-	cout << "precision = " << precision << endl;
+	//cout << "local precision = " << local_precision << endl;
+	//cout << "precision = " << precision << endl;
 	DInterval integral_prod = 1;
 	for(int i = 0; i < rv.size(); i++)
 	{

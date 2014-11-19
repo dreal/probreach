@@ -60,3 +60,7 @@ vector<Box> BoxFactory::branch_box(Box box)
 	return BoxFactory::calculate_cart_prod(partial_sums);
 }
 
+bool BoxFactory::compare_boxes_des(Box left, Box right)
+{
+	return (left.get_value().leftBound() > right.get_value().leftBound());
+}

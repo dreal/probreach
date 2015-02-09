@@ -23,14 +23,13 @@ The executables can be accessed at `ProbReach/bin`
 
 3. Usage
 --------------------
-Run `./ProbReach <settings-file>` where the settings file should be structured as following:
+Run `./ProbReach <options> <model-file.pdrh>`:
 
 ```
-param:
-<precision> - length of the interval containing the exact value of probability
-model:
-<path/to/model/file.pdrh> - bounded reachability encoded in `pdrh` format
-<path/to/model/file-c.pdrh> - negation of bounded reachability encoded in `pdrh` format
-dReach:
-<depth> - depth of reachability analysis>
+options:
+
+-e <double> - length of probability interval or maximum length of the box (default 0.001)
+-d <double> - prescision used to call dReach (default 0.001)
+-l <string> - full path to dReach binary (default dReach)
+-k <int> - reachability depth (default 0)
 ```

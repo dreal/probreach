@@ -13,6 +13,7 @@
 #include "PartialSum.h"
 #include "RV.h"
 #include "Box.h"
+#include "FileParser.h"
 
 using namespace std;
 using namespace capd;
@@ -23,44 +24,36 @@ DecisionProcedure::DecisionProcedure()
 	
 }
 
-// Constructor of the class
-//
-// @param template of the problem,
-// template of the inverted problem,
-// settings used for the verification 
-DecisionProcedure::DecisionProcedure(vector<string> pdrh_temp, vector<string> pdrh_temp_c, vector<RV*> rv, std::map<string, string> opt)
+DecisionProcedure::DecisionProcedure(pdrh_model model, option_type opt, string dreach_bin)
 {
-	this->pdrh_temp = pdrh_temp;
-	this->pdrh_temp_c = pdrh_temp_c;
+	this->model = model;
 	this->opt = opt;
-	this->rv = rv;
+	this->dreach_bin = dreach_bin;
+	generate_temp();
 }
 
-// The method get a Box and a flag as input parameters and 
-// generates the DRH model for the problem if flag is true and 
-// creates a DRH model for the inverted problem is the flag is false.
-// The methods returns a full path to the generated DRH file.
-//
-// @param box from the domain of random variables, flag triggering
-// generation of the inverse model
-string DecisionProcedure::generate_drh(Box box, bool flag)
+string DecisionProcedure::generate_drh(Box dd_box, Box rv_box, bool flag)
 {
 	stringstream s;
 
 	if(flag)
 	{
-		s << get_current_dir_name() << setprecision(16) << "/phi_";
+		s << get_current_dir_name() << scientific << setprecision(16) << "/phi_";
 	}
 	else
 	{
-		s << get_current_dir_name() << setprecision(16) << "/phi_C_";
+		s << get_current_dir_name() << scientific << setprecision(16) << "/phi_C_";
 	}
 
-	for(int i = 0; i < box.get_dimension_size() - 1; i++)
+	for(int i = 0; i < dd_box.get_dimension_size(); i++)
 	{
-		s << box.get_interval_of(i).leftBound() << "_" << box.get_interval_of(i).rightBound() << "x";
+		s << dd_box.get_interval_of(i).leftBound() << "_" << dd_box.get_interval_of(i).rightBound() << "x";
 	}
-	s << box.get_interval_of(box.get_dimension_size() - 1).leftBound() << "_" << box.get_interval_of(box.get_dimension_size() - 1).rightBound() ;
+
+	for(int i = 0; i < rv_box.get_dimension_size(); i++)
+	{
+		s << rv_box.get_interval_of(i).leftBound() << "_" << rv_box.get_interval_of(i).rightBound() << "x";
+	}
 	
 	string drh_filename_base = s.str();
 	file_base.push_back(drh_filename_base);
@@ -71,32 +64,92 @@ string DecisionProcedure::generate_drh(Box box, bool flag)
 	drh_file.open(drh_filename.c_str());
 	if (drh_file.is_open())
 	{
-		for(int i = 0; i < box.get_dimension_size(); i++)
+		drh_file << scientific;
+		for(int i = 0; i < dd_box.get_dimension_size(); i++)
 		{
-			drh_file << "#define " << box.get_var_of(i) << "_a " << box.get_interval_of(i).leftBound() << endl;
-			drh_file << "#define " << box.get_var_of(i) << "_b " << box.get_interval_of(i).rightBound() << endl;
-			double radius = 100 * (rv.at(i)->get_domain().rightBound() - rv.at(i)->get_domain().leftBound());
-			drh_file << "[" << rv.at(i)->get_domain().leftBound() - radius << ", " << rv.at(i)->get_domain().rightBound() + radius << "] " << box.get_var_of(i) << ";" << endl;
+			drh_file << "#define " << dd_box.get_var_of(i) << " " << dd_box.get_interval_of(i).leftBound() << endl;
+			drh_file << "#define " << dd_box.get_var_of(i) << " " << dd_box.get_interval_of(i).rightBound() << endl;
 		}
-		
+
+		for(int i = 0; i < rv_box.get_dimension_size(); i++)
+		{
+			drh_file << "#define _" << rv_box.get_var_of(i) << "_a " << rv_box.get_interval_of(i).leftBound() << endl;
+			drh_file << "#define _" << rv_box.get_var_of(i) << "_b " << rv_box.get_interval_of(i).rightBound() << endl;
+			double radius = 100 * (model.rvs.at(i).get_domain().rightBound() - model.rvs.at(i).get_domain().leftBound());
+			drh_file << "[" << model.rvs.at(i).get_domain().leftBound() - radius << ", " << model.rvs.at(i).get_domain().rightBound() + radius << "]" << model.rvs.at(i).get_var() << ";" << endl;
+		}
+			
 		if(flag)
 		{
-			for(int i = 0; i < pdrh_temp.size(); i++)
+			for(int i = 0; i < temp.size(); i++)
 			{
-				drh_file << pdrh_temp.at(i) << endl;
+				drh_file << temp.at(i) << endl;
 			}
 		}
 		else
 		{
-			for(int i = 0; i < pdrh_temp_c.size(); i++)
+			for(int i = 0; i < temp_c.size(); i++)
 			{
-				drh_file << pdrh_temp_c.at(i) << endl;
+				drh_file << temp_c.at(i) << endl;
 			}
 		}
 		
 		drh_file.close();
 	}	
 	return drh_filename_base;
+}
+
+// The methods gets an arbitrary Box as an input parameter
+// and return 1 if the indicator function over this box equals 1,
+// -1 if indicator function equals to 0 and 0 if the box contains
+// both values where the indicator function takes both values
+//
+// @param box from the domain of random variables. 
+int DecisionProcedure::evaluate(Box dd_box, Box rv_box)
+{
+	double precision = opt.delta;
+	string phi;
+	string phi_c;
+	if(rv_box.get_dimension_size() > 0)
+	{
+		precision = rv_box.get_min_width() / 1000;
+	}
+		
+	#pragma omp critical
+	{
+		phi = generate_drh(dd_box, rv_box, true);
+	}
+	if(call_dreach(phi, precision))
+	{
+		if(rv_box.get_dimension_size() > 0)
+		{
+			precision = rv_box.get_min_width() / 1000;
+		}
+		#pragma omp critical
+		{
+			phi_c = generate_drh(dd_box, rv_box, false);
+		}
+		if(call_dreach(phi_c, precision))
+		{
+			//cout << phi << " sat" << endl;
+			//cout << phi_c << " sat" << endl;
+			//cout << rv_box.get_interval_of(0) << setprecision(12) << " is mixed" << endl;
+			return 0;
+		}
+		else
+		{
+			//cout << rv_box.get_interval_of(0) << setprecision(12) << " is in B" << endl;
+			//cout << phi << " sat" << endl;
+			//cout << phi_c << " unsat" << endl;
+			return 1;
+		}
+	}
+	else
+	{
+		//cout << phi << " unsat" << endl;
+		//cout << rv_box.get_interval_of(0) << setprecision(12) << " is not in B" << endl;
+		return -1;
+	}
 }
 
 // The method gets a full path to the DRH model and a precision
@@ -109,13 +162,13 @@ bool DecisionProcedure::call_dreach(string drh_filename_base, double precision)
 {
 	stringstream s;
 	
-	s << "dReach -k " << atof(opt["depth"].c_str()) << " " << drh_filename_base << ".drh -precision=" << precision << " > /dev/null" << endl;
-	//s << "dReach -k " << opt["depth"] << " " << drh_filename_base << ".drh -precision=" << precision << endl;
-
+	s << dreach_bin << " -k " << opt.depth << " " << drh_filename_base << ".drh -precision=" << opt.delta << " > /dev/null" << endl;
+	//s << "dReach -k " << opt.depth << " " << drh_filename_base << ".drh -precision=" << opt.delta << " > /dev/null" << endl;
+	
 	system(s.str().c_str());
 
 	s.str("");
-	s << drh_filename_base << "_" << atof(opt["depth"].c_str()) << "_0.output";
+	s << drh_filename_base << "_" << opt.depth << "_0.output";
 	ifstream output;
 	output.open(s.str().c_str());
 
@@ -134,49 +187,11 @@ bool DecisionProcedure::call_dreach(string drh_filename_base, double precision)
 	}
 	else
 	{
-    	remove_aux_files();
+    	//remove_aux_files();
     	cout << "FAULT!!!" << endl;
     	exit(EXIT_FAILURE);
 	}
 
-}
-
-// The methods gets an arbitrary Box as an input parameter
-// and return 1 if the indicator function over this box equals 1,
-// -1 if indicator function equals to 0 and 0 if the box contains
-// both values where the indicator function takes both values
-//
-// @param box from the domain of random variables. 
-int DecisionProcedure::evaluate(Box box)
-{
-	double min_width;
-	string phi;
-	string phi_c;
-	min_width = box.get_min_width() / 1000000;
-	#pragma omp critical
-	{
-		phi = generate_drh(box, true);
-	}
-	if(call_dreach(phi, min_width))
-	{
-		min_width = box.get_min_width() / 1000000;
-		#pragma omp critical
-		{
-			phi_c = generate_drh(box, false);
-		}
-		if(call_dreach(phi_c, min_width))
-		{
-			return 0;
-		}
-		else
-		{
-			return 1;
-		}
-	}
-	else
-	{
-		return -1;
-	}
 }
 
 // The method returns the list of the auxiliary filenames
@@ -211,7 +226,7 @@ void DecisionProcedure::remove_aux_file(string filename_base)
 	string drh = filename_base + ".drh";
 	string preprocessed = filename_base + ".preprocessed.drh";
 	s.str("");
-	s << filename_base << "_" << atof(opt["depth"].c_str()) << "_0";
+	s << filename_base << "_" << opt.depth << "_0";
 	string smt2 = s.str() + ".smt2";
 	string output = s.str() + ".output";
 	
@@ -232,3 +247,74 @@ void DecisionProcedure::remove_aux_files()
 	file_base.clear();
 }
 
+void DecisionProcedure::generate_temp()
+{
+	ostringstream os;
+	for(int i = 0; i < model.vars.size(); i++)
+	{
+		os << "[" << model.vars.at(i).range.leftBound() << ", " << model.vars.at(i).range.rightBound() << "]" << model.vars.at(i).name << ";" << endl;
+	}
+
+	temp.push_back(os.str());
+	temp_c.push_back(os.str());
+	os.str("");
+
+	for(int i = 0; i < model.modes.size(); i++)
+	{
+		mode_type mode = model.modes.at(i);
+		os << "{" << endl << "mode " << mode.id << ";" << endl;
+		temp.push_back(os.str());
+		temp_c.push_back(os.str());
+		os.str("");
+
+		if(mode.invts.size() > 0)
+		{
+			os << "invt:" << endl;
+			for(int j = 0; j < mode.invts.size(); j++)
+			{
+				os << mode.invts.at(j) << endl;
+			}
+			temp.push_back(os.str());
+			os.str("");
+		}
+
+		if(mode.invts_c.size() > 0)
+		{
+			os << "invt:" << endl;
+			for(int j = 0; j < mode.invts_c.size(); j++)
+			{
+				os << mode.invts_c.at(j) << endl;
+			}
+			temp_c.push_back(os.str());
+			os.str("");
+		}
+
+		os << "flow:" << endl;
+		for(int j = 0; j < mode.flow.odes.size(); j++)
+		{
+			os << mode.flow.odes.at(j) << endl;
+		}
+		os << "jump:" << endl;
+		for(int j = 0; j < mode.jumps.size(); j++)
+		{
+			os << mode.jumps.at(j).guard << "==>@" << mode.jumps.at(j).successor << mode.jumps.at(j).init << ";" << endl;
+		}
+		os << "}" << endl;
+		temp.push_back(os.str());
+		temp_c.push_back(os.str());
+		os.str("");
+	}
+
+	os << "init:" << endl << "@" << model.init.mode << model.init.formula << ";" << endl << "goal:" << endl;
+	temp.push_back(os.str());
+	temp_c.push_back(os.str());
+	os.str("");
+
+	os << "@" << model.goal.mode << model.goal.formula << ";" << endl;
+	temp.push_back(os.str());
+
+	os.str("");
+
+	os << "@" << model.goal_c.mode << model.goal_c.formula << ";" << endl;
+	temp_c.push_back(os.str());
+}

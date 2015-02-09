@@ -1,0 +1,34 @@
+MODEL_TYPE(NPHA)
+#define Sx_l -5
+#define Sx_u 5
+//[0.7854]alpha;
+//[9.8]g;
+//g = 9.8067 taken from wikipedia
+//#define g 9.8
+[9.8,9.81]g;
+//#define alpha 0.7854
+[0,100]Sy;
+[-10,1000]Sx;
+[0,15]t;
+[0,15]time;
+N(20.0,3.0)v0;
+DD(0.5236:0.3,0.7854:0.5,1.0472:0.2)alpha;
+{
+mode1;
+invt_c:
+(Sx<100.0);
+flow:
+d/dt[Sx]=v0 * cos(alpha);
+d/dt[Sy]=v0 * sin(alpha) - g * t;
+d/dt[t]=1.0;
+jump:
+(and(t > 0.000001) (Sy = 0))==>@1(and (Sx' = Sx) (Sy' = 0) (t' = 0) (v0' = 0.9 * v0));
+}
+init:
+//@1(and(Sx=0)(Sy=0)(t=0));
+@1(and(Sx>=Sx_l)(Sx<=Sx_u)(Sy=0)(t=0));
+goal:
+@1(and(Sx>=100.0)(Sy>=0));
+goal_c:
+@1(and(Sy<=0.0)(t>0.000001));
+

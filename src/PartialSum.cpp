@@ -26,6 +26,14 @@ PartialSum::PartialSum(string var, string fun, DInterval interval)
 	this->value = calculate_value();
 }
 
+PartialSum::PartialSum(string var, string fun, DInterval interval, DInterval value)
+{
+	this->var = var;
+	this->fun = fun;
+	this->interval = interval;
+	this->value = value;
+}
+
 // The method return the interval 
 // where the partial sum is calculated
 DInterval PartialSum::get_interval()

@@ -5,6 +5,8 @@
 // @e-mail: f.shmarov@ncl.ac.uk
 #include<string>
 #include<sstream>
+#include<unistd.h> 
+#include<sys/types.h>
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include<regex>
@@ -13,7 +15,8 @@
 #include "PartialSum.h"
 #include "FileParser.h"
 #include "RV.h"
-#include "nRV.h"
+#include "DD.h"
+//#include "nRV.h"
 
 using namespace std;
 using namespace capd;
@@ -21,236 +24,56 @@ using namespace capd;
 // Constructor of the class
 //
 // @param full path to the settings file
+bool FileParser::file_exists(const char *filename)
+{
+	FILE* file;
+	file = fopen(filename, "r");
+	if(file != NULL)
+	{
+		fclose(file);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 FileParser::FileParser(string filename)
 {
-	parse_settings(filename);
-	this->model = this->settings["model"];
-	this->model_c = this->settings["model_c"];
-	if ((this->model != "") && (this->model_c != ""))
+	if(!file_exists(filename.c_str()))
 	{
-		parse_pdrh(this->model);
-		parse_pdrh_c(this->model_c);
+		cerr << "Invalid file path: " << filename << endl;
+		exit(EXIT_FAILURE); 
+	}
+	
+	string filename_prep;
+
+	smatch matches;
+	if(regex_match(filename, matches, regex(".*/(.*).pdrh")))
+	{
+		filename_prep = matches[1].str() + ".preprocessed.pdrh";
+	}
+	
+	stringstream s;
+	//s << "sed \"s/\\/\\/.*//g\" " << filename << " | cpp -P -w | sed  \"s/ //g\" > " << get_current_dir_name() << "/" << filename_prep;
+	s << "sed \"s/\\/\\/.*//g\" " << filename << " | cpp -P -w > " << get_current_dir_name() << "/" << filename_prep;
+	system(s.str().c_str());
+
+	parse_pdrh(filename_prep);
+	modify_flows();
+	if(model.model_type != 1)
+	{
 		modify_init();
-		modify_flows();
-	}
-}
-
-// The methods performs all the necessary changes to
-// the "init" section of PDRH file
-void FileParser::modify_init()
-{
-	const regex init_line_regex("(.*@[0-9])\\s*(\\(.*\\));.*");
-	const regex line("\\s*(.*)\\s*$");
-	
-	for(int i = 0; i < temp.size(); i++)
-	{
-		if(regex_match(temp.at(i), regex(".*(init:).*")))
-		{
-			smatch matches;
-			int start_init = i + 1;
-			stringstream init_stream;
-			int j = i + 1;
-			while(!regex_match(temp.at(j), regex(".*(goal:).*")))
-			{
-				if(regex_match(temp.at(j), matches, line))
-				{
-					init_stream << matches[1].str();
-				}
-				j++;
-			}
-			int end_init = j;
-			if(regex_match(init_stream.str(), matches, init_line_regex))
-			{
-				string matches1 = matches[1].str();
-				string matches2 = matches[2].str();
-				string init = matches1 + " (and " + matches2 + " ";
-				for(int j = 0; j < rv.size(); j++)
-				{
-					string var = rv.at(j)->get_var();
-					init += " (" + var + " >= " + var + "_a)" + " (" + var + " <= " + var + "_b)";
-				}
-				init += ");";
-				temp.erase(temp.begin() + start_init, temp.begin() + end_init);
-				temp.insert(temp.begin() + start_init, init);
-				break;
-			}
-		}
-	}
-	
-	for(int i = 0; i < temp_inv.size(); i++)
-	{
-		if(regex_match(temp_inv.at(i), regex(".*(init:).*")))
-		{
-			smatch matches;
-			int start_init = i + 1;
-			stringstream init_stream;
-			int j = i + 1;
-			while(!regex_match(temp_inv.at(j), regex(".*(goal:).*")))
-			{
-				if(regex_match(temp_inv.at(j), matches, line))
-				{
-					init_stream << matches[1].str();
-				}
-				j++;
-			}
-			int end_init = j;
-			if(regex_match(init_stream.str(), matches, init_line_regex))
-			{
-				string matches1 = matches[1].str();
-				string matches2 = matches[2].str();
-				string init = matches1 + " (and " + matches2 + " ";
-				for(int j = 0; j < rv.size(); j++)
-				{
-					string var = rv.at(j)->get_var();
-					init += " (" + var + " >= " + var + "_a)" + " (" + var + " <= " + var + "_b)";
-				}
-				init += ");";
-				temp_inv.erase(temp_inv.begin() + start_init, temp_inv.begin() + end_init);
-				temp_inv.insert(temp_inv.begin() + start_init, init);
-				break;
-			}
-		}
-	}
-}
-
-// The methods performs all the necessary changes to
-// the "flow" sections of PDRH file
-void FileParser::modify_flows()
-{
-	const regex ode_regex(".*d/dt\\[([A-Za-z][A-Za-z0-9]*)\\]+.*");
-	vector<string> flow_map;
-	smatch matches;
-	int n = temp.size();
-	int i = 0;
-	while(i < n)
-	{
-		if(regex_match(temp.at(i), regex(".*(jump).*(:).*")))
-		{
-			for(int j = 0; j < rv.size(); j++)
-			{
-				if (find(flow_map.begin(), flow_map.end(), rv.at(j)->get_var()) == flow_map.end())
-				{
-					string ode = "\td/dt[" + rv.at(j)->get_var() + "]=0.0;";
-					temp.insert(temp.begin() + i, ode);
-					i++;
-					n++;
-				}
-			}
-			flow_map.clear();
-		}
-		if(regex_match(temp.at(i), matches, ode_regex))
-		{
-			if (find(flow_map.begin(), flow_map.end(), matches[1].str()) == flow_map.end())
-			{
-				flow_map.push_back(matches[1].str());
-			}
-		}
-		i++;
 	}
 
-	n = temp_inv.size();
-	i = 0;
-	while(i < n)
+	if(file_exists(filename_prep.c_str()))
 	{
-		if(regex_match(temp_inv.at(i), regex(".*(jump).*(:).*")))
-		{
-			for(int j = 0; j < rv.size(); j++)
-			{
-				if (find(flow_map.begin(), flow_map.end(), rv.at(j)->get_var()) == flow_map.end())
-				{
-					string ode = "\td/dt[" + rv.at(j)->get_var() + "]=0.0;";
-					temp_inv.insert(temp_inv.begin() + i, ode);
-					i++;
-					n++;
-				}
-			}
-			flow_map.clear();
-		}
-		if(regex_match(temp_inv.at(i), matches, ode_regex))
-		{
-			if (find(flow_map.begin(), flow_map.end(), matches[1].str()) == flow_map.end())
-			{
-				flow_map.push_back(matches[1].str());
-			}
-		}
-		i++;
+		//remove(filename_prep.c_str());
 	}
-}
-
-/*
-void FileParser::modify_jumps()
-{
-	const regex jump_regex("(.*==>.*)(\\(\\));");
-	smatch matches;
-	for(int i = 0; i < temp.size(); i++)
+	else
 	{
-		if(regex_match(temp.at(i), matches, jump_regex))
-		{
-			string jump = matches[1].str() + " (and " + matches[2].str();
-			for(int j = 0; j < rv.size(); j++)
-			{
-				string var = rv.at(j)->get_var();
-				const regex jump_rv_regex(".*" + var + "'.*");
-
-				if(!regex_match(temp.at(i), jump_rv_regex))
-				{
-					jump += "(" + var + "'=" + var + ")";
-				}
-			}
-			jump += ");";
-			temp.at(i) = jump;
-		}
-	}
-}
-*/
-
-// The methods parses the settings provided as
-// an input for the application
-//
-// @param full path to the settings file
-void FileParser::parse_settings(string filename)
-{
-	ifstream settings_file;
-	settings_file.open(filename.c_str());
-	const regex precision_regex("\\s*precision\\s*:\\s*");
-	const regex model_regex("\\s*model\\s*:\\s*");
-	const regex depth_regex("\\s*depth\\s*:\\s*");
-
-	if (settings_file.is_open())
-	{
-		while (!settings_file.eof())
-		{
-			string line;
-			getline(settings_file, line);
-			if (regex_match(line, precision_regex))
-			{
-				getline(settings_file, line);
-				smatch matches;
-				const regex positive_float_regex("\\s*([0-9]+.[0-9]*)\\s*");
-				if(regex_match(line, matches, positive_float_regex))
-				{
-					settings["precision"] = matches[1];
-				}
-			}
-			if (regex_match(line, model_regex))
-			{
-				getline(settings_file, line);
-				settings["model"] = line;
-				getline(settings_file, line);
-				settings["model_c"] = line;
-			}
-			if (regex_match(line, depth_regex))
-			{
-				getline(settings_file, line);
-				smatch matches;
-				regex positive_int_regex("\\s*([0-9]+)\\s*");
-				if (regex_match(line, matches, positive_int_regex)) 
-				{
-					settings["depth"] = matches[1];
-				}
-			}
-		}
-		settings_file.close();
+		cerr << "Problems occurred removing auxiliary files" << endl;
 	}
 }
 
@@ -259,7 +82,6 @@ void FileParser::parse_settings(string filename)
 // @param full path to the PDRH file
 void FileParser::parse_pdrh(string filename)
 {
-	const regex normal_regex("(\\s)*(N)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(,)(\\s)*([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*");
 
 	ifstream file;
 	file.open(filename.c_str());
@@ -268,74 +90,450 @@ void FileParser::parse_pdrh(string filename)
 	if(file.is_open())
 	{
 		string line;
+		/*
+		getline(file, line);
+
+		else
+		{
+			cout << "Model type was not defined. Trying automatic identification" << endl;
+		}
+		*/
+
 		while (getline(file, line))
 		{
-			if (regex_match(line, matches, normal_regex)) 
+			if(regex_match(line, matches, regex("MODEL_TYPE\\((.*)\\)")))
 			{
-				string param1 = string() + matches[5].str();
-				double mean = atof(param1.c_str());
-				string param2 = string() + matches[9].str();
-				double deviation = atof(param2.c_str());
-				string var = string() + matches[13].str();
-				rv.push_back(new nRV(var, mean, deviation));
+				string m_type = matches[1].str();
+				if(regex_match(m_type, matches, regex("([N]?[P]?HA)")))
+				{
+					if(strcmp(matches[1].str().c_str(), string("HA").c_str()) == 0)
+					{
+						model.model_type = 1;
+					}
+					else
+					{
+						if(strcmp(matches[1].str().c_str(), string("PHA").c_str()) == 0)
+						{
+							model.model_type = 2;
+						}
+						else
+						{
+							if(strcmp(matches[1].str().c_str(), string("NPHA").c_str()) == 0)
+							{
+								model.model_type = 3;
+							}
+							else
+							{
+								cerr << "Unknown model type: " << m_type << endl;
+								exit(EXIT_FAILURE);
+							}
+						}
+					}
+				}
+				else
+				{
+					cerr << "Unknown model type: " << m_type << endl;
+					exit(EXIT_FAILURE);
+				}
+			}
+			if(regex_match(line, matches, regex("\\[([-+]?[0-9]*.?[0-9]+),([-+]?[0-9]*.?[0-9]+)\\]([a-zA-Z][a-zA-Z0-9_]*);")))
+			{
+				var_type v;
+				v.name = matches[3].str();
+				v.range = DInterval(atof(matches[1].str().c_str()), atof(matches[2].str().c_str()));
+				if(std::find(id_map.begin(), id_map.end(), v.name) != id_map.end()) 
+				{
+					cerr << "Variable " << v.name << " was already declared" << endl;
+					exit(EXIT_FAILURE);
+				}
+				model.vars.push_back(v);
+			}
+			if(regex_match(line, matches, regex("([A-Z]+)\\((.*)\\)([a-zA-Z][a-zA-Z0-9_]*);")))
+			{
+				if(std::find(id_map.begin(), id_map.end(), matches[3].str()) != id_map.end()) 
+				{
+					cerr << "Variable " << matches[3].str() << " was already declared" << endl;
+					exit(EXIT_FAILURE);
+				}
+				parse_rv(matches[1].str(), matches[2].str(), matches[3].str());
+			}
+			if(regex_match(line, regex("\\{")))
+			{
+				mode_type m;
+				bool in_invt = false;
+				bool in_invt_c = false;
+				bool in_flow = false;
+				bool in_jump = false;
+				flow_type f;
+				while(true)
+				{
+					if(strcmp(line.c_str(), string("}").c_str()) == 0)
+					{
+						break;
+					}
+					if(regex_match(line, matches, regex("mode([1-9][0-9]*);")))
+					{
+						m.id = atoi(matches[1].str().c_str());
+					}
+					if(strcmp(line.c_str(), string("flow:").c_str()) == 0)
+					{
+						in_flow = true;
+						in_invt = false;
+						in_invt_c = false;
+						in_jump = false;
+					}
+					if((in_flow) && (regex_match(line, matches, regex("d/dt\\[([A-Za-z][A-Za-z0-9_]*)\\]=.*;"))))
+					{
+						f.vars.push_back(matches[1].str());
+						f.odes.push_back(matches[0].str());
+					}
+					if(strcmp(line.c_str(), string("jump:").c_str()) == 0)
+					{
+						in_flow = false;
+						in_invt = false;
+						in_invt_c = false;
+						in_jump = true;
+						m.flow = f;
+					}
+					if(in_jump)
+					{
+						if(regex_match(line, matches, regex("([0-9]*.?[0-9]+):(.*)==>@([1-9][0-9]*)(.*);")))
+						{
+							jump_type j;
+							j.random = true;
+							j.probability = atof(matches[1].str().c_str());
+							j.guard = matches[2].str();
+							j.successor = atoi(matches[3].str().c_str());
+							j.init = matches[4].str();
+							m.jumps.push_back(j);
+						}
+						else
+						{
+							if(regex_match(line, matches, regex("(.*)==>@([1-9][0-9]*)(.*);")))
+							{
+								jump_type j;
+								j.random = false;
+								j.probability = 1;
+								j.guard = matches[1].str();
+								j.successor = atoi(matches[2].str().c_str());
+								j.init = matches[3].str();
+								m.jumps.push_back(j);
+							}
+						}
+					}
+					if(strcmp(line.c_str(), string("invt_c:").c_str()) == 0)
+					{
+						in_flow = false;
+						in_invt = false;
+						in_invt_c = true;
+						in_jump = false;
+						getline(file, line);
+					}
+					if(in_invt_c)
+					{
+						m.invts_c.push_back(line);
+					}
+					if(strcmp(line.c_str(), string("invt:").c_str()) == 0)
+					{
+						in_flow = false;
+						in_invt = true;
+						in_invt_c = false;
+						in_jump = false;
+						getline(file, line);
+					}
+					if(in_invt)
+					{
+						m.invts.push_back(line);
+					}
+					getline(file, line);
+				}
+				model.modes.push_back(m);
+			}
+			if(strcmp(line.c_str(), string("init:").c_str()) == 0)
+			{
+				while(true)
+				{
+					getline(file, line);
+					if(regex_match(line, matches, regex("@([1-9][0-9]*)(.*);")))
+					{
+						model.init.mode = atoi(matches[1].str().c_str());
+						model.init.formula = matches[2].str();
+						break;
+					}
+					if(regex_match(line, matches, regex("@([1-9][0-9]*)(.*)")))
+					{
+						model.init.mode = atoi(matches[1].str().c_str());
+						stringstream init_stream;
+						init_stream << matches[2].str();
+						while(true)
+						{
+							getline(file, line);
+							if(regex_match(line, matches, regex("(.*);")))
+							{
+								init_stream << matches[1].str();
+								model.init.formula = init_stream.str();
+								break;
+							}
+							else
+							{
+								init_stream << line;
+							}
+						}
+						break;
+					}
+				}
+			}
+			if(strcmp(line.c_str(), string("goal:").c_str()) == 0)
+			{
+				while(true)
+				{
+					getline(file, line);
+					if(regex_match(line, matches, regex("@([1-9][0-9]*)(.*);")))
+					{
+						model.goal.mode = atoi(matches[1].str().c_str());
+						model.goal.formula = matches[2].str();
+						break;
+					}
+					if(regex_match(line, matches, regex("@([1-9][0-9]*)(.*)")))
+					{
+						model.goal.mode = atoi(matches[1].str().c_str());
+						stringstream goal_stream;
+						goal_stream << matches[2].str();
+						while(true)
+						{
+							getline(file, line);
+							if(regex_match(line, matches, regex("(.*);")))
+							{
+								goal_stream << matches[1].str();
+								model.goal.formula = goal_stream.str();
+								break;
+							}
+							else
+							{
+								goal_stream << line;
+							}
+						}
+						break;
+					}
+				}
+			}
+			if(strcmp(line.c_str(), string("goal_c:").c_str()) == 0)
+			{
+				while(true)
+				{
+					getline(file, line);
+					if(regex_match(line, matches, regex("@([1-9][0-9]*)(.*);")))
+					{
+						model.goal_c.mode = atoi(matches[1].str().c_str());
+						model.goal_c.formula = matches[2].str();
+						break;
+					}
+					if(regex_match(line, matches, regex("@([1-9][0-9]*)(.*)")))
+					{
+						model.goal_c.mode = atoi(matches[1].str().c_str());
+						stringstream goal_c_stream;
+						goal_c_stream << matches[2].str();
+						while(true)
+						{
+							getline(file, line);
+							if(regex_match(line, matches, regex("(.*);")))
+							{
+								goal_c_stream << matches[1].str();
+								model.goal_c.formula = goal_c_stream.str();
+								break;
+							}
+							else
+							{
+								goal_c_stream << line;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		file.close();
+
+		if(model.model_type == 0)
+		{
+			if((model.rvs.size() == 0) && (model.dds.size() == 0))
+			{
+				model.model_type = 1;
 			}
 			else
 			{
-				temp.push_back(line);
+				model.model_type = 3;
 			}
 		}
-		file.close();
 	}
 	else
 	{
-		cout << "Could not open the file " << filename << endl;
+		cerr << "Could not open the file " << filename << endl;
+		exit(EXIT_FAILURE);
 	}
 }
 
-// The methods parses PDRH file
-//
-// @param full path to the inverted PDRH file
-void FileParser::parse_pdrh_c(string filename)
+void FileParser::parse_rv(string notation, string declaration, string var)
 {
-	ifstream file;
-	file.open(filename.c_str());
-	smatch matches;
-	if(file.is_open())
+	cmatch matches;
+	if(strcmp(notation.c_str(), string("N").c_str()) == 0)
 	{
-		string line;
-		while (getline(file, line))
+		if(regex_match(declaration.c_str(), matches, regex("([-+]?[0-9]*.?[0-9]+),([-+]?[0-9]*.?[0-9]+)")))
 		{
-			temp_inv.push_back(line);
+			double mean = atof(matches[1].str().c_str());
+			double deviation = atof(matches[2].str().c_str());
+			stringstream s;
+			if(mean >= 0)
+			{
+				s 	<< "(1 / (" << deviation << " * sqrt(2 * 3.14159265359)) * exp(- (( " << var << " - " << mean 
+				<<	") * (" << var << " - " << mean << ")) / (2 * " << deviation << " * " << deviation << ")))";
+			}
+			else
+			{
+				s 	<< "(1 / (" << deviation << " * sqrt(2 * 3.14159265359)) * exp(- (( " << var << " + " << -mean 
+				<<	") * (" << var << " + " << -mean << ")) / (2 * " << deviation << " * " << deviation << ")))";
+			}
+			RV rv = RV(notation, var, s.str(), DInterval(mean - 3 * deviation, mean + 3 * deviation));
+			model.rvs.push_back(rv);
 		}
-		file.close();
 	}
-	else
+	if(strcmp(notation.c_str(), string("U").c_str()) == 0)
 	{
-		cout << "Could not open the file " << filename << endl;
+		if(regex_match(declaration.c_str(), matches, regex("([-+]?[0-9]*.?[0-9]+),([-+]?[0-9]*.?[0-9]+)")))
+		{
+			double left = atof(matches[1].str().c_str());
+			double right = atof(matches[2].str().c_str());
+			stringstream s;
+			s 	<< "(1 / (" << (right - left) << "))";
+			RV rv = RV(notation, var, s.str(), DInterval(left, right));
+			model.rvs.push_back(rv);
+		}
+	}
+	if(strcmp(notation.c_str(), string("DD").c_str()) == 0)
+	{
+		vector<double> arg;
+		vector<double> value;
+		ostringstream os;
+		for(int i = 0; i < declaration.length(); i++)
+		{
+			if(declaration[i] == ':')
+			{
+				istringstream is(os.str());
+				double a;
+				is >> a;
+				arg.push_back(a);
+				os.str("");
+			}
+			else
+			{
+				if((declaration[i] == ','))
+				{
+					istringstream is(os.str());
+					double v;
+					is >> v;
+					value.push_back(v);
+					os.str("");
+				}
+				else
+				{
+					os << declaration[i];
+					if((i == declaration.length() - 1))
+					{
+						istringstream is(os.str());
+						double v;
+						is >> v;
+						value.push_back(v);
+						os.str("");
+					}
+				}
+			}	
+		}
+		DD dd = DD(var, arg, value);
+		model.dds.push_back(dd);
 	}
 }
 
-// The method returns setting extracted from the
-// setting file
-std::map<string, string> FileParser::get_settings()
+/*
+vector<var_type> FileParser::get_vars()
 {
-	return settings;
+	return vars;
 }
 
-// The method return the list of independent random variables
-vector<RV*> FileParser::get_rv()
+vector<RV> FileParser::get_rvs()
 {
-	return rv;
+	return rvs;
 }
 
-// The method returns PDRH template of the problem
-vector<string> FileParser::get_temp()
+vector<mode_type> FileParser::get_modes()
 {
-	return temp;
+	return modes;
 }
 
-// The method returns PDRH template of the inverted problem
-vector<string> FileParser::get_temp_inv()
+init_type FileParser::get_init()
 {
-	return temp_inv;
+	return init;
+}
+
+goal_type FileParser::get_goal()
+{
+	return goal;
+}
+
+goal_type FileParser::get_goal_c()
+{
+	return goal_c;
+}
+
+vector<DD> FileParser::get_dds()
+{
+	return dds;
+}
+
+int FileParser::get_model_type()
+{
+	return model_type;
+}
+*/
+pdrh_model FileParser::get_model()
+{
+	return model;
+}
+
+void FileParser::modify_flows()
+{
+	for(int i = 0; i < model.modes.size(); i++)
+	{
+		vector<string> flow_map = model.modes.at(i).flow.vars;
+		for(int j = 0; j < model.vars.size(); j++)
+		{
+			if(std::find(flow_map.begin(), flow_map.end(), model.vars.at(j).name) == flow_map.end()) 
+			{
+				if(strcmp(model.vars.at(j).name.c_str(), string("time").c_str()) != 0)
+				{
+					model.modes.at(i).flow.vars.push_back(model.vars.at(j).name);
+					model.modes.at(i).flow.odes.push_back(string("d/dt[" + model.vars.at(j).name + "]=0.0;"));
+				}
+			}
+		}
+		for(int j = 0; j < model.rvs.size(); j++)
+		{
+			if(std::find(flow_map.begin(), flow_map.end(), model.rvs.at(j).get_var()) == flow_map.end()) 
+			{
+				model.modes.at(i).flow.vars.push_back(model.rvs.at(j).get_var());
+				model.modes.at(i).flow.odes.push_back(string("d/dt[" + model.rvs.at(j).get_var() + "]=0.0;"));
+			}
+		}		
+	}
+}
+
+void FileParser::modify_init()
+{
+	ostringstream os;
+	os << "(and" << model.init.formula;
+	for(int i = 0; i < model.rvs.size(); i++)
+	{
+		os 	<< "(" << model.rvs.at(i).get_var() << ">=_" << model.rvs.at(i).get_var() << "_a)" << "(" << model.rvs.at(i).get_var() << "<=_" << model.rvs.at(i).get_var() << "_b)";
+	}
+	os << ")";
+	model.init.formula = os.str();
 }

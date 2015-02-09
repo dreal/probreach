@@ -1,7 +1,0 @@
-precision:
-0.000001
-model:
-/home/b2049657/ProbReach-dev/model/controlled-bouncing-ball/cbb.pdrh
-/home/b2049657/ProbReach-dev/model/controlled-bouncing-ball/cbb-c.pdrh
-depth:
-2

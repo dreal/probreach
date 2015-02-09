@@ -1,7 +1,0 @@
-precision:
-0.000000001
-model:
-/home/b2049657/ProbReach-dev/model/starvation-det/starvation.pdrh
-/home/b2049657/ProbReach-dev/model/starvation-det/starvation-c.pdrh
-depth:
-0

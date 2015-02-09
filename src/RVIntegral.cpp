@@ -10,7 +10,7 @@
 #include "Integral.h"
 #include "PartialSum.h"
 #include "RV.h"
-#include "nRV.h"
+//#include "nRV.h"
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include<iomanip>
@@ -20,7 +20,7 @@
 //
 // @param continuous random variable, coefficient
 // and precision
-RVIntegral::RVIntegral(RV* rv, double coef, double precision)
+RVIntegral::RVIntegral(RV rv, double coef, double precision)
 {
 	this->rv = rv;
 	this->precision = precision;
@@ -37,7 +37,7 @@ double RVIntegral::get_precision()
 
 // The method returns the random variable which
 // probability density function is integrated
-RV* RVIntegral::get_rv()
+RV RVIntegral::get_rv()
 {
 	return this->rv;
 }
@@ -82,6 +82,7 @@ void RVIntegral::set_partial_sums(vector<PartialSum> partial_sums)
 // The method performs calculation of the integral
 void RVIntegral::calculate_value()
 {
+	/*
 	nRV* n_rv = dynamic_cast<nRV*>(rv);
 	if(n_rv != 0)
 	{
@@ -97,4 +98,17 @@ void RVIntegral::calculate_value()
 		this->partial_sums = integral.get_partial_sums();
 		return;
 	}
+	*/
+	double step = 0.1 * width(rv.get_domain());
+	Integral integral = Integral(rv.get_var(), rv.get_pdf(), rv.get_domain(), (1-coef) * precision);
+	DInterval integral_value = integral.get_value();
+	while(1 - integral_value.leftBound() > coef * precision)
+	{
+		rv.set_domain(DInterval(rv.get_domain().leftBound() - step, rv.get_domain().rightBound() + step));
+		integral = Integral(rv.get_var(), rv.get_pdf(), rv.get_domain(), (1-coef) * precision);
+		integral_value = integral.get_value();
+	}
+	this->value = integral_value;
+	this->partial_sums = integral.get_partial_sums();
+	return;
 }

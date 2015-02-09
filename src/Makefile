@@ -1,7 +1,8 @@
 # a list of all the programs in your project
 PROGS = ProbReach
 # a list of all your units to be linked with your programs (space separated)
-OTHERS = PartialSum Integral RVIntegral MulRVIntegral DecisionProcedure FileParser Box RV nRV BoxFactory
+#OTHERS = PartialSum Integral RVIntegral MulRVIntegral DecisionProcedure FileParser Box RV nRV BoxFactory
+OTHERS = PartialSum Integral RVIntegral FileParser RV DD Box MulRVIntegral BoxFactory DecisionProcedure
 # directory where capd scripts are (e.g. capd-config)
 CAPDBINDIR =/home/b2049657/capd-4/bin/
 # setting compiler and linker flags

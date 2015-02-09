@@ -14,7 +14,7 @@
 #include<string>
 #include "PartialSum.h"
 #include "RV.h"
-#include "nRV.h"
+//#include "nRV.h"
 #include "Box.h"
 
 using namespace std;
@@ -36,7 +36,7 @@ class MulRVIntegral
 		double coef;
 
 		// Random variables
-		vector<RV*> rv;
+		vector<RV> rv;
 
 		// The interval containing the exact value of the integral
 		DInterval value;
@@ -64,12 +64,12 @@ class MulRVIntegral
 		//
 		// @param vector of random variables, coefficient 
 		// and precision
-		MulRVIntegral(vector<RV*>, double, double);
+		MulRVIntegral(vector<RV>, double, double);
 
 		DInterval calculate_box(Box);
 
 		// The method returns the vector of random variables
-		vector<RV*> get_rv();
+		vector<RV> get_rv();
 
 		// The method returns the value of the product of RVIntegrals.
 		DInterval get_value();

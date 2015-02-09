@@ -1,7 +1,0 @@
-precision:
-0.000000001
-model:
-/home/b2049657/ProbReach-dev/model/thermostat-ed-4m/thermostat-ed-1.pdrh
-/home/b2049657/ProbReach-dev/model/thermostat-ed-4m/thermostat-ed-1-c.pdrh
-depth:
-6

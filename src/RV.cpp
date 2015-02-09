@@ -7,6 +7,7 @@
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include "RV.h"
+#include "PartialSum.h"
 
 using namespace std;
 
@@ -16,6 +17,30 @@ using namespace std;
 RV::RV(string var)
 {
 	this->var = var;
+}
+
+RV::RV()
+{
+
+}
+
+/*
+RV::RV(string notation, string var, string pdf, DInterval domain, vector<PartialSum> partition)
+{
+	this->notation = notation;
+	this->var = var;
+	this->pdf = pdf;
+	this->domain = domain;
+	this->partition = partition;
+}
+*/
+
+RV::RV(string notation, string var, string pdf, DInterval domain)
+{
+	this->notation = notation;
+	this->var = var;
+	this->pdf = pdf;
+	this->domain = domain;
 }
 
 // The method returns a notation of the random variable
@@ -73,10 +98,4 @@ void RV::set_pdf(string pdf)
 void RV::set_domain(DInterval domain)
 {
 	this->domain = domain;
-}
-
-// Class destructor
-RV::~RV()
-{
-	
 }

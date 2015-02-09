@@ -14,7 +14,7 @@
 #include<string>
 #include "PartialSum.h"
 #include "RV.h"
-#include "nRV.h"
+//#include "nRV.h"
 
 using namespace std;
 using namespace capd;
@@ -31,7 +31,7 @@ class RVIntegral
 		double coef;
 
 		// Random variable
-		RV* rv;
+		RV rv;
 
 		// Integration interval
 		DInterval interval;
@@ -52,11 +52,11 @@ class RVIntegral
 		//
 		// @param continuous random variable, coefficient
 		// and precision
-		RVIntegral(RV*, double, double);
+		RVIntegral(RV, double, double);
 
 		// The method returns the random variable which
 		// probability density function is integrated
-		RV* get_rv();
+		RV get_rv();
 
 		// The method returns the value of the integral
 		DInterval get_value();

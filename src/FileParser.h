@@ -11,78 +11,116 @@
 #include "PartialSum.h"
 #include "Box.h"
 #include "RV.h"
+#include "DD.h"
 
 using namespace std;
+
+struct var_type
+{
+	string name;
+	DInterval range;
+};
+
+struct flow_type
+{
+	vector<string> vars;
+	vector<string> odes;
+};
+
+struct jump_type
+{
+	string guard;
+	int successor;
+	string init;
+	bool random;
+	double probability;
+};
+
+struct mode_type
+{
+	int id;
+	vector<string> invts;
+	vector<string> invts_c;
+	flow_type flow;
+	vector<jump_type> jumps;
+};
+
+struct init_type
+{
+	int mode;
+	string formula;
+};
+
+struct goal_type
+{
+	int mode;
+	string formula;
+};
+
+struct pdrh_model
+{
+	// 0 - AUTO DEFINITION
+	// 1 - HA
+	// 2 - PHA
+	// 3 - NPHA
+	int model_type = 0;
+	vector<var_type> vars;
+	vector<RV> rvs;
+	vector<DD> dds;
+	vector<mode_type> modes;
+	init_type init;
+	goal_type goal;
+	goal_type goal_c;
+};
 
 // FileParser class declaration
 class FileParser
 { 
 	private:
 
-		// Full path to PDRH model
-		string model;
+		vector<string> id_map;
 
-		// Full path to the inverted PDRH model
-		string model_c;
-
-		// PDRH template of the problem 
-		vector<string> temp;
-
-		// PDRH template of the inverted problem
-		vector<string> temp_inv;
-
-		// List of independent random variables
-		vector<RV*> rv;
-
-		// settings provided by the user containing
-		// the computation precision, full paths to the 
-		// PDRH files and verification depth
-		std::map<string, string> settings;
-
-		// The methods parses the settings provided as
-		// an input for the application
-		//
-		// @param full path to the settings file
-		void parse_settings(string);
+		pdrh_model model;
 
 		// The methods parses PDRH file
 		//
 		// @param full path to the PDRH file
 		void parse_pdrh(string);
 
-		// The methods parses PDRH file
-		//
-		// @param full path to the inverted PDRH file
-		void parse_pdrh_c(string);
+		void parse_rv(string, string, string);
 
-		// The methods performs all the necessary changes to
-		// the "init" section of PDRH file
-		void modify_init();
-
-		// The methods performs all the necessary changes to
-		// the "flow" sections of PDRH file
 		void modify_flows();
-		//void modify_jumps();
+
+		void modify_init();
 		
 	public:
-		
+
 		// Constructor of the class
 		//
 		// @param full path to the settings file
 		FileParser(string);
 
-		// The method returns setting extracted from the
-		// setting file
-		std::map<string, string> get_settings();
+		bool file_exists(const char *);
 
-		// The method return the list of independent random variables
-		vector<RV*> get_rv();
-
-		// The method returns PDRH template of the problem 
-		vector<string> get_temp();
-
-		// The method returns PDRH template of the inverted problem
-		vector<string> get_temp_inv();
+		/*
+		vector<var_type> get_vars();
 		
+		vector<RV> get_rvs();
+
+		vector<DD> get_dds();
+		
+		vector<mode_type> get_modes();
+
+		init_type get_init();
+
+		goal_type get_goal();
+
+		goal_type get_goal_c();
+
+		int get_model_type();
+		*/
+
+		pdrh_model get_model();
+
 }; 
 #endif  

@@ -10,7 +10,7 @@
 #include "MulRVIntegral.h"
 #include "PartialSum.h"
 #include "RV.h"
-#include "nRV.h"
+//#include "nRV.h"
 #include "Box.h"
 #include "Integral.h"
 #include<capd/capdlib.h>
@@ -22,7 +22,7 @@
 //
 // @param vector of random variables, coefficient 
 // and precision
-MulRVIntegral::MulRVIntegral(vector<RV*> rv, double coef, double precision)
+MulRVIntegral::MulRVIntegral(vector<RV> rv, double coef, double precision)
 {
 	this->rv = rv;
 	this->precision = precision;
@@ -49,7 +49,7 @@ double MulRVIntegral::get_precision()
 }
 
 // The method returns the vector of random variables
-vector<RV*> MulRVIntegral::get_rv()
+vector<RV> MulRVIntegral::get_rv()
 {
 	return this->rv;
 }
@@ -129,13 +129,9 @@ void MulRVIntegral::calculate_value()
 	DInterval integral_prod = 1;
 	for(int i = 0; i < rv.size(); i++)
 	{
-		nRV* n_rv = dynamic_cast<nRV*>(rv.at(i));
-		if(n_rv != 0)
-		{
-			RVIntegral rv_integral = RVIntegral(n_rv, coef, local_precision);
-			partial_sums.push_back(rv_integral.get_partial_sums());
-			integral_prod = integral_prod * rv_integral.get_value();
-		}
+		RVIntegral rv_integral = RVIntegral(rv.at(i), coef, local_precision);
+		partial_sums.push_back(rv_integral.get_partial_sums());
+		integral_prod = integral_prod * rv_integral.get_value();
 	}
 	value = integral_prod;
 }

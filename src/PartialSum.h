@@ -49,6 +49,13 @@ class PartialSum
 		// the integrated function and the interval		
 		PartialSum(string, string, DInterval);
 
+		// Constructor of the class
+		//
+		// @param the name of the variable, 
+		// the integrated function, the interval
+		// and the value of the partial sum	
+		PartialSum(string, string, DInterval, DInterval);
+
 		// The method returns the interval 
 		// where the partial sum is calculated
 		DInterval get_interval();

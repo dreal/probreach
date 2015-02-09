@@ -2,6 +2,7 @@
  * Insulin action subsystem kinetics.
  * Sources: Sriram, Hovorka 2002, Hovorka 2004
  */
+MODEL_TYPE(PHA)
 #define w 100 //[kg] weight of the patient
 #define ka1 0.006 //[min^(-1)] deactivation rate constant (Hovorka 2004)
 #define ka2 0.06 //[min^(-1)] deactivation rate constant (Hovorka 2004)
@@ -34,104 +35,70 @@
 #define AG 0.8 //carbohydrate bioavailability (Hovorka 2004)
 #define tmaxG 40 //[min] time-of-maximum appearance rate of glucose in the accessible glucose compartment (Hovorka 2004)
 
-//[-1.0, 1.0] u;
-[-10, 10] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
-[-10, 10] x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
-//[-10, 10] x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
-N(0.05, 0.005) x3;
-[-10, 10] I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
-[-50, 50] S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
-[-50, 50] S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
-[-1000, 1000] Q1; //[mmol] mass of glucose in the accessible compartments (Hovorka 2004)
-[-1000, 1000] Q2; //[mmol] mass of glucose in the non-accessible compartments (Hovorka 2004)
+//[-1.0,1.0]u;
+[-10,10]x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
+[-10,10]x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
+//[-10,10]x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
+N(0.05,0.005)x3;
+[-10,10]I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
+[-50,50]S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[-50,50]S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[-1000,1000]Q1; //[mmol] mass of glucose in the accessible compartments (Hovorka 2004)
+[-1000,1000]Q2; //[mmol] mass of glucose in the non-accessible compartments (Hovorka 2004)
 
-[0, 500] tau;
-[0, 1000] time;
+[0,500]tau;
+[0,1000]time;
 
 {
-mode 1;
-
-invt:
-	//(tau <= 500);
+mode1;
 
 flow:
-	
-	//glucose-subsystem
-	d/dt[Q1] =  - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
-	d/dt[Q2] = x1 * Q1 - (k12 + x2) * Q2;
-	//insulin-subsystem
-	d/dt[S1] = u1 - S1 / tmaxI;
-	d/dt[S2] = (S1 - S2) / tmaxI;
-	d/dt[I] = S2 / (tmaxI * VI) - ke * I;
-	//insulin-action-subsystem
-	d/dt[x1] = - ka1 * x1 + kb1 * I;
-	d/dt[x2] = - ka2 * x2 + kb2 * I;
-	d/dt[x3] = - ka3 * x3 + kb3 * I;
-	d/dt[tau] = 0.5;
+//glucose-subsystem
+d/dt[Q1]=- Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
+d/dt[Q2]=x1 * Q1 - (k12 + x2) * Q2;
+//insulin-subsystem
+d/dt[S1]=u1 - S1 / tmaxI;
+d/dt[S2]=(S1 - S2) / tmaxI;
+d/dt[I]=S2 / (tmaxI * VI) - ke * I;
+//insulin-action-subsystem
+d/dt[x1]=- ka1 * x1 + kb1 * I;
+d/dt[x2]=- ka2 * x2 + kb2 * I;
+d/dt[x3]=- ka3 * x3 + kb3 * I;
+d/dt[tau]=0.5;
 
 jump:
-	(G = 10) ==> @2 (and	
-						(I' = I) 
-						(x1' = x1) 
-						(x2' = x2) 
-						(x3' = x3) 
-						(tau' = 0) 
-						(S1' = S1) 
-						(S2' = S2)
-						(Q1' = Q1)
-						(Q2' = Q2)
-					);
+(G = 10)==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2));
 }
 
 {
-mode 2;
+mode2;
 
-invt:
-	//(tau <= 500);
+invt_c:
+(G > 10);
 
 flow:
-	
-	//glucose-subsystem
-	d/dt[Q1] =  - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
-	d/dt[Q2] = x1 * Q1 - (k12 + x2) * Q2;
-	//insulin-subsystem
-	d/dt[S1] = u2 - S1 / tmaxI;
-	d/dt[S2] = (S1 - S2) / tmaxI;
-	d/dt[I] = S2 / (tmaxI * VI) - ke * I;
-	//insulin-action-subsystem
-	d/dt[x1] = - ka1 * x1 + kb1 * I;
-	d/dt[x2] = - ka2 * x2 + kb2 * I;
-	d/dt[x3] = - ka3 * x3 + kb3 * I;
-	d/dt[tau] = 0.5;
+//glucose-subsystem
+d/dt[Q1]=- Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
+d/dt[Q2]=x1 * Q1 - (k12 + x2) * Q2;
+//insulin-subsystem
+d/dt[S1]=u2 - S1 / tmaxI;
+d/dt[S2]=(S1 - S2) / tmaxI;
+d/dt[I]=S2 / (tmaxI * VI) - ke * I;
+//insulin-action-subsystem
+d/dt[x1]=- ka1 * x1 + kb1 * I;
+d/dt[x2]=- ka2 * x2 + kb2 * I;
+d/dt[x3]=- ka3 * x3 + kb3 * I;
+d/dt[tau]=0.5;
 
 jump:
 
 }
 
 init:
-@1 (and	(I = 0.03) (x1 = 0.03) (x2 = 0.045) (tau = 0.0) (S1 = 4.2) (S2 = 4.0) (Q1 = 64.0) (Q2 = 40.0)); 
+@1(and	(I = 0.03) (x1 = 0.03) (x2 = 0.045) (tau = 0.0) (S1 = 4.2) (S2 = 4.0) (Q1 = 64.0) (Q2 = 40.0)); 
 
 goal:
-@2 (and (tau = 60) (G <= 10));
+@2(and (tau = 60) (G <= 10));
 
-//u' = 0.35 is unsat
-//u' = 0.45 is sat
-//u' = 0.5 is sat
-//u' = 0.3 is unsat
-//u' = 0.25 is unsat
-//u' = 0.4 is sat
-//u' = 0.38 is sat
-//u' = 0.37 is sat
-//u' = 0.36 is sat
-
-//x3 in [0.04, 0.041] sat 6 min 7 sec
-//x3 in [0.049, 0.05] sat 4 min 38 sec
-//x3 in [0.0, 0.001] sat 4 min 13 sec
-//x3 in [0.001, 0.002] sat 6 min 20 sec
-//x3 in [0.1, 0.101] unsat in 3 sec
-//x3 in [0.09, 0.091] unsat in 3 sec
-//x3 in [0.08, 0.081] unsat in 4 sec
-//x3 in [0.07, 0.071] sat in 5 min 40 sec
-//x3 in [0.075, 0.076] unsat in 4 sec
-//x3 in [0.071, 0.072] unsat in 4 sec
-//x3 in [0.06, 0.061] sat in 5 min 40 sec
+goal_c:
+@2(and (tau = 60) (G > 10));

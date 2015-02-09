@@ -12,32 +12,38 @@
 #include "PartialSum.h"
 #include "RV.h"
 #include "Box.h"
+#include "FileParser.h"
 
 using namespace std;
+
+struct option_type
+{
+	double delta;
+	int depth;
+};
+
 
 // DecisionProcedure class declaration
 class DecisionProcedure
 {
 	private:
 
-		// PDRH template of the problem
-		vector<string> pdrh_temp;
+		vector<string> temp;
 
-		// PDRH template of the inverted problem
-		vector<string> pdrh_temp_c;
+		vector<string> temp_c;
 
-		// Options
-		std::map<string, string> opt;
+		pdrh_model model;
 
 		// List of the auxiliary filenames
 		vector<string> file_base;
 
-		// List of independent random variables
-		vector<RV*> rv;
-
 		// The method gets a name of the file as a parameter and returns
 		// true  if the file exists and false otherwise
 		bool file_exists(const char*);
+
+		option_type opt;
+
+		string dreach_bin;
 
 	public:
 
@@ -46,10 +52,12 @@ class DecisionProcedure
 		// @param template of the problem,
 		// template of the inverted problem,
 		// settings used for the verification 		
-		DecisionProcedure(vector<string>, vector<string>, vector<RV*>, std::map<string, string>);
+		//DecisionProcedure(vector<string>, vector<string>, vector<RV*>, std::map<string, string>);
 		
 		// Default constructor of the class
 		DecisionProcedure();
+
+		DecisionProcedure(pdrh_model, option_type, string);
 
 		// The method get a Box and a flag as input parameters and 
 		// generates the DRH model for the problem if flag is true and 
@@ -58,7 +66,11 @@ class DecisionProcedure
 		//
 		// @param box from the domain of random variables, flag triggering
 		// generation of the inverse model
-		string generate_drh(Box, bool);
+		// string generate_drh(Box, bool);
+
+		string generate_drh(Box, Box, bool);
+
+		int evaluate(Box, Box);
 
 		// The method gets a full path to the DRH model and a precision
 		// which are then used to call dReach. The method returns true
@@ -86,5 +98,7 @@ class DecisionProcedure
 		//
 		// @param box from the domain of random variables. 
 		int evaluate(Box);
+
+		void generate_temp();
 };
 #endif 

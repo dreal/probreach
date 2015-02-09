@@ -1,7 +1,0 @@
-param:
-0.000000001
-model:
-/absolute/path/to/file/thermostat-ed-1.pdrh
-/absolute/path/to/file/thermostat-ed-1-c.pdrh
-dReach:
-1

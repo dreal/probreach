@@ -8,6 +8,8 @@
 #include<capd/intervals/lib.h>
 #include<string>
 
+#include "PartialSum.h"
+
 using namespace std;
 using namespace capd;
 
@@ -29,15 +31,24 @@ class RV
 		// (needed to perform integral computation)
 		DInterval domain;
 
+		//vector<PartialSum> partition;
+
+
+
 	public:
+
+		RV();
 
 		// Class contructor
 		// 
 		// @param name of the random variable in a string format
 		RV(string);
 
+
+		RV(string, string, string, DInterval);
+
  		// Class destructor
- 		virtual ~RV();
+ 		//virtual ~RV();
 
 		// The method returns a notation of the random variable
 		// in defined form (e.g. N(0,1) for a random variable with 

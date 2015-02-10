@@ -3,11 +3,11 @@ ProbReach
 ProbReach - software for calculating bounded probabilistic reachability in hybrid systems with uncertainty in initial parameters. The first version of the tool supporting **multiple** continuous and discrete random variables and continuous **nondeterministic** parameters is now released.
 
 Download
----
+====================
 Latest version of static binary can be downloaded from ProbReach [releases page](https://github.com/dreal/probreach/releases)
 
 How to Build
----
+====================
 
 1. Required packages
 --------------------

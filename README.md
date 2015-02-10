@@ -4,7 +4,7 @@ ProbReach - software for calculating bounded probabilistic reachability in hybri
 
 Download
 ====================
-Latest version of static binary can be downloaded from ProbReach [releases page](https://github.com/dreal/probreach/releases)
+Latest version of static binary for Linux can be downloaded from ProbReach [releases page](https://github.com/dreal/probreach/releases)
 
 How to Build
 ====================

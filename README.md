@@ -36,7 +36,7 @@ Run `./ProbReach <options> <model-file.pdrh>`:
 options:
 
 -e <double> - length of probability interval or maximum length of the box (default 0.001)
--d <double> - prescision used to call dReach (default 0.001)
+-d <double> - precision used to call dReach (default 0.001)
 -l <string> - full path to dReach binary (default dReach)
 -k <int> - reachability depth (default 0)
 ```

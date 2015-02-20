@@ -13,7 +13,7 @@ How to Build
 --------------------
 - [gcc-4.9](https://gcc.gnu.org/gcc-4.9/) or [clang-3.5](http://clang.llvm.org/docs/ReleaseNotes.html)
 - [dReal/dReach](https://github.com/dreal/dreal)
-- [CAPD-4.0](http://capd.ii.uj.edu.pl/) library
+- [CAPD-4.0](http://capd.ii.uj.edu.pl/)
 
 2. Compilation
 --------------------

@@ -19,8 +19,17 @@ vector<Box> BoxFactory::calculate_cart_prod(vector< vector<PartialSum> > partial
 {
 	int elem = 1;
 	vector<Box> cart_prod;
-	for(int i = 0; i < partial_sums.size(); i++) elem *= partial_sums.at(i).size();
-	
+
+	if(partial_sums.size() == 0)
+	{
+		return cart_prod;
+	}
+
+	for(int i = 0; i < partial_sums.size(); i++)
+	{
+	 	elem *= partial_sums.at(i).size();
+	}
+
 	for(int i = 0; i < elem; i++)
 	{
 		int index = i;

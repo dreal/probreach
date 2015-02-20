@@ -92,5 +92,7 @@ class Box
 		// in the box
 		int get_dimension_size();
 
+		friend ostream& operator<<(ostream&, Box&);
+
 }; 
 #endif  

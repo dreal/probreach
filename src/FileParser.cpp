@@ -39,21 +39,25 @@ bool FileParser::file_exists(const char *filename)
 	}
 }
 
-FileParser::FileParser(string filename)
+FileParser::FileParser(string filebase)
 {
+
+	string filename = filebase + ".pdrh";
 	if(!file_exists(filename.c_str()))
 	{
 		cerr << "Invalid file path: " << filename << endl;
 		exit(EXIT_FAILURE); 
 	}
 	
-	string filename_prep;
+	string filename_prep = filebase + ".preprocessed.pdrh";
 
-	smatch matches;
-	if(regex_match(filename, matches, regex(".*/(.*).pdrh")))
-	{
-		filename_prep = matches[1].str() + ".preprocessed.pdrh";
-	}
+	//smatch matches;
+	//if(regex_match(filename, matches, regex("(.*/)*(.*).pdrh")))
+	//{
+	//	filename_prep = matches[1].str() + ".preprocessed.pdrh";
+	//}
+
+	//cout << filename_prep << endl;
 	
 	stringstream s;
 	//s << "sed \"s/\\/\\/.*//g\" " << filename << " | cpp -P -w | sed  \"s/ //g\" > " << get_current_dir_name() << "/" << filename_prep;
@@ -62,10 +66,10 @@ FileParser::FileParser(string filename)
 
 	parse_pdrh(filename_prep);
 	modify_flows();
-	if(model.model_type != 1)
-	{
+	//if(model.model_type != 1)
+	//{
 		modify_init();
-	}
+	//}
 
 	if(file_exists(filename_prep.c_str()))
 	{

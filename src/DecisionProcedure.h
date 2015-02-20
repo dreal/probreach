@@ -19,7 +19,8 @@ using namespace std;
 struct option_type
 {
 	double delta;
-	int depth;
+	int k;
+	int l;
 };
 
 
@@ -45,6 +46,8 @@ class DecisionProcedure
 
 		string dreach_bin;
 
+		string dreach_options;
+
 	public:
 
 		// Constructor of the class
@@ -57,7 +60,7 @@ class DecisionProcedure
 		// Default constructor of the class
 		DecisionProcedure();
 
-		DecisionProcedure(pdrh_model, option_type, string);
+		DecisionProcedure(pdrh_model, option_type, string, string);
 
 		// The method get a Box and a flag as input parameters and 
 		// generates the DRH model for the problem if flag is true and 

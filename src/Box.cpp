@@ -131,3 +131,14 @@ int Box::get_dimension_size()
 {
 	return dimensions.size();
 }
+
+ostream& operator<<(ostream& strm, Box& box)
+{
+	for(int i = 0; i < box.get_dimension_size() - 1; i++)
+	{
+		strm << box.get_interval_of(i) << "x";
+	}
+	strm << box.get_interval_of(box.get_dimension_size() - 1);
+	
+	return strm;
+}

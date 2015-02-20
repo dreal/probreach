@@ -64,6 +64,7 @@ struct pdrh_model
 	// 2 - PHA
 	// 3 - NPHA
 	int model_type = 0;
+	vector<string> defs;
 	vector<var_type> vars;
 	vector<RV> rvs;
 	vector<DD> dds;

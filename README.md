@@ -44,4 +44,4 @@ options:
         --verbose - output computation details
 ```
 
-Current version of ```ProbReach``` computes exactly ```-k``` step probability reachability. Hence, using ```dReach``` version supporting up to ```-k``` steps reachability (with```-l``` and ```-u``` flags), ```-l``` must be specified and be equal to ```-k```.
+Current version of ```ProbReach``` computes exactly ```-k``` step probability reachability. Using ```dReach``` version supporting up to ```-k``` steps reachability (with```-l``` and ```-u``` flags) ```-l``` must be specified and be equal to ```-k```.

@@ -30,13 +30,18 @@ The executables can be accessed at `ProbReach/bin`
 
 3. Usage
 --------------------
-Run `./ProbReach <options> <model-file.pdrh>`:
+Run ```./ProbReach <options> <model-file.pdrh> <dReach-options>```
 
 ```
 options:
-
--e <double> - length of probability interval or maximum length of the box (default 0.001)
--d <double> - precision used to call dReach (default 0.001)
--l <string> - full path to dReach binary (default dReach)
--k <int> - reachability depth (default 0)
+        -e <double> - length of probability interval or maximum length of the box (default 0.001)
+        -d <double> - prescision used to call dReach (default 0.001)
+        -l <string> - full path to dReach binary (default dReach)
+        -t <int> - number of CPU cores (default 1)
+        -k <int> - reachability depth (default 0)
+        -h/--help - help message
+        --version - version of the tool
+        --verbose - output computation details
 ```
+
+Current version of ```ProbReach``` computes exactly ```-k``` step probability reachability. Hence, using ```dReach``` version supporting up to ```-k``` steps reachability (with```-l``` and ```-u``` flags), ```-l``` must be specified and must be equal to ```-k```.

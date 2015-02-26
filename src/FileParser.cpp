@@ -73,7 +73,7 @@ FileParser::FileParser(string filebase)
 
 	if(file_exists(filename_prep.c_str()))
 	{
-		//remove(filename_prep.c_str());
+		remove(filename_prep.c_str());
 	}
 	else
 	{

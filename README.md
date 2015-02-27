@@ -31,14 +31,13 @@ The executables can be accessed at `ProbReach/bin`
 
 3. Usage
 --------------------
-Run ```./ProbReach <options> <model-file.pdrh> --dreach <dReach-options> --real <dReal-options>```
+Run ```./ProbReach <options> <model-file.pdrh> --dreach <dReach-options> --dreal <dReal-options>```
 
 ```
 options:
         -e <double> - length of probability interval or maximum length of the box (default 0.001)
         -l <string> - full path to dReach binary (default dReach)
         -t <int> - number of CPU cores (default 1)
-        -k <int> - reachability depth (default 0)
         -h/--help - help message
         --version - version of the tool
         --verbose - output computation details

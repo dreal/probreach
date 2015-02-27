@@ -79,5 +79,13 @@ DInterval PartialSum::f4()
 DInterval PartialSum::calculate_value()
 {
 	IFunction fun_fun = IFunction("var:" + var + ";fun:" + fun + ";");
-	return (width(interval) / 6) * (fun_fun(interval.leftBound()) + 4 * fun_fun(interval.mid()) + fun_fun(interval.rightBound())) - (power(width(interval),5) / 2880) * f4();
+	DInterval res = (width(interval) / 6) * (fun_fun(interval.leftBound()) + 4 * fun_fun(interval.mid()) + fun_fun(interval.rightBound())) - (power(width(interval),5) / 2880) * f4();
+	if(res.leftBound() < 0)
+	{
+		return DInterval(0, res.rightBound());
+	}
+	else
+	{
+		return res;
+	}
 }

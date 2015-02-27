@@ -21,6 +21,51 @@
 using namespace std;
 using namespace capd;
 
+// naive identification of nondeterminism in the model
+bool FileParser::is_nondet()
+{
+	vector<var_type> v = model.vars;
+	vector<mode_type> m = model.modes;
+	for(int i = 0; i < m.size(); i++)
+	{
+		for(int j = 0; j < v.size(); j++)
+		{
+			if(strcmp(v.at(j).name.c_str(), "time") != 0)
+			{
+				if (std::find(m.at(i).flow.vars.begin(), m.at(i).flow.vars.end(), v.at(j).name) == m.at(i).flow.vars.end())
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+// model type autodetection
+int FileParser::auto_detect()
+{
+	if(model.rvs.size() > 0 || model.dds.size() > 0)
+	{
+		if(is_nondet())
+		{
+			//NPHA
+			return 3;
+		}
+		else
+		{
+			//PHA
+			return 2;
+		}
+	}
+	else
+	{
+		//HA
+		return 1;
+	}
+}
+
+
 // Constructor of the class
 //
 // @param full path to the settings file
@@ -51,25 +96,26 @@ FileParser::FileParser(string filebase)
 	
 	string filename_prep = filebase + ".preprocessed.pdrh";
 
-	//smatch matches;
-	//if(regex_match(filename, matches, regex("(.*/)*(.*).pdrh")))
-	//{
-	//	filename_prep = matches[1].str() + ".preprocessed.pdrh";
-	//}
-
-	//cout << filename_prep << endl;
-	
 	stringstream s;
-	//s << "sed \"s/\\/\\/.*//g\" " << filename << " | cpp -P -w | sed  \"s/ //g\" > " << get_current_dir_name() << "/" << filename_prep;
-	s << "sed \"s/\\/\\/.*//g\" " << filename << " | cpp -P -w > " << get_current_dir_name() << "/" << filename_prep;
+	
+	char cur_dir[FILENAME_MAX];
+	getcwd(cur_dir, sizeof(cur_dir));
+	
+	s << "sed \"s/\\/\\/.*//g\" " << filename << " | cpp -P -w | sed  \"s/ //g\" > " << cur_dir << "/" << filename_prep;
+
 	system(s.str().c_str());
 
 	parse_pdrh(filename_prep);
+
+	//autodetect model type here
+	if(model.model_type == 0)
+	{
+		model.model_type = auto_detect();
+		cout << "Model type autodetection: " << model.model_type << endl;
+	}
+
 	modify_flows();
-	//if(model.model_type != 1)
-	//{
-		modify_init();
-	//}
+	modify_init();
 
 	if(file_exists(filename_prep.c_str()))
 	{
@@ -94,14 +140,6 @@ void FileParser::parse_pdrh(string filename)
 	if(file.is_open())
 	{
 		string line;
-		/*
-		getline(file, line);
-
-		else
-		{
-			cout << "Model type was not defined. Trying automatic identification" << endl;
-		}
-		*/
 
 		while (getline(file, line))
 		{
@@ -140,7 +178,7 @@ void FileParser::parse_pdrh(string filename)
 					exit(EXIT_FAILURE);
 				}
 			}
-			if(regex_match(line, matches, regex("\\[([-+]?[0-9]*.?[0-9]+),([-+]?[0-9]*.?[0-9]+)\\]([a-zA-Z][a-zA-Z0-9_]*);")))
+			else if(regex_match(line, matches, regex("\\[([-+]?[0-9]*.?[0-9]+),([-+]?[0-9]*.?[0-9]+)\\]([a-zA-Z][a-zA-Z0-9_]*);")))
 			{
 				var_type v;
 				v.name = matches[3].str();
@@ -152,7 +190,7 @@ void FileParser::parse_pdrh(string filename)
 				}
 				model.vars.push_back(v);
 			}
-			if(regex_match(line, matches, regex("([A-Z]+)\\((.*)\\)([a-zA-Z][a-zA-Z0-9_]*);")))
+			else if(regex_match(line, matches, regex("([A-Z]+)\\((.*)\\)([a-zA-Z][a-zA-Z0-9_]*);")))
 			{
 				if(std::find(id_map.begin(), id_map.end(), matches[3].str()) != id_map.end()) 
 				{
@@ -161,7 +199,7 @@ void FileParser::parse_pdrh(string filename)
 				}
 				parse_rv(matches[1].str(), matches[2].str(), matches[3].str());
 			}
-			if(regex_match(line, regex("\\{")))
+			else if(regex_match(line, regex("\\{")))
 			{
 				mode_type m;
 				bool in_invt = false;
@@ -253,7 +291,7 @@ void FileParser::parse_pdrh(string filename)
 				}
 				model.modes.push_back(m);
 			}
-			if(strcmp(line.c_str(), string("init:").c_str()) == 0)
+			else if(strcmp(line.c_str(), string("init:").c_str()) == 0)
 			{
 				while(true)
 				{
@@ -287,7 +325,7 @@ void FileParser::parse_pdrh(string filename)
 					}
 				}
 			}
-			if(strcmp(line.c_str(), string("goal:").c_str()) == 0)
+			else if(strcmp(line.c_str(), string("goal:").c_str()) == 0)
 			{
 				while(true)
 				{
@@ -321,7 +359,7 @@ void FileParser::parse_pdrh(string filename)
 					}
 				}
 			}
-			if(strcmp(line.c_str(), string("goal_c:").c_str()) == 0)
+			else if(strcmp(line.c_str(), string("goal_c:").c_str()) == 0)
 			{
 				while(true)
 				{
@@ -355,20 +393,19 @@ void FileParser::parse_pdrh(string filename)
 					}
 				}
 			}
+			else
+			{
+				cerr << "Syntax error in line: " << line << endl;
+				exit(EXIT_FAILURE);
+			}
 		}
 		file.close();
 
 		if(model.model_type == 0)
 		{
-			if((model.rvs.size() == 0) && (model.dds.size() == 0))
-			{
-				model.model_type = 1;
-			}
-			else
-			{
-				model.model_type = 3;
-			}
+			model.model_type = auto_detect();
 		}
+
 	}
 	else
 	{

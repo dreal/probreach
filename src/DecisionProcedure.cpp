@@ -8,7 +8,10 @@
 #include<unistd.h> 
 #include<sys/types.h>
 #include<signal.h>
-#include<omp.h>
+
+#ifdef _OPENMP
+	#include<omp.h>
+#endif
 
 #include "DecisionProcedure.h"
 #include "PartialSum.h"
@@ -19,86 +22,97 @@
 using namespace std;
 using namespace capd;
 
-// Default constructor of the class
-DecisionProcedure::DecisionProcedure()
+DecisionProcedure::DecisionProcedure(string dreach_bin, string dreach_options, string dreal_options)
 {
-	
-}
-
-DecisionProcedure::DecisionProcedure(pdrh_model model, option_type opt, string dreach_bin, string dreach_options)
-{
-	this->model = model;
-	this->opt = opt;
 	this->dreach_bin = dreach_bin;
 	this->dreach_options = dreach_options;
-	generate_temp();
-	//cout << "dReach options: " << dreach_options << endl;
+	this->dreal_options = dreal_options;
 }
 
-string DecisionProcedure::generate_drh(Box dd_box, Box rv_box, bool flag)
+string DecisionProcedure::generate_drh(pdrh_model model, bool flag)
 {
+
+	//building a filenmae for .drh file
 	stringstream s;
-
-	if(flag)
-	{
-		s << get_current_dir_name() << scientific << setprecision(16) << "/phi_";
-	}
-	else
-	{
-		s << get_current_dir_name() << scientific << setprecision(16) << "/phi_C_";
-	}
-
-	for(int i = 0; i < dd_box.get_dimension_size(); i++)
-	{
-		s << dd_box.get_interval_of(i).leftBound() << "_" << dd_box.get_interval_of(i).rightBound() << "x";
-	}
-
-	for(int i = 0; i < rv_box.get_dimension_size(); i++)
-	{
-		s << rv_box.get_interval_of(i).leftBound() << "_" << rv_box.get_interval_of(i).rightBound() << "x";
-	}
-	
+	#ifdef _OPENMP
+		thread_num = omp_get_thread_num();
+	#endif
+	char cur_dir[FILENAME_MAX];
+	getcwd(cur_dir, sizeof(cur_dir));
+	s << cur_dir << "/phi" << thread_num;
 	string drh_filename_base = s.str();
 	file_base.push_back(drh_filename_base);
-
 	s << ".drh";
 	string drh_filename = s.str();
+
+	//start composing a file
 	ofstream drh_file;
 	drh_file.open(drh_filename.c_str());
 	if (drh_file.is_open())
 	{
-		drh_file << scientific;
-		for(int i = 0; i < dd_box.get_dimension_size(); i++)
+		for(int i = 0; i < model.defs.size(); i++)
 		{
-			drh_file << "#define " << dd_box.get_var_of(i) << " " << dd_box.get_interval_of(i).leftBound() << endl;
-			drh_file << "#define " << dd_box.get_var_of(i) << " " << dd_box.get_interval_of(i).rightBound() << endl;
+			drh_file << model.defs.at(i) << endl;
 		}
 
-		for(int i = 0; i < rv_box.get_dimension_size(); i++)
+		for(int i = 0; i < model.vars.size(); i++)
 		{
-			drh_file << "#define _" << rv_box.get_var_of(i) << "_a " << rv_box.get_interval_of(i).leftBound() << endl;
-			drh_file << "#define _" << rv_box.get_var_of(i) << "_b " << rv_box.get_interval_of(i).rightBound() << endl;
-			double radius = 100 * (model.rvs.at(i).get_domain().rightBound() - model.rvs.at(i).get_domain().leftBound());
-			drh_file << "[" << model.rvs.at(i).get_domain().leftBound() - radius << ", " << model.rvs.at(i).get_domain().rightBound() + radius << "]" << model.rvs.at(i).get_var() << ";" << endl;
+			drh_file << model.vars.at(i).range << model.vars.at(i).name << ";" << endl;
 		}
-			
+
+		for(int i = 0; i < model.modes.size(); i++)
+		{
+			mode_type mode = model.modes.at(i);
+			drh_file << "{" << endl << "mode " << mode.id << ";" << endl;
+
+			if(flag)
+			{
+				if (mode.invts.size() > 0)
+				{
+					drh_file << "invt:" << endl;
+					for (int j = 0; j < mode.invts.size(); j++)
+					{
+						drh_file << mode.invts.at(j) << endl;
+					}
+				}
+			}
+			else
+			{
+				if (mode.invts_c.size() > 0)
+				{
+					drh_file << "invt:" << endl;
+					for (int j = 0; j < mode.invts_c.size(); j++)
+					{
+						drh_file << mode.invts_c.at(j) << endl;
+					}
+				}
+			}
+
+			drh_file << "flow:" << endl;
+			for(int j = 0; j < mode.flow.odes.size(); j++)
+			{
+				drh_file << mode.flow.odes.at(j) << endl;
+			}
+			drh_file << "jump:" << endl;
+			for(int j = 0; j < mode.jumps.size(); j++)
+			{
+				drh_file << mode.jumps.at(j).guard << "==>@" << mode.jumps.at(j).successor << mode.jumps.at(j).init << ";" << endl;
+			}
+			drh_file << "}" << endl;
+		}
+
+		drh_file << "init:" << endl << "@" << model.init.mode << model.init.formula << ";" << endl << "goal:" << endl;
+
 		if(flag)
 		{
-			for(int i = 0; i < temp.size(); i++)
-			{
-				drh_file << temp.at(i) << endl;
-			}
+			drh_file << "@" << model.goal.mode << model.goal.formula << ";" << endl;
 		}
 		else
 		{
-			for(int i = 0; i < temp_c.size(); i++)
-			{
-				drh_file << temp_c.at(i) << endl;
-			}
+			drh_file << "@" << model.goal_c.mode << model.goal_c.formula << ";" << endl;
 		}
-		
 		drh_file.close();
-	}	
+	}
 	return drh_filename_base;
 }
 
@@ -107,53 +121,38 @@ string DecisionProcedure::generate_drh(Box dd_box, Box rv_box, bool flag)
 // -1 if indicator function equals to 0 and 0 if the box contains
 // both values where the indicator function takes both values
 //
-// @param box from the domain of random variables. 
-int DecisionProcedure::evaluate(Box dd_box, Box rv_box)
+// @param box from the domain of random variables.
+
+int DecisionProcedure::evaluate(pdrh_model model, double precision)
 {
-	double precision = opt.delta;
 	string phi;
 	string phi_c;
-	if(rv_box.get_dimension_size() > 0)
-	{
-		precision = rv_box.get_min_width() / 1000000;
-	}
-		
+
 	#pragma omp critical
 	{
-		phi = generate_drh(dd_box, rv_box, true);
+		phi = generate_drh(model, true);
 	}
 	if(call_dreach(phi, precision))
 	{
-		if(rv_box.get_dimension_size() > 0)
-		{
-			precision = rv_box.get_min_width() / 1000000;
-		}
 		#pragma omp critical
 		{
-			phi_c = generate_drh(dd_box, rv_box, false);
+			phi_c = generate_drh(model, false);
 		}
 		if(call_dreach(phi_c, precision))
 		{
-			//cout << phi << " sat" << endl;
-			//cout << phi_c << " sat" << endl;
-			//cout << rv_box.get_interval_of(0) << setprecision(12) << " is mixed" << endl;
 			return 0;
 		}
 		else
 		{
-			//cout << rv_box.get_interval_of(0) << setprecision(12) << " is in B" << endl;
-			//cout << phi << " sat" << endl;
-			//cout << phi_c << " unsat" << endl;
 			return 1;
 		}
 	}
 	else
 	{
-		//cout << phi << " unsat" << endl;
-		//cout << rv_box.get_interval_of(0) << setprecision(12) << " is not in B" << endl;
 		return -1;
 	}
 }
+
 
 // The method gets a full path to the DRH model and a precision
 // which are then used to call dReach. The method returns true
@@ -164,18 +163,38 @@ int DecisionProcedure::evaluate(Box dd_box, Box rv_box)
 bool DecisionProcedure::call_dreach(string drh_filename_base, double precision)
 {
 	stringstream s;
-	
-	//s << dreach_bin << " -k " << opt.k << " " << drh_filename_base << ".drh -precision=" << opt.delta << " > /dev/null" << endl;
-	s << dreach_bin << " " << dreach_options << " " << drh_filename_base << ".drh -precision=" << opt.delta << " > /dev/null" << endl;
-	//s << "dReach -k " << opt.depth << " " << drh_filename_base << ".drh -precision=" << opt.delta << " > /dev/null" << endl;
-	
-	system(s.str().c_str());
+	s << dreach_bin << " " << dreach_options << " " << drh_filename_base << ".drh " << dreal_options;
 
-	//for(int i = 0; i < opt.depth; i++)
-	//{
+	if(precision > 0)
+	{
+		s << " --precision=" << precision;
+	}
+	s << " > /dev/null" << endl;
 
-	//}
+	int res = system(s.str().c_str());
 
+	remove_aux_file(drh_filename_base);
+
+	if(!WIFEXITED(res))
+	{
+		cerr << "Error occured calling dReach" << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	switch(WEXITSTATUS(res))
+	{
+		case 51:
+			return true;
+		case 52:
+			return false;
+		default:
+			cerr << "Unrecognized dReach exit status: " << WEXITSTATUS(res) << endl;
+			cerr << "Try using -z dReach option" << endl;
+			exit(EXIT_FAILURE);
+	}
+
+	/*
+	ADD A FEATURE IN DREACH FOR WRITING TH ~E RESULT TO THE FILE phi_tread_num.output
 	s.str("");
 	s << drh_filename_base << "_" << opt.k << "_0.output";
 	ifstream output;
@@ -200,6 +219,7 @@ bool DecisionProcedure::call_dreach(string drh_filename_base, double precision)
     	cout << "Couldn't open the file " << s.str() << endl;
     	exit(EXIT_FAILURE);
 	}
+	*/
 
 }
 
@@ -233,21 +253,16 @@ void DecisionProcedure::remove_aux_file(string filename_base)
 {
 	stringstream s;
 	string drh = filename_base + ".drh";
-	string preprocessed = filename_base + ".preprocessed.drh";
-	s.str("");
-	s << filename_base << "_" << opt.k << "_0";
-	string smt2 = s.str() + ".smt2";
-	string output = s.str() + ".output";
+	//string preprocessed = filename_base + ".preprocessed.drh";
+	//s.str("");
+	//s << filename_base << "_" << opt.k << "_0";
+	//string smt2 = s.str() + ".smt2";
+	//string output = s.str() + ".output";
 	
-	//if(file_exists(drh.c_str())) remove(drh.c_str()); 
+	if(file_exists(drh.c_str())) remove(drh.c_str());
 	//if(file_exists(preprocessed.c_str())) remove(preprocessed.c_str());
 	//if(file_exists(smt2.c_str())) remove(smt2.c_str());
 	//if(file_exists(output.c_str())) remove(output.c_str());
-
-	remove(drh.c_str()); 
-	remove(preprocessed.c_str());
-	remove(smt2.c_str());
-	remove(output.c_str());
 }
 
 // The method removes all the auxiliary files generated by dReach 
@@ -259,82 +274,4 @@ void DecisionProcedure::remove_aux_files()
 		remove_aux_file(file_base.at(i));
 	}
 	file_base.clear();
-}
-
-void DecisionProcedure::generate_temp()
-{
-	ostringstream os;
-
-	for(int i = 0; i < model.defs.size(); i++)
-	{
-		os << model.defs.at(i) << endl;
-	}
-
-	for(int i = 0; i < model.vars.size(); i++)
-	{
-		os << "[" << model.vars.at(i).range.leftBound() << ", " << model.vars.at(i).range.rightBound() << "]" << model.vars.at(i).name << ";" << endl;
-	}
-
-	temp.push_back(os.str());
-	temp_c.push_back(os.str());
-	os.str("");
-
-	for(int i = 0; i < model.modes.size(); i++)
-	{
-		mode_type mode = model.modes.at(i);
-		os << "{" << endl << "mode " << mode.id << ";" << endl;
-		temp.push_back(os.str());
-		temp_c.push_back(os.str());
-		os.str("");
-
-		if(mode.invts.size() > 0)
-		{
-			os << "invt:" << endl;
-			for(int j = 0; j < mode.invts.size(); j++)
-			{
-				os << mode.invts.at(j) << endl;
-			}
-			temp.push_back(os.str());
-			os.str("");
-		}
-
-		if(mode.invts_c.size() > 0)
-		{
-			os << "invt:" << endl;
-			for(int j = 0; j < mode.invts_c.size(); j++)
-			{
-				os << mode.invts_c.at(j) << endl;
-			}
-			temp_c.push_back(os.str());
-			os.str("");
-		}
-
-		os << "flow:" << endl;
-		for(int j = 0; j < mode.flow.odes.size(); j++)
-		{
-			os << mode.flow.odes.at(j) << endl;
-		}
-		os << "jump:" << endl;
-		for(int j = 0; j < mode.jumps.size(); j++)
-		{
-			os << mode.jumps.at(j).guard << "==>@" << mode.jumps.at(j).successor << mode.jumps.at(j).init << ";" << endl;
-		}
-		os << "}" << endl;
-		temp.push_back(os.str());
-		temp_c.push_back(os.str());
-		os.str("");
-	}
-
-	os << "init:" << endl << "@" << model.init.mode << model.init.formula << ";" << endl << "goal:" << endl;
-	temp.push_back(os.str());
-	temp_c.push_back(os.str());
-	os.str("");
-
-	os << "@" << model.goal.mode << model.goal.formula << ";" << endl;
-	temp.push_back(os.str());
-
-	os.str("");
-
-	os << "@" << model.goal_c.mode << model.goal_c.formula << ";" << endl;
-	temp_c.push_back(os.str());
 }

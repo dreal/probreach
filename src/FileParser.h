@@ -93,6 +93,10 @@ class FileParser
 		void modify_flows();
 
 		void modify_init();
+
+		bool is_nondet();
+
+		int auto_detect();
 		
 	public:
 

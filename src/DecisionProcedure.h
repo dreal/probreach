@@ -29,12 +29,6 @@ class DecisionProcedure
 {
 	private:
 
-		vector<string> temp;
-
-		vector<string> temp_c;
-
-		pdrh_model model;
-
 		// List of the auxiliary filenames
 		vector<string> file_base;
 
@@ -42,25 +36,20 @@ class DecisionProcedure
 		// true  if the file exists and false otherwise
 		bool file_exists(const char*);
 
-		option_type opt;
-
 		string dreach_bin;
 
 		string dreach_options;
+
+		string dreal_options;
+
+		int thread_num = 0;
 
 	public:
 
 		// Constructor of the class
 		//
-		// @param template of the problem,
-		// template of the inverted problem,
-		// settings used for the verification 		
-		//DecisionProcedure(vector<string>, vector<string>, vector<RV*>, std::map<string, string>);
-		
-		// Default constructor of the class
-		DecisionProcedure();
-
-		DecisionProcedure(pdrh_model, option_type, string, string);
+		// @param dreach binary path, dreach options, dreal options
+		DecisionProcedure(string, string, string);
 
 		// The method get a Box and a flag as input parameters and 
 		// generates the DRH model for the problem if flag is true and 
@@ -70,10 +59,15 @@ class DecisionProcedure
 		// @param box from the domain of random variables, flag triggering
 		// generation of the inverse model
 		// string generate_drh(Box, bool);
+		string generate_drh(pdrh_model, bool);
 
-		string generate_drh(Box, Box, bool);
-
-		int evaluate(Box, Box);
+		// The methods gets an arbitrary Box as an input parameter
+		// and return 1 if the indicator function over this box equals 1,
+		// -1 if indicator function equals to 0 and 0 if the box contains
+		// both values where the indicator function takes both values
+		//
+		// @param box from the domain of random variables.
+		int evaluate(pdrh_model, double);
 
 		// The method gets a full path to the DRH model and a precision
 		// which are then used to call dReach. The method returns true
@@ -93,15 +87,6 @@ class DecisionProcedure
 		//
 		// @param filename base
 		void remove_aux_file(string);
-		
-		// The methods gets an arbitrary Box as an input parameter
-		// and return 1 if the indicator function over this box equals 1,
-		// -1 if indicator function equals to 0 and 0 if the box contains
-		// both values where the indicator function takes both values
-		//
-		// @param box from the domain of random variables. 
-		int evaluate(Box);
 
-		void generate_temp();
 };
 #endif 

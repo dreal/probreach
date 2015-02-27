@@ -6,7 +6,7 @@
  * "Verified Solution and Propagation of Uncertainty in Physiological Models"
  * Joshua A. Enszer and Mark A. Stadtherr
  */
-MODEL_TYPE(PHA)
+MODEL_TYPE(NPHA)
 
 #define a 0.013
 #define C 772.3
@@ -15,10 +15,6 @@ MODEL_TYPE(PHA)
 #define lambdaM 1400
 #define V 0.9
 #define M0 43.6
-//#define M0_l 43.0
-//#define M0_u 44.0
-//#define b 0.05
-//#define k 10.0
 
 //fat
 [1,100]F;
@@ -29,11 +25,8 @@ MODEL_TYPE(PHA)
 
 //effect of body mass on metabolic rate
 N(10.96,1)k;
-N(0.075,0.01)b;
-//DD(0.05:0.1,0.06:0.2,0.07:0.3,0.075:0.4)b;
 
-//rate of ketone use in the brain
-//[0.05,0.075]b;
+[0.05,0.075]b;
 
 [0,100]time;
 [0,100]tau;

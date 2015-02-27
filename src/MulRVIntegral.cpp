@@ -6,6 +6,11 @@
 //
 // @author: Fedor Shmarov
 // @e-mail: f.shmarov@ncl.ac.uk
+#include<capd/capdlib.h>
+#include<capd/intervals/lib.h>
+#include<iomanip>
+#include<string>
+#include<ibex.h>
 #include "RVIntegral.h"
 #include "MulRVIntegral.h"
 #include "PartialSum.h"
@@ -13,10 +18,9 @@
 //#include "nRV.h"
 #include "Box.h"
 #include "Integral.h"
-#include<capd/capdlib.h>
-#include<capd/intervals/lib.h>
-#include<iomanip>
-#include<string>
+
+using namespace std;
+using namespace capd;
 
 // Constructor of the class
 //
@@ -30,7 +34,7 @@ MulRVIntegral::MulRVIntegral(vector<RV> rv, double coef, double precision)
 	calculate_value();
 }
 
-DInterval MulRVIntegral::calculate_box(Box box)
+capd::DInterval MulRVIntegral::calculate_box(Box box)
 {
 	DInterval prod = 1;
 	for(int i = 0; i < box.get_dimension_size(); i++)
@@ -55,7 +59,7 @@ vector<RV> MulRVIntegral::get_rv()
 }
 
 // The method returns the value of the product of RVIntegrals.
-DInterval MulRVIntegral::get_value()
+capd::DInterval MulRVIntegral::get_value()
 {
 	return this->value;
 }
@@ -101,32 +105,28 @@ double MulRVIntegral::binomial_coef(int k, int n)
 // the correctness of the computation
 void MulRVIntegral::calculate_local_error()
 {
-	local_precision = precision;
-	double sum = 0;
 	int n = rv.size();
+	stringstream s;
 	for(int i = 0; i < n; i++)
 	{
-		sum = sum + binomial_coef(i + 1, n) * pow(local_precision, i + 1);
+		s << binomial_coef(i + 1, n) << "*e^" << i + 1 << "+";
 	}
+	s << "-" << precision;
 
-	while (sum > precision)
-	{
-		local_precision = local_precision / 2;
-		sum = 0;
-		for(int i = 0; i < n; i++)
-		{
-			sum = sum + binomial_coef(i + 1, n) * pow(local_precision, i + 1);
-		}
-	}
+	ibex::Function f("e", s.str().c_str());
+	ibex::IntervalVector box(1, ibex::Interval(0, 1));
+	ibex::CtcFwdBwd c(f);
+	ibex::CtcFixPoint fp(c, precision / 1000);
+	fp.contract(box);
+
+	local_precision = box[0].lb();
 }
 
 // The method performs calculation of the product of RVIntegrals.
 void MulRVIntegral::calculate_value()
 {
 	calculate_local_error();
-	//cout << "local precision = " << local_precision << endl;
-	//cout << "precision = " << precision << endl;
-	DInterval integral_prod = 1;
+	capd::DInterval integral_prod = 1;
 	for(int i = 0; i < rv.size(); i++)
 	{
 		RVIntegral rv_integral = RVIntegral(rv.at(i), coef, local_precision);

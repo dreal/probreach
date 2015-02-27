@@ -8,7 +8,9 @@
 #include<fstream>
 #include<math.h>
 #include<time.h>
-#include<omp.h>
+#ifdef _OPENMP
+	#include<omp.h>
+#endif
 #include<exception>
 #include<typeinfo>
 #include<unistd.h> 
@@ -27,31 +29,26 @@
 using namespace std;
 using namespace capd;
 
-double delta = 1e-03;
 double epsilon = 1e-03;
 double inf_coeff = 1e-01;
-int depth = 0;
-int dreach_l = 0;
-int dreach_k = 0;
 string filename;
 string dreach_bin = "dReach";
 bool verbose = false;
+bool visualize = false;
 string dreach_options = "";
+string dreal_options = "";
 int num_threads = 1;
 int max_num_threads = 1;
-string probreach_version("1.0");
+string probreach_version("1.0.1");
 
-DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, option_type opt, DInterval init_prob, Box dd_box)
+DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
 {
-
 	double startTime = time(NULL);
 
-	DecisionProcedure dec_proc = DecisionProcedure(model, opt, dreach_bin, dreach_options);
+	DecisionProcedure dec_proc = DecisionProcedure(dreach_bin, dreach_options, dreal_options);
 	DInterval P_lower = init_prob.leftBound();
 	DInterval P_upper = init_prob.rightBound();
-	//DInterval P_upper(2.0 - mul_rv_integral.get_value().leftBound());
 
-    //cout << getpid() << endl;
     vector<Box> mixed_boxes;
 
 	if(verbose)
@@ -63,6 +60,10 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, option_ty
 	   	cout << "|-------------------------------------------------------------------------------------|" << endl;
 	   	cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
 	}
+
+	//sorting initial partition
+	sort(cart_prod.begin(), cart_prod.end(), BoxFactory::compare_boxes_des);
+
 	while(true)
 	{
 		#pragma omp parallel
@@ -72,16 +73,31 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, option_ty
 			{
 				double operationTime = time(NULL);
 				Box box = cart_prod.at(i);
-				//cout << "Current box : " << setprecision(12) << box << endl;
-				int is_borel = dec_proc.evaluate(dd_box, box);
-				
+				// creating a model for the box above
+				pdrh_model rv_model = model;
+				stringstream s;
+				for(int i = 0; i < box.get_dimension_size(); i++)
+				{
+					s << "#define _" << box.get_var_of(i) << "_a " << box.get_interval_of(i).leftBound() << endl;
+					rv_model.defs.push_back(s.str());
+					s.str("");
+					s << "#define _" << box.get_var_of(i) << "_b " << box.get_interval_of(i).rightBound() << endl;
+					rv_model.defs.push_back(s.str());
+					s.str("");
+					var_type var;
+					var.name = model.rvs.at(i).get_var();
+					double radius = 100 * (model.rvs.at(i).get_domain().rightBound() - model.rvs.at(i).get_domain().leftBound());
+					var.range = DInterval(model.rvs.at(i).get_domain().leftBound() - radius, model.rvs.at(i).get_domain().rightBound() + radius);
+					rv_model.vars.push_back(var);
+				}
+				// dReach is called here
+				int is_borel = dec_proc.evaluate(rv_model, box.get_min_width() / 1000);
+				// interpreting the result
 				#pragma omp critical
 				{				
 					if(is_borel == -1)
 					{
-						//cout << box << setprecision(12) << " is not in B" << endl;
 						P_upper -= box.get_value();
-						//cout << "Box: " << box << " is not in B" << endl;
 						if(verbose)
 						{
 							cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
@@ -89,9 +105,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, option_ty
 					}
 					if(is_borel == 1)
 					{
-						//cout << box << setprecision(12) << " is in B" << endl;
 						P_lower += box.get_value();
-						//cout << "Box: " << box << " is in B" << endl;
 						if(verbose)
 						{
 							cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
@@ -99,8 +113,6 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, option_ty
 					}
 					if(is_borel == 0)
 					{
-						//cout << box << setprecision(12) << " is a mixed box" << endl;
-						//cout << "Box: " << setprecision(12) << box << " is mixed" << endl;
 						if(model.model_type == 3)
 						{
 							if(box.get_max_width() > epsilon)
@@ -112,7 +124,6 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, option_ty
 						{
 							mixed_boxes.push_back(box);
 						}
-						//cout << "Size " << mixed_boxes.size() << endl;
 					}
 				}
 			}
@@ -130,7 +141,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, option_ty
 			if(P_upper.rightBound() - P_lower.leftBound() <= epsilon)
 			{
 				break;
-			}	
+			}
 		}
 
 		int mixed_boxes_size = mixed_boxes.size();
@@ -188,17 +199,18 @@ void print_help()
 	cout << endl;
 	cout << "Help message:" << endl;
 	cout << endl;
-	cout << "	Run ./ProbReach <options> <model-file.pdrh> <dReach-options>" << endl;
+	cout << "	Run ./ProbReach <options> <model-file.pdrh> --dreach <dReach-options> --dreal <dReal-options>" << endl;
 	cout << endl;
 	cout << "options:" << endl;
 	cout << "	-e <double> - length of probability interval or maximum length of the box (default 0.001)" << endl;
 	cout << "	-d <double> - prescision used to call dReach (default 0.001)" << endl;
 	cout << "	-l <string> - full path to dReach binary (default dReach)" << endl;
-	cout << "	-t <int> - number of CPU cores (default 1)" << endl;
-	cout << "	-k <int> - reachability depth (default 0)" << endl;
+	cout << "	-t <int> - number of CPU cores (default 1) (max " << max_num_threads << ")" << endl;
 	cout << "	-h/--help - help message" << endl;
 	cout << "	--version - version of the tool" << endl;
 	cout << "	--verbose - output computation details" << endl;
+	cout << "	--dreach - delimits dReach options (e.g. rechability depth)" << endl;
+	cout << "	--dreal - delimits dReal options (e.g. precision, ode step)" << endl;
 	cout << endl;
 }
 
@@ -207,11 +219,11 @@ void print_version()
 	cout << "ProbReach " << probreach_version << endl;
 }
 
-void parce_cmd(int argc, char* argv[])
+void parse_cmd(int argc, char* argv[])
 {
 
 	#ifdef _OPENMP
-		int max_num_threads = omp_get_max_threads();
+		max_num_threads = omp_get_max_threads();
 	#endif
 
 	//no arguments are input
@@ -221,7 +233,7 @@ void parce_cmd(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	//only one -h/--help is provided
+	//only one -h/--help or --version is provided
 	if(argc == 2)
 	{
 		if((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) 
@@ -229,35 +241,74 @@ void parce_cmd(int argc, char* argv[])
 			print_help();
 			exit(EXIT_SUCCESS);
 		}
+		else if((strcmp(argv[1], "--version") == 0))
+		{
+			print_version();
+			exit(EXIT_SUCCESS);
+		}
 	}
-
-	//extracting a file name
-	int pos = 0;
+	// parsing --dreach and --dreal options
+	int opt_end = argc;
+	stringstream s;
 	cmatch matches;
 	for(int i = 1; i < argc; i++)
 	{
+		//reached --dreach flag
+		if(strcmp(argv[i], "--dreach") == 0)
+		{
+			//indicating the end of ProbReach options
+			opt_end = i;
+			while(true)
+			{
+				//reached the end of command line
+				if(i == argc - 1) break;
+				//next arg after --dreach flag
+				i++;
+				//reached --dreal flag
+				if(strcmp(argv[i], "--dreal") == 0) break;
+				s << argv[i] << " ";
+			}
+			//composing dReach options
+			dreach_options = s.str();
+		}
+		//reached --dreal flag
+		if(strcmp(argv[i], "--dreal") == 0)
+		{
+			//empty stream
+			s.str("");
+			while(true)
+			{
+				//reached the end of command line
+				if(i == argc - 1) break;
+				//next arg after --dreal flag
+				i++;
+				//if --dreach found while reading dReal options
+				if(strcmp(argv[i], "--dreach") == 0)
+				{
+					cerr << "dReal options must be specified after dReach options" << endl;
+					exit(EXIT_FAILURE);
+				}
+				s << argv[i] << " ";
+			}
+			//composing dReal options
+			dreal_options = s.str();
+		}
+
+	}
+	//parsing ProbReach options
+	for(int i = 1; i < opt_end; i++)
+	{
+		//extracting a file name
 		if(regex_match(argv[i], matches, regex("(.*/)*(.*).pdrh")))
 		{
 			filename = matches[1].str() + matches[2].str();
-			pos = i; 
-			break;
 		}
-	}
-
-	//case if filename is not specified
-	if(pos == 0)
-	{
-		print_help();
-		exit(EXIT_FAILURE);
-	}
-
-	//parsing ProbReach options
-	for(int i = 1; i < pos; i++)
-	{
-		if((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) 
+		//help
+		else if((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0))
 		{
 			print_help();
-		} 
+		}
+		//epsilon
 		else if(strcmp(argv[i], "-e") == 0)
 		{
 			i++;
@@ -269,17 +320,7 @@ void parce_cmd(int argc, char* argv[])
 				exit(EXIT_FAILURE);
 			}
 		}
-		else if(strcmp(argv[i], "-d") == 0)
-		{
-			i++;
-			istringstream is(argv[i]);
-			is >> delta;
-			if(delta <= 0)
-			{
-				cerr << "-d should be positive" << endl;
-				exit(EXIT_FAILURE);
-			}
-		}
+		//dReach binary
 		else if(strcmp(argv[i], "-l") == 0)
 		{
 			i++;
@@ -287,10 +328,22 @@ void parce_cmd(int argc, char* argv[])
 			os << argv[i] << "dReach";
 			dreach_bin = os.str();
 		}
+		//verbose
 		else if(strcmp(argv[i], "--verbose") == 0)
 		{
 			verbose = true;
 		}
+		//visualize
+		else if(strcmp(argv[i], "--visualize") == 0)
+		{
+			visualize = true;
+		}
+		//version
+		else if(strcmp(argv[i], "--version") == 0)
+		{
+			print_version();
+		}
+		//number of cores
 		else if(strcmp(argv[i], "-t") == 0)
 		{
 			i++;
@@ -323,90 +376,46 @@ void parce_cmd(int argc, char* argv[])
 			exit(EXIT_FAILURE);
 		}
 	}
-
-	//parsing dReach options
-	stringstream s;
-	for(int i = pos + 1; i < argc; i++)
+	//case if filename is not specified
+	if(strcmp(filename.c_str(), "") == 0)
 	{
-		s << argv[i] << " ";
-		if(strcmp(argv[i], "-k") == 0)
-		{
-			i++;
-			istringstream is(argv[i]);
-			is >> dreach_k;
-			dreach_l = dreach_k;
-			s << dreach_k << " ";
-			if(dreach_k < 0)
-			{
-				cerr << "-k should be nonnegative" << endl;
-				exit(EXIT_FAILURE);
-			}
-		}
-		if(strcmp(argv[i], "-l") == 0)
-		{
-			i++;
-			istringstream is(argv[i]);
-			is >> dreach_l;
-			s << dreach_l << " ";
-			if(dreach_l < 0)
-			{
-				cerr << "-l should be nonnegative" << endl;
-				exit(EXIT_FAILURE);
-			}
-		}
-		if(strcmp(argv[i], "-u") == 0)
-		{
-			i++;
-			istringstream is(argv[i]);
-			is >> dreach_k;
-			s << dreach_k << " ";
-			if(dreach_l < 0)
-			{
-				cerr << "-u should be nonnegative" << endl;
-				exit(EXIT_FAILURE);
-			}
-		}
-	}
-	if(dreach_k != dreach_l)
-	{
-		cerr << "Current version of ProbReach supports only exactly -k step reachability. Hence, -k, -l and -u should be the same" << endl;
+		cerr << "PDRH file is not specified" << endl;
+		print_help();
 		exit(EXIT_FAILURE);
 	}
-	dreach_options = s.str();
 }
 
 int main(int argc, char* argv[])
 {
-	parce_cmd(argc, argv);
-
-	/*
+	// parse command line
+	parse_cmd(argc, argv);
+	// output input arguments
 	if(verbose)
 	{
 		cout << "Input arguments:" << endl;
-		cout << "delta = " << delta << endl;
 		cout << "epsilon = " << epsilon << endl;
-		cout << "depth = " << depth << endl;
 		cout << "filename = " << filename << endl;
 		cout << "number of cores used = " << num_threads << endl;
 		cout << "dReach version = " << dreach_bin << endl;
 		cout << "dReach options: " << dreach_options << endl;
-		cout << "dReach -l = " << dreach_l << endl;
-		cout << "dReach -k = " << dreach_k << endl;
+		cout << "dReal options: " << dreal_options << endl;
 	}
-	*/
-
+	// parse *.pdrh file
 	FileParser file_parser(filename);
-
 	pdrh_model model = file_parser.get_model();
-
+	if(verbose)
+	{
+		cout << "Model type = " << model.model_type << endl;
+	}
+	// main algorithm starts here
 	vector<DInterval> P;
 	DInterval P_final;
-
 	vector<Box> dd_cart_prod;
 	vector<Box> rv_cart_prod;
-
+	// case when DDs are present
 	if(model.dds.size() > 0)
 	{
+		// obtaining Cartesian product of DDs
 		vector< vector<PartialSum> > dd_partial_sums;
 		for(int i = 0; i < model.dds.size(); i++)
 		{
@@ -417,13 +426,11 @@ int main(int argc, char* argv[])
 			}
 			dd_partial_sums.push_back(temp_dd);
 		}
-
 		dd_cart_prod = BoxFactory::calculate_cart_prod(dd_partial_sums);
-
+		// constructing initial probability vector
 		for(int i = 0; i < dd_cart_prod.size(); i++)
 		{
 			DInterval temp_P = DInterval(1.0, 1.0);
-			//pdrh_model temp_model = model;
 			for(int j = 0; j < dd_cart_prod.at(i).get_dimensions().size(); j++)
 			{
 				temp_P *= dd_cart_prod.at(i).get_dimension(j).get_value();
@@ -435,7 +442,7 @@ int main(int argc, char* argv[])
 	{
 		P.push_back(DInterval(1.0));
 	}
-
+	// calculating multiple integral for RVs
 	DInterval init_prob;
 	if(model.rvs.size() > 0)
 	{
@@ -443,73 +450,70 @@ int main(int argc, char* argv[])
 		rv_cart_prod = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
 		init_prob = DInterval(0.0, 2.0 - mul_integral.get_value().leftBound());
 	}
-
-	option_type opt;
-	opt.delta = delta;
-	opt.l = dreach_l;
-	opt.k = dreach_k;
-	//opt.depth = depth;
-
 	//HA
 	if(model.model_type == 1)
 	{
-		DecisionProcedure dec_proc(model, opt, dreach_bin, dreach_options);
-		Box dd_box = Box();
-		Box rv_box = Box();
-		int res = dec_proc.evaluate(dd_box, rv_box);
+		DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
+		int res = dec_proc.evaluate(model, -1);
 		if(res == 1)
 		{
 			cout << "sat" << endl;
+			P.push_back(DInterval(1.0, 1.0));
 			P_final = DInterval(1.0, 1.0);
 		}
 		if(res == -1)
 		{
 			cout << "unsat" << endl;
+			P.push_back(DInterval(0.0, 0.0));
 			P_final = DInterval(0.0, 0.0);
 		}
 		if(res == 0)
 		{
 			cout << "undec" << endl;
+			P.push_back(DInterval(0.0, 1.0));
 			P_final = DInterval(0.0, 1.0);
 		}
 	}
 	//PHA or NPHA
 	else
 	{
-		if(verbose)
-		{	
-			cout << "Model type = " << model.model_type << endl;
-		}
+		// case when only RVs are present
 		if(dd_cart_prod.size() == 0)
 		{
-			Box dd_box = Box();
-			P.at(0) *= branch_and_evaluate(model, rv_cart_prod, opt, init_prob, dd_box);
+			P.at(0) *= branch_and_evaluate(model, rv_cart_prod, init_prob);
 		}
+		// case when DDs are present
 		else
 		{
-			if(rv_cart_prod.size() > 0)
-			{	
-				for(int i = 0; i < dd_cart_prod.size(); i++)
+			for(int i = 0; i < dd_cart_prod.size(); i++) {
+				// composing a model to evaluate
+				pdrh_model dd_model = model;
+				stringstream s;
+				for (int j = 0; j < dd_cart_prod.at(i).get_dimension_size(); j++)
 				{
-					P.at(i) *= branch_and_evaluate(model, rv_cart_prod, opt, init_prob, dd_cart_prod.at(i));
+					s << "#define " << dd_cart_prod.at(j).get_var_of(j) << " " << dd_cart_prod.at(j).get_interval_of(j).leftBound();
+					dd_model.defs.push_back(s.str());
+					s.str("");
 				}
-			}
-			else
-			{
-				for(int i = 0; i < dd_cart_prod.size(); i++)
+				// case	when both RVs and DDs are present
+				if (rv_cart_prod.size() > 0)
 				{
-					DecisionProcedure dec_proc(model, opt, dreach_bin, dreach_options);
-					Box rv_box = Box();
-					int res = dec_proc.evaluate(dd_cart_prod.at(i), rv_box);
-					if(res == 1)
+					P.at(i) *= branch_and_evaluate(dd_model, rv_cart_prod, init_prob);
+				}
+				// case when only DDs are present
+				else
+				{
+					DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
+					int res = dec_proc.evaluate(dd_model, -1);
+					if (res == 1)
 					{
 						P.at(i) *= DInterval(1.0);
 					}
-					if(res == -1)
+					if (res == -1)
 					{
 						P.at(i) *= DInterval(0.0);
 					}
-					if(res == 0)
+					if (res == 0)
 					{
 						P.at(i) *= DInterval(0.0, 1.0);
 					}
@@ -517,21 +521,18 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
-
-	if(dd_cart_prod.size() > 0)
-	{
-		for(int i = 0; i < P.size(); i++)
-		{
-			cout << setprecision(16) << "P(" << dd_cart_prod.at(i) << ") = " << P.at(i) << endl; 
-		}
-	}
-
+	// calculating final result
 	for(int i = 0; i < P.size(); i++)
 	{
 		P_final += P.at(i);
 	}
-	cout << "P = " << setprecision(16) << P_final << endl;
-
+	// outputting probability vector
+	for(int i = 0; i < P.size(); i++)
+	{
+		cout << scientific << "P(" << dd_cart_prod.at(i) << ") = " << setprecision(16) << P.at(i) << endl;
+	}
+	// outputting final result
+	cout << "P = " << scientific << setprecision(16) << P_final << endl;
 	return EXIT_SUCCESS;
 }
 

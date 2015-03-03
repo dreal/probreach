@@ -1,4 +1,4 @@
-<a href="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach/">
+<a href="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach/" target="_blank">
         <img style="align:center" src="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach-dev/img/banner.gif" alt="ProbReach banner"/>
 </a>
 

@@ -1,4 +1,6 @@
-<img style="align:center" src="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach-dev/img/banner.gif" alt="ProbReach banner"/>
+<a href="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach/">
+        <img style="align:center" src="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach-dev/img/banner.gif" alt="ProbReach banner"/>
+</a>
 
 ProbReach - software for calculating bounded probabilistic reachability in hybrid systems with uncertainty in initial parameters. The first version of the tool supporting **multiple** continuous and discrete random variables and continuous **nondeterministic** parameters is now released.
 

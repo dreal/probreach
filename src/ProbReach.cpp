@@ -35,11 +35,12 @@ string filename;
 string dreach_bin = "dReach";
 bool verbose = false;
 bool visualize = false;
+char* vis_par = "";
 string dreach_options = "";
 string dreal_options = "";
-int num_threads = 1;
 int max_num_threads = 1;
-string probreach_version("1.0.1");
+int num_threads = max_num_threads;
+string probreach_version("1.1");
 
 DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
 {
@@ -60,6 +61,12 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 	   	cout << "|-------------------------------------------------------------------------------------|" << endl;
 	   	cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
 	}
+
+	vector<Box> json_intervals;
+	vector<DInterval> json_probability;
+	vector<double> json_operation_time;
+	vector<double> json_total_time;
+	vector<int> json_borel;
 
 	//sorting initial partition
 	sort(cart_prod.begin(), cart_prod.end(), BoxFactory::compare_boxes_des);
@@ -94,13 +101,21 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 				int is_borel = dec_proc.evaluate(rv_model, box.get_min_width() / 1000);
 				// interpreting the result
 				#pragma omp critical
-				{				
+				{
 					if(is_borel == -1)
 					{
 						P_upper -= box.get_value();
 						if(verbose)
 						{
 							cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+						}
+						if(visualize)
+						{
+							json_intervals.push_back(box);
+							json_probability.push_back(DInterval(P_lower.leftBound(), P_upper.rightBound()));
+							json_operation_time.push_back(time(NULL) - operationTime);
+							json_total_time.push_back(time(NULL) - startTime);
+							json_borel.push_back(0);
 						}
 					}
 					if(is_borel == 1)
@@ -109,6 +124,14 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 						if(verbose)
 						{
 							cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+						}
+						if(visualize)
+						{
+							json_intervals.push_back(box);
+							json_probability.push_back(DInterval(P_lower.leftBound(), P_upper.rightBound()));
+							json_operation_time.push_back(time(NULL) - operationTime);
+							json_total_time.push_back(time(NULL) - startTime);
+							json_borel.push_back(1);
 						}
 					}
 					if(is_borel == 0)
@@ -190,9 +213,57 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 	   	cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << epsilon << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec |" << endl;
 		cout << "|-------------------------------------------------------------------------------------|" << endl;
 	}
+
+	if(visualize)
+	{
+		int par_index;
+
+		for(int i = 0; i < model.rvs.size(); i++)
+		{
+			if(strcmp(model.rvs.at(i).get_var().c_str(), vis_par) == 0)
+			{
+				par_index = i;
+				break;
+			}
+		}
+
+		string json_filename = filename + ".json";
+
+		ofstream JSON;
+		JSON.open(json_filename.c_str());
+		JSON.precision(16);
+
+		JSON << "{ \"domain\": " << scientific << model.rvs.at(par_index).get_domain() << "," << endl;
+		JSON << "\"pdf\": ," << endl;
+		JSON << "\"values\": [" << endl;
+
+		for(int i = 0; i < json_intervals.size() - 1; i++)
+		{
+			JSON << "{\"interval\": " << scientific << json_intervals.at(i).get_dimension(par_index).get_interval() << ",";
+			JSON << "\"partial_sum\": " << scientific << json_intervals.at(i).get_dimension(par_index).get_value() << ",";
+			JSON << "\"probability\": " << scientific << json_probability.at(i) << ",";
+			JSON << "\"precision\": " << scientific << width(json_probability.at(i)) << ",";
+			JSON << "\"time\": " << json_operation_time.at(i) << ",";
+			JSON << "\"total_time\": " << json_total_time.at(i) << ",";
+			JSON << "\"borel\": " << json_borel.at(i) << "}," << endl;
+		}
+
+		JSON << "{\"interval\": " << scientific << json_intervals.at(json_intervals.size() - 1).get_dimension(par_index).get_interval() << ",";
+		JSON << "\"partial_sum\": " << scientific << json_intervals.at(json_intervals.size() - 1).get_dimension(par_index).get_value() << ",";
+		JSON << "\"probability\": " << scientific << json_probability.at(json_intervals.size() - 1) << ",";
+		JSON << "\"precision\": " << scientific << width(json_probability.at(json_intervals.size() - 1)) << ",";
+		JSON << "\"time\": " << json_operation_time.at(json_intervals.size() - 1) << ",";
+		JSON << "\"total_time\": " << json_total_time.at(json_intervals.size() - 1) << ",";
+		JSON << "\"borel\": " << json_borel.at(json_intervals.size() - 1) << "}" << endl;
+
+		JSON << "]}" << endl;
+		JSON.close();
+
+		cout << "Generating JSON file. Saved to " << json_filename << endl;
+	}
+
 	return DInterval(P_lower.leftBound(), P_upper.rightBound());
 }
-
 
 void print_help()
 {
@@ -205,10 +276,11 @@ void print_help()
 	cout << "	-e <double> - length of probability interval or maximum length of the box (default 0.001)" << endl;
 	cout << "	-d <double> - prescision used to call dReach (default 0.001)" << endl;
 	cout << "	-l <string> - full path to dReach binary (default dReach)" << endl;
-	cout << "	-t <int> - number of CPU cores (default 1) (max " << max_num_threads << ")" << endl;
+	cout << "	-t <int> - number of CPU cores (default " << max_num_threads << ") (max " << max_num_threads << ")" << endl;
 	cout << "	-h/--help - help message" << endl;
 	cout << "	--version - version of the tool" << endl;
 	cout << "	--verbose - output computation details" << endl;
+	cout << "	--visualize <char*> - visualize output for specified continuous random parameter" << endl;
 	cout << "	--dreach - delimits dReach options (e.g. rechability depth)" << endl;
 	cout << "	--dreal - delimits dReal options (e.g. precision, ode step)" << endl;
 	cout << endl;
@@ -221,10 +293,6 @@ void print_version()
 
 void parse_cmd(int argc, char* argv[])
 {
-
-	#ifdef _OPENMP
-		max_num_threads = omp_get_max_threads();
-	#endif
 
 	//no arguments are input
 	if(argc < 2)
@@ -337,6 +405,8 @@ void parse_cmd(int argc, char* argv[])
 		else if(strcmp(argv[i], "--visualize") == 0)
 		{
 			visualize = true;
+			i++;
+			vis_par = argv[i];
 		}
 		//version
 		else if(strcmp(argv[i], "--version") == 0)
@@ -387,8 +457,16 @@ void parse_cmd(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+
+	#ifdef _OPENMP
+		max_num_threads = omp_get_max_threads();
+		num_threads = max_num_threads;
+		omp_set_num_threads(num_threads);
+	#endif
+
 	// parse command line
 	parse_cmd(argc, argv);
+
 	// output input arguments
 	if(verbose)
 	{
@@ -396,20 +474,51 @@ int main(int argc, char* argv[])
 		cout << "epsilon = " << epsilon << endl;
 		cout << "filename = " << filename << endl;
 		cout << "number of cores used = " << num_threads << endl;
+		if(visualize)
+		{
+			cout << "Parameter to visualize: " << vis_par << endl;
+		}
 		cout << "dReach version = " << dreach_bin << endl;
 		cout << "dReach options: " << dreach_options << endl;
 		cout << "dReal options: " << dreal_options << endl;
 	}
-	// parse *.pdrh file
+	// parse *.pdrh filel
 	FileParser file_parser(filename);
 	pdrh_model model = file_parser.get_model();
+	// checking if --visualize can be applied
+	if(visualize)
+	{
+		if(model.dds.size() > 0)
+		{
+			cerr << "Failed to apply --visualize option. This options can be applied to models containing only continuous random parameters" << endl;
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			bool par_flag = false;
+			for (int i = 0; i < model.rvs.size(); i++)
+ 			{
+				if (strcmp(model.rvs.at(i).get_var().c_str(), vis_par) == 0)
+				{
+					par_flag = true;
+					break;
+				}
+			}
+			if (!par_flag)
+			{
+				cerr << "Failed to apply --visualize option. Parameter " << vis_par << " is not found in the list of continuous parameters in " << filename << endl;
+				exit(EXIT_FAILURE);
+			}
+		}
+	}
+
 	if(verbose)
 	{
 		cout << "Model type = " << model.model_type << endl;
 	}
 	// main algorithm starts here
 	vector<DInterval> P;
-	DInterval P_final;
+	DInterval P_final(0.0);
 	vector<Box> dd_cart_prod;
 	vector<Box> rv_cart_prod;
 	// case when DDs are present
@@ -438,10 +547,6 @@ int main(int argc, char* argv[])
 			P.push_back(temp_P);
 		}
 	}
-	else
-	{
-		P.push_back(DInterval(1.0));
-	}
 	// calculating multiple integral for RVs
 	DInterval init_prob;
 	if(model.rvs.size() > 0)
@@ -459,19 +564,19 @@ int main(int argc, char* argv[])
 		{
 			cout << "sat" << endl;
 			P.push_back(DInterval(1.0, 1.0));
-			P_final = DInterval(1.0, 1.0);
+			//P_final = DInterval(1.0, 1.0);
 		}
 		if(res == -1)
 		{
 			cout << "unsat" << endl;
 			P.push_back(DInterval(0.0, 0.0));
-			P_final = DInterval(0.0, 0.0);
+			//P_final = DInterval(0.0, 0.0);
 		}
 		if(res == 0)
 		{
 			cout << "undec" << endl;
 			P.push_back(DInterval(0.0, 1.0));
-			P_final = DInterval(0.0, 1.0);
+			//P_final = DInterval(0.0, 1.0);
 		}
 	}
 	//PHA or NPHA
@@ -480,12 +585,13 @@ int main(int argc, char* argv[])
 		// case when only RVs are present
 		if(dd_cart_prod.size() == 0)
 		{
-			P.at(0) *= branch_and_evaluate(model, rv_cart_prod, init_prob);
+			P.push_back(branch_and_evaluate(model, rv_cart_prod, init_prob));
 		}
 		// case when DDs are present
 		else
 		{
-			for(int i = 0; i < dd_cart_prod.size(); i++) {
+			for(int i = 0; i < dd_cart_prod.size(); i++)
+			{
 				// composing a model to evaluate
 				pdrh_model dd_model = model;
 				stringstream s;
@@ -518,6 +624,7 @@ int main(int argc, char* argv[])
 						P.at(i) *= DInterval(0.0, 1.0);
 					}
 				}
+				cout << scientific << "P(" << dd_cart_prod.at(i) << ") = " << setprecision(16) << P.at(i) << endl;
 			}
 		}
 	}
@@ -525,11 +632,6 @@ int main(int argc, char* argv[])
 	for(int i = 0; i < P.size(); i++)
 	{
 		P_final += P.at(i);
-	}
-	// outputting probability vector
-	for(int i = 0; i < P.size(); i++)
-	{
-		cout << scientific << "P(" << dd_cart_prod.at(i) << ") = " << setprecision(16) << P.at(i) << endl;
 	}
 	// outputting final result
 	cout << "P = " << scientific << setprecision(16) << P_final << endl;

@@ -16,7 +16,7 @@ How to Build
 - [gcc-4.9](https://gcc.gnu.org/gcc-4.9/)
 - [dReal/dReach](https://github.com/dreal/dreal)
 - [IBEX](http://www.ibex-lib.org/)
-- [CAPD-4](http://capd.ii.uj.edu.pl/)
+- [CAPD-4.0](http://capd.ii.uj.edu.pl/)
 
 2. Compilation
 --------------------

@@ -9,9 +9,9 @@ PROGS_OMP = ProbReach
 # a list of all your units to be linked with your programs (space separated)
 OTHERS = PartialSum Integral RVIntegral FileParser RV DD Box MulRVIntegral BoxFactory DecisionProcedure
 # directory where capd scripts are (e.g. capd-config)
-CAPDBINDIR =/home/fedor/capd-4/bin/
+#CAPDBINDIR =/home/fedor/capd-4/bin/
 # to use CAPD4 which comes with dReal distribution
-#CAPDBINDIR = /Users/b2049657/dreal-master/build/release/bin/
+CAPDBINDIR = /Users/b2049657/dreal-master/build/release/bin/
 # setting compiler and linker flags
 IBEXFLAGS = `pkg-config --cflags ibex`
 IBEXLIBS = `pkg-config --libs ibex`
@@ -24,7 +24,7 @@ LDFLAGS += -fopenmp
 
 # in case if compiled on Linux
 ifeq (${OS},Linux)
-    LDFLAGS += -static
+	LDFLAGS += -static
 endif
 # in case if compiled on Mac OS X
 ifeq (${OS},Darwin)

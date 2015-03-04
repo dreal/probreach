@@ -1,26 +1,28 @@
 # obtaining OS kernel name
 OS := $(shell uname -s)
-# setting a compiler
-CXX = g++-4.9
-CC = gcc-4.9
+
 # a list of all the programs in your project
 PROGS = ProbReach
-PROGS_OMP = ProbReach
+
 # a list of all your units to be linked with your programs (space separated)
 OTHERS = PartialSum Integral RVIntegral FileParser RV DD Box MulRVIntegral BoxFactory DecisionProcedure
-# directory where capd scripts are (e.g. capd-config)
-#CAPDBINDIR =/home/fedor/capd-4/bin/
-# to use CAPD4 which comes with dReal distribution
-CAPDBINDIR = /Users/b2049657/dreal-master/build/release/bin/
-# setting compiler and linker flags
+
+# obtaining ibex flags
 IBEXFLAGS = `pkg-config --cflags ibex`
 IBEXLIBS = `pkg-config --libs ibex`
+
+# obtaining capd flags
 CAPDFLAGS = `${CAPDBINDIR}capd-config --cflags`
 CAPDLIBS = `${CAPDBINDIR}capd-config --libs`
+
+# composing c++ flags
 CXXFLAGS += ${CAPDFLAGS} ${IBEXFLAGS} -O2 -Wall -std=c++11
 
-CXXFLAGS += -fopenmp
-LDFLAGS += -fopenmp
+# in case if compiling with OpenMP
+ifeq (${WITHOMP},yes)
+	CXXFLAGS += -fopenmp
+	LDFLAGS += -fopenmp
+endif
 
 # in case if compiled on Linux
 ifeq (${OS},Linux)
@@ -30,7 +32,7 @@ endif
 ifeq (${OS},Darwin)
 	LDFLAGS += -static-libgcc -static-libstdc++
 endif
-# in cases if none of above static option is not used
+# in cases if none of the above static option is not used
 
 # directory where object and dependancy files will be created
 OBJDIR = .obj/

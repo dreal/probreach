@@ -457,7 +457,7 @@ void parse_cmd(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-
+	// setting max number of threads by default
 	#ifdef _OPENMP
 		max_num_threads = omp_get_max_threads();
 		num_threads = max_num_threads;
@@ -564,19 +564,16 @@ int main(int argc, char* argv[])
 		{
 			cout << "sat" << endl;
 			P.push_back(DInterval(1.0, 1.0));
-			//P_final = DInterval(1.0, 1.0);
 		}
 		if(res == -1)
 		{
 			cout << "unsat" << endl;
 			P.push_back(DInterval(0.0, 0.0));
-			//P_final = DInterval(0.0, 0.0);
 		}
 		if(res == 0)
 		{
 			cout << "undec" << endl;
 			P.push_back(DInterval(0.0, 1.0));
-			//P_final = DInterval(0.0, 1.0);
 		}
 	}
 	//PHA or NPHA

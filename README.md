@@ -15,21 +15,25 @@ How to Build
 --------------------
 - [gcc-4.9](https://gcc.gnu.org/gcc-4.9/)
 - [dReal/dReach](https://github.com/dreal/dreal)
-- [IBEX](http://www.ibex-lib.org/)
-- [CAPD-4.0](http://capd.ii.uj.edu.pl/)
-
-2. Compilation
+- [ibex](http://www.ibex-lib.org/)
+- [capd-4.0](http://capd.ii.uj.edu.pl/)
+ 
+2. Compilation (with gcc-4.9 or later)
 --------------------
-- Edit Makefile:
- * `CAPDBINDIR = path/to/capd/bin`
 
+###2.1. Default compilation
 ```
-cd ProbReach/src
-make
+cd probreach/src
+make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/
 make install
 ```
-
-The executables can be accessed at `ProbReach/bin`
+###2.2. Compiling with [OpenMP](www.openmp.org/)
+```
+cd probreach/src
+make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/ WITHOMP=yes
+make install
+```
+The executables can be accessed at `probreach/bin`
 
 3. Usage
 --------------------
@@ -43,6 +47,7 @@ options:
         -h/--help - help message
         --version - version of the tool
         --verbose - output computation details
+        --visualize <string> - produces <model-file.json> containing Borel set for parameter <string> and probability value with respect to time
         --dreach - delimits dReach options (e.g. rechability depth)
         --dreal - delimits dReal options (e.g. precision, ode step)
 ```

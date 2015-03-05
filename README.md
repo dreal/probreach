@@ -43,7 +43,7 @@ options:
         -h/--help - help message
         --version - version of the tool
         --verbose - output computation details
-        --dreach - delimits dReach options (e.g. rechability depth)
+        --dreach - delimits dReach options (e.g. reachability depth)
         --dreal - delimits dReal options (e.g. precision, ode step)
 ```
 

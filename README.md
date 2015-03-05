@@ -15,8 +15,8 @@ How to Build
 --------------------
 - [gcc-4.9](https://gcc.gnu.org/gcc-4.9/)
 - [dReal/dReach](https://github.com/dreal/dreal)
-- [ibex](http://www.ibex-lib.org/)
 - [capd-4.0](http://capd.ii.uj.edu.pl/)
+- [ibex](http://www.ibex-lib.org/)
 2. Compilation (with gcc-4.9 or later)
 --------------------
 
@@ -32,7 +32,7 @@ cd probreach/src
 make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/ WITHOMP=yes
 make install
 ```
-The executables can be accessed at `probreach/bin`
+The executable can be accessed at `probreach/bin`
 
 3. Usage
 --------------------

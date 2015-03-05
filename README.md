@@ -20,7 +20,7 @@ How to Build
 2. Compilation (with gcc-4.9 or later)
 --------------------
 
-###2.1. Default compilation
+###2.1. Standard compilation
 ```
 cd probreach/src
 make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/

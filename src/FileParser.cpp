@@ -101,7 +101,7 @@ FileParser::FileParser(string filebase)
 	char cur_dir[FILENAME_MAX];
 	getcwd(cur_dir, sizeof(cur_dir));
 	
-	s << "sed \"s/\\/\\/.*//g\" " << filename << " | cpp -P -w | sed  \"s/ //g\" > " << cur_dir << "/" << filename_prep;
+	s << "sed \"s/\\/\\/.*//g\" " << filename << " | /usr/bin/cpp -P -w | sed \"s/ //g\" > " << cur_dir << "/" << filename_prep;
 
 	system(s.str().c_str());
 

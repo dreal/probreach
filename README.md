@@ -46,12 +46,9 @@ options:
         -h/--help - help message
         --version - version of the tool
         --verbose - output computation details
-<<<<<<< HEAD
         --dreach - delimits dReach options (e.g. reachability depth)
-=======
         --visualize <string> - produces <model-file.json> containing Borel set for parameter <string> and probability value with respect to time
         --dreach - delimits dReach options (e.g. rechability depth)
->>>>>>> 6597ad75aa480982c664013e9d5bb4a01b59505d
         --dreal - delimits dReal options (e.g. precision, ode step)
 ```
 

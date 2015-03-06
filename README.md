@@ -13,23 +13,26 @@ How to Build
 
 1. Required packages
 --------------------
-- [gcc-4.9](https://gcc.gnu.org/gcc-4.9/) or [clang-3.5](http://clang.llvm.org/docs/ReleaseNotes.html)
+- [gcc-4.9](https://gcc.gnu.org/gcc-4.9/)
 - [dReal/dReach](https://github.com/dreal/dreal)
-- [IBEX](http://www.ibex-lib.org/)
-- [CAPD-4.0](http://capd.ii.uj.edu.pl/)
-
-2. Compilation
+- [capd-4.0](http://capd.ii.uj.edu.pl/)
+- [ibex](http://www.ibex-lib.org/)
+2. Compilation (with gcc-4.9 or later)
 --------------------
-- Edit Makefile:
- * `CAPDBINDIR = path/to/capd/bin`
 
+###2.1. Standard compilation
 ```
-cd ProbReach/src
-make
+cd probreach/src
+make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/
 make install
 ```
-
-The executables can be accessed at `ProbReach/bin`
+###2.2. Compiling with [OpenMP](www.openmp.org/)
+```
+cd probreach/src
+make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/ WITHOMP=yes
+make install
+```
+The executable can be accessed at `probreach/bin`
 
 3. Usage
 --------------------
@@ -39,11 +42,16 @@ Run ```./ProbReach <options> <model-file.pdrh> --dreach <dReach-options> --dreal
 options:
         -e <double> - length of probability interval or maximum length of the box (default 0.001)
         -l <string> - full path to dReach binary (default dReach)
-        -t <int> - number of CPU cores (default 1)
+        -t <int> - number of CPU cores (default max cores available)
         -h/--help - help message
         --version - version of the tool
         --verbose - output computation details
+<<<<<<< HEAD
         --dreach - delimits dReach options (e.g. reachability depth)
+=======
+        --visualize <string> - produces <model-file.json> containing Borel set for parameter <string> and probability value with respect to time
+        --dreach - delimits dReach options (e.g. rechability depth)
+>>>>>>> 6597ad75aa480982c664013e9d5bb4a01b59505d
         --dreal - delimits dReal options (e.g. precision, ode step)
 ```
 

@@ -26,7 +26,7 @@ cd probreach/src
 make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/
 make install
 ```
-###2.2. Compiling with [OpenMP](www.openmp.org/)
+###2.2. Compiling with [OpenMP](http://www.openmp.org/)
 ```
 cd probreach/src
 make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/ WITHOMP=yes
@@ -46,9 +46,8 @@ options:
         -h/--help - help message
         --version - version of the tool
         --verbose - output computation details
-        --dreach - delimits dReach options (e.g. reachability depth)
         --visualize <string> - produces <model-file.json> containing Borel set for parameter <string> and probability value with respect to time
-        --dreach - delimits dReach options (e.g. rechability depth)
+        --dreach - delimits dReach options (e.g. reachability depth)
         --dreal - delimits dReal options (e.g. precision, ode step)
 ```
 

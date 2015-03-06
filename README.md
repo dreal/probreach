@@ -39,7 +39,7 @@ Run ```./ProbReach <options> <model-file.pdrh> --dreach <dReach-options> --dreal
 options:
         -e <double> - length of probability interval or maximum length of the box (default 0.001)
         -l <string> - full path to dReach binary (default dReach)
-        -t <int> - number of CPU cores (default max cores available)
+        -t <int> - number of CPU cores (default 1)
         -h/--help - help message
         --version - version of the tool
         --verbose - output computation details

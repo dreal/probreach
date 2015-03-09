@@ -594,7 +594,7 @@ int main(int argc, char* argv[])
 				stringstream s;
 				for (int j = 0; j < dd_cart_prod.at(i).get_dimension_size(); j++)
 				{
-					s << "#define " << dd_cart_prod.at(j).get_var_of(j) << " " << dd_cart_prod.at(j).get_interval_of(j).leftBound();
+					s << "#define " << dd_cart_prod.at(i).get_var_of(j) << " " << dd_cart_prod.at(i).get_interval_of(j).leftBound();
 					dd_model.defs.push_back(s.str());
 					s.str("");
 				}

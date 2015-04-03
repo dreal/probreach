@@ -25,9 +25,10 @@
 #include "DecisionProcedure.h"
 #include "BoxFactory.h"
 #include "FileParser.h"
+#include "CSVParser.h"
 
-using namespace std;
 using namespace capd;
+using namespace std;
 
 double epsilon = 1e-03;
 double inf_coeff = 1e-01;
@@ -41,6 +42,8 @@ string dreal_options = "";
 int max_num_threads = 1;
 int num_threads = max_num_threads;
 string probreach_version("1.1");
+double series_noise = 1;
+string series_filename;
 
 DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
 {
@@ -388,6 +391,25 @@ void parse_cmd(int argc, char* argv[])
 				exit(EXIT_FAILURE);
 			}
 		}
+		// noise
+		else if(strcmp(argv[i], "--noise") == 0)
+		{
+			i++;
+			istringstream is(argv[i]);
+			is >> series_noise;
+			if(series_noise <= 0)
+			{
+				cerr << "--noise should be positive" << endl;
+				exit(EXIT_FAILURE);
+			}
+		}
+		// time series filename
+		else if(strcmp(argv[i], "--series") == 0)
+		{
+			i++;
+			series_filename = argv[i];
+			istringstream is(argv[i]);
+		}
 		//dReach binary
 		else if(strcmp(argv[i], "-l") == 0)
 		{
@@ -485,7 +507,16 @@ int main(int argc, char* argv[])
 	// parse *.pdrh filel
 	FileParser file_parser(filename);
 	pdrh_model model = file_parser.get_model();
+	cout << "Model type: " << model.model_type << endl;
+	cout << "Noise: " << series_noise << endl;
+	cout << "Series filename: " << series_filename << endl;
+	cout << "Model filename: " << filename << endl;
+	cout << "Time series with noise " << series_noise << endl;
+	std::map<string, vector<DInterval>> csv =  CSVParser::parse(series_filename, series_noise);
+	CSVParser::display(csv, "\t\t\t");
+
 	// checking if --visualize can be applied
+	/*
 	if(visualize)
 	{
 		if(model.dds.size() > 0)
@@ -632,6 +663,7 @@ int main(int argc, char* argv[])
 	}
 	// outputting final result
 	cout << "P = " << scientific << setprecision(16) << P_final << endl;
+	*/
 	return EXIT_SUCCESS;
 }
 

@@ -5,7 +5,7 @@ OS := $(shell uname -s)
 PROGS = ProbReach
 
 # a list of all your units to be linked with your programs (space separated)
-OTHERS = PartialSum Integral RVIntegral FileParser RV DD Box MulRVIntegral BoxFactory DecisionProcedure
+OTHERS = PartialSum Integral RVIntegral FileParser RV DD Box MulRVIntegral BoxFactory DecisionProcedure CSVParser
 
 # obtaining ibex flags
 IBEXFLAGS = `pkg-config --cflags ibex`

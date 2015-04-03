@@ -143,41 +143,33 @@ void FileParser::parse_pdrh(string filename)
 
 		while (getline(file, line))
 		{
+			// parsing model type
 			if(regex_match(line, matches, regex("MODEL_TYPE\\((.*)\\)")))
 			{
 				string m_type = matches[1].str();
-				if(regex_match(m_type, matches, regex("([N]?[P]?HA)")))
+				if(strcmp(matches[1].str().c_str(), string("HA").c_str()) == 0)
 				{
-					if(strcmp(matches[1].str().c_str(), string("HA").c_str()) == 0)
-					{
-						model.model_type = 1;
-					}
-					else
-					{
-						if(strcmp(matches[1].str().c_str(), string("PHA").c_str()) == 0)
-						{
-							model.model_type = 2;
-						}
-						else
-						{
-							if(strcmp(matches[1].str().c_str(), string("NPHA").c_str()) == 0)
-							{
-								model.model_type = 3;
-							}
-							else
-							{
-								cerr << "Unknown model type: " << m_type << endl;
-								exit(EXIT_FAILURE);
-							}
-						}
-					}
+					model.model_type = 1;
+				}
+				else if(strcmp(matches[1].str().c_str(), string("PHA").c_str()) == 0)
+				{
+					model.model_type = 2;
+				}
+				else if(strcmp(matches[1].str().c_str(), string("NPHA").c_str()) == 0)
+				{
+					model.model_type = 3;
+				}
+				else if(strcmp(matches[1].str().c_str(), string("PSY").c_str()) == 0)
+				{
+					model.model_type = 4;
 				}
 				else
 				{
-					cerr << "Unknown model type: " << m_type << endl;
+					cerr << "Unknown model type: " << m_type << " in " << filename << endl;
 					exit(EXIT_FAILURE);
 				}
 			}
+			// parsing variables
 			else if(regex_match(line, matches, regex("\\[([-+]?[0-9]*.?[0-9]+),([-+]?[0-9]*.?[0-9]+)\\]([a-zA-Z][a-zA-Z0-9_]*);")))
 			{
 				var_type v;
@@ -190,6 +182,7 @@ void FileParser::parse_pdrh(string filename)
 				}
 				model.vars.push_back(v);
 			}
+			// parsing random parameters
 			else if(regex_match(line, matches, regex("([A-Z]+)\\((.*)\\)([a-zA-Z][a-zA-Z0-9_]*);")))
 			{
 				if(std::find(id_map.begin(), id_map.end(), matches[3].str()) != id_map.end()) 
@@ -199,6 +192,7 @@ void FileParser::parse_pdrh(string filename)
 				}
 				parse_rv(matches[1].str(), matches[2].str(), matches[3].str());
 			}
+			// parsing modes
 			else if(regex_match(line, regex("\\{")))
 			{
 				mode_type m;
@@ -213,10 +207,12 @@ void FileParser::parse_pdrh(string filename)
 					{
 						break;
 					}
+					// parsing mode number
 					if(regex_match(line, matches, regex("mode([1-9][0-9]*);")))
 					{
 						m.id = atoi(matches[1].str().c_str());
 					}
+					// parsing flow
 					if(strcmp(line.c_str(), string("flow:").c_str()) == 0)
 					{
 						in_flow = true;
@@ -224,11 +220,13 @@ void FileParser::parse_pdrh(string filename)
 						in_invt_c = false;
 						in_jump = false;
 					}
+					// parsing odes
 					if((in_flow) && (regex_match(line, matches, regex("d/dt\\[([A-Za-z][A-Za-z0-9_]*)\\]=.*;"))))
 					{
 						f.vars.push_back(matches[1].str());
 						f.odes.push_back(matches[0].str());
 					}
+					// parsing jump
 					if(strcmp(line.c_str(), string("jump:").c_str()) == 0)
 					{
 						in_flow = false;
@@ -237,6 +235,7 @@ void FileParser::parse_pdrh(string filename)
 						in_jump = true;
 						m.flow = f;
 					}
+					// parsing jump condition
 					if(in_jump)
 					{
 						if(regex_match(line, matches, regex("([0-9]*.?[0-9]+):(.*)==>@([1-9][0-9]*)(.*);")))
@@ -263,6 +262,7 @@ void FileParser::parse_pdrh(string filename)
 							}
 						}
 					}
+					// parsing invt_c:
 					if(strcmp(line.c_str(), string("invt_c:").c_str()) == 0)
 					{
 						in_flow = false;
@@ -275,6 +275,7 @@ void FileParser::parse_pdrh(string filename)
 					{
 						m.invts_c.push_back(line);
 					}
+					// parsing invt:
 					if(strcmp(line.c_str(), string("invt:").c_str()) == 0)
 					{
 						in_flow = false;
@@ -291,6 +292,7 @@ void FileParser::parse_pdrh(string filename)
 				}
 				model.modes.push_back(m);
 			}
+			// parsing init
 			else if(strcmp(line.c_str(), string("init:").c_str()) == 0)
 			{
 				while(true)
@@ -325,6 +327,7 @@ void FileParser::parse_pdrh(string filename)
 					}
 				}
 			}
+			// parsing goal
 			else if(strcmp(line.c_str(), string("goal:").c_str()) == 0)
 			{
 				while(true)
@@ -359,6 +362,7 @@ void FileParser::parse_pdrh(string filename)
 					}
 				}
 			}
+			// parsing goal_c
 			else if(strcmp(line.c_str(), string("goal_c:").c_str()) == 0)
 			{
 				while(true)

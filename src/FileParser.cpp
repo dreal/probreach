@@ -557,6 +557,7 @@ void FileParser::modify_flows()
 				{
 					model.modes.at(i).flow.vars.push_back(model.vars.at(j).name);
 					model.modes.at(i).flow.odes.push_back(string("d/dt[" + model.vars.at(j).name + "]=0.0;"));
+					model.params.push_back(model.vars.at(j));
 				}
 			}
 		}

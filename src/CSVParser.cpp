@@ -91,7 +91,17 @@ std::map<string, vector<DInterval> > CSVParser::parse(string filename, double no
             }
             else
             {
-                result[it->first].push_back(DInterval(numeric_limits<double>::quiet_NaN(), numeric_limits<double>::quiet_NaN()));
+                if((strcmp(it->first.c_str(), "Time") == 0) ||
+                        (strcmp(it->first.c_str(), "Mode") == 0) ||
+                            (strcmp(it->first.c_str(), "Step") == 0))
+                {
+                    cerr << "Time, Mode or Step is missing" << endl;
+                    exit(EXIT_FAILURE);
+                }
+                else
+                {
+                    result[it->first].push_back(DInterval(numeric_limits<double>::quiet_NaN(), numeric_limits<double>::quiet_NaN()));
+                }
             }
         }
     }

@@ -63,9 +63,11 @@ struct pdrh_model
 	// 1 - HA
 	// 2 - PHA
 	// 3 - NPHA
+	// 4 - PSY
 	int model_type = 0;
 	vector<string> defs;
 	vector<var_type> vars;
+	vector<var_type> params;
 	vector<RV> rvs;
 	vector<DD> dds;
 	vector<mode_type> modes;

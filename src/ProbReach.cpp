@@ -45,6 +45,12 @@ string probreach_version("1.1");
 double series_noise = 1;
 string series_filename;
 
+int evaluate_ha(pdrh_model model)
+{
+	DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
+	return dec_proc.evaluate(model, -1);
+}
+
 DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
 {
 	double startTime = time(NULL);
@@ -56,7 +62,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
     vector<Box> mixed_boxes;
 
 	if(verbose)
-	{	
+	{
 	    cout << "|-------------------------------------------------------------------------------------|" << endl;
 	    cout << "|-------------------------------BRANCH AND EVALUATE-----------------------------------|" << endl;
 	    cout << "|-------------------------------------------------------------------------------------|" << endl;
@@ -197,7 +203,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 				}
 	    	}
 		}
-		
+
 	   	sort(mixed_boxes.begin(), mixed_boxes.end(), BoxFactory::compare_boxes_des);
 
 		for(int i = 0; i < mixed_boxes.size(); i++)
@@ -208,7 +214,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 
 	}
 	if(verbose)
-	{	
+	{
 		cout << "|-------------------------------------------------------------------------------------|" << endl;
 	   	cout << "|-------------------------------------------------------------------------------------|" << endl;
 	   	cout << "| Probability interval         | Precision    | Required precision | Total time       |" << endl;
@@ -266,6 +272,228 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 	}
 
 	return DInterval(P_lower.leftBound(), P_upper.rightBound());
+}
+
+DInterval evaluate_pha(pdrh_model model)
+{
+	vector<DInterval> P;
+	DInterval P_final(0.0);
+	vector<Box> dd_cart_prod;
+	vector<Box> rv_cart_prod;
+	// case when DDs are present
+	if(model.dds.size() > 0)
+	{
+		// obtaining Cartesian product of DDs
+		vector< vector<PartialSum> > dd_partial_sums;
+		for(int i = 0; i < model.dds.size(); i++)
+		{
+			vector<PartialSum> temp_dd;
+			for(int j = 0; j < model.dds.at(i).get_args().size(); j++)
+			{
+				temp_dd.push_back(PartialSum(model.dds.at(i).get_var(), "", DInterval(model.dds.at(i).get_args().at(j)), DInterval(model.dds.at(i).get_values().at(j))));
+			}
+			dd_partial_sums.push_back(temp_dd);
+		}
+		dd_cart_prod = BoxFactory::calculate_cart_prod(dd_partial_sums);
+		// constructing initial probability vector
+		for(int i = 0; i < dd_cart_prod.size(); i++)
+		{
+			DInterval temp_P = DInterval(1.0, 1.0);
+			for(int j = 0; j < dd_cart_prod.at(i).get_dimensions().size(); j++)
+			{
+				temp_P *= dd_cart_prod.at(i).get_dimension(j).get_value();
+			}
+			P.push_back(temp_P);
+		}
+	}
+	// calculating multiple integral for RVs
+	DInterval init_prob;
+	if(model.rvs.size() > 0)
+	{
+		MulRVIntegral mul_integral(model.rvs, inf_coeff, epsilon);
+		rv_cart_prod = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
+		init_prob = DInterval(0.0, 2.0 - mul_integral.get_value().leftBound());
+	}
+
+	// case when only RVs are present
+	if(dd_cart_prod.size() == 0)
+	{
+		P.push_back(branch_and_evaluate(model, rv_cart_prod, init_prob));
+	}
+		// case when DDs are present
+	else
+	{
+		for(int i = 0; i < dd_cart_prod.size(); i++)
+		{
+			// composing a model to evaluate
+			pdrh_model dd_model = model;
+			stringstream s;
+			for (int j = 0; j < dd_cart_prod.at(i).get_dimension_size(); j++)
+			{
+				s << "#define " << dd_cart_prod.at(i).get_var_of(j) << " " << dd_cart_prod.at(i).get_interval_of(j).leftBound();
+				dd_model.defs.push_back(s.str());
+				s.str("");
+			}
+			// case	when both RVs and DDs are present
+			if (rv_cart_prod.size() > 0)
+			{
+				P.at(i) *= branch_and_evaluate(dd_model, rv_cart_prod, init_prob);
+			}
+				// case when only DDs are present
+			else
+			{
+				DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
+				int res = dec_proc.evaluate(dd_model, -1);
+				if (res == 1)
+				{
+					P.at(i) *= DInterval(1.0);
+				}
+				if (res == -1)
+				{
+					P.at(i) *= DInterval(0.0);
+				}
+				if (res == 0)
+				{
+					P.at(i) *= DInterval(0.0, 1.0);
+				}
+			}
+			if(verbose)
+			{
+				cout << scientific << "P(" << dd_cart_prod.at(i) << ") = " << setprecision(16) << P.at(i) << endl;
+			}
+		}
+	}
+
+	// calculating final result
+	for(int i = 0; i < P.size(); i++)
+	{
+		P_final += P.at(i);
+	}
+
+	return P_final;
+}
+
+void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
+{
+	// parameter domain
+	vector<PartialSum> dimensions;
+	for(int i = 0; i < model.params.size(); i++)
+	{
+		dimensions.push_back(PartialSum(model.params.at(i).name, "", model.params.at(i).range, -1));
+	}
+	Box domain(dimensions);
+
+	cout << "Parameter domain: " << domain << endl;
+
+	// getting number of time points
+	int series_size = csv.begin()->second.size();
+
+	cout << "Series size: " << series_size << " time points" << endl;
+
+	// initializing the stack
+	vector<Box> boxes;
+	boxes.push_back(domain);
+
+	// initializing stacks
+	vector<Box> sat_boxes, unsat_boxes, undec_boxes;
+
+	for(int i = 0; i < series_size; i++)
+	{
+		model.goal.mode = csv["Mode"].at(i).leftBound();
+		model.goal_c.mode = csv["Mode"].at(i).leftBound();
+		stringstream s;
+		s << "(and ";
+		for(auto it = csv.begin(); it != csv.end(); it++)
+		{
+			if(!((strcmp(it->first.c_str(), "Time") == 0) ||
+					(strcmp(it->first.c_str(), "Mode") == 0) ||
+					(strcmp(it->first.c_str(), "Step") == 0)))
+			{
+				s << "(" << it->first << " >= " << it->second.at(i).leftBound() << ")";
+				s << "(" << it->first << " <= " << it->second.at(i).rightBound() << ")";
+			}
+		}
+		s << ")";
+		stringstream tmp;
+		tmp << "(and (tau = " << csv["Time"].at(i).leftBound() << ") " << s.str() << ")";
+		model.goal.formula = tmp.str();
+		tmp.str("");
+		tmp << "(and (tau = " << csv["Time"].at(i).leftBound() << ") (not " << s.str() << "))";
+		model.goal_c.formula = tmp.str();
+		tmp.str("");
+		tmp << "-l " << csv["Step"].at(i).leftBound() << " -k " << csv["Step"].at(i).leftBound() << " -z";
+		dreach_options = tmp.str();
+
+		while(true)
+		{
+			Box box = boxes.front();
+			boxes.erase(boxes.begin());
+
+			for(int k = 0; k < box.get_dimension_size(); k++)
+			{
+				for(int l = 0; l < model.vars.size(); l++)
+				{
+					if(strcmp(box.get_var_of(k).c_str(), model.vars.at(l).name.c_str()) == 0)
+					{
+						model.vars.at(l).range = box.get_interval_of(k);
+					}
+				}
+			}
+
+			switch (evaluate_ha(model))
+			{
+				case -1:
+					unsat_boxes.push_back(box);
+					break;
+				case 1:
+					sat_boxes.push_back(box);
+					break;
+				case 0:
+					if(box.get_max_width() <= epsilon)
+					{
+						undec_boxes.push_back(box);
+					}
+					else
+					{
+						vector<Box> tmp_vector = BoxFactory::branch_box(box);
+						for (int j = 0; j < tmp_vector.size(); j++)
+						{
+							boxes.push_back(tmp_vector.at(j));
+						}
+					}
+					break;
+			}
+
+			if(boxes.size() == 0) break;
+		}
+
+		sat_boxes = BoxFactory::merge_boxes(sat_boxes);
+		unsat_boxes = BoxFactory::merge_boxes(unsat_boxes);
+		undec_boxes = BoxFactory::merge_boxes(undec_boxes);
+
+		cout << "====================" << endl;
+		cout << "Time point: " << i << endl;
+		cout << "SAT boxes:" << endl;
+		for(int j = 0; j < sat_boxes.size(); j++)
+		{
+			cout << j << ") " << sat_boxes.at(j) << endl;
+			boxes.push_back(sat_boxes.at(j));
+		}
+		cout << "UNDEC boxes:" << endl;
+		for(int j = 0; j < undec_boxes.size(); j++)
+		{
+			cout << j << ") " << undec_boxes.at(j) << endl;
+		}
+		cout << "UNSAT boxes:" << endl;
+		for(int j = 0; j < unsat_boxes.size(); j++)
+		{
+			cout << j << ") " << unsat_boxes.at(j) << endl;
+		}
+		sat_boxes.clear();
+		unsat_boxes.clear();
+		undec_boxes.clear();
+		cout << "====================" << endl;
+	}
 }
 
 void print_help()
@@ -507,16 +735,7 @@ int main(int argc, char* argv[])
 	// parse *.pdrh filel
 	FileParser file_parser(filename);
 	pdrh_model model = file_parser.get_model();
-	cout << "Model type: " << model.model_type << endl;
-	cout << "Noise: " << series_noise << endl;
-	cout << "Series filename: " << series_filename << endl;
-	cout << "Model filename: " << filename << endl;
-	cout << "Time series with noise " << series_noise << endl;
-	std::map<string, vector<DInterval>> csv =  CSVParser::parse(series_filename, series_noise);
-	CSVParser::display(csv, "\t\t\t");
 
-	// checking if --visualize can be applied
-	/*
 	if(visualize)
 	{
 		if(model.dds.size() > 0)
@@ -528,7 +747,7 @@ int main(int argc, char* argv[])
 		{
 			bool par_flag = false;
 			for (int i = 0; i < model.rvs.size(); i++)
- 			{
+			{
 				if (strcmp(model.rvs.at(i).get_var().c_str(), vis_par) == 0)
 				{
 					par_flag = true;
@@ -543,127 +762,35 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if(verbose)
+	switch (model.model_type)
 	{
-		cout << "Model type = " << model.model_type << endl;
-	}
-	// main algorithm starts here
-	vector<DInterval> P;
-	DInterval P_final(0.0);
-	vector<Box> dd_cart_prod;
-	vector<Box> rv_cart_prod;
-	// case when DDs are present
-	if(model.dds.size() > 0)
-	{
-		// obtaining Cartesian product of DDs
-		vector< vector<PartialSum> > dd_partial_sums;
-		for(int i = 0; i < model.dds.size(); i++)
-		{
-			vector<PartialSum> temp_dd;
-			for(int j = 0; j < model.dds.at(i).get_args().size(); j++)
+		case 1:
+			switch (evaluate_ha(model))
 			{
-				temp_dd.push_back(PartialSum(model.dds.at(i).get_var(), "", DInterval(model.dds.at(i).get_args().at(j)), DInterval(model.dds.at(i).get_values().at(j))));
+				case -1:
+					cout << "unsat" << endl;
+					break;
+				case 0:
+					cout << "undec" << endl;
+					break;
+				case 1:
+					cout << "sat" << endl;
+					break;
 			}
-			dd_partial_sums.push_back(temp_dd);
-		}
-		dd_cart_prod = BoxFactory::calculate_cart_prod(dd_partial_sums);
-		// constructing initial probability vector
-		for(int i = 0; i < dd_cart_prod.size(); i++)
-		{
-			DInterval temp_P = DInterval(1.0, 1.0);
-			for(int j = 0; j < dd_cart_prod.at(i).get_dimensions().size(); j++)
-			{
-				temp_P *= dd_cart_prod.at(i).get_dimension(j).get_value();
-			}
-			P.push_back(temp_P);
-		}
+			break;
+		case 2:
+			cout << evaluate_pha(model) << endl;
+			break;
+		case 3:
+			cout << evaluate_pha(model) << endl;
+			break;
+		case 4:
+			std::map<string, vector<DInterval>> csv =  CSVParser::parse(series_filename, series_noise);
+			//CSVParser::display(csv, "\t\t");
+			synthesize(model, csv);
+			break;
 	}
-	// calculating multiple integral for RVs
-	DInterval init_prob;
-	if(model.rvs.size() > 0)
-	{
-		MulRVIntegral mul_integral(model.rvs, inf_coeff, epsilon);
-		rv_cart_prod = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
-		init_prob = DInterval(0.0, 2.0 - mul_integral.get_value().leftBound());
-	}
-	//HA
-	if(model.model_type == 1)
-	{
-		DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
-		int res = dec_proc.evaluate(model, -1);
-		if(res == 1)
-		{
-			cout << "sat" << endl;
-			P.push_back(DInterval(1.0, 1.0));
-		}
-		if(res == -1)
-		{
-			cout << "unsat" << endl;
-			P.push_back(DInterval(0.0, 0.0));
-		}
-		if(res == 0)
-		{
-			cout << "undec" << endl;
-			P.push_back(DInterval(0.0, 1.0));
-		}
-	}
-	//PHA or NPHA
-	else
-	{
-		// case when only RVs are present
-		if(dd_cart_prod.size() == 0)
-		{
-			P.push_back(branch_and_evaluate(model, rv_cart_prod, init_prob));
-		}
-		// case when DDs are present
-		else
-		{
-			for(int i = 0; i < dd_cart_prod.size(); i++)
-			{
-				// composing a model to evaluate
-				pdrh_model dd_model = model;
-				stringstream s;
-				for (int j = 0; j < dd_cart_prod.at(i).get_dimension_size(); j++)
-				{
-					s << "#define " << dd_cart_prod.at(i).get_var_of(j) << " " << dd_cart_prod.at(i).get_interval_of(j).leftBound();
-					dd_model.defs.push_back(s.str());
-					s.str("");
-				}
-				// case	when both RVs and DDs are present
-				if (rv_cart_prod.size() > 0)
-				{
-					P.at(i) *= branch_and_evaluate(dd_model, rv_cart_prod, init_prob);
-				}
-				// case when only DDs are present
-				else
-				{
-					DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
-					int res = dec_proc.evaluate(dd_model, -1);
-					if (res == 1)
-					{
-						P.at(i) *= DInterval(1.0);
-					}
-					if (res == -1)
-					{
-						P.at(i) *= DInterval(0.0);
-					}
-					if (res == 0)
-					{
-						P.at(i) *= DInterval(0.0, 1.0);
-					}
-				}
-				cout << scientific << "P(" << dd_cart_prod.at(i) << ") = " << setprecision(16) << P.at(i) << endl;
-			}
-		}
-	}
-	// calculating final result
-	for(int i = 0; i < P.size(); i++)
-	{
-		P_final += P.at(i);
-	}
-	// outputting final result
-	cout << "P = " << scientific << setprecision(16) << P_final << endl;
-	*/
+
 	return EXIT_SUCCESS;
 }
 

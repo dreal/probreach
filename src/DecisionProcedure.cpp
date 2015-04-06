@@ -39,7 +39,12 @@ string DecisionProcedure::generate_drh(pdrh_model model, bool flag)
 	#endif
 	char cur_dir[FILENAME_MAX];
 	getcwd(cur_dir, sizeof(cur_dir));
-	s << cur_dir << "/phi" << thread_num;
+	s << cur_dir << "/phi";
+	if(!flag)
+	{
+		s << "C";
+	}
+	s << thread_num;
 	string drh_filename_base = s.str();
 	file_base.push_back(drh_filename_base);
 	s << ".drh";

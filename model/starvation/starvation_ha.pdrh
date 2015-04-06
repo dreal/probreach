@@ -17,12 +17,14 @@ MODEL_TYPE(HA)
 #define V 0.9
 #define M0 43.6
 #define b 0.05
-#define k 9.515
+//#define k 10
+
+[8, 10] k;
 
 //fat
-[1,100]F;
+[0.01,100]F;
 //muscle mass
-[1,100]M;
+[0.01,100]M;
 //ketone bodies
 [0,100]K;
 

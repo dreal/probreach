@@ -30,6 +30,16 @@ class BoxFactory
 		static vector<Box> branch_box(Box);
 
 		static bool compare_boxes_des(Box, Box);
+
+		static vector<Box> merge_boxes(vector<Box>);
+
+		static Box merge_two_boxes(Box, Box);
+
+		//static Box two_boxes_intersection(Box, Box);
+
+		//static Box boxes_intersection(vector<Box>);
+
+		//static vector<Box> vectors_intersection(vector<Box>, vector<Box>);
 		
 }; 
 #endif  

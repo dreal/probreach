@@ -16,10 +16,11 @@ MODEL_TYPE(PSY)
 #define lambdaM 1400
 #define V 0.9
 #define M0 43.6
-#define b 0.05
-//#define k 9.515
+//#define b 0.075
+//#define k 10
 
-[8, 13] k;
+[0.05,0.075]b;
+[9, 11] k;
 
 //fat
 [1,100]F;
@@ -34,9 +35,6 @@ MODEL_TYPE(PSY)
 {
 mode1;
 
-invt_c:
-(M > 0.6 * M0);
-
 flow:
 d/dt[F]=F * (- a / (1 + K) - (1 / lambdaF) * ((C + k * L0) / (F + M) + k));
 d/dt[M]=(- M / lambdaM) * ((C + k * L0) / (F + M) + k);
@@ -48,9 +46,3 @@ jump:
 
 init:
 @1(and (tau = 0) (F = 25) (M = M0) (K = 0.02));
-
-goal:
-@1(and (tau = 25) (M <= 0.6 * M0));
-
-goal_c:
-@1(and (tau = 25));

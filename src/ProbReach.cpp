@@ -489,6 +489,13 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		{
 			cout << j << ") " << unsat_boxes.at(j) << endl;
 		}
+
+		if(sat_boxes.size() == 0)
+		{
+			cout << "Problem is UNSAT" << endl;
+			break;
+		}
+
 		sat_boxes.clear();
 		unsat_boxes.clear();
 		undec_boxes.clear();

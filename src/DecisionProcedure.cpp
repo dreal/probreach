@@ -178,7 +178,7 @@ bool DecisionProcedure::call_dreach(string drh_filename_base, double precision)
 
 	int res = system(s.str().c_str());
 
-	remove_aux_file(drh_filename_base);
+	//remove_aux_file(drh_filename_base);
 
 	if(!WIFEXITED(res))
 	{

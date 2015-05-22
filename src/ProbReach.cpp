@@ -377,8 +377,10 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 {
 	// parameter domain
 	vector<PartialSum> dimensions;
+	cout << "Parameters to synthesise:" << endl;
 	for(int i = 0; i < model.params.size(); i++)
 	{
+		cout << i << ") " << model.params.at(i).name << endl;
 		dimensions.push_back(PartialSum(model.params.at(i).name, "", model.params.at(i).range, -1));
 	}
 	Box domain(dimensions);
@@ -394,7 +396,11 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 	vector<Box> boxes;
 	boxes.push_back(domain);
 
+	cout << "Domain: " << domain << endl;
+	CSVParser::display(csv, " ");
+
 	// initializing stacks
+	/*
 	vector<Box> sat_boxes, unsat_boxes, undec_boxes;
 
 	for(int i = 0; i < series_size; i++)
@@ -501,6 +507,7 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		undec_boxes.clear();
 		cout << "====================" << endl;
 	}
+	*/
 }
 
 void print_help()
@@ -792,8 +799,9 @@ int main(int argc, char* argv[])
 			cout << evaluate_pha(model) << endl;
 			break;
 		case 4:
-			std::map<string, vector<DInterval>> csv =  CSVParser::parse(series_filename, series_noise);
+			//std::map<string, vector<DInterval>> csv =  CSVParser::parse(series_filename, series_noise);
 			//CSVParser::display(csv, "\t\t");
+			std::map<string, vector<DInterval>> csv =  CSVParser::parse(series_filename);
 			synthesize(model, csv);
 			break;
 	}

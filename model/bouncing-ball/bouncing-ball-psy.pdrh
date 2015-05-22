@@ -1,7 +1,8 @@
 MODEL_TYPE(PSY)
 //g = 9.8067 taken from wikipedia
 #define g 9.8
-#define alpha 0.7854
+//#define alpha 0.7854
+[0.0, 0.7584] alpha;
 [0,100]Sy;
 [-10,1000]Sx;
 [0,15]tau;

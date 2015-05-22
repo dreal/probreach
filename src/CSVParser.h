@@ -15,12 +15,9 @@ class CSVParser
 {
 private:
 
-
 public:
 
-    static std::map<string, vector<double> > parse(string);
-
-    static std::map<string, vector<DInterval> > parse(string, double);
+    static std::map<string, vector<DInterval> > parse(string);
 
     static void display(std::map<string, vector<double> >, string);
 

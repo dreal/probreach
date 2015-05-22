@@ -7,24 +7,28 @@
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include "CSVParser.h"
+#include<regex>
 
 using namespace capd;
 using namespace std;
 
-std::map<string, vector<double> > CSVParser::parse(string filename)
+std::map<string, vector<DInterval> > CSVParser::parse(string filename)
 {
     ifstream file;
+    std::map<string, vector<DInterval> > result;
+    std::map<string, vector<double> > noise_vector;
     file.open(filename.c_str());
-
-    std::map<string, vector<double> > result;
 
     if(file.is_open())
     {
         string line;
         getline(file, line);
+
+        //stripping the string
         line.erase(remove(line.begin(), line.end(), ' '), line.end());
 
-        vector<string> cols;
+        // fetching column names
+        vector<string> cols, vars;
         string delimiter = ",";
         size_t pos = 0;
         while ((pos = line.find(delimiter)) != std::string::npos)
@@ -34,10 +38,41 @@ std::map<string, vector<double> > CSVParser::parse(string filename)
         }
         cols.push_back(line.substr(0, line.length() - 1));
 
+        // creating noise vector
+        for(int i = 0; i < cols.size(); i++)
+        {
+            smatch matches;
+
+            // default noise value
+            double noise = 0.1;
+            // var name
+            string var_name = cols.at(i);
+            // checking if noise value is specified
+            if(regex_match(cols.at(i), matches, regex("(.*):(.*)")))
+            {
+                var_name = matches[1].str();
+                istringstream is(matches[2]);
+                is >> noise;
+                if(noise <= 0)
+                {
+                    cerr << "Noise value should be positive for " << var_name << endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
+            if((strcmp(var_name.c_str(), "Mode") == 0) ||
+                  (strcmp(var_name.c_str(), "Step") == 0) ||
+                    (strcmp(var_name.c_str(), "Time") == 0))
+            {
+                noise = 0;
+            }
+            noise_vector[var_name].push_back(noise);
+            vars.push_back(var_name);
+        }
+
+        // fetching data
         while (getline(file, line))
         {
-            //cout << line << endl;
-            for(int i = 0; i < cols.size() - 1; i++)
+            for(int i = 0; i < vars.size() - 1; i++)
             {
                 pos = line.find(delimiter);
                 istringstream is(line.substr(0, pos));
@@ -46,69 +81,43 @@ std::map<string, vector<double> > CSVParser::parse(string filename)
                 {
                     is >> value;
                 }
-                result[cols.at(i)].push_back(value);
+                DInterval interval(value);
+                if((strcmp(vars.at(i).c_str(), "Time") != 0) &&
+                   (strcmp(vars.at(i).c_str(), "Mode") != 0) &&
+                   (strcmp(vars.at(i).c_str(), "Step") != 0))
+                {
+                    interval = DInterval(value - noise_vector[vars.at(i)].at(0), value + noise_vector[vars.at(i)].at(0));
+                }
+                result[vars.at(i)].push_back(interval);
+
                 line.erase(0, pos + delimiter.length());
             }
-
+            // last value in data
             istringstream is(line.substr(0, line.length() - 1));
             double value = numeric_limits<double>::quiet_NaN();
             if(!is.str().empty())
             {
                 is >> value;
             }
-            result[cols.at(cols.size() - 1)].push_back(value);
+            DInterval interval(value);
+            if((strcmp(vars.at(vars.size() - 1).c_str(), "Time") != 0) &&
+               (strcmp(vars.at(vars.size() - 1).c_str(), "Mode") != 0) &&
+               (strcmp(vars.at(vars.size() - 1).c_str(), "Step") != 0))
+            {
+                interval = DInterval(value - noise_vector[vars.at(vars.size() - 1)].at(0), value + noise_vector[vars.at(vars.size() - 1)].at(0));
+            }
+            result[vars.at(vars.size() - 1)].push_back(interval);
         }
     }
     else
     {
         cerr << "Could not open file " << filename << endl;
-    }
-
-    return result;
-}
-
-std::map<string, vector<DInterval> > CSVParser::parse(string filename, double noise)
-{
-    std::map<string, vector<DInterval> > result;
-    std::map<string, vector<double> > csv = parse(filename);
-    for(auto it = csv.begin(); it != csv.end(); it++)
-    {
-        for(int i = 0; i < it->second.size(); i++)
-        {
-            DInterval interval;
-            if(!std::isnan(it->second.at(i)))
-            {
-                if((strcmp(it->first.c_str(), "Time") == 0) ||
-                        (strcmp(it->first.c_str(), "Mode") == 0) ||
-                            (strcmp(it->first.c_str(), "Step") == 0))
-                {
-                    result[it->first].push_back(DInterval(it->second.at(i)));
-                }
-                else
-                {
-                    result[it->first].push_back(DInterval(it->second.at(i) - noise, it->second.at(i) + noise));
-                }
-            }
-            else
-            {
-                if((strcmp(it->first.c_str(), "Time") == 0) ||
-                        (strcmp(it->first.c_str(), "Mode") == 0) ||
-                            (strcmp(it->first.c_str(), "Step") == 0))
-                {
-                    cerr << "Time, Mode or Step is missing" << endl;
-                    exit(EXIT_FAILURE);
-                }
-                else
-                {
-                    result[it->first].push_back(DInterval(numeric_limits<double>::quiet_NaN(), numeric_limits<double>::quiet_NaN()));
-                }
-            }
-        }
+        exit(EXIT_FAILURE);
     }
     return result;
 }
 
-void CSVParser::display(std::map<string, vector<double> > csv, string (delimiter))
+void CSVParser::display(std::map<string, vector<double> > csv, string delimiter)
 {
     for(auto it = csv.begin(); it != csv.end(); it++)
     {
@@ -127,7 +136,7 @@ void CSVParser::display(std::map<string, vector<double> > csv, string (delimiter
     }
 }
 
-void CSVParser::display(std::map<string, vector<DInterval>> csv, string (delimiter))
+void CSVParser::display(std::map<string, vector<DInterval>> csv, string delimiter)
 {
     for(auto it = csv.begin(); it != csv.end(); it++)
     {

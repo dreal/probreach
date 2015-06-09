@@ -167,7 +167,7 @@ bool DecisionProcedure::call_dreach(string drh_filename_base, double precision)
 
 	if(precision > 0)
 	{
-		s << " --precision=" << precision;
+		s << " --precision " << precision;
 	}
 	s << " > /dev/null" << endl;
 

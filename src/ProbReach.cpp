@@ -274,15 +274,14 @@ void print_help()
 	cout << endl;
 	cout << "options:" << endl;
 	cout << "	-e <double> - length of probability interval or maximum length of the box (default 0.001)" << endl;
-	cout << "	-d <double> - prescision used to call dReach (default 0.001)" << endl;
 	cout << "	-l <string> - full path to dReach binary (default dReach)" << endl;
 	cout << "	-t <int> - number of CPU cores (default " << max_num_threads << ") (max " << max_num_threads << ")" << endl;
 	cout << "	-h/--help - help message" << endl;
 	cout << "	--version - version of the tool" << endl;
 	cout << "	--verbose - output computation details" << endl;
 	cout << "	--visualize <char*> - visualize output for specified continuous random parameter" << endl;
-	cout << "	--dreach - delimits dReach options (e.g. rechability depth)" << endl;
-	cout << "	--dreal - delimits dReal options (e.g. precision, ode step)" << endl;
+	cout << "	--dreach - delimits dReach options (e.g., reachability depth)" << endl;
+	cout << "	--dreal - delimits dReal options (e.g., ode step)" << endl;
 	cout << endl;
 }
 

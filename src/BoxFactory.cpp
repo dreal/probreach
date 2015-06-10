@@ -50,6 +50,53 @@ vector<Box> BoxFactory::calculate_cart_prod(vector< vector<PartialSum> > partial
 	return cart_prod;
 }
 
+vector<Box> BoxFactory::branch_box(Box box, std::map<string, double> precision)
+{
+	vector<PartialSum> dimensions = box.get_dimensions();
+	vector <vector<PartialSum> > partial_sums;
+	for(int i = 0; i < dimensions.size(); i++)
+	{
+		vector<PartialSum> tmp;
+		if(width(dimensions.at(i).get_interval()) > precision[dimensions.at(i).get_var()])
+		{
+			DInterval left_interval(dimensions.at(i).get_interval().leftBound(),
+									dimensions.at(i).get_interval().mid().rightBound());
+			DInterval right_interval(dimensions.at(i).get_interval().mid().leftBound(),
+									 dimensions.at(i).get_interval().rightBound());
+			if (dimensions.at(i).get_value().rightBound() < 0) {
+				tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), left_interval, -1));
+				tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), right_interval, -1));
+			}
+			else {
+				tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), left_interval));
+				tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), right_interval));
+			}
+		}
+		else
+		{
+			tmp.push_back(dimensions.at(i));
+		}
+		partial_sums.push_back(tmp);
+	}
+	return BoxFactory::calculate_cart_prod(partial_sums);
+}
+
+int BoxFactory::compare_boxes(Box left, Box right)
+{
+	for(int i = 0; i < left.get_dimension_size(); i++)
+	{
+		if(left.get_dimension(i).get_interval().leftBound() > right.get_dimension(i).get_interval().leftBound())
+		{
+			return -1;
+		}
+		if(left.get_dimension(i).get_interval().leftBound() < right.get_dimension(i).get_interval().leftBound())
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+
 // The method gets a Box of n demensions as an input parameter and returns 
 // a vector of 2^n boxes obtained by dividing each edge of the primary 
 // box in halves

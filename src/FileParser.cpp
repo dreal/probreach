@@ -117,6 +117,23 @@ FileParser::FileParser(string filebase)
 	modify_flows();
 	modify_init();
 
+	for(auto it = model.param_syn.begin(); it != model.param_syn.end(); it++)
+	{
+		bool param_is_not_declared = true;
+		for(int i = 0; i < model.params.size(); i++)
+		{
+			if(strcmp(it->first.c_str(), model.params.at(i).name.c_str()) == 0)
+			{
+				param_is_not_declared = false;
+			}
+		}
+		if(param_is_not_declared)
+		{
+			cerr << "Parameter " << it->first << " was not declared in pdrh file" << endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+
 	if(file_exists(filename_prep.c_str()))
 	{
 		remove(filename_prep.c_str());
@@ -147,21 +164,60 @@ void FileParser::parse_pdrh(string filename)
 			if(regex_match(line, matches, regex("MODEL_TYPE\\((.*)\\)")))
 			{
 				string m_type = matches[1].str();
-				if(strcmp(matches[1].str().c_str(), string("HA").c_str()) == 0)
+				if(strcmp(m_type.c_str(), string("HA").c_str()) == 0)
 				{
 					model.model_type = 1;
 				}
-				else if(strcmp(matches[1].str().c_str(), string("PHA").c_str()) == 0)
+				else if(strcmp(m_type.c_str(), string("PHA").c_str()) == 0)
 				{
 					model.model_type = 2;
 				}
-				else if(strcmp(matches[1].str().c_str(), string("NPHA").c_str()) == 0)
+				else if(strcmp(m_type.c_str(), string("NPHA").c_str()) == 0)
 				{
 					model.model_type = 3;
 				}
-				else if(strcmp(matches[1].str().c_str(), string("PSY").c_str()) == 0)
+				//adopt to the format MODEL_TYPE(PSY;v0:0.1;alpha:0.01)
+				else if (regex_match(m_type, matches, regex("PSY;+(.*)")))
 				{
 					model.model_type = 4;
+
+					string declaration = matches[1].str();
+
+					//vector<string> var;
+					//vector<double> value;
+					ostringstream os;
+					string var = "";
+					for(int i = 0; i < declaration.length(); i++)
+					{
+						if(declaration[i] == ':')
+						{
+							var = os.str();
+							os.str("");
+						}
+						else
+						{
+							if((declaration[i] == ';'))
+							{
+								istringstream is(os.str());
+								double v;
+								is >> v;
+								model.param_syn[var] = v;
+								os.str("");
+							}
+							else
+							{
+								os << declaration[i];
+								if((i == declaration.length() - 1))
+								{
+									istringstream is(os.str());
+									double v;
+									is >> v;
+									model.param_syn[var] = v;
+									os.str("");
+								}
+							}
+						}
+					}
 				}
 				else
 				{
@@ -579,6 +635,10 @@ void FileParser::modify_init()
 	for(int i = 0; i < model.rvs.size(); i++)
 	{
 		os 	<< "(" << model.rvs.at(i).get_var() << ">=_" << model.rvs.at(i).get_var() << "_a)" << "(" << model.rvs.at(i).get_var() << "<=_" << model.rvs.at(i).get_var() << "_b)";
+	}
+	for(int i = 0; i < model.params.size(); i++)
+	{
+		os 	<< "(" << model.params.at(i).name << ">=_" << model.params.at(i).name << "_a)" << "(" << model.params.at(i).name << "<=_" << model.params.at(i).name << "_b)";
 	}
 	os << ")";
 	model.init.formula = os.str();

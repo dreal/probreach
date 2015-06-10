@@ -68,6 +68,7 @@ struct pdrh_model
 	vector<string> defs;
 	vector<var_type> vars;
 	vector<var_type> params;
+	std::map<string, double> param_syn;
 	vector<RV> rvs;
 	vector<DD> dds;
 	vector<mode_type> modes;

@@ -339,7 +339,7 @@ DInterval evaluate_pha(pdrh_model model)
 			{
 				P.at(i) *= branch_and_evaluate(dd_model, rv_cart_prod, init_prob);
 			}
-				// case when only DDs are present
+			// case when only DDs are present
 			else
 			{
 				DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
@@ -378,11 +378,26 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 	// parameter domain
 	vector<PartialSum> dimensions;
 	cout << "Parameters to synthesise:" << endl;
+
+	for(auto it = model.param_syn.begin(); it != model.param_syn.end(); it++)
+	{
+		for(int i = 0; i < model.params.size(); i++)
+		{
+			if(strcmp(it->first.c_str(), model.params.at(i).name.c_str()) == 0)
+			{
+				dimensions.push_back(PartialSum(model.params.at(i).name, "", model.params.at(i).range, -1));
+				cout << i << ") " << model.params.at(i).name << " with precision : " << model.param_syn[model.params.at(i).name] << endl;
+			}
+		}
+	}
+
+	/*
 	for(int i = 0; i < model.params.size(); i++)
 	{
 		cout << i << ") " << model.params.at(i).name << endl;
 		dimensions.push_back(PartialSum(model.params.at(i).name, "", model.params.at(i).range, -1));
 	}
+	 */
 	Box domain(dimensions);
 
 	cout << "Parameter domain: " << domain << endl;
@@ -400,11 +415,17 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 	CSVParser::display(csv, " ");
 
 	// initializing stacks
-	/*
+
 	vector<Box> sat_boxes, unsat_boxes, undec_boxes;
+
+	double mode_disp, step_disp, time_disp;
 
 	for(int i = 0; i < series_size; i++)
 	{
+		mode_disp = csv["Mode"].at(i).leftBound();
+		step_disp = csv["Step"].at(i).leftBound();
+		time_disp = csv["Time"].at(i).leftBound();
+
 		model.goal.mode = csv["Mode"].at(i).leftBound();
 		model.goal_c.mode = csv["Mode"].at(i).leftBound();
 		stringstream s;
@@ -432,21 +453,33 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 
 		while(true)
 		{
+			pdrh_model tmp_model = model;
 			Box box = boxes.front();
 			boxes.erase(boxes.begin());
 
 			for(int k = 0; k < box.get_dimension_size(); k++)
 			{
-				for(int l = 0; l < model.vars.size(); l++)
+				for(int l = 0; l < tmp_model.vars.size(); l++)
 				{
-					if(strcmp(box.get_var_of(k).c_str(), model.vars.at(l).name.c_str()) == 0)
+					stringstream s;
+					if(strcmp(box.get_var_of(k).c_str(), tmp_model.vars.at(l).name.c_str()) == 0)
 					{
-						model.vars.at(l).range = box.get_interval_of(k);
+						s << "#define _" << box.get_var_of(k) << "_a " << box.get_interval_of(k).leftBound();
+						tmp_model.defs.push_back(s.str());
+						s.str("");
+						s << "#define _" << box.get_var_of(k) << "_b " << box.get_interval_of(k).rightBound();
+						tmp_model.defs.push_back(s.str());
+						s.str("");
+					}
+					if(strcmp(domain.get_var_of(k).c_str(), tmp_model.vars.at(l).name.c_str()) == 0)
+					{
+						double radius = 10 * width(domain.get_interval_of(k));
+						tmp_model.vars.at(l).range = DInterval(tmp_model.vars.at(l).range.leftBound() - radius, model.vars.at(l).range.rightBound() + radius);
 					}
 				}
 			}
 
-			switch (evaluate_ha(model))
+			switch (evaluate_ha(tmp_model))
 			{
 				case -1:
 					unsat_boxes.push_back(box);
@@ -455,6 +488,19 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 					sat_boxes.push_back(box);
 					break;
 				case 0:
+					vector<Box> tmp_vector = BoxFactory::branch_box(box, model.param_syn);
+					if(tmp_vector.size() == 1)
+					{
+						undec_boxes.push_back(box);
+					}
+					else
+					{
+						for (int j = 0; j < tmp_vector.size(); j++)
+						{
+							boxes.push_back(tmp_vector.at(j));
+						}
+					}
+					/*
 					if(box.get_max_width() <= epsilon)
 					{
 						undec_boxes.push_back(box);
@@ -467,6 +513,7 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 							boxes.push_back(tmp_vector.at(j));
 						}
 					}
+					*/
 					break;
 			}
 
@@ -478,7 +525,7 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		undec_boxes = BoxFactory::merge_boxes(undec_boxes);
 
 		cout << "====================" << endl;
-		cout << "Time point: " << i << endl;
+		cout << "Step : " << step_disp << " Mode : " << mode_disp << " Time : " << time_disp << endl;
 		cout << "SAT boxes:" << endl;
 		for(int j = 0; j < sat_boxes.size(); j++)
 		{
@@ -507,7 +554,6 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		undec_boxes.clear();
 		cout << "====================" << endl;
 	}
-	*/
 }
 
 void print_help()
@@ -519,7 +565,6 @@ void print_help()
 	cout << endl;
 	cout << "options:" << endl;
 	cout << "	-e <double> - length of probability interval or maximum length of the box (default 0.001)" << endl;
-	cout << "	-d <double> - prescision used to call dReach (default 0.001)" << endl;
 	cout << "	-l <string> - full path to dReach binary (default dReach)" << endl;
 	cout << "	-t <int> - number of CPU cores (default " << max_num_threads << ") (max " << max_num_threads << ")" << endl;
 	cout << "	-h/--help - help message" << endl;
@@ -538,7 +583,6 @@ void print_version()
 
 void parse_cmd(int argc, char* argv[])
 {
-
 	//no arguments are input
 	if(argc < 2)
 	{

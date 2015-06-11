@@ -44,6 +44,7 @@ int num_threads = max_num_threads;
 string probreach_version("1.1");
 double series_noise = 1;
 string series_filename;
+bool prepartition_flag = false;
 
 int evaluate_ha(pdrh_model model)
 {
@@ -373,6 +374,45 @@ DInterval evaluate_pha(pdrh_model model)
 	return P_final;
 }
 
+vector<Box> prepartition(vector<Box> boxes, std::map<string, double> precision)
+{
+	vector<Box> tmp_list;
+	for(long int i = 0; i < boxes.size(); i++)
+	{
+		tmp_list.push_back(boxes.at(i));
+	}
+	boxes.clear();
+
+	while(tmp_list.size() > 0)
+	{
+		Box tmp_box = tmp_list.front();
+		tmp_list.erase(tmp_list.begin());
+		if (tmp_box.get_max_width() > 0)
+		{
+			vector<Box> tmp_vector = BoxFactory::branch_box(tmp_box, precision);
+			//vector<Box> tmp_vector = BoxFactory::branch_box(tmp_box, epsilon);
+			//vector<Box> tmp_vector = BoxFactory::branch_box(tmp_box);
+			if(tmp_vector.size() == 1)
+			{
+				boxes.push_back(tmp_box);
+			}
+			else
+			{
+				for(long int i = 0; i < tmp_vector.size(); i++)
+				{
+					tmp_list.push_back(tmp_vector.at(i));
+				}
+			}
+		}
+		else
+		{
+			boxes.push_back(tmp_box);
+		}
+	}
+
+	return boxes;
+}
+
 void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 {
 	// parameter domain
@@ -397,7 +437,7 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		cout << i << ") " << model.params.at(i).name << endl;
 		dimensions.push_back(PartialSum(model.params.at(i).name, "", model.params.at(i).range, -1));
 	}
-	 */
+	*/
 	Box domain(dimensions);
 
 	cout << "Parameter domain: " << domain << endl;
@@ -410,6 +450,10 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 	// initializing the stack
 	vector<Box> boxes;
 	boxes.push_back(domain);
+	if(prepartition_flag)
+	{
+		boxes = prepartition(boxes, model.param_syn);
+	}
 
 	cout << "Domain: " << domain << endl;
 	CSVParser::display(csv, " ");
@@ -547,6 +591,11 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		{
 			cout << "Problem is UNSAT" << endl;
 			break;
+		}
+
+		if(prepartition_flag)
+		{
+			boxes = prepartition(boxes, model.param_syn);
 		}
 
 		sat_boxes.clear();
@@ -708,6 +757,11 @@ void parse_cmd(int argc, char* argv[])
 		else if(strcmp(argv[i], "--verbose") == 0)
 		{
 			verbose = true;
+		}
+		//prepartition flag
+		else if(strcmp(argv[i], "--partition") == 0)
+		{
+			prepartition_flag = true;
 		}
 		//visualize
 		else if(strcmp(argv[i], "--visualize") == 0)

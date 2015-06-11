@@ -1,9 +1,9 @@
-MODEL_TYPE(PSY;v0:0.1;alpha:0.1)
+MODEL_TYPE(PSY;v0:0.01)
 //g = 9.8067 taken from wikipedia
 #define g 9.8067
 //[9.8, 9.81] g;
-//#define alpha 0.7854
-[0.0, 1.0] alpha;
+#define alpha 0.7854
+//[0.0, 1.0] alpha;
 [-10,100]Sy;
 [-10,1000]Sx;
 [0,15]tau;

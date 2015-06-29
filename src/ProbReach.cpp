@@ -26,6 +26,7 @@
 #include "BoxFactory.h"
 #include "FileParser.h"
 #include "CSVParser.h"
+#include<capd/dynsys/OdeTraits.h>
 
 using namespace capd;
 using namespace std;
@@ -321,7 +322,7 @@ DInterval evaluate_pha(pdrh_model model)
 	{
 		P.push_back(branch_and_evaluate(model, rv_cart_prod, init_prob));
 	}
-		// case when DDs are present
+	// case when DDs are present
 	else
 	{
 		for(int i = 0; i < dd_cart_prod.size(); i++)
@@ -819,81 +820,16 @@ void parse_cmd(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-	cout << "ODE solving with CAPD" << endl;
-	try{
-		cout.precision(12);
-		// This is the vector field for the Planar Restricted Circular 3 Body Problem
-		IMap vectorField("par:mu,mj;var:x,y,dx,dy;fun:dx,dy,x-mj*(x+mu)*sqrt((x+mu)^2+y^2)^(-3)-mu*(x-mj)*sqrt((x-mj)^2+y^2)^(-3)+2*dy,y*(1-mj*sqrt((x+mu)^2+y^2)^(-3)-mu*sqrt((x-mj)^2+y^2)^(-3))-2*dx;");
-		// mass ratio
-		interval mu=interval(123.0)/interval(10000.0);
-		interval mj=1.0-mu;
-		// set parameter values
-		vectorField.setParameter("mu",mu);
-		vectorField.setParameter("mj",mj);
-		// The solver uses high order enclosure method to verify the existence of the solution.
-		// The order will be set to 20.
-		IOdeSolver solver(vectorField,20);
-		ITimeMap timeMap(solver);
-		// This is our initial condition
-		IVector x(4);
-		x[0]=0.9928634178;
-		x[1]=0.0;
-		x[2]=0.0;
-		x[3]=2.129213043;
-		// define a doubleton representation of the interval vector x
-		C0Rect2Set s(x);
-		// Here we start to integrate. The time of integration is set to T=5.
-		double T=5;
-		timeMap.stopAfterStep(true);
-		interval prevTime(0.);
-		do
-		{
-			timeMap(T,s);
-			interval stepMade = solver.getStep();
-			cout << "\nstep made: " << stepMade;
-			// This is how we can extract an information
-			// about the trajectory between time steps.
-			// The type CurveType is a function defined
-			// on the interval [0,stepMade].
-			// It can be evaluated at a point (or interval).
-			// The curve can be also differentiated wrt to time.
-			// We can also extract from it the 1-st order derivatives wrt.
-			const IOdeSolver::SolutionCurve& curve = solver.getCurve();
-			interval domain = interval(0,1)*stepMade;
-
-			// Here we use a uniform grid of last time step made
-			// to enclose the trajectory between time steps.
-			// You can use your own favorite subdivision, perhaps nonuniform,
-			// depending on the problem you want to solve.
-			int grid=2;
-			for(int i=0;i<grid;++i)
-			{
-				interval subsetOfDomain = interval(i,i+1)*stepMade/grid;
-				// The above interval does not need to be a subset of domain.
-				// This is due to rounding to floating point numbers.
-				// We take the intersection with the domain.
-				intersection(domain,subsetOfDomain,subsetOfDomain);
-				// Here we evaluated curve at the interval subsetOfDomain.
-				// v will contain rigorous bound for the trajectory for this time interval.
-				IVector v = curve(subsetOfDomain);
-				std::cout << "\nenclosure for t=" << prevTime + subsetOfDomain << ":  " << v;
-				std::cout << "\ndiam(enclosure): " << diam(v);
-			}
-			prevTime = timeMap.getCurrentTime();
-			cout << "\ncurrent time: " << prevTime << endl << endl;
-		}while(!timeMap.completed());
-	}catch(exception& e)
-	{
-		cout << "\n\nException caught!\n" << e.what() << endl << endl;
-	}
 	/*
+	cout << "ODE solving with CAPD" << endl;
+
 	try{
 		cout.precision(16);
 		// This is the vector field for the Planar Restricted Circular 3 Body Problem
 		IMap vectorField("par:v0,alpha,g;var:Sx,Sy,tau;fun:v0*cos(alpha),v0*sin(alpha)-g*tau,1;");
 
 		// params
-		interval v0 = interval(20);
+		interval v0 = interval(20,20);
 		interval alpha = interval(0.7854);
 		interval g = interval(9.8);
 		// set parameter values
@@ -904,9 +840,10 @@ int main(int argc, char* argv[])
 		// The order will be set to 20.
 		IOdeSolver solver(vectorField,20);
 		ITimeMap timeMap(solver);
-		timeMap.stopAfterStep(true);
+		//timeMap.stopAfterStep(true);
 		// This is our initial condition
 		// Time series data
+
 		double s_time [] = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.89};
 		double s_Sx [] = {0,1.414210965,2.82842193,4.242632895,5.65684386,7.071054825,8.48526579,9.899476755,11.31368772,12.72789869,14.14210965,
 						 15.55632062,16.97053158,18.38474255,19.79895351,21.21316448,22.62737544,24.04158641,25.45579737,26.87000834,28.2842193,
@@ -914,36 +851,165 @@ int main(int argc, char* argv[])
 		double s_Sy [] = {0,1.36521616,2.632432319,3.801648479,4.872864639,5.846080799,6.721296958,7.498513118,8.177729278,8.758945437,9.242161597,
 						9.627377757,9.914593917,10.10381008,10.19502624,10.1882424,10.08345856,9.880674715,9.579890875,9.181107035,8.684323194,
 						8.089539354,7.396755514,6.605971674,5.717187833,4.730403993,3.645620153,2.462836312,1.182052472,-0.054442984};
-		double noise = 0.2;
+		double noise = 0.1;
 
-		for(int i = 0; i < sizeof(s_time)/sizeof(*s_time) - 1; i++)
+		int series_size = sizeof(s_time)/sizeof(*s_time);
+
+		interval Sx[series_size];
+		interval Sy[series_size];
+		interval time[series_size];
+
+		for(int i = 0; i < series_size; i++)
 		{
-			IVector x(3);
-			x[0]=interval(s_Sx[i] - noise, s_Sx[i] + noise);
-			x[1]=interval(s_Sy[i] - noise, s_Sy[i] + noise);
-			x[2]=interval(s_time[i]);
-			C0HORect2Set s(x);
-			// we integrate the set s over the time T
-			interval T(s_time[i+1] - s_time[i]);
-			IVector v = timeMap(T,s);
-			cout << "Sx: " << v[0] << " Sx series: " << s_Sx[i+1] << endl;
-			cout << "Sy: " << v[1] << " Sy series: " << s_Sy[i+1] << endl;
-			cout << "tau: " << v[2] << " tau series: " << s_time[i+1] << endl;
-			cout << "Step: " << solver.getStep() << endl;
+			Sx[i] = interval(s_Sx[i] - noise, s_Sx[i] + noise);
+			Sy[i] = interval(s_Sy[i] - noise, s_Sy[i] + noise);
+			time[i] = interval(s_time[i]);
+		}
+
+		IVector x(3);
+		x[0]=Sx[0];
+		x[1]=Sy[0];
+		x[2]=time[0];
+		C0HORect2Set s(x);
+		// we integrate the set s over the time T
+		interval T(time[series_size - 1] - time[0]);
+		IVector v = timeMap(T,s);
+		interval inter_Sx;
+		interval inter_Sy;
+		interval inter_tau;
+		intersection(v[0],Sx[series_size - 1],inter_Sx);
+		intersection(v[1],Sy[series_size - 1],inter_Sy);
+		intersection(v[2],time[series_size - 1],inter_tau);
+		cout << "Sx subset : " << v[0].subset(Sx[1]) << endl;
+		cout << "Sx eclosure : " << v[0] << " Sx series: " << Sx[series_size - 1] << " intersection: ";
+		if(intersection(v[0],Sx[series_size - 1],inter_Sx))
+		{
+			 cout << inter_Sx << endl;
+		}
+		else
+		{
+			cout << " empty set " << endl;
+		}
+		cout << "Sy enclosure: " << v[1] << " Sy series: " << Sy[series_size - 1] << " intersection: ";
+		if(intersection(v[1],Sy[series_size - 1],inter_Sy))
+		{
+			cout << inter_Sy << endl;
+		}
+		else
+		{
+			cout << " empty set " << endl;
+		}
+		cout << "tau enclosure: " << v[2] << " tau series: " << time[series_size - 1] << " intersection: ";
+		if(intersection(v[2],time[series_size - 1],inter_tau))
+		{
+			cout << inter_tau << endl;
+		}
+		else
+		{
+			cout << " empty set " << endl;
 		}
 
 	}catch(exception& e)
 	{
 		cout << "\n\nException caught!\n" << e.what() << endl << endl;
 	}
+
+
+	try{
+
+		cout.precision(16);
+
+		// params
+		// default
+		//interval alphax(0.0197);
+		//interval alphay(0.0242);
+		//interval betax(0.0175);
+		//interval betay(0.0168);
+		//interval k1(10.0);
+		//interval k2(1.0);
+		//interval k3(10.0);
+		//interval k4(2);
+		//interval m1(0.00005);
+		//interval z0(12.0);
+		//interval gamma(0.08);
+		//interval d0(1.0);
+		//interval c1(0.01);
+		//interval c2(0.03);
+		//interval c3(0.02);
+		interval alphax(-1,1);
+		interval alphay(-1,1);
+		interval betax(-1,1);
+		interval betay(-1,1);
+		interval k1(10.0);
+		interval k2(1.0);
+		interval k3(10.0);
+		interval k4(2);
+		interval m1(0.00005);
+		interval z0(12.0);
+		interval gamma(0.08);
+		interval d0(1.0);
+		interval c1(0.01);
+		interval c2(0.03);
+		interval c3(0.02);
+
+		string params("par:alphax,alphay,betax,betay,k1,k2,k3,k4,m1,z0,gamma,d0,c1,c2,c3;");
+		string vars("var:x,y,z;");
+		string funs("fun:(((alphax/(1+exp((k1-z)*k2)))-(betax/(1+exp((z-k3)*k4)))) - (m1 * (1 - (z / z0))) - c1) * x + c2,(m1 * (1 - (z / z0))) * x + ((alphay * (1 - (d0 * (z / z0)))) - betay) * y,-z * gamma + c3;");
+
+		IMap vectorField(string(params + vars + funs));
+
+		vectorField.setParameter("alphax",alphax);
+		vectorField.setParameter("alphay",alphay);
+		vectorField.setParameter("betax",betax);
+		vectorField.setParameter("betay",betay);
+		vectorField.setParameter("k1",k1);
+		vectorField.setParameter("k2",k2);
+		vectorField.setParameter("k3",k3);
+		vectorField.setParameter("k4",k4);
+		vectorField.setParameter("m1",m1);
+		vectorField.setParameter("z0",z0);
+		vectorField.setParameter("gamma",gamma);
+		vectorField.setParameter("d0",d0);
+		vectorField.setParameter("c1",c1);
+		vectorField.setParameter("c2",c2);
+		vectorField.setParameter("c3",c3);
+
+		// The solver uses high order enclosure method to verify the existence of the solution.
+		// The order will be set to 20.
+		IOdeSolver solver(vectorField,15);
+		ITimeMap timeMap(solver);
+		//timeMap.stopAfterStep(true);
+		// This is our initial condition
+		// Time series data
+
+		IVector x(3);
+		x[0]=interval(14,19);
+		x[1]=interval(0.04,0.1);
+		x[2]=interval(12.5,14.5);
+		cout << "Solving ODE" << endl;
+		C0HORect2Set s(x);
+		// we integrate the set s over the time T
+		interval T(10);
+		cout << "Results:" << endl;
+		IVector v = timeMap(T,s);
+		cout << "x = " << v[0] << endl;
+		cout << "y = " << v[1] << endl;
+		cout << "z = " << v[2] << endl;
+
+	}catch(exception& e)
+	{
+		cout << "\n\nException caught!\n" << e.what() << endl << endl;
+	}
 	*/
-	/*
+
 	// setting max number of threads by default
 	#ifdef _OPENMP
 		max_num_threads = omp_get_max_threads();
 		num_threads = max_num_threads;
 		omp_set_num_threads(num_threads);
 	#endif
+
+	cout.precision(16);
 
 	// parse command line
 	parse_cmd(argc, argv);
@@ -1010,10 +1076,10 @@ int main(int argc, char* argv[])
 			}
 			break;
 		case 2:
-			cout << evaluate_pha(model) << endl;
+			cout << setprecision(12) << scientific <<  evaluate_pha(model) << endl;
 			break;
 		case 3:
-			cout << evaluate_pha(model) << endl;
+			cout << setprecision(12) << scientific <<  evaluate_pha(model) << endl;
 			break;
 		case 4:
 			//std::map<string, vector<DInterval>> csv =  CSVParser::parse(series_filename, series_noise);
@@ -1022,7 +1088,7 @@ int main(int argc, char* argv[])
 			synthesize(model, csv);
 			break;
 	}
-	*/
+
 	return EXIT_SUCCESS;
 }
 

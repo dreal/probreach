@@ -8,6 +8,7 @@
 #include<unistd.h> 
 #include<sys/types.h>
 #include<signal.h>
+#include<regex>
 
 #ifdef _OPENMP
 	#include<omp.h>
@@ -141,10 +142,18 @@ int DecisionProcedure::evaluate(pdrh_model model, double precision)
 	{
 		#pragma omp critical
 		{
+			DecisionProcedure::parse_solution(string(phi + "_0_0.smt2.model"));
+		}
+		#pragma omp critical
+		{
 			phi_c = generate_drh(model, false);
 		}
 		if(call_dreach(phi_c, precision))
 		{
+			#pragma omp critical
+			{
+				DecisionProcedure::parse_solution(string(phi_c + "_0_0.smt2.model"));
+			}
 			return 0;
 		}
 		else
@@ -279,4 +288,31 @@ void DecisionProcedure::remove_aux_files()
 		remove_aux_file(file_base.at(i));
 	}
 	file_base.clear();
+}
+
+Box DecisionProcedure::parse_solution(string filename)
+{
+	ifstream file;
+	file.open(filename.c_str());
+
+	if(file.is_open())
+	{
+		string line;
+		smatch matches;
+		vector<PartialSum> intervals;
+		while(getline(file, line))
+		{
+			if(regex_match(line, matches, regex("\\t*(.*)_0_t.*:\\s*\\[([-+]?[0-9]*.?[0-9]+(e[-+]?[0-9]*)?),\\s*([-+]?[0-9]*.?[0-9]+(e[-+]?[0-9]*)?)\\];?")))
+			{
+				intervals.push_back(PartialSum(matches[1].str(), "", DInterval(matches[2].str().c_str(),matches[4].str().c_str()), DInterval(-1)));
+			}
+		}
+		return Box(intervals);
+	}
+	else
+	{
+		cout << "Couldn't open the file " << filename << endl;
+		exit(EXIT_FAILURE);
+	}
+	//remove_aux_file(filename);
 }

@@ -88,5 +88,7 @@ class DecisionProcedure
 		// @param filename base
 		void remove_aux_file(string);
 
+		static Box parse_solution(string);
+
 };
 #endif 

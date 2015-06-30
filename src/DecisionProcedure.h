@@ -67,7 +67,9 @@ class DecisionProcedure
 		// both values where the indicator function takes both values
 		//
 		// @param box from the domain of random variables.
-		int evaluate(pdrh_model, double);
+		//int evaluate(pdrh_model, double);
+
+		vector<Box> evaluate(pdrh_model, double);
 
 		// The method gets a full path to the DRH model and a precision
 		// which are then used to call dReach. The method returns true
@@ -88,7 +90,7 @@ class DecisionProcedure
 		// @param filename base
 		void remove_aux_file(string);
 
-		static Box parse_solution(string);
+		Box parse_solution(string);
 
 };
 #endif 

@@ -39,6 +39,8 @@ class BoxFactory
 
 		static int compare_boxes(Box, Box);
 
+		static vector<Box> cut_box(Box, Box);
+
 		//static Box two_boxes_intersection(Box, Box);
 
 		//static Box boxes_intersection(vector<Box>);

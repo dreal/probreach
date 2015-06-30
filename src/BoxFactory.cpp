@@ -155,7 +155,6 @@ vector<Box> BoxFactory::merge_boxes(vector<Box> input)
 	return input;
 }
 
-
 Box BoxFactory::merge_two_boxes(Box left, Box right)
 {
 	if((left.get_dimension_size() == 0) || (right.get_dimension_size() == 0) || (left.get_dimension_size() != right.get_dimension_size()))
@@ -321,3 +320,52 @@ vector<Box> BoxFactory::vectors_intersection(vector<Box> left, vector<Box> right
 	return output;
 }
 */
+
+vector<Box> BoxFactory::cut_box(Box left, Box right)
+{
+	if((left.get_dimension_size() == 0) || (right.get_dimension_size() == 0) || (left.get_dimension_size() != right.get_dimension_size()))
+	{
+		cerr << "Error merging boxes. Reason: length of dimensions vectors is not the same" << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	vector<string> left_vars, right_vars;
+	for(int i = 0; i < left.get_dimension_size(); i++)
+	{
+		left_vars.push_back(left.get_var_of(i));
+		right_vars.push_back(right.get_var_of(i));
+	}
+	//vector<string> left_vars = left.get_vars();
+	//vector<string> right_vars = right.get_vars();
+
+	for(int i = 0; i < left_vars.size(); i++)
+	{
+		if(strcmp(left_vars.at(i).c_str(), right_vars.at(i).c_str()) != 0)
+		{
+			cerr << "Error merging boxes. Reason: vector of variables is not the same for two boxes" << endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	vector<Box> result;
+
+
+
+	return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

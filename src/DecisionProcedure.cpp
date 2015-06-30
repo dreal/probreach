@@ -128,7 +128,7 @@ string DecisionProcedure::generate_drh(pdrh_model model, bool flag)
 // both values where the indicator function takes both values
 //
 // @param box from the domain of random variables.
-
+/*
 int DecisionProcedure::evaluate(pdrh_model model, double precision)
 {
 	string phi;
@@ -140,9 +140,11 @@ int DecisionProcedure::evaluate(pdrh_model model, double precision)
 	}
 	if(call_dreach(phi, precision))
 	{
+
 		#pragma omp critical
 		{
-			DecisionProcedure::parse_solution(string(phi + "_0_0.smt2.model"));
+			Box box = parse_solution(string(phi + ".model"));
+			cout << "Solution: " << box << endl;
 		}
 		#pragma omp critical
 		{
@@ -152,7 +154,8 @@ int DecisionProcedure::evaluate(pdrh_model model, double precision)
 		{
 			#pragma omp critical
 			{
-				DecisionProcedure::parse_solution(string(phi_c + "_0_0.smt2.model"));
+				Box box = parse_solution(string(phi_c + ".model"));
+				cout << "Solution: " << box << endl;
 			}
 			return 0;
 		}
@@ -166,6 +169,41 @@ int DecisionProcedure::evaluate(pdrh_model model, double precision)
 		return -1;
 	}
 }
+*/
+
+
+vector<Box> DecisionProcedure::evaluate(pdrh_model model, double precision)
+{
+	string phi;
+	string phi_c;
+
+	vector<Box> result;
+	result.push_back(Box());
+	result.push_back(Box());
+
+	#pragma omp critical
+	{
+		phi = generate_drh(model, true);
+	}
+	if(call_dreach(phi, precision))
+	{
+		#pragma omp critical
+		{
+			result.at(0) = parse_solution(string(phi + ".model"));
+			phi_c = generate_drh(model, false);
+		}
+		if (call_dreach(phi_c, precision))
+		{
+			#pragma omp critical
+			{
+				result.at(1) = parse_solution(string(phi_c + ".model"));
+			}
+		}
+	}
+	return result;
+}
+
+
 
 
 // The method gets a full path to the DRH model and a precision
@@ -307,6 +345,7 @@ Box DecisionProcedure::parse_solution(string filename)
 				intervals.push_back(PartialSum(matches[1].str(), "", DInterval(matches[2].str().c_str(),matches[4].str().c_str()), DInterval(-1)));
 			}
 		}
+		remove_aux_file(filename);
 		return Box(intervals);
 	}
 	else

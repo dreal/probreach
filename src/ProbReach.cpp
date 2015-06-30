@@ -46,11 +46,27 @@ string probreach_version("1.1");
 double series_noise = 1;
 string series_filename;
 bool prepartition_flag = false;
+bool guided = false;
 
 int evaluate_ha(pdrh_model model)
 {
 	DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
-	return dec_proc.evaluate(model, -1);
+	vector<Box> result = dec_proc.evaluate(model, -1);
+	if(result.at(0).get_dimension_size() == 0)
+	{
+		return -1;
+	}
+	else
+	{
+		if(result.at(1).get_dimension_size() == 0)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
 }
 
 DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
@@ -87,10 +103,10 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 		#pragma omp parallel
 		{
 			#pragma omp for schedule(dynamic)
-			for(int i = 0; i < cart_prod.size(); i++)
+			for(int j = 0; j < cart_prod.size(); j++)
 			{
 				double operationTime = time(NULL);
-				Box box = cart_prod.at(i);
+				Box box = cart_prod.at(j);
 				// creating a model for the box above
 				pdrh_model rv_model = model;
 				stringstream s;
@@ -109,7 +125,20 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 					rv_model.vars.push_back(var);
 				}
 				// dReach is called here
-				int is_borel = dec_proc.evaluate(rv_model, box.get_min_width() / 1000);
+				vector<Box> result = dec_proc.evaluate(rv_model, box.get_min_width() / 1000);
+				int is_borel = 0;
+				if(result.at(0).get_dimension_size() == 0)
+				{
+					is_borel = -1;
+				}
+				else
+				{
+					if(result.at(1).get_dimension_size() == 0)
+					{
+						is_borel = 1;
+					}
+				}
+
 				// interpreting the result
 				#pragma omp critical
 				{
@@ -276,6 +305,184 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 	return DInterval(P_lower.leftBound(), P_upper.rightBound());
 }
 
+DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
+{
+	double startTime = time(NULL);
+
+	DecisionProcedure dec_proc = DecisionProcedure(dreach_bin, dreach_options, dreal_options);
+	DInterval P_lower = init_prob.leftBound();
+	DInterval P_upper = init_prob.rightBound();
+
+	vector<Box> mixed_boxes;
+	vector<Box> cart_prod;
+	cart_prod.push_back(domain);
+
+	if(verbose)
+	{
+		cout << "|-------------------------------------------------------------------------------------|" << endl;
+		cout << "|-------------------------------BRANCH AND EVALUATE-----------------------------------|" << endl;
+		cout << "|-------------------------------------------------------------------------------------|" << endl;
+		cout << "| Probability interval         | Precision    | Time per iteration | Total time       |" << endl;
+		cout << "|-------------------------------------------------------------------------------------|" << endl;
+		cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+	}
+
+	//sorting initial partition
+	sort(cart_prod.begin(), cart_prod.end(), BoxFactory::compare_boxes_des);
+
+	while(true)
+	{
+		#pragma omp parallel
+		{
+			#pragma omp for schedule(dynamic)
+			for(int j = 0; j < cart_prod.size(); j++)
+			{
+				double operationTime = time(NULL);
+				Box box = cart_prod.at(j);
+				// creating a model for the box above
+				pdrh_model rv_model = model;
+				stringstream s;
+				for(int i = 0; i < box.get_dimension_size(); i++)
+				{
+					s << "#define _" << box.get_var_of(i) << "_a " << box.get_interval_of(i).leftBound() << endl;
+					rv_model.defs.push_back(s.str());
+					s.str("");
+					s << "#define _" << box.get_var_of(i) << "_b " << box.get_interval_of(i).rightBound() << endl;
+					rv_model.defs.push_back(s.str());
+					s.str("");
+					var_type var;
+					var.name = model.rvs.at(i).get_var();
+					double radius = 100 * (model.rvs.at(i).get_domain().rightBound() - model.rvs.at(i).get_domain().leftBound());
+					var.range = DInterval(model.rvs.at(i).get_domain().leftBound() - radius, model.rvs.at(i).get_domain().rightBound() + radius);
+					rv_model.vars.push_back(var);
+				}
+				// dReach is called here
+				vector<Box> result = dec_proc.evaluate(rv_model, box.get_min_width() / 1000);
+				int is_borel = 0;
+				if(result.at(0).get_dimension_size() == 0)
+				{
+					is_borel = -1;
+				}
+				else
+				{
+					if(result.at(1).get_dimension_size() == 0)
+					{
+						is_borel = 1;
+					}
+					else
+					{
+						// outputting solution
+						cout << "Solution: " << endl;
+						for(int i = 0; i < result.size(); i++)
+						{
+							cout << i << scientific << setprecision(12) << ") " << result.at(i) << endl;
+						}
+					}
+				}
+
+				// interpreting the result
+				#pragma omp critical
+				{
+					if(is_borel == -1)
+					{
+						P_upper -= box.get_value();
+						if(verbose)
+						{
+							cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+						}
+					}
+					if(is_borel == 1)
+					{
+						P_lower += box.get_value();
+						if(verbose)
+						{
+							cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+						}
+					}
+					if(is_borel == 0)
+					{
+						if(model.model_type == 3)
+						{
+							if(box.get_max_width() > epsilon)
+							{
+								mixed_boxes.push_back(box);
+							}
+						}
+						else
+						{
+							mixed_boxes.push_back(box);
+						}
+					}
+				}
+			}
+		}
+
+		cart_prod.clear();
+
+		if(mixed_boxes.size() == 0)
+		{
+			break;
+		}
+
+		if(model.model_type == 2)
+		{
+			if(P_upper.rightBound() - P_lower.leftBound() <= epsilon)
+			{
+				break;
+			}
+		}
+
+		int mixed_boxes_size = mixed_boxes.size();
+
+		for(int i = 0; i < mixed_boxes_size; i++)
+		{
+			Box box = mixed_boxes.front();
+			mixed_boxes.erase(mixed_boxes.begin());
+			vector<Box> temp = BoxFactory::branch_box(box);
+			for(int j = 0; j < temp.size(); j++)
+			{
+				mixed_boxes.push_back(temp.at(j));
+			}
+		}
+
+		if(mixed_boxes.size() < num_threads)
+		{
+			while (mixed_boxes.size() < num_threads)
+			{
+				Box box = mixed_boxes.front();
+				mixed_boxes.erase(mixed_boxes.begin());
+				vector<Box> temp = BoxFactory::branch_box(box);
+
+				for(int i = 0; i < temp.size(); i++)
+				{
+					mixed_boxes.push_back(temp.at(i));
+				}
+			}
+		}
+
+		sort(mixed_boxes.begin(), mixed_boxes.end(), BoxFactory::compare_boxes_des);
+
+		for(int i = 0; i < mixed_boxes.size(); i++)
+		{
+			cart_prod.push_back(mixed_boxes.at(i));
+		}
+		mixed_boxes.clear();
+
+	}
+	if(verbose)
+	{
+		cout << "|-------------------------------------------------------------------------------------|" << endl;
+		cout << "|-------------------------------------------------------------------------------------|" << endl;
+		cout << "| Probability interval         | Precision    | Required precision | Total time       |" << endl;
+		cout << "|-------------------------------------------------------------------------------------|" << endl;
+		cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << epsilon << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec |" << endl;
+		cout << "|-------------------------------------------------------------------------------------|" << endl;
+	}
+
+	return DInterval(P_lower.leftBound(), P_upper.rightBound());
+}
+
+
 DInterval evaluate_pha(pdrh_model model)
 {
 	vector<DInterval> P;
@@ -310,17 +517,31 @@ DInterval evaluate_pha(pdrh_model model)
 	}
 	// calculating multiple integral for RVs
 	DInterval init_prob;
+	Box domain;
 	if(model.rvs.size() > 0)
 	{
 		MulRVIntegral mul_integral(model.rvs, inf_coeff, epsilon);
 		rv_cart_prod = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
 		init_prob = DInterval(0.0, 2.0 - mul_integral.get_value().leftBound());
+		vector<PartialSum> partial_sums;
+		for(int i = 0; i < model.rvs.size(); i++)
+		{
+			partial_sums.push_back(PartialSum(model.rvs.at(i).get_var(), model.rvs.at(i).get_pdf(), model.rvs.at(i).get_domain()));
+		}
+		domain = Box(partial_sums);
 	}
 
 	// case when only RVs are present
 	if(dd_cart_prod.size() == 0)
 	{
-		P.push_back(branch_and_evaluate(model, rv_cart_prod, init_prob));
+		if(guided)
+		{
+			P.push_back(solution_guided(model, domain, init_prob));
+		}
+		else
+		{
+			P.push_back(branch_and_evaluate(model, rv_cart_prod, init_prob));
+		}
 	}
 	// case when DDs are present
 	else
@@ -339,24 +560,41 @@ DInterval evaluate_pha(pdrh_model model)
 			// case	when both RVs and DDs are present
 			if (rv_cart_prod.size() > 0)
 			{
-				P.at(i) *= branch_and_evaluate(dd_model, rv_cart_prod, init_prob);
+				if(guided)
+				{
+					P.at(i) *= solution_guided(dd_model, domain, init_prob);
+				}
+				else
+				{
+					P.at(i) *= branch_and_evaluate(dd_model, rv_cart_prod, init_prob);
+				}
 			}
 			// case when only DDs are present
 			else
 			{
 				DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
-				int res = dec_proc.evaluate(dd_model, -1);
-				if (res == 1)
-				{
-					P.at(i) *= DInterval(1.0);
-				}
-				if (res == -1)
+				vector<Box> result = dec_proc.evaluate(dd_model, -1);
+				// outputting solution
+				int res = 0;
+				if(result.at(0).get_dimension_size() == 0)
 				{
 					P.at(i) *= DInterval(0.0);
 				}
-				if (res == 0)
+				else
 				{
-					P.at(i) *= DInterval(0.0, 1.0);
+					if(result.at(1).get_dimension_size() == 0)
+					{
+						P.at(i) *= DInterval(1.0);
+					}
+					else
+					{
+						cout << "Solution: " << endl;
+						for(int i = 0; i < result.size(); i++)
+						{
+							cout << i << scientific << setprecision(12) << ") " << result.at(i) << endl;
+						}
+						P.at(i) *= DInterval(0.0, 1.0);
+					}
 				}
 			}
 			if(verbose)
@@ -758,6 +996,11 @@ void parse_cmd(int argc, char* argv[])
 		else if(strcmp(argv[i], "--verbose") == 0)
 		{
 			verbose = true;
+		}
+		//solution-guided
+		else if(strcmp(argv[i], "--guided") == 0)
+		{
+			guided = true;
 		}
 		//prepartition flag
 		else if(strcmp(argv[i], "--partition") == 0)

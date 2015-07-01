@@ -324,7 +324,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 		cout << "|-------------------------------------------------------------------------------------|" << endl;
 		cout << "| Probability interval         | Precision    | Time per iteration | Total time       |" << endl;
 		cout << "|-------------------------------------------------------------------------------------|" << endl;
-		cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+		cout << "| [" << setprecision(16) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
 	}
 
 	//sorting initial partition
@@ -332,6 +332,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 
 	while(true)
 	{
+		vector<Box> result;
 		#pragma omp parallel
 		{
 			#pragma omp for schedule(dynamic)
@@ -357,7 +358,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 					rv_model.vars.push_back(var);
 				}
 				// dReach is called here
-				vector<Box> result = dec_proc.evaluate(rv_model, box.get_min_width() / 1000);
+				result = dec_proc.evaluate(rv_model, box.get_min_width() / 1000000);
 				int is_borel = 0;
 				if(result.at(0).get_dimension_size() == 0)
 				{
@@ -372,11 +373,34 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 					else
 					{
 						// outputting solution
-						cout << "Solution: " << endl;
+						for(int i = 0; i < result.size(); i++)
+						{
+							Box temp_box = result.at(i);
+							vector<PartialSum> temp_vector;
+							for(int k = 0; k < temp_box.get_dimension_size(); k++)
+							{
+								DInterval interv = temp_box.get_dimension(k).get_interval();
+								temp_vector.push_back(PartialSum(temp_box.get_dimension(k).get_var(),
+																 temp_box.get_dimension(k).get_fun(),
+																 DInterval(interv.leftBound() - box.get_min_width() / 1000000, interv.rightBound() + box.get_min_width() / 1000000)));
+							}
+							result.at(i) = Box(temp_vector);
+
+
+						}
+						
+						cout << "Solution relaxed: " << endl;
 						for(int i = 0; i < result.size(); i++)
 						{
 							cout << i << scientific << setprecision(12) << ") " << result.at(i) << endl;
+							cout << "Cut: " << endl;
+							vector<Box> cut = BoxFactory::cut_box(box, result.at(i));
+							for(int k = 0; k < cut.size(); k++)
+							{
+								cout << i << "." << k << scientific << setprecision(12) << ") " << cut.at(k) << endl;
+							}
 						}
+
 					}
 				}
 
@@ -388,7 +412,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 						P_upper -= box.get_value();
 						if(verbose)
 						{
-							cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+							cout << "| [" << setprecision(16) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
 						}
 					}
 					if(is_borel == 1)
@@ -396,7 +420,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 						P_lower += box.get_value();
 						if(verbose)
 						{
-							cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
+							cout << "| [" << setprecision(16) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - operationTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
 						}
 					}
 					if(is_borel == 0)
@@ -410,7 +434,23 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 						}
 						else
 						{
-							mixed_boxes.push_back(box);
+							//mixed_boxes.push_back(box);
+							vector<Box> temp = BoxFactory::cut_box(box, result.at(0));
+							/*
+							cout << "Box: " << scientific << setprecision(16) <<  box << endl;
+							cout << "Solution: " << scientific << setprecision(16) << result.at(0) << endl;
+							cout << "Cut: " << endl;
+							for(int k = 0; k < temp.size(); k++)
+							{
+								cout << k << scientific << setprecision(16) << ") " << temp.at(k) << endl;
+							}
+							*/
+							cout << "delta = " << scientific << setprecision(16) << box.get_min_width() / 1000000 << endl;
+							//vector<Box> temp = BoxFactory::branch_box(box);
+							for(int k = 0; k < temp.size(); k++)
+							{
+								mixed_boxes.push_back(temp.at(k));
+							}
 						}
 					}
 				}
@@ -434,17 +474,21 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 
 		int mixed_boxes_size = mixed_boxes.size();
 
+		/*
 		for(int i = 0; i < mixed_boxes_size; i++)
 		{
 			Box box = mixed_boxes.front();
 			mixed_boxes.erase(mixed_boxes.begin());
+			//vector<Box> temp = BoxFactory::cut_box(box, result[0]);
 			vector<Box> temp = BoxFactory::branch_box(box);
 			for(int j = 0; j < temp.size(); j++)
 			{
 				mixed_boxes.push_back(temp.at(j));
 			}
 		}
+		 */
 
+		/*
 		if(mixed_boxes.size() < num_threads)
 		{
 			while (mixed_boxes.size() < num_threads)
@@ -459,6 +503,8 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 				}
 			}
 		}
+		 */
+
 
 		sort(mixed_boxes.begin(), mixed_boxes.end(), BoxFactory::compare_boxes_des);
 
@@ -475,7 +521,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 		cout << "|-------------------------------------------------------------------------------------|" << endl;
 		cout << "| Probability interval         | Precision    | Required precision | Total time       |" << endl;
 		cout << "|-------------------------------------------------------------------------------------|" << endl;
-		cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << epsilon << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec |" << endl;
+		cout << "| [" << setprecision(16) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << epsilon << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec |" << endl;
 		cout << "|-------------------------------------------------------------------------------------|" << endl;
 	}
 
@@ -588,12 +634,14 @@ DInterval evaluate_pha(pdrh_model model)
 					}
 					else
 					{
+						/*
 						cout << "Solution: " << endl;
 						for(int i = 0; i < result.size(); i++)
 						{
 							cout << i << scientific << setprecision(12) << ") " << result.at(i) << endl;
 						}
 						P.at(i) *= DInterval(0.0, 1.0);
+						*/
 					}
 				}
 			}

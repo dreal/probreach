@@ -347,11 +347,54 @@ vector<Box> BoxFactory::cut_box(Box left, Box right)
 		}
 	}
 
-	vector<Box> result;
+	vector<PartialSum> left_vector, right_vector;
+	vector< vector<PartialSum> > result_vector;
+	left_vector = left.get_dimensions();
+	right_vector = right.get_dimensions();
 
+	for(int i = 0; i < left_vector.size(); i++)
+	{
+		for(int j = 0; j < right_vector.size(); j++)
+		{
+			if(strcmp(left_vector.at(i).get_var().c_str(), right_vector.at(j).get_var().c_str()) == 0)
+			{
+				vector<PartialSum> temp_vector;
+				if((right_vector.at(j).get_interval().leftBound() > left_vector.at(i).get_interval().leftBound()) &&
+				   (left_vector.at(i).get_interval().rightBound() > right_vector.at(j).get_interval().rightBound()))
+				{
+					temp_vector.push_back(PartialSum(left_vector.at(i).get_var(), left_vector.at(i).get_fun(), DInterval(left_vector.at(i).get_interval().leftBound(), right_vector.at(j).get_interval().leftBound())));
+					temp_vector.push_back(PartialSum(left_vector.at(i).get_var(), left_vector.at(i).get_fun(), right_vector.at(j).get_interval()));
+					temp_vector.push_back(PartialSum(left_vector.at(i).get_var(), left_vector.at(i).get_fun(), DInterval(right_vector.at(i).get_interval().rightBound(), left_vector.at(j).get_interval().rightBound())));
+				}
+				else
+				{
+					if((right_vector.at(j).get_interval().leftBound() < left_vector.at(i).get_interval().leftBound()) &&
+					   (left_vector.at(i).get_interval().rightBound() > right_vector.at(j).get_interval().rightBound()))
+					{
+						temp_vector.push_back(PartialSum(left_vector.at(i).get_var(), left_vector.at(i).get_fun(), DInterval(left_vector.at(i).get_interval().leftBound(), right_vector.at(j).get_interval().rightBound())));
+						temp_vector.push_back(PartialSum(left_vector.at(i).get_var(), left_vector.at(i).get_fun(), DInterval(right_vector.at(i).get_interval().rightBound(), left_vector.at(j).get_interval().rightBound())));
+					}
+					else
+					{
+						if((right_vector.at(j).get_interval().leftBound() > left_vector.at(i).get_interval().leftBound()) &&
+						   (left_vector.at(i).get_interval().rightBound() < right_vector.at(j).get_interval().rightBound()))
+						{
+							temp_vector.push_back(PartialSum(left_vector.at(i).get_var(), left_vector.at(i).get_fun(), DInterval(left_vector.at(i).get_interval().leftBound(), right_vector.at(j).get_interval().leftBound())));
+							temp_vector.push_back(PartialSum(left_vector.at(i).get_var(), left_vector.at(i).get_fun(), DInterval(right_vector.at(i).get_interval().leftBound(), left_vector.at(j).get_interval().rightBound())));
+						}
+						else
+						{
+							temp_vector.push_back(left_vector.at(i));
+						}
+					}
+				}
+				result_vector.push_back(temp_vector);
+				break;
+			}
+		}
+	}
 
-
-	return result;
+	return BoxFactory::calculate_cart_prod(result_vector);
 }
 
 

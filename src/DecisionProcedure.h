@@ -90,7 +90,7 @@ class DecisionProcedure
 		// @param filename base
 		void remove_aux_file(string);
 
-		Box parse_solution(string);
+		Box parse_solution(pdrh_model, string);
 
 };
 #endif 

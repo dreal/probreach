@@ -9,6 +9,7 @@
 #include<sys/types.h>
 #include<signal.h>
 #include<regex>
+#include<algorithm>
 
 #ifdef _OPENMP
 	#include<omp.h>
@@ -189,14 +190,14 @@ vector<Box> DecisionProcedure::evaluate(pdrh_model model, double precision)
 	{
 		#pragma omp critical
 		{
-			result.at(0) = parse_solution(string(phi + ".model"));
+			result.at(0) = parse_solution(model, string(phi + ".model"));
 			phi_c = generate_drh(model, false);
 		}
 		if (call_dreach(phi_c, precision))
 		{
 			#pragma omp critical
 			{
-				result.at(1) = parse_solution(string(phi_c + ".model"));
+				result.at(1) = parse_solution(model, string(phi_c + ".model"));
 			}
 		}
 	}
@@ -328,7 +329,7 @@ void DecisionProcedure::remove_aux_files()
 	file_base.clear();
 }
 
-Box DecisionProcedure::parse_solution(string filename)
+Box DecisionProcedure::parse_solution(pdrh_model model, string filename)
 {
 	ifstream file;
 	file.open(filename.c_str());
@@ -342,7 +343,13 @@ Box DecisionProcedure::parse_solution(string filename)
 		{
 			if(regex_match(line, matches, regex("\\t*(.*)_0_t.*:\\s*\\[([-+]?[0-9]*.?[0-9]+(e[-+]?[0-9]*)?),\\s*([-+]?[0-9]*.?[0-9]+(e[-+]?[0-9]*)?)\\];?")))
 			{
-				intervals.push_back(PartialSum(matches[1].str(), "", DInterval(matches[2].str().c_str(),matches[4].str().c_str()), DInterval(-1)));
+				for(int i = 0; i < model.rvs.size(); i++)
+				{
+					if(strcmp(matches[1].str().c_str(),model.rvs.at(i).get_var().c_str()) == 0)
+					{
+						intervals.push_back(PartialSum(matches[1].str(), model.rvs.at(i).get_pdf(), DInterval(matches[2].str().c_str(),matches[4].str().c_str())));
+					}
+				}
 			}
 		}
 		remove_aux_file(filename);

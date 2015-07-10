@@ -143,6 +143,7 @@ void FileParser::parse_pdrh(string filename)
 
 		while (getline(file, line))
 		{
+			if (line.empty()) continue;
 			if(regex_match(line, matches, regex("MODEL_TYPE\\((.*)\\)")))
 			{
 				string m_type = matches[1].str();
@@ -467,7 +468,7 @@ void FileParser::parse_rv(string notation, string declaration, string var)
 			}
 			else
 			{
-				if((declaration[i] == ','))
+				if(declaration[i] == ',')
 				{
 					istringstream is(os.str());
 					double v;
@@ -478,7 +479,7 @@ void FileParser::parse_rv(string notation, string declaration, string var)
 				else
 				{
 					os << declaration[i];
-					if((i == declaration.length() - 1))
+					if(i == declaration.length() - 1)
 					{
 						istringstream is(os.str());
 						double v;

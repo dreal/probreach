@@ -42,7 +42,7 @@ string dreach_options = "";
 string dreal_options = "";
 int max_num_threads = 1;
 int num_threads = max_num_threads;
-string probreach_version("1.1");
+string probreach_version("1.2");
 double series_noise = 1;
 string series_filename;
 bool prepartition_flag = false;
@@ -50,8 +50,11 @@ bool guided = false;
 
 int evaluate_ha(pdrh_model model)
 {
+	//cout << "Evaluate HA" << endl;
 	DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
+	//cout << "Before decision procedure" << endl;
 	vector<Box> result = dec_proc.evaluate(model, -1);
+	//cout << "Evaluated HA" << endl;
 	if(result.at(0).get_dimension_size() == 0)
 	{
 		return -1;
@@ -388,7 +391,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 
 
 						}
-						
+
 						cout << "Solution relaxed: " << endl;
 						for(int i = 0; i < result.size(); i++)
 						{
@@ -527,7 +530,6 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 
 	return DInterval(P_lower.leftBound(), P_upper.rightBound());
 }
-
 
 DInterval evaluate_pha(pdrh_model model)
 {
@@ -782,8 +784,12 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		tmp << "-l " << csv["Step"].at(i).leftBound() << " -k " << csv["Step"].at(i).leftBound() << " -z";
 		dreach_options = tmp.str();
 
+		//cout << "Before the loop" << endl;
+
 		while(true)
 		{
+			//cout << "Main loop" << endl;
+
 			pdrh_model tmp_model = model;
 			Box box = boxes.front();
 			boxes.erase(boxes.begin());
@@ -810,16 +816,21 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 				}
 			}
 
+			//cout << "Before the switch" << endl;
+
 			switch (evaluate_ha(tmp_model))
 			{
 				case -1:
 					unsat_boxes.push_back(box);
+					//cout << "unsat" << endl;
 					break;
 				case 1:
 					sat_boxes.push_back(box);
+					//cout << "sat" << endl;
 					break;
 				case 0:
 					vector<Box> tmp_vector = BoxFactory::branch_box(box, model.param_syn);
+					//cout << "undec" << endl;
 					if(tmp_vector.size() == 1)
 					{
 						undec_boxes.push_back(box);
@@ -847,6 +858,8 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 					*/
 					break;
 			}
+
+			//cout << "After the switch" << endl;
 
 			if(boxes.size() == 0) break;
 		}

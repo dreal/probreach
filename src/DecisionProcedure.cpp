@@ -191,16 +191,20 @@ vector<Box> DecisionProcedure::evaluate(pdrh_model model, double precision)
 		#pragma omp critical
 		{
 			result.at(0) = parse_solution(model, string(phi + ".model"));
+			//cout << "The first file is parsed" << endl;
 			phi_c = generate_drh(model, false);
+			//cout << "The second file is generated" << endl;
 		}
 		if (call_dreach(phi_c, precision))
 		{
 			#pragma omp critical
 			{
+				//cout << "Before parsing the second file" << endl;
 				result.at(1) = parse_solution(model, string(phi_c + ".model"));
 			}
 		}
 	}
+
 	return result;
 }
 
@@ -331,6 +335,9 @@ void DecisionProcedure::remove_aux_files()
 
 Box DecisionProcedure::parse_solution(pdrh_model model, string filename)
 {
+
+	//cout << "Parsing solution" << endl;
+
 	ifstream file;
 	file.open(filename.c_str());
 
@@ -341,6 +348,7 @@ Box DecisionProcedure::parse_solution(pdrh_model model, string filename)
 		vector<PartialSum> intervals;
 		while(getline(file, line))
 		{
+			//cout << "line: " << line << endl;
 			if(regex_match(line, matches, regex("\\t*(.*)_0_t.*:\\s*\\[([-+]?[0-9]*.?[0-9]+(e[-+]?[0-9]*)?),\\s*([-+]?[0-9]*.?[0-9]+(e[-+]?[0-9]*)?)\\];?")))
 			{
 				for(int i = 0; i < model.rvs.size(); i++)
@@ -350,10 +358,26 @@ Box DecisionProcedure::parse_solution(pdrh_model model, string filename)
 						intervals.push_back(PartialSum(matches[1].str(), model.rvs.at(i).get_pdf(), DInterval(matches[2].str().c_str(),matches[4].str().c_str())));
 					}
 				}
+				for(int i = 0; i < model.params.size(); i++)
+				{
+					if(strcmp(matches[1].str().c_str(),model.params.at(i).name.c_str()) == 0)
+					{
+						intervals.push_back(PartialSum(matches[1].str(), "1", DInterval(matches[2].str().c_str(),matches[4].str().c_str())));
+					}
+				}
 			}
 		}
+		/*
+		for(int i = 0; i < intervals.size(); i++)
+		{
+			cout << intervals.at(i).get_interval() << endl;
+		}
+		*/
 		remove_aux_file(filename);
-		return Box(intervals);
+		//cout << "Parsed the model file" << endl;
+		Box result = Box(intervals);
+		//cout << "The resulting box is created" << endl;
+		return result;
 	}
 	else
 	{

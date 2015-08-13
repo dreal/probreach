@@ -106,18 +106,27 @@ vector<Box> BoxFactory::branch_box(Box box)
 	vector <vector<PartialSum> > partial_sums;
 	for(int i = 0; i < dimensions.size(); i++)
 	{
-		vector<PartialSum> tmp;
-		DInterval left_interval(dimensions.at(i).get_interval().leftBound(), dimensions.at(i).get_interval().mid().rightBound());
-		DInterval right_interval(dimensions.at(i).get_interval().mid().leftBound(), dimensions.at(i).get_interval().rightBound());
-		if(dimensions.at(i).get_value().rightBound() < 0)
+		vector <PartialSum> tmp;
+		if(width(dimensions.at(i).get_interval()) > 0)
 		{
-			tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), left_interval, -1));
-			tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), right_interval, -1));
+			DInterval left_interval(dimensions.at(i).get_interval().leftBound(),
+									dimensions.at(i).get_interval().mid().rightBound());
+			DInterval right_interval(dimensions.at(i).get_interval().mid().leftBound(),
+									 dimensions.at(i).get_interval().rightBound());
+			if (dimensions.at(i).get_value().rightBound() < 0)
+			{
+				tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), left_interval, -1));
+				tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), right_interval, -1));
+			}
+			else
+			{
+				tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), left_interval));
+				tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), right_interval));
+			}
 		}
 		else
 		{
-			tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), left_interval));
-			tmp.push_back(PartialSum(dimensions.at(i).get_var(), dimensions.at(i).get_fun(), right_interval));
+			tmp.push_back(dimensions.at(i));
 		}
 		partial_sums.push_back(tmp);
 	}

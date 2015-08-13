@@ -1,12 +1,17 @@
-MODEL_TYPE(PHA)
+MODEL_TYPE(NPHA)
 //g = 9.8067 taken from wikipedia
-#define g 9.8
+//#define g 9.8
 #define alpha 0.7854
-[0,100]Sy;
-[-10,1000]Sx;
+[-10,1000]Sy;
+[-10,10000]Sx;
 [0,15]t;
 [0,15]time;
-U(0,100)v0;
+[8,9.81]g;
+//[-1,1]Sx0;
+//[0,0]Sy0;
+N(20,3)v0;
+//DD(0.7854:0.99,0.0:0.01)alpha;
+//DD(0.7854:1.0)alpha;
 {
 mode1;
 invt_c:

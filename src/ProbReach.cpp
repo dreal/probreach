@@ -101,6 +101,45 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 	//sorting initial partition
 	sort(cart_prod.begin(), cart_prod.end(), BoxFactory::compare_boxes_des);
 
+	vector<PartialSum> nondet_intervals;
+	for(int i = 0; i < model.params.size(); i++)
+	{
+		nondet_intervals.push_back(PartialSum(model.params.at(i).name, "1", model.params.at(i).range));
+	}
+
+	vector<Box> n_boxes;
+	if(nondet_intervals.size() > 0)
+	{
+		n_boxes.push_back(Box(nondet_intervals));
+	}
+
+	// fix later
+	std::map<Box,DInterval> P_map;
+	P_map[n_boxes.at(0)] = init_prob;
+
+	cout << "Probability map:" << endl;
+	for(auto it = P_map.begin(); it != P_map.end(); it++)
+	{
+		cout << "P(" << it->first << ")=" << it->second << endl;
+	}
+
+	//P_map.erase(nondet_domain);
+	//cout << "Is empty: " << P_map.empty() << endl;
+
+	if(n_boxes.size() > 0)
+	{
+		stringstream s;
+		for(int i = 0; i < n_boxes.at(0).get_dimension_size(); i++)
+		{
+			s << "#define _" << n_boxes.at(0).get_var_of(i) << "_a " << n_boxes.at(0).get_interval_of(i).leftBound() << endl;
+			model.defs.push_back(s.str());
+			s.str("");
+			s << "#define _" << n_boxes.at(0).get_var_of(i) << "_b " << n_boxes.at(0).get_interval_of(i).rightBound() << endl;
+			model.defs.push_back(s.str());
+			s.str("");
+		}
+	}
+
 	while(true)
 	{
 		#pragma omp parallel
@@ -303,6 +342,222 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 		JSON.close();
 
 		cout << "Generating JSON file. Saved to " << json_filename << endl;
+	}
+
+	return DInterval(P_lower.leftBound(), P_upper.rightBound());
+}
+
+DInterval branch_and_evaluate_nondet(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
+{
+
+	DecisionProcedure dec_proc = DecisionProcedure(dreach_bin, dreach_options, dreal_options);
+	DInterval P_lower = init_prob.leftBound();
+	DInterval P_upper = init_prob.rightBound();
+
+	vector<Box> mixed_boxes, mixed_n_boxes;
+
+	//sorting initial partition
+	sort(cart_prod.begin(), cart_prod.end(), BoxFactory::compare_boxes_des);
+
+	vector<PartialSum> nondet_intervals;
+	for(int i = 0; i < model.params.size(); i++)
+	{
+		nondet_intervals.push_back(PartialSum(model.params.at(i).name, "1", model.params.at(i).range));
+	}
+
+	vector<Box> n_boxes;
+	if(nondet_intervals.size() > 0)
+	{
+		n_boxes.push_back(Box(nondet_intervals));
+	}
+
+	// fix later
+	std::map<Box,DInterval> P_map, P_result;
+	P_map[n_boxes.at(0)] = init_prob;
+
+	std::map<Box, vector<Box>> partition_map;
+	partition_map[n_boxes.at(0)] = cart_prod;
+
+	while(!P_map.empty())
+	{
+		for(int k = 0; k < n_boxes.size(); k++)
+		{
+			/*
+			cout << "Partition map:" << endl;
+			for (auto it = partition_map.begin(); it != partition_map.end(); it++)
+			{
+				cout << setprecision(5) << scientific << it->first << endl;
+				vector<Box> tmp_box_vector = it->second;
+				for(int i = 0; i < tmp_box_vector.size(); i++)
+				{
+					cout << i << ") " << tmp_box_vector.at(i) << endl;
+				}
+			}
+			*/
+			pdrh_model nondet_model = model;
+			cout << "Intermediate map:" << endl;
+			for (auto it = P_map.begin(); it != P_map.end(); it++)
+			{
+				cout << setprecision(5) << scientific << "P(" << it->first << ") = " << it->second << " | " << width(it->second) << endl;
+			}
+
+			// modifying the model to handle nondeterministic parameters
+			stringstream s;
+			for (int i = 0; i < n_boxes.at(k).get_dimension_size(); i++)
+			{
+				s << "#define _" << n_boxes.at(k).get_var_of(i) << "_a " << n_boxes.at(k).get_interval_of(i).leftBound() << endl;
+				nondet_model.defs.push_back(s.str());
+				s.str("");
+				s << "#define _" << n_boxes.at(k).get_var_of(i) << "_b " << n_boxes.at(k).get_interval_of(i).rightBound() << endl;
+				nondet_model.defs.push_back(s.str());
+				s.str("");
+			}
+
+			P_lower = P_map[n_boxes.at(k)].leftBound();
+			P_upper = P_map[n_boxes.at(k)].rightBound();
+			//cout << "Current nondet box: " << n_boxes.at(k) << endl;
+			//cout << "---------------------------------" << endl;
+			for (int j = 0; j < partition_map[n_boxes.at(k)].size(); j++)
+			{
+				Box box = partition_map[n_boxes.at(k)].at(j);
+				// creating a model for the box above
+				pdrh_model rv_model = nondet_model;
+				// modifying the model to handle random parameters
+				stringstream s;
+				for (int i = 0; i < box.get_dimension_size(); i++)
+				{
+					s << "#define _" << box.get_var_of(i) << "_a " << box.get_interval_of(i).leftBound() << endl;
+					rv_model.defs.push_back(s.str());
+					s.str("");
+					s << "#define _" << box.get_var_of(i) << "_b " << box.get_interval_of(i).rightBound() << endl;
+					rv_model.defs.push_back(s.str());
+					s.str("");
+					var_type var;
+					var.name = model.rvs.at(i).get_var();
+					double radius = 100 * (model.rvs.at(i).get_domain().rightBound() - model.rvs.at(i).get_domain().leftBound());
+					var.range = DInterval(model.rvs.at(i).get_domain().leftBound() - radius, model.rvs.at(i).get_domain().rightBound() + radius);
+					rv_model.vars.push_back(var);
+				}
+
+				// dReach is called here
+				vector <Box> result = dec_proc.evaluate(rv_model, box.get_min_width() / 1000);
+				int is_borel = 0;
+				if (result.at(0).get_dimension_size() == 0)
+				{
+					is_borel = -1;
+				}
+				else
+				{
+					if (result.at(1).get_dimension_size() == 0)
+					{
+						is_borel = 1;
+					}
+				}
+
+				// interpreting the result
+				#pragma omp critical
+				{
+					switch (is_borel)
+					{
+						case -1:
+							P_upper -= box.get_value();
+							/*
+							if (verbose)
+							{
+								cout << setprecision(5) << scientific << "P(" << n_boxes.at(k) << ") = [" <<
+								P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " <<
+								P_upper.rightBound() - P_lower.leftBound() << endl;
+							}
+							*/
+							break;
+
+						case 1:
+							P_lower += box.get_value();
+							/*
+							if (verbose)
+							{
+								cout << setprecision(5) << scientific << "P(" << n_boxes.at(k) << ") = [" <<
+								P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " <<
+								P_upper.rightBound() - P_lower.leftBound() << endl;
+							}
+							*/
+							break;
+
+						case 0:
+							mixed_boxes.push_back(box);
+							break;
+					}
+				}
+			}
+			//cout << "---------------------------------" << endl;
+
+			P_map.erase(n_boxes.at(k));
+			if (P_upper.rightBound() - P_lower.leftBound() <= epsilon)
+			{
+				P_result[n_boxes.at(k)] = DInterval(P_lower.leftBound(), P_upper.rightBound());
+			}
+			else
+			{
+				vector<Box> n_branch = BoxFactory::branch_box(n_boxes.at(k));
+				for (int i = 0; i < n_branch.size(); i++)
+				{
+					P_map[n_branch.at(i)] = DInterval(P_lower.leftBound(), P_upper.rightBound());
+					mixed_n_boxes.push_back(n_branch.at(i));
+				}
+
+				//cart_prod.clear();
+				int mixed_boxes_size = mixed_boxes.size();
+				for (int i = 0; i < mixed_boxes_size; i++)
+				{
+					Box box = mixed_boxes.front();
+					mixed_boxes.erase(mixed_boxes.begin());
+					vector <Box> temp = BoxFactory::branch_box(box);
+					for (int j = 0; j < temp.size(); j++)
+					{
+						mixed_boxes.push_back(temp.at(j));
+					}
+				}
+
+				if (mixed_boxes.size() < num_threads)
+				{
+					while (mixed_boxes.size() < num_threads)
+					{
+						Box box = mixed_boxes.front();
+						mixed_boxes.erase(mixed_boxes.begin());
+						vector <Box> temp = BoxFactory::branch_box(box);
+
+						for (int i = 0; i < temp.size(); i++)
+						{
+							mixed_boxes.push_back(temp.at(i));
+						}
+					}
+				}
+
+				sort(mixed_boxes.begin(), mixed_boxes.end(), BoxFactory::compare_boxes_des);
+				partition_map.erase(n_boxes.at(k));
+				for(int j = 0; j < n_branch.size(); j++)
+				{
+					for (int i = 0; i < mixed_boxes.size(); i++)
+					{
+						partition_map[n_branch.at(j)].push_back(mixed_boxes.at(i));
+					}
+				}
+			}
+			mixed_boxes.clear();
+		}
+
+		n_boxes.clear();
+		for(int i = 0; i < mixed_n_boxes.size(); i++)
+		{
+			n_boxes.push_back(mixed_n_boxes.at(i));
+		}
+		mixed_n_boxes.clear();
+	}
+
+	cout << "Resulting map:" << endl;
+	for(auto it = P_result.begin(); it != P_result.end(); it++)
+	{
+		cout << setprecision(5) << scientific << "P(" << it->first << ") = " << it->second << " | " << width(it->second) << endl;
 	}
 
 	return DInterval(P_lower.leftBound(), P_upper.rightBound());
@@ -618,6 +873,139 @@ DInterval evaluate_pha(pdrh_model model)
 				}
 			}
 			// case when only DDs are present
+			else
+			{
+				DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
+				vector<Box> result = dec_proc.evaluate(dd_model, -1);
+				// outputting solution
+				int res = 0;
+				if(result.at(0).get_dimension_size() == 0)
+				{
+					P.at(i) *= DInterval(0.0);
+				}
+				else
+				{
+					if(result.at(1).get_dimension_size() == 0)
+					{
+						P.at(i) *= DInterval(1.0);
+					}
+					else
+					{
+						/*
+						cout << "Solution: " << endl;
+						for(int i = 0; i < result.size(); i++)
+						{
+							cout << i << scientific << setprecision(12) << ") " << result.at(i) << endl;
+						}
+						P.at(i) *= DInterval(0.0, 1.0);
+						*/
+					}
+				}
+			}
+			if(verbose)
+			{
+				cout << scientific << "P(" << dd_cart_prod.at(i) << ") = " << setprecision(16) << P.at(i) << endl;
+			}
+		}
+	}
+
+	// calculating final result
+	for(int i = 0; i < P.size(); i++)
+	{
+		P_final += P.at(i);
+	}
+
+	return P_final;
+}
+
+DInterval evaluate_npha(pdrh_model model)
+{
+	vector<DInterval> P;
+	DInterval P_final(0.0);
+	vector<Box> dd_cart_prod;
+	vector<Box> rv_cart_prod;
+	// case when DDs are present
+	if(model.dds.size() > 0)
+	{
+		// obtaining Cartesian product of DDs
+		vector< vector<PartialSum> > dd_partial_sums;
+		for(int i = 0; i < model.dds.size(); i++)
+		{
+			vector<PartialSum> temp_dd;
+			for(int j = 0; j < model.dds.at(i).get_args().size(); j++)
+			{
+				temp_dd.push_back(PartialSum(model.dds.at(i).get_var(), "", DInterval(model.dds.at(i).get_args().at(j)), DInterval(model.dds.at(i).get_values().at(j))));
+			}
+			dd_partial_sums.push_back(temp_dd);
+		}
+		dd_cart_prod = BoxFactory::calculate_cart_prod(dd_partial_sums);
+		// constructing initial probability vector
+		for(int i = 0; i < dd_cart_prod.size(); i++)
+		{
+			DInterval temp_P = DInterval(1.0, 1.0);
+			for(int j = 0; j < dd_cart_prod.at(i).get_dimensions().size(); j++)
+			{
+				temp_P *= dd_cart_prod.at(i).get_dimension(j).get_value();
+			}
+			P.push_back(temp_P);
+		}
+	}
+	// calculating multiple integral for RVs
+	DInterval init_prob;
+	Box domain;
+
+	if(model.rvs.size() > 0)
+	{
+		MulRVIntegral mul_integral(model.rvs, inf_coeff, epsilon);
+		rv_cart_prod = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
+		init_prob = DInterval(0.0, 2.0 - mul_integral.get_value().leftBound());
+		vector<PartialSum> partial_sums;
+		for(int i = 0; i < model.rvs.size(); i++)
+		{
+			partial_sums.push_back(PartialSum(model.rvs.at(i).get_var(), model.rvs.at(i).get_pdf(), model.rvs.at(i).get_domain()));
+		}
+		domain = Box(partial_sums);
+	}
+
+	// case when only RVs are present
+	if(dd_cart_prod.size() == 0)
+	{
+		if(guided)
+		{
+			P.push_back(solution_guided(model, domain, init_prob));
+		}
+		else
+		{
+			P.push_back(branch_and_evaluate_nondet(model, rv_cart_prod, init_prob));
+		}
+	}
+		// case when DDs are present
+	else
+	{
+		for(int i = 0; i < dd_cart_prod.size(); i++)
+		{
+			// composing a model to evaluate
+			pdrh_model dd_model = model;
+			stringstream s;
+			for (int j = 0; j < dd_cart_prod.at(i).get_dimension_size(); j++)
+			{
+				s << "#define " << dd_cart_prod.at(i).get_var_of(j) << " " << dd_cart_prod.at(i).get_interval_of(j).leftBound();
+				dd_model.defs.push_back(s.str());
+				s.str("");
+			}
+			// case	when both RVs and DDs are present
+			if (rv_cart_prod.size() > 0)
+			{
+				if(guided)
+				{
+					P.at(i) *= solution_guided(dd_model, domain, init_prob);
+				}
+				else
+				{
+					P.at(i) *= branch_and_evaluate_nondet(dd_model, rv_cart_prod, init_prob);
+				}
+			}
+				// case when only DDs are present
 			else
 			{
 				DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
@@ -1363,6 +1751,14 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	/*
+	cout << "Parameters" << endl;
+	for(int i = 0; i < model.params.size(); i++)
+	{
+		cout << i << ") " << model.params.at(i).name << " " << model.params.at(i).range << endl;
+	}
+	*/
+
 	switch (model.model_type)
 	{
 		case 1:
@@ -1383,6 +1779,9 @@ int main(int argc, char* argv[])
 			cout << setprecision(12) << scientific <<  evaluate_pha(model) << endl;
 			break;
 		case 3:
+			cout << "NEW" << endl;
+			cout << setprecision(12) << scientific <<  evaluate_npha(model) << endl;
+			cout << "OLD" << endl;
 			cout << setprecision(12) << scientific <<  evaluate_pha(model) << endl;
 			break;
 		case 4:

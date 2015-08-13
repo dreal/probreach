@@ -53,7 +53,7 @@ void Box::calculate_params()
 // The method returns the dimension
 // 
 // @param dimension index
-PartialSum Box::get_dimension(int index)
+PartialSum Box::get_dimension(int index) const
 {
 	return dimensions.at(index);
 }
@@ -102,7 +102,7 @@ DInterval Box::get_value_of(int index)
 // partial some at the dimension
 // 
 // @param dimension index
-DInterval Box::get_interval_of(int index)
+DInterval Box::get_interval_of(int index) const
 {
 	return get_dimension(index).get_interval();
 }
@@ -127,12 +127,12 @@ string Box::get_fun_of(int index)
 
 // The method returns the number of dimensions
 // in the box
-int Box::get_dimension_size()
+int Box::get_dimension_size() const
 {
 	return dimensions.size();
 }
 
-ostream& operator<<(ostream& strm, Box& box)
+ostream& operator<<(ostream& strm, const Box& box)
 {
 	for(int i = 0; i < box.get_dimension_size() - 1; i++)
 	{
@@ -142,3 +142,20 @@ ostream& operator<<(ostream& strm, Box& box)
 	
 	return strm;
 }
+
+bool operator<(const Box& left, const Box& right)
+{
+	for(int i = 0; i < left.get_dimension_size(); i++)
+	{
+		if(left.get_dimension(i).get_interval().leftBound() > right.get_dimension(i).get_interval().leftBound())
+		{
+			return true;
+		}
+		if(left.get_dimension(i).get_interval().leftBound() < right.get_dimension(i).get_interval().leftBound())
+		{
+			return false;
+		}
+	}
+	return false;
+}
+

@@ -638,6 +638,14 @@ void FileParser::modify_init()
 	}
 	for(int i = 0; i < model.params.size(); i++)
 	{
+		/*
+		std::map<string,double>::iterator it;
+		it = model.param_syn.find(model.params.at(i).name);
+		if (it != model.param_syn.end())
+		{
+			os 	<< "(" << model.params.at(i).name << ">=_" << model.params.at(i).name << "_a)" << "(" << model.params.at(i).name << "<=_" << model.params.at(i).name << "_b)";
+		}
+		*/
 		os 	<< "(" << model.params.at(i).name << ">=_" << model.params.at(i).name << "_a)" << "(" << model.params.at(i).name << "<=_" << model.params.at(i).name << "_b)";
 	}
 	os << ")";

@@ -66,7 +66,7 @@ class Box
 		// The method returns the dimension
 		// 
 		// @param dimension index
-		PartialSum get_dimension(int);
+		PartialSum get_dimension(int) const;
 
 		// The method returns the value of the 
 		// partial some at the dimension
@@ -78,7 +78,7 @@ class Box
 		// partial some at the dimension
 		// 
 		// @param dimension index
-		DInterval get_interval_of(int);
+		DInterval get_interval_of(int) const;
 
 		// The method returns the name of the  
 		// random variable at the dimension
@@ -90,9 +90,11 @@ class Box
 
 		// The method returns the number of dimensions
 		// in the box
-		int get_dimension_size();
+		int get_dimension_size() const;
 
-		friend ostream& operator<<(ostream&, Box&);
+		friend ostream& operator<<(ostream&, const Box&);
+
+		friend bool operator<(const Box&, const Box&);
 
 }; 
 #endif  

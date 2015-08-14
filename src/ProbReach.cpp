@@ -347,7 +347,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 	return DInterval(P_lower.leftBound(), P_upper.rightBound());
 }
 
-DInterval branch_and_evaluate_nondet(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
+std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
 {
 
 	DecisionProcedure dec_proc = DecisionProcedure(dreach_bin, dreach_options, dreal_options);
@@ -506,6 +506,7 @@ DInterval branch_and_evaluate_nondet(pdrh_model model, vector<Box> cart_prod, DI
 				}
 
 				//cart_prod.clear();
+				// branching of mixed boxes
 				int mixed_boxes_size = mixed_boxes.size();
 				for (int i = 0; i < mixed_boxes_size; i++)
 				{
@@ -560,7 +561,7 @@ DInterval branch_and_evaluate_nondet(pdrh_model model, vector<Box> cart_prod, DI
 		cout << setprecision(5) << scientific << "P(" << it->first << ") = " << it->second << " | " << width(it->second) << endl;
 	}
 
-	return DInterval(P_lower.leftBound(), P_upper.rightBound());
+	return P_result;
 }
 
 DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
@@ -918,8 +919,54 @@ DInterval evaluate_pha(pdrh_model model)
 	return P_final;
 }
 
-DInterval evaluate_npha(pdrh_model model)
+std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 {
+	std::map<Box, DInterval> p_dd, p_res, p_temp;
+	vector<Box> stack_dd, stack_rv, stack_nondet;
+
+	// obtaining Cartesian product of DDs
+	vector< vector<PartialSum> > dd_partial_sums;
+	for(int i = 0; i < model.dds.size(); i++)
+	{
+		vector<PartialSum> temp_dd;
+		for(int j = 0; j < model.dds.at(i).get_args().size(); j++)
+		{
+			temp_dd.push_back(PartialSum(model.dds.at(i).get_var(), "", DInterval(model.dds.at(i).get_args().at(j)), DInterval(model.dds.at(i).get_values().at(j))));
+		}
+		dd_partial_sums.push_back(temp_dd);
+	}
+	stack_dd = BoxFactory::calculate_cart_prod(dd_partial_sums);
+	// constructing discrete probability vector
+	for(int i = 0; i < stack_dd.size(); i++)
+	{
+		for(int j = 0; j < stack_dd.at(i).get_dimensions().size(); j++)
+		{
+			p_dd[stack_dd.at(i)] = stack_dd.at(i).get_dimension(j).get_value();
+		}
+	}
+
+	// obtaining Cartesian product of RVs
+	MulRVIntegral mul_integral(model.rvs, inf_coeff, epsilon);
+	stack_rv = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
+	DInterval init_prob = DInterval(0.0, 2.0 - mul_integral.get_value().leftBound());
+	vector<PartialSum> partial_sums;
+	for(int i = 0; i < model.rvs.size(); i++)
+	{
+		partial_sums.push_back(PartialSum(model.rvs.at(i).get_var(), model.rvs.at(i).get_pdf(), model.rvs.at(i).get_domain()));
+	}
+	Box domain = Box(partial_sums);
+
+	// obtaining domain of nondeterministic parameters
+	vector<PartialSum> nondet_intervals;
+	for(int i = 0; i < model.params.size(); i++)
+	{
+		nondet_intervals.push_back(PartialSum(model.params.at(i).name, "1", model.params.at(i).range));
+	}
+	stack_nondet.push_back(Box(nondet_intervals));
+
+	return p_res;
+
+	/*
 	vector<DInterval> P;
 	DInterval P_final(0.0);
 	vector<Box> dd_cart_prod;
@@ -927,28 +974,7 @@ DInterval evaluate_npha(pdrh_model model)
 	// case when DDs are present
 	if(model.dds.size() > 0)
 	{
-		// obtaining Cartesian product of DDs
-		vector< vector<PartialSum> > dd_partial_sums;
-		for(int i = 0; i < model.dds.size(); i++)
-		{
-			vector<PartialSum> temp_dd;
-			for(int j = 0; j < model.dds.at(i).get_args().size(); j++)
-			{
-				temp_dd.push_back(PartialSum(model.dds.at(i).get_var(), "", DInterval(model.dds.at(i).get_args().at(j)), DInterval(model.dds.at(i).get_values().at(j))));
-			}
-			dd_partial_sums.push_back(temp_dd);
-		}
-		dd_cart_prod = BoxFactory::calculate_cart_prod(dd_partial_sums);
-		// constructing initial probability vector
-		for(int i = 0; i < dd_cart_prod.size(); i++)
-		{
-			DInterval temp_P = DInterval(1.0, 1.0);
-			for(int j = 0; j < dd_cart_prod.at(i).get_dimensions().size(); j++)
-			{
-				temp_P *= dd_cart_prod.at(i).get_dimension(j).get_value();
-			}
-			P.push_back(temp_P);
-		}
+
 	}
 	// calculating multiple integral for RVs
 	DInterval init_prob;
@@ -956,15 +982,7 @@ DInterval evaluate_npha(pdrh_model model)
 
 	if(model.rvs.size() > 0)
 	{
-		MulRVIntegral mul_integral(model.rvs, inf_coeff, epsilon);
-		rv_cart_prod = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
-		init_prob = DInterval(0.0, 2.0 - mul_integral.get_value().leftBound());
-		vector<PartialSum> partial_sums;
-		for(int i = 0; i < model.rvs.size(); i++)
-		{
-			partial_sums.push_back(PartialSum(model.rvs.at(i).get_var(), model.rvs.at(i).get_pdf(), model.rvs.at(i).get_domain()));
-		}
-		domain = Box(partial_sums);
+
 	}
 
 	// case when only RVs are present
@@ -976,10 +994,11 @@ DInterval evaluate_npha(pdrh_model model)
 		}
 		else
 		{
+			// map instead of vector
 			P.push_back(branch_and_evaluate_nondet(model, rv_cart_prod, init_prob));
 		}
 	}
-		// case when DDs are present
+	// case when DDs are present
 	else
 	{
 		for(int i = 0; i < dd_cart_prod.size(); i++)
@@ -1002,6 +1021,7 @@ DInterval evaluate_npha(pdrh_model model)
 				}
 				else
 				{
+					// multiply each element of the map instead of vector
 					P.at(i) *= branch_and_evaluate_nondet(dd_model, rv_cart_prod, init_prob);
 				}
 			}
@@ -1024,14 +1044,12 @@ DInterval evaluate_npha(pdrh_model model)
 					}
 					else
 					{
-						/*
 						cout << "Solution: " << endl;
 						for(int i = 0; i < result.size(); i++)
 						{
 							cout << i << scientific << setprecision(12) << ") " << result.at(i) << endl;
 						}
 						P.at(i) *= DInterval(0.0, 1.0);
-						*/
 					}
 				}
 			}
@@ -1049,6 +1067,7 @@ DInterval evaluate_npha(pdrh_model model)
 	}
 
 	return P_final;
+	*/
 }
 
 vector<Box> prepartition(vector<Box> boxes, std::map<string, double> precision)
@@ -1779,8 +1798,8 @@ int main(int argc, char* argv[])
 			cout << setprecision(12) << scientific <<  evaluate_pha(model) << endl;
 			break;
 		case 3:
-			cout << "NEW" << endl;
-			cout << setprecision(12) << scientific <<  evaluate_npha(model) << endl;
+			//cout << "NEW" << endl;
+			//cout << setprecision(12) << scientific <<  evaluate_npha(model) << endl;
 			cout << "OLD" << endl;
 			cout << setprecision(12) << scientific <<  evaluate_pha(model) << endl;
 			break;

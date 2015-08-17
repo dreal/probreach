@@ -939,15 +939,16 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 	// constructing discrete probability vector
 	for(int i = 0; i < stack_dd.size(); i++)
 	{
+		p_dd[stack_dd.at(i)] = DInterval(1.0);
 		for(int j = 0; j < stack_dd.at(i).get_dimensions().size(); j++)
 		{
-			p_dd[stack_dd.at(i)] = stack_dd.at(i).get_dimension(j).get_value();
+			p_dd[stack_dd.at(i)] *= stack_dd.at(i).get_dimension(j).get_value();
 		}
 	}
 
 	// obtaining Cartesian product of RVs
 	MulRVIntegral mul_integral(model.rvs, inf_coeff, epsilon);
-	stack_rv = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
+	vector<Box> partition_rv = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
 	DInterval init_prob = DInterval(0.0, 2.0 - mul_integral.get_value().leftBound());
 	vector<PartialSum> partial_sums;
 	for(int i = 0; i < model.rvs.size(); i++)
@@ -963,6 +964,149 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 		nondet_intervals.push_back(PartialSum(model.params.at(i).name, "1", model.params.at(i).range));
 	}
 	stack_nondet.push_back(Box(nondet_intervals));
+
+	// partition_map
+	std::map<Box, vector<Box> > partition_map;
+
+	// initializing probability map
+	for(int i = 0; i < stack_nondet.size(); i++)
+	{
+		p_res[stack_nondet.at(i)] = DInterval(0.0);
+	}
+
+	DecisionProcedure dec_proc = DecisionProcedure(dreach_bin, dreach_options, dreal_options);
+	for(int i = 0; i < stack_dd.size(); i++)
+	{
+		Box box_dd = stack_dd.at(i);
+		pdrh_model model_dd = model;
+		stringstream s;
+		for(int j = 0; j < box_dd.get_dimension_size(); j++)
+		{
+			s << "#define " << box_dd.get_var_of(j) << " " << box_dd.get_interval_of(j).leftBound();
+			model_dd.defs.push_back(s.str());
+			s.str("");
+		}
+		// initializing partition map
+		for(int i = 0; i < stack_nondet.size(); i++)
+		{
+			p_temp[stack_nondet.at(i)] = init_prob;
+			partition_map[stack_nondet.at(i)] = partition_rv;
+		}
+		//stack_rv = partition_rv;
+		vector<Box> stack_nondet_mix;
+		//while(!p_temp.empty())
+		//{
+			while(!stack_nondet.empty())
+			{
+				Box box_nondet = stack_nondet.front();
+				stack_nondet.erase(stack_nondet.begin());
+				pdrh_model model_nondet = model_dd;
+				stringstream s;
+				for (int j = 0; j < box_nondet.get_dimension_size(); j++)
+				{
+					s << "#define _" << box_nondet.get_var_of(j) << "_a " << box_nondet.get_interval_of(j).leftBound() << endl;
+					model_nondet.defs.push_back(s.str());
+					s.str("");
+					s << "#define _" << box_nondet.get_var_of(j) << "_b " << box_nondet.get_interval_of(j).rightBound() << endl;
+					model_nondet.defs.push_back(s.str());
+					s.str("");
+				}
+				// initializing the probability value
+				DInterval p_value = p_temp[box_nondet];
+				// initializing rv stack
+				stack_rv = partition_map[box_nondet];
+				// mixed rv stack
+				vector<Box> stack_rv_mix;
+				while(!stack_rv.empty())
+				{
+					Box box_rv = stack_rv.front();
+					stack_rv.erase(stack_rv.begin());
+					pdrh_model model_rv = model_nondet;
+					stringstream s;
+					for (int j = 0; j < box_rv.get_dimension_size(); j++)
+					{
+						s << "#define _" << box_rv.get_var_of(j) << "_a " << box_rv.get_interval_of(j).leftBound() << endl;
+						model_rv.defs.push_back(s.str());
+						s.str("");
+						s << "#define _" << box_rv.get_var_of(j) << "_b " << box_rv.get_interval_of(j).rightBound() << endl;
+						model_rv.defs.push_back(s.str());
+						s.str("");
+						var_type var;
+						var.name = model_rv.rvs.at(j).get_var();
+						double radius = 100 * (model_rv.rvs.at(j).get_domain().rightBound() - model_rv.rvs.at(j).get_domain().leftBound());
+						var.range = DInterval(model_rv.rvs.at(j).get_domain().leftBound() - radius, model_rv.rvs.at(j).get_domain().rightBound() + radius);
+						model_rv.vars.push_back(var);
+					}
+
+					// evaluating the boxes
+					vector <Box> result = dec_proc.evaluate(model_rv, box_rv.get_min_width() / 1000);
+					int is_borel = 0;
+					if (result.at(0).get_dimension_size() == 0)
+					{
+						is_borel = -1;
+					}
+					else
+					{
+						if (result.at(1).get_dimension_size() == 0)
+						{
+							is_borel = 1;
+						}
+					}
+
+					// interpreting the result
+					#pragma omp critical
+					{
+						switch (is_borel)
+						{
+							case -1:
+								p_value = DInterval(p_value.leftBound(), p_value.rightBound() - box_rv.get_value().rightBound());
+								/*
+                                if (verbose)
+                                {
+                                    cout << setprecision(5) << scientific << "P(" << n_boxes.at(k) << ") = [" <<
+                                    P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " <<
+                                    P_upper.rightBound() - P_lower.leftBound() << endl;
+                                }
+                                */
+								break;
+
+							case 1:
+								p_value = DInterval(p_value.leftBound() + box_rv.get_value().leftBound(), p_value.rightBound());
+								/*
+                                if (verbose)
+                                {
+                                    cout << setprecision(5) << scientific << "P(" << n_boxes.at(k) << ") = [" <<
+                                    P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " <<
+                                    P_upper.rightBound() - P_lower.leftBound() << endl;
+                                }
+                                */
+								break;
+
+							case 0:
+								stack_rv_mix.push_back(box_rv);
+								break;
+						}
+					}
+
+					//cout << "Boxes: " << box_dd << " ; " << box_nondet << " ; " << box_rv << endl;
+				}
+				p_temp[box_nondet] = p_value;
+				stack_nondet_mix.push_back(box_nondet);
+			}
+
+			// START BY ADDING BRANCHING!!!
+
+			//partition_map[box_nondet] = stack_rv_mix;
+			//stack_rv_mix.clear();
+		//}
+		for (auto it = p_temp.begin(); it != p_temp.end(); it++)
+		{
+			p_res[it->first] += it->second * box_dd.get_value();
+			stack_nondet.push_back(it->first);
+		}
+	}
+
+	//p_res = p_temp;
 
 	return p_res;
 
@@ -1778,6 +1922,7 @@ int main(int argc, char* argv[])
 	}
 	*/
 
+	std::map<Box, DInterval> p_map;
 	switch (model.model_type)
 	{
 		case 1:
@@ -1798,10 +1943,15 @@ int main(int argc, char* argv[])
 			cout << setprecision(12) << scientific <<  evaluate_pha(model) << endl;
 			break;
 		case 3:
-			//cout << "NEW" << endl;
+			p_map = evaluate_npha(model);
+			cout << "Probability map:" << endl;
+			for (auto it = p_map.begin(); it != p_map.end(); it++)
+			{
+				cout << setprecision(5) << scientific << "P(" << it->first << ") = " << it->second << " | " << width(it->second) << endl;
+			}
 			//cout << setprecision(12) << scientific <<  evaluate_npha(model) << endl;
-			cout << "OLD" << endl;
-			cout << setprecision(12) << scientific <<  evaluate_pha(model) << endl;
+			//cout << "OLD" << endl;
+			//cout << setprecision(12) << scientific <<  evaluate_pha(model) << endl;
 			break;
 		case 4:
 			//std::map<string, vector<DInterval>> csv =  CSVParser::parse(series_filename, series_noise);

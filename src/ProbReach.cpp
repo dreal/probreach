@@ -924,6 +924,33 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 	std::map<Box, DInterval> p_dd, p_res, p_temp;
 	vector<Box> stack_dd, stack_rv, stack_nondet;
 
+	bool flag_rv = true;
+	bool flag_nondet = true;
+
+	if(model.rvs.empty())
+	{
+		model.rvs.push_back(RV("U", "dummy_rv", "1", DInterval(0, 1)));
+		flag_no_rv = false;
+	}
+
+	if(model.dds.empty())
+	{
+		vector<double> arg;
+		vector<double> value;
+		arg.push_back(0.0);
+		value.push_back(1.0);
+		model.dds.push_back(DD("dummy_dd", arg, value));
+	}
+
+	if(model.params.empty())
+	{
+		var_type dummy_nondet;
+		dummy_nondet.name = "dummy_nondet";
+		dummy_nondet.range = DInterval(0,1);
+		model.params.push_back(dummy_nondet);
+		flag_nondet = false;
+	}
+
 	// obtaining Cartesian product of DDs
 	vector< vector<PartialSum> > dd_partial_sums;
 	for(int i = 0; i < model.dds.size(); i++)

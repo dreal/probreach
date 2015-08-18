@@ -2,18 +2,15 @@ MODEL_TYPE(NPHA)
 //g = 9.8067 taken from wikipedia
 //#define g 9.8
 //#define alpha 0.7854
-#define v0 20
-U(0,1)dummy_rv;
 [-10,1000]Sy;
 [-10,10000]Sx;
 [0,15]t;
 [0,15]time;
-[3,9.81]g;
+[8,9.81]g;
 //[-1,1]Sx0;
 //[0,0]Sy0;
-//N(20,3)v0;
+N(20,3)v0;
 DD(0.7854:0.9,0.0:0.1)alpha;
-//DD(0.7854:1.0)alpha;
 {
 mode1;
 invt_c:

@@ -992,10 +992,10 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 			p_temp[stack_nondet.at(i)] = init_prob;
 			partition_map[stack_nondet.at(i)] = partition_rv;
 		}
-		//stack_rv = partition_rv;
-		vector<Box> stack_nondet_mix;
-		//while(!p_temp.empty())
-		//{
+		std::map<Box, DInterval> p_map;
+		while(!p_temp.empty())
+		{
+			vector<Box> stack_nondet_mix;
 			while(!stack_nondet.empty())
 			{
 				Box box_nondet = stack_nondet.front();
@@ -1011,10 +1011,12 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 					model_nondet.defs.push_back(s.str());
 					s.str("");
 				}
-				// initializing the probability value
+				// initializing the probability value and removing the value from the probability map
 				DInterval p_value = p_temp[box_nondet];
-				// initializing rv stack
+				p_temp.erase(box_nondet);
+				// initializing rv stack and removing the value from the partition map
 				stack_rv = partition_map[box_nondet];
+				partition_map.erase(box_nondet);
 				// mixed rv stack
 				vector<Box> stack_rv_mix;
 				while(!stack_rv.empty())
@@ -1037,7 +1039,6 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 						var.range = DInterval(model_rv.rvs.at(j).get_domain().leftBound() - radius, model_rv.rvs.at(j).get_domain().rightBound() + radius);
 						model_rv.vars.push_back(var);
 					}
-
 					// evaluating the boxes
 					vector <Box> result = dec_proc.evaluate(model_rv, box_rv.get_min_width() / 1000);
 					int is_borel = 0;
@@ -1052,166 +1053,79 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 							is_borel = 1;
 						}
 					}
-
 					// interpreting the result
 					#pragma omp critical
 					{
 						switch (is_borel)
 						{
 							case -1:
-								p_value = DInterval(p_value.leftBound(), p_value.rightBound() - box_rv.get_value().rightBound());
-								/*
-                                if (verbose)
-                                {
-                                    cout << setprecision(5) << scientific << "P(" << n_boxes.at(k) << ") = [" <<
-                                    P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " <<
-                                    P_upper.rightBound() - P_lower.leftBound() << endl;
-                                }
-                                */
+								p_value = DInterval(p_value.leftBound(), p_value.rightBound() - box_rv.get_value().leftBound());
+								cout << setprecision(8) << scientific << p_value << " | " << width(p_value) << endl;
 								break;
-
 							case 1:
 								p_value = DInterval(p_value.leftBound() + box_rv.get_value().leftBound(), p_value.rightBound());
-								/*
-                                if (verbose)
-                                {
-                                    cout << setprecision(5) << scientific << "P(" << n_boxes.at(k) << ") = [" <<
-                                    P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " <<
-                                    P_upper.rightBound() - P_lower.leftBound() << endl;
-                                }
-                                */
+								cout << setprecision(8) << scientific << p_value << " | " << width(p_value) << endl;
 								break;
-
 							case 0:
-								stack_rv_mix.push_back(box_rv);
+								// branching boxes here
+								vector<Box> branch_rv = BoxFactory::branch_box(box_rv);
+								for(int j = 0; j < branch_rv.size(); j++)
+								{
+									stack_rv_mix.push_back(branch_rv.at(j));
+								}
 								break;
 						}
 					}
-
-					//cout << "Boxes: " << box_dd << " ; " << box_nondet << " ; " << box_rv << endl;
 				}
-				p_temp[box_nondet] = p_value;
-				stack_nondet_mix.push_back(box_nondet);
+				// checking the width of probability interval
+				if(width(p_value) <= epsilon)
+				{
+					p_map[box_nondet] = p_value;
+					cout << "p_map : " << endl;
+					for(auto it = p_map.begin(); it != p_map.end(); it++)
+					{
+						cout << setprecision(5) << scientific << "P(" << it->first << ") = " << p_map[it->first] << " | " << width(p_map[it->first]) << endl;
+					}
+				}
+				else
+				{
+					cout << "p_temp : " << endl;
+					for(auto it = p_temp.begin(); it != p_temp.end(); it++)
+					{
+						cout << setprecision(5) << scientific << "P(" << it->first << ") = " << p_temp[it->first] << " | " << width(p_temp[it->first]) << endl;
+					}
+					vector<Box> branch_nondet = BoxFactory::branch_box(box_nondet);
+					// sorting the branched boxes
+					sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
+					for (int j = 0; j < branch_nondet.size(); j++)
+					{
+						p_temp[branch_nondet.at(j)] = p_value;
+						// updating the resulting probability map
+						p_res[branch_nondet.at(j)] = p_res[box_nondet];
+						partition_map[branch_nondet.at(j)] = stack_rv_mix;
+					}
+					p_res.erase(box_nondet);
+				}
+				stack_rv_mix.clear();
 			}
-
-			// START BY ADDING BRANCHING!!!
-
-			//partition_map[box_nondet] = stack_rv_mix;
-			//stack_rv_mix.clear();
-		//}
-		for (auto it = p_temp.begin(); it != p_temp.end(); it++)
+			// setting nondeterministic boxes
+			for(auto it = p_temp.begin(); it != p_temp.end(); it++)
+			{
+				stack_nondet.push_back(it->first);
+			}
+		}
+		// updating the resulting probability map and setting nondeterministic boxes
+		cout << "p_map for box_dd = " << box_dd << endl;
+		for (auto it = p_map.begin(); it != p_map.end(); it++)
 		{
 			p_res[it->first] += it->second * box_dd.get_value();
+			// outputting the map for the current dd_box
+			cout << setprecision(5) << scientific << "P(" << it->first << ") = " << p_map[it->first] << " | " << width(p_map[it->first]) << endl;
 			stack_nondet.push_back(it->first);
 		}
 	}
 
-	//p_res = p_temp;
-
 	return p_res;
-
-	/*
-	vector<DInterval> P;
-	DInterval P_final(0.0);
-	vector<Box> dd_cart_prod;
-	vector<Box> rv_cart_prod;
-	// case when DDs are present
-	if(model.dds.size() > 0)
-	{
-
-	}
-	// calculating multiple integral for RVs
-	DInterval init_prob;
-	Box domain;
-
-	if(model.rvs.size() > 0)
-	{
-
-	}
-
-	// case when only RVs are present
-	if(dd_cart_prod.size() == 0)
-	{
-		if(guided)
-		{
-			P.push_back(solution_guided(model, domain, init_prob));
-		}
-		else
-		{
-			// map instead of vector
-			P.push_back(branch_and_evaluate_nondet(model, rv_cart_prod, init_prob));
-		}
-	}
-	// case when DDs are present
-	else
-	{
-		for(int i = 0; i < dd_cart_prod.size(); i++)
-		{
-			// composing a model to evaluate
-			pdrh_model dd_model = model;
-			stringstream s;
-			for (int j = 0; j < dd_cart_prod.at(i).get_dimension_size(); j++)
-			{
-				s << "#define " << dd_cart_prod.at(i).get_var_of(j) << " " << dd_cart_prod.at(i).get_interval_of(j).leftBound();
-				dd_model.defs.push_back(s.str());
-				s.str("");
-			}
-			// case	when both RVs and DDs are present
-			if (rv_cart_prod.size() > 0)
-			{
-				if(guided)
-				{
-					P.at(i) *= solution_guided(dd_model, domain, init_prob);
-				}
-				else
-				{
-					// multiply each element of the map instead of vector
-					P.at(i) *= branch_and_evaluate_nondet(dd_model, rv_cart_prod, init_prob);
-				}
-			}
-				// case when only DDs are present
-			else
-			{
-				DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
-				vector<Box> result = dec_proc.evaluate(dd_model, -1);
-				// outputting solution
-				int res = 0;
-				if(result.at(0).get_dimension_size() == 0)
-				{
-					P.at(i) *= DInterval(0.0);
-				}
-				else
-				{
-					if(result.at(1).get_dimension_size() == 0)
-					{
-						P.at(i) *= DInterval(1.0);
-					}
-					else
-					{
-						cout << "Solution: " << endl;
-						for(int i = 0; i < result.size(); i++)
-						{
-							cout << i << scientific << setprecision(12) << ") " << result.at(i) << endl;
-						}
-						P.at(i) *= DInterval(0.0, 1.0);
-					}
-				}
-			}
-			if(verbose)
-			{
-				cout << scientific << "P(" << dd_cart_prod.at(i) << ") = " << setprecision(16) << P.at(i) << endl;
-			}
-		}
-	}
-
-	// calculating final result
-	for(int i = 0; i < P.size(); i++)
-	{
-		P_final += P.at(i);
-	}
-
-	return P_final;
-	*/
 }
 
 vector<Box> prepartition(vector<Box> boxes, std::map<string, double> precision)

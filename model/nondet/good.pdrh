@@ -1,4 +1,5 @@
 MODEL_TYPE(NPHA)
+DD(0.0:1.0)dummy;
 U(0,1)r;
 [0,1]x;
 [0,1]n;

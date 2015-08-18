@@ -930,7 +930,7 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 	if(model.rvs.empty())
 	{
 		model.rvs.push_back(RV("U", "dummy_rv", "1", DInterval(0, 1)));
-		flag_no_rv = false;
+		flag_rv = false;
 	}
 
 	if(model.dds.empty())
@@ -1095,10 +1095,17 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 								break;
 							case 0:
 								// branching boxes here
-								vector<Box> branch_rv = BoxFactory::branch_box(box_rv);
-								for(int j = 0; j < branch_rv.size(); j++)
+								if(flag_rv)
 								{
-									stack_rv_mix.push_back(branch_rv.at(j));
+									vector <Box> branch_rv = BoxFactory::branch_box(box_rv);
+									for (int j = 0; j < branch_rv.size(); j++)
+									{
+										stack_rv_mix.push_back(branch_rv.at(j));
+									}
+								}
+								else
+								{
+									stack_rv_mix.push_back(box_rv);
 								}
 								break;
 						}
@@ -1121,17 +1128,25 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 					{
 						cout << setprecision(5) << scientific << "P(" << it->first << ") = " << p_temp[it->first] << " | " << width(p_temp[it->first]) << endl;
 					}
-					vector<Box> branch_nondet = BoxFactory::branch_box(box_nondet);
-					// sorting the branched boxes
-					sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
-					for (int j = 0; j < branch_nondet.size(); j++)
+					if(flag_nondet)
 					{
-						p_temp[branch_nondet.at(j)] = p_value;
-						// updating the resulting probability map
-						p_res[branch_nondet.at(j)] = p_res[box_nondet];
-						partition_map[branch_nondet.at(j)] = stack_rv_mix;
+						vector<Box> branch_nondet = BoxFactory::branch_box(box_nondet);
+						// sorting the branched boxes
+						sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
+						for (int j = 0; j < branch_nondet.size(); j++)
+						{
+							p_temp[branch_nondet.at(j)] = p_value;
+							// updating the resulting probability map
+							p_res[branch_nondet.at(j)] = p_res[box_nondet];
+							partition_map[branch_nondet.at(j)] = stack_rv_mix;
+						}
+						p_res.erase(box_nondet);
 					}
-					p_res.erase(box_nondet);
+					else
+					{
+						p_temp[box_nondet] = p_value;
+						partition_map[box_nondet] = stack_rv_mix;
+					}
 				}
 				stack_rv_mix.clear();
 			}

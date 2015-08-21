@@ -96,5 +96,7 @@ class Box
 
 		friend bool operator<(const Box&, const Box&);
 
+		friend bool operator==(const Box&, const Box&);
+
 }; 
 #endif  

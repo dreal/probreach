@@ -159,3 +159,10 @@ bool operator<(const Box& left, const Box& right)
 	return false;
 }
 
+bool operator==(const Box& left, const Box& right)
+{
+	if(left < right) return false;
+	if(right < left) return false;
+	return true;
+}
+

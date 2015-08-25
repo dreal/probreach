@@ -33,6 +33,7 @@ using namespace std;
 
 double epsilon = 1e-03;
 double inf_coeff = 1e-01;
+double max_nondet = 1e-03;
 string filename;
 string dreach_bin = "dReach";
 bool verbose = false;
@@ -53,7 +54,7 @@ int evaluate_ha(pdrh_model model)
 	//cout << "Evaluate HA" << endl;
 	DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
 	//cout << "Before decision procedure" << endl;
-	vector<Box> result = dec_proc.evaluate(model, -1);
+	vector<Box> result = dec_proc.evaluate_guided(model, -1);
 	//cout << "Evaluated HA" << endl;
 	if(result.at(0).get_dimension_size() == 0)
 	{
@@ -167,7 +168,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 					rv_model.vars.push_back(var);
 				}
 				// dReach is called here
-				vector<Box> result = dec_proc.evaluate(rv_model, box.get_min_width() / 1000);
+				vector<Box> result = dec_proc.evaluate_guided(rv_model, box.get_min_width() / 1000);
 				int is_borel = 0;
 				if(result.at(0).get_dimension_size() == 0)
 				{
@@ -440,7 +441,7 @@ std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box
 				}
 
 				// dReach is called here
-				vector <Box> result = dec_proc.evaluate(rv_model, box.get_min_width() / 1000);
+				vector <Box> result = dec_proc.evaluate_guided(rv_model, box.get_min_width() / 1000);
 				int is_borel = 0;
 				if (result.at(0).get_dimension_size() == 0)
 				{
@@ -617,7 +618,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 					rv_model.vars.push_back(var);
 				}
 				// dReach is called here
-				result = dec_proc.evaluate(rv_model, box.get_min_width() / 1000000);
+				result = dec_proc.evaluate_guided(rv_model, box.get_min_width() / 1000000);
 				int is_borel = 0;
 				if(result.at(0).get_dimension_size() == 0)
 				{
@@ -877,7 +878,7 @@ DInterval evaluate_pha(pdrh_model model)
 			else
 			{
 				DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
-				vector<Box> result = dec_proc.evaluate(dd_model, -1);
+				vector<Box> result = dec_proc.evaluate_guided(dd_model, -1);
 				// outputting solution
 				int res = 0;
 				if(result.at(0).get_dimension_size() == 0)
@@ -1058,39 +1059,35 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 					Box box_rv = stack_rv.front();
 					stack_rv.erase(stack_rv.begin());
 					pdrh_model model_rv = model_nondet;
-					stringstream s;
-					for (int j = 0; j < box_rv.get_dimension_size(); j++)
+
+					if(flag_rv)
 					{
-						s << "#define _" << box_rv.get_var_of(j) << "_a " << box_rv.get_interval_of(j).leftBound() << endl;
-						model_rv.defs.push_back(s.str());
-						s.str("");
-						s << "#define _" << box_rv.get_var_of(j) << "_b " << box_rv.get_interval_of(j).rightBound() << endl;
-						model_rv.defs.push_back(s.str());
-						s.str("");
-						var_type var;
-						var.name = model_rv.rvs.at(j).get_var();
-						double radius = 100 * (model_rv.rvs.at(j).get_domain().rightBound() - model_rv.rvs.at(j).get_domain().leftBound());
-						var.range = DInterval(model_rv.rvs.at(j).get_domain().leftBound() - radius, model_rv.rvs.at(j).get_domain().rightBound() + radius);
-						model_rv.vars.push_back(var);
-					}
-					// evaluating the boxes
-					vector <Box> result = dec_proc.evaluate(model_rv, box_rv.get_min_width() / 1000);
-					int is_borel = 0;
-					if (result.at(0).get_dimension_size() == 0)
-					{
-						is_borel = -1;
-					}
-					else
-					{
-						if (result.at(1).get_dimension_size() == 0)
+						stringstream s;
+						for (int j = 0; j < box_rv.get_dimension_size(); j++)
 						{
-							is_borel = 1;
+							s << "#define _" << box_rv.get_var_of(j) << "_a " <<
+							box_rv.get_interval_of(j).leftBound() << endl;
+							model_rv.defs.push_back(s.str());
+							s.str("");
+							s << "#define _" << box_rv.get_var_of(j) << "_b " <<
+							box_rv.get_interval_of(j).rightBound() << endl;
+							model_rv.defs.push_back(s.str());
+							s.str("");
+							var_type var;
+							var.name = model_rv.rvs.at(j).get_var();
+							double radius = 100 * (model_rv.rvs.at(j).get_domain().rightBound() -
+												   model_rv.rvs.at(j).get_domain().leftBound());
+							var.range = DInterval(model_rv.rvs.at(j).get_domain().leftBound() - radius,
+												  model_rv.rvs.at(j).get_domain().rightBound() + radius);
+							model_rv.vars.push_back(var);
 						}
 					}
+					// evaluating the boxes
+					int eval = dec_proc.evaluate(model_rv, box_rv.get_min_width() / 1000);
 					// interpreting the result
 					#pragma omp critical
 					{
-						switch (is_borel)
+						switch (eval)
 						{
 							case -1:
 								p_value = DInterval(p_value.leftBound(), p_value.rightBound() - box_rv.get_value().leftBound());
@@ -1119,7 +1116,6 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 						}
 					}
 				}
-				//cout << "----------" << endl;
 				// checking the width of probability interval
 				if(width(p_value) <= epsilon)
 				{
@@ -1130,22 +1126,27 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 				{
 					if(flag_nondet)
 					{
-						// THIS IS NOT WORKING CORRECTLY
-						vector<Box> branch_nondet = BoxFactory::branch_box(box_nondet);
-						cout << "We branch on " << box_nondet << " and " << p_res[box_nondet] << " substitute it with:" << endl;
-						// sorting the branched boxes
-						sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
-						DInterval p_temp_value = p_res[box_nondet];
-						p_res.erase(box_nondet);
-						for (int j = 0; j < branch_nondet.size(); j++)
+						// checking the maximum dimension of nondeterministic box
+						if(box_nondet.get_max_width() > max_nondet)
 						{
-							p_temp[branch_nondet.at(j)] = p_value;
-							// updating the resulting probability map
-							p_res[branch_nondet.at(j)] = p_temp_value;
-							partition_map[branch_nondet.at(j)] = stack_rv_mix;
-							cout << j << ") " << branch_nondet.at(j) << " with probability " << p_temp_value << endl;
+							// THIS IS NOT WORKING CORRECTLY
+							vector <Box> branch_nondet = BoxFactory::branch_box(box_nondet);
+							cout << "We branch on " << box_nondet << " and " << p_res[box_nondet] <<
+							" substitute it with:" << endl;
+							// sorting the branched boxes
+							sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
+							DInterval p_temp_value = p_res[box_nondet];
+							p_res.erase(box_nondet);
+							for (int j = 0; j < branch_nondet.size(); j++)
+							{
+								p_temp[branch_nondet.at(j)] = p_value;
+								// updating the resulting probability map
+								p_res[branch_nondet.at(j)] = p_temp_value;
+								partition_map[branch_nondet.at(j)] = stack_rv_mix;
+								cout << j << ") " << branch_nondet.at(j) << " with probability " << p_temp_value <<
+								endl;
+							}
 						}
-
 					}
 					else
 					{
@@ -1560,6 +1561,18 @@ void parse_cmd(int argc, char* argv[])
 			istringstream is(argv[i]);
 			is >> epsilon;
 			if(epsilon <= 0)
+			{
+				cerr << "-e should be positive" << endl;
+				exit(EXIT_FAILURE);
+			}
+		}
+		// max_nondet
+		else if(strcmp(argv[i], "--max_nondet") == 0)
+		{
+			i++;
+			istringstream is(argv[i]);
+			is >> max_nondet;
+			if(max_nondet <= 0)
 			{
 				cerr << "-e should be positive" << endl;
 				exit(EXIT_FAILURE);

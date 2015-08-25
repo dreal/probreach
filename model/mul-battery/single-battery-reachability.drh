@@ -1,0 +1,46 @@
+/*
+ * This model describes dynamics for a single battery
+ */
+
+#define kprime1 0.122
+#define c1 0.166
+
+[-100,100] delta1;
+[-100,100] gamma1;
+[-100,100] i;
+[0,1000] t;
+[0,1000] time;
+
+// consume
+{
+mode 1;
+invt:
+(gamma1>(1-c1)*delta1);
+flow:
+d/dt[delta1]=i/c1 - delta1*kprime1;
+d/dt[gamma1]=-i;
+d/dt[i]=0;
+d/dt[t]=1;
+jump:
+(and(t>=1))==>@2(and(t'=t)(i'=i)(delta1'=delta1)(gamma1'=gamma1));
+}
+
+// recover
+{
+mode 2;
+flow:
+d/dt[delta1]= - delta1*kprime1;
+d/dt[gamma1]=0;
+d/dt[i]=0;
+d/dt[t]=1;
+jump:
+(and(delta1 <= 0))==>@1(and(t'=0)(i'=i)(delta1'=delta1)(gamma1'=gamma1));
+}
+
+init:
+@1(and(t=0)(i=0.5)(delta1=0)(gamma1=5.5));
+goal:
+//@1(and(gamma1<=(1-c1)*delta1));
+//@1(and(gamma1 = 0));
+@1(and(t=1));
+//@2(and(delta1=0));

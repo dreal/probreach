@@ -69,7 +69,9 @@ class DecisionProcedure
 		// @param box from the domain of random variables.
 		//int evaluate(pdrh_model, double);
 
-		vector<Box> evaluate(pdrh_model, double);
+		vector<Box> evaluate_guided(pdrh_model, double);
+
+		int evaluate(pdrh_model, double);
 
 		// The method gets a full path to the DRH model and a precision
 		// which are then used to call dReach. The method returns true

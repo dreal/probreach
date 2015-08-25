@@ -172,8 +172,7 @@ int DecisionProcedure::evaluate(pdrh_model model, double precision)
 }
 */
 
-
-vector<Box> DecisionProcedure::evaluate(pdrh_model model, double precision)
+vector<Box> DecisionProcedure::evaluate_guided(pdrh_model model, double precision)
 {
 	string phi;
 	string phi_c;
@@ -208,7 +207,32 @@ vector<Box> DecisionProcedure::evaluate(pdrh_model model, double precision)
 	return result;
 }
 
+int DecisionProcedure::evaluate(pdrh_model model, double precision)
+{
+    string phi;
+    string phi_c;
 
+    #pragma omp critical
+    {
+        phi = generate_drh(model, true);
+    }
+    if(call_dreach(phi, precision))
+    {
+        #pragma omp critical
+        {
+            phi_c = generate_drh(model, false);
+        }
+        if (call_dreach(phi_c, precision))
+        {
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+    return -1;
+}
 
 
 // The method gets a full path to the DRH model and a precision
@@ -315,7 +339,7 @@ void DecisionProcedure::remove_aux_file(string filename_base)
 	//s << filename_base << "_" << opt.k << "_0";
 	//string smt2 = s.str() + ".smt2";
 	//string output = s.str() + ".output";
-	
+
 	if(file_exists(drh.c_str())) remove(drh.c_str());
 	//if(file_exists(preprocessed.c_str())) remove(preprocessed.c_str());
 	//if(file_exists(smt2.c_str())) remove(smt2.c_str());

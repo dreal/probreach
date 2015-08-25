@@ -1,0 +1,23 @@
+MODEL_TYPE(NPHA)
+#define kprime1 0.122
+
+// Initially battery 1 is used and battery 2 is full
+{
+mode1;
+flow:
+d/dt[delta1]=i/c1 - delta1*kprime1;
+d/dt[gamma1]=-i;
+d/dt[delta2]=0;
+d/dt[gamma2]=0;
+d/dt[i]=0;
+d/dt[t]=1;
+jump:	
+}
+
+init:
+@1(and(Sx=0)(Sy=0)(t=0));
+goal:
+@1(and(Sx>=100.0)(Sy>=0));
+goal_c:
+@1(and(Sy<=0.0)(t>0.000001));
+

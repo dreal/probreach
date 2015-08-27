@@ -1,23 +1,94 @@
-MODEL_TYPE(NPHA)
-#define kprime1 0.122
+/*
+ * This model describes dynamics for a single battery.
+ *
+ * Condition for the battery to be dead is gamma1<=(1-c1)*delta1
+ *
+ *
+ */
 
-// Initially battery 1 is used and battery 2 is full
+//#define kprime 0.122
+// initial charge of the battery can be randomized ([5.0,6.0] works)
+#define gamma_l 5.0
+#define gamma_u 6.0
+#define c 0.166
+
+[-100,100] delta1;
+[-100,100] gamma1;
+[-100,100] delta2;
+[-100,100] gamma2;
+[0,10] i;
+[0,1000] t;
+[0,1000] time;
+// nondet parameter ([0.5,1.5] works)
+[1.0,1.5] t_jump1;
+[1.0,1.5] t_jump2;
+// kprime ([0.3,0.4] works)
+[0.3, 0.4] kprime;
+
+// battery 1 used
+// battery 2 full
 {
-mode1;
+mode 1;
+invt:
+(t<=t_jump1);
 flow:
-d/dt[delta1]=i/c1 - delta1*kprime1;
+d/dt[delta1]=i/c;
 d/dt[gamma1]=-i;
 d/dt[delta2]=0;
 d/dt[gamma2]=0;
 d/dt[i]=0;
 d/dt[t]=1;
-jump:	
+d/dt[t_jump1]=0;
+d/dt[t_jump2]=0;
+d/dt[kprime]=0;
+jump:
+(and(t=t_jump1))==>@2(and(t'=0)(i'=i)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(kprime'=kprime));
+}
+
+// battery 1 recovering
+// battery 2 used
+{
+mode 2;
+invt:
+(t<=t_jump2);
+flow:
+d/dt[delta1]= - delta1 * kprime;
+d/dt[gamma1]=0;
+d/dt[delta2]=i/c;
+d/dt[gamma2]=-i;
+d/dt[i]=0;
+d/dt[t]=1;
+d/dt[t_jump1]=0;
+d/dt[t_jump2]=0;
+d/dt[kprime]=0;
+jump:
+(and(t=t_jump2))==>@3(and(t'=0)(i'=i)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(kprime'=kprime));
+}
+
+// battery 1 used
+// battery 2 recovering
+{
+mode 3;
+invt:
+(t<=t_jump1);
+flow:
+d/dt[delta1]=i/c;
+d/dt[gamma1]=-i;
+d/dt[delta2]= - delta2 * kprime;
+d/dt[gamma2]=0;
+d/dt[i]=0;
+d/dt[t]=1;
+d/dt[t_jump1]=0;
+d/dt[t_jump2]=0;
+d/dt[kprime]=0;
+jump:
+(and(t=t_jump1))==>@2(and(t'=0)(i'=i)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(kprime'=kprime));
 }
 
 init:
-@1(and(Sx=0)(Sy=0)(t=0));
+@1(and(t=0)(i=0.25)(delta1=0)(gamma1>=gamma_l)(gamma1<=gamma_u)(delta2=0)(gamma2>=gamma_l)(gamma2<=gamma_u));
 goal:
-@1(and(Sx>=100.0)(Sy>=0));
-goal_c:
-@1(and(Sy<=0.0)(t>0.000001));
-
+// battery 2 is empty
+//@2(or(gamma1<=(1-c)*delta1)(gamma2<=(1-c)*delta2));
+// battery 1 is empty
+@3(or(gamma1<=(1-c)*delta1)(gamma2<=(1-c)*delta2));

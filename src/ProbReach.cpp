@@ -1116,8 +1116,8 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 						}
 					}
 				}
-				// checking the width of probability interval
-				if(width(p_value) <= epsilon)
+				// checking the width of probability interval and the maximum dimension of nondeterministic box
+				if((width(p_value) <= epsilon) || (box_nondet.get_max_width() <= max_nondet))
 				{
 					p_res[box_nondet] += p_value * box_dd.get_value();
 					p_map[box_nondet] = p_value;
@@ -1126,26 +1126,21 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 				{
 					if(flag_nondet)
 					{
-						// checking the maximum dimension of nondeterministic box
-						if(box_nondet.get_max_width() > max_nondet)
+						vector <Box> branch_nondet = BoxFactory::branch_box(box_nondet);
+						cout << "We branch on " << box_nondet << " and " << p_res[box_nondet] <<
+						" substitute it with:" << endl;
+						// sorting the branched boxes
+						sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
+						DInterval p_temp_value = p_res[box_nondet];
+						p_res.erase(box_nondet);
+						for (int j = 0; j < branch_nondet.size(); j++)
 						{
-							// THIS IS NOT WORKING CORRECTLY
-							vector <Box> branch_nondet = BoxFactory::branch_box(box_nondet);
-							cout << "We branch on " << box_nondet << " and " << p_res[box_nondet] <<
-							" substitute it with:" << endl;
-							// sorting the branched boxes
-							sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
-							DInterval p_temp_value = p_res[box_nondet];
-							p_res.erase(box_nondet);
-							for (int j = 0; j < branch_nondet.size(); j++)
-							{
-								p_temp[branch_nondet.at(j)] = p_value;
-								// updating the resulting probability map
-								p_res[branch_nondet.at(j)] = p_temp_value;
-								partition_map[branch_nondet.at(j)] = stack_rv_mix;
-								cout << j << ") " << branch_nondet.at(j) << " with probability " << p_temp_value <<
-								endl;
-							}
+							p_temp[branch_nondet.at(j)] = p_value;
+							// updating the resulting probability map
+							p_res[branch_nondet.at(j)] = p_temp_value;
+							partition_map[branch_nondet.at(j)] = stack_rv_mix;
+							cout << j << ") " << branch_nondet.at(j) << " with probability " << p_temp_value <<
+							endl;
 						}
 					}
 					else

@@ -1,8 +1,11 @@
-#define v_max 16.67
-#define a_max 2.52 // [0-100km/h] for Ford Focus 3 1.6L is about 11 sec (m/s^2)
+#define v_max 55.56 // [200 km/h] maximum speed of a car (m/s)
+//#define a_max 2.315 // [0-100km/h] in 12 sec some average value (m/s^2)
 #define v_100 27.78 // m/s
-//#define a 5 // acceleration (m/s^2)
-#define drag 0.25 // typically [0.15,0.5]
+#define drag 3.028e-4 // some average value (1/m)
+/* make acceleration nonlinear
+ * v(t) = 55.56 - exp(-0.05776*t+4.01746)
+ * d/dt[v] = 0.05776*exp(-0.05776*t+4.01746)
+ */ 
 
 [0,5000] s; // distance m
 [0,50] v; // velocity m/s (16.67 m/s = 60 km/h)
@@ -17,7 +20,7 @@ mode 1;
 flow:
 d/dt[s]= a * t;
 d/dt[a]= 0;
-d/dt[v]= a;
+d/dt[v]= a - drag * v^2;
 d/dt[t]= 1.0;
 jump:
 //(and (v = v_max))==>@2(and (s' = s) (v' = v) (t' = 0));
@@ -27,6 +30,5 @@ init:
 @1(and (s = 0) (v = 0) (a = a_max) (t = 0));
 
 goal:
-//@1(and(v = v_100));
-//@1(and(t = 20));
-@1(and(t=10));
+@1(and(v = v_100));
+//@1(and(t=20));

@@ -1003,6 +1003,7 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 	}
 
 	DecisionProcedure dec_proc = DecisionProcedure(dreach_bin, dreach_options, dreal_options);
+	#pragma omp for schedule(dynamic)
 	for(int i = 0; i < stack_dd.size(); i++)
 	{
 		Box box_dd = stack_dd.at(i);
@@ -1116,6 +1117,8 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 						}
 					}
 				}
+
+
 				// checking the width of probability interval and the maximum dimension of nondeterministic box
 				if((width(p_value) <= epsilon) || (box_nondet.get_max_width() <= max_nondet))
 				{

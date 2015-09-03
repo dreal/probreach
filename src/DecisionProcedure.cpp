@@ -397,7 +397,7 @@ Box DecisionProcedure::parse_solution(pdrh_model model, string filename)
 			cout << intervals.at(i).get_interval() << endl;
 		}
 		*/
-		remove_aux_file(filename);
+		//remove_aux_file(filename);
 		//cout << "Parsed the model file" << endl;
 		Box result = Box(intervals);
 		//cout << "The resulting box is created" << endl;

@@ -613,7 +613,19 @@ void FileParser::modify_flows()
 				{
 					model.modes.at(i).flow.vars.push_back(model.vars.at(j).name);
 					model.modes.at(i).flow.odes.push_back(string("d/dt[" + model.vars.at(j).name + "]=0.0;"));
-					model.params.push_back(model.vars.at(j));
+					// checking whether the parameter is not added
+					bool flag_add = true;
+					for(auto &par : model.params)
+					{
+						if(strcmp(model.vars.at(j).name.c_str(), par.name.c_str()) == 0)
+						{
+							flag_add = false;
+						}
+					}
+					if(flag_add)
+					{
+						model.params.push_back(model.vars.at(j));
+					}
 				}
 			}
 		}

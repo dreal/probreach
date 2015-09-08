@@ -1040,7 +1040,6 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 			p_temp[stack_nondet.at(j)] = init_prob;
 			partition_map[stack_nondet.at(j)] = partition_rv;
 		}
-
 		while(!p_temp.empty())
 		{
 			vector<Box> stack_nondet_mix;
@@ -1063,11 +1062,14 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 					}
 					// initializing the probability value and removing the value from the probability map
 					DInterval p_value = p_temp[box_nondet];
-					p_temp.erase(box_nondet);
-					// initializing rv stack and removing the value from the partition map
-					stack_rv = partition_map[box_nondet];
-					partition_map.erase(box_nondet);
-					// mixed rv stack
+					#pragma omp critical
+					{
+						p_temp.erase(box_nondet);
+						// initializing rv stack and removing the value from the partition map
+						stack_rv = partition_map[box_nondet];
+						partition_map.erase(box_nondet);
+						// mixed rv stack
+					}
 					vector<Box> stack_rv_mix;
 					//#pragma omp parallel for schedule(dynamic,1)
 					for(int k = 0; k < stack_rv.size(); k++)
@@ -1097,6 +1099,7 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 								model_rv.vars.push_back(var);
 							}
 						}
+						//cout << "Thread num = " << omp_get_thread_num()	<< endl;
 						// evaluating the boxes
 						int eval = dec_proc.evaluate(model_rv, box_rv.get_min_width() / 1000);
 						// interpreting the result
@@ -1132,34 +1135,37 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 						}
 					}
 					// checking the width of probability interval and the maximum dimension of nondeterministic box
-					if((width(p_value) <= epsilon) || (box_nondet.get_max_width() <= max_nondet))
+					#pragma omp critical
 					{
-						p_res[box_nondet] += p_value * box_dd.get_value();
-					}
-					else
-					{
-						if(flag_nondet)
+						if((width(p_value) <= epsilon) || (box_nondet.get_max_width() <= max_nondet))
 						{
-							vector <Box> branch_nondet = BoxFactory::branch_box(box_nondet);
-							// sorting the branched boxes
-							sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
-							DInterval p_temp_value = p_res[box_nondet];
-							p_res.erase(box_nondet);
-							for (int j = 0; j < branch_nondet.size(); j++)
-							{
-								p_temp[branch_nondet.at(j)] = p_value;
-								// updating the resulting probability map
-								p_res[branch_nondet.at(j)] = p_temp_value;
-								partition_map[branch_nondet.at(j)] = stack_rv_mix;
-							}
+							p_res[box_nondet] += p_value * box_dd.get_value();
 						}
 						else
 						{
-							p_temp[box_nondet] = p_value;
-							partition_map[box_nondet] = stack_rv_mix;
+							if(flag_nondet)
+							{
+								vector <Box> branch_nondet = BoxFactory::branch_box(box_nondet);
+								// sorting the branched boxes
+								sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
+								DInterval p_temp_value = p_res[box_nondet];
+								p_res.erase(box_nondet);
+								for (int j = 0; j < branch_nondet.size(); j++)
+								{
+									p_temp[branch_nondet.at(j)] = p_value;
+									// updating the resulting probability map
+									p_res[branch_nondet.at(j)] = p_temp_value;
+									partition_map[branch_nondet.at(j)] = stack_rv_mix;
+								}
+							}
+							else
+							{
+								p_temp[box_nondet] = p_value;
+								partition_map[box_nondet] = stack_rv_mix;
+							}
 						}
+						stack_rv_mix.clear();
 					}
-					stack_rv_mix.clear();
 				}
 			}
 			cout << "intermediate p_res " << box_dd << endl;

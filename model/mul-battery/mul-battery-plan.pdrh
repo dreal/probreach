@@ -48,7 +48,7 @@ d/dt[i]=i;
 d/dt[t]=1;
 d/dt[kprime]=0;
 jump:
-(and(t=t_jump1))==>@2(and(t'=0)(i'=0.1)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
+(and(t=t_jump1))==>@2(and(t'=0)(i'=0.15)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
 }
 
 // battery 1 recovering
@@ -71,7 +71,7 @@ d/dt[i]=i;
 d/dt[t]=1;
 d/dt[kprime]=0;
 jump:
-(and(t=t_jump2))==>@3(and(t'=0)(i'=0.1)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
+(and(t=t_jump2))==>@3(and(t'=0)(i'=0.15)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
 }
 
 // battery 1 used
@@ -94,7 +94,7 @@ d/dt[i]=i;
 d/dt[t]=1;
 d/dt[kprime]=0;
 jump:
-(and(t=t_jump3))==>@4(and(t'=0)(i'=0.1)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
+(and(t=t_jump3))==>@4(and(t'=0)(i'=0.15)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
 }
 
 // battery 1 recovering
@@ -117,7 +117,7 @@ d/dt[i]=i;
 d/dt[t]=1;
 d/dt[kprime]=0;
 jump:
-(and(t=t_jump4))==>@5(and(t'=0)(i'=0.1)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
+(and(t=t_jump4))==>@5(and(t'=0)(i'=0.15)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
 }
 
 // battery 1 used
@@ -141,7 +141,7 @@ jump:
 }
 
 init:
-@1(and(t=0)(i=0.1)(delta1=0)(gamma1>=gamma_l)(gamma1<=gamma_u)(delta2=0)(gamma2>=gamma_l)(gamma2<=gamma_u));
+@1(and(t=0)(i=0.15)(delta1=0)(gamma1>=gamma_l)(gamma1<=gamma_u)(delta2=0)(gamma2>=gamma_l)(gamma2<=gamma_u));
 goal:
 @5(and(t_jump1+t_jump2+t_jump3+t_jump4+t>=5));
 goal_c:

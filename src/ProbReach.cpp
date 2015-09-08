@@ -1026,57 +1026,56 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 	{
 		Box box_dd = stack_dd.at(i);
 		pdrh_model model_dd = model;
-		#pragma omp critical
+
+		stringstream s;
+		for (int j = 0; j < box_dd.get_dimension_size(); j++)
 		{
-			stringstream s;
-			for (int j = 0; j < box_dd.get_dimension_size(); j++)
-			{
-				s << "#define " << box_dd.get_var_of(j) << " " << box_dd.get_interval_of(j).leftBound();
-				model_dd.defs.push_back(s.str());
-				s.str("");
-			}
-			// initializing partition map
-			for (int j = 0; j < stack_nondet.size(); j++)
-			{
-				p_temp[stack_nondet.at(j)] = init_prob;
-				partition_map[stack_nondet.at(j)] = partition_rv;
-			}
+			s << "#define " << box_dd.get_var_of(j) << " " << box_dd.get_interval_of(j).leftBound();
+			model_dd.defs.push_back(s.str());
+			s.str("");
 		}
+		// initializing partition map
+		for (int j = 0; j < stack_nondet.size(); j++)
+		{
+			p_temp[stack_nondet.at(j)] = init_prob;
+			partition_map[stack_nondet.at(j)] = partition_rv;
+		}
+
 		while(!p_temp.empty())
 		{
 			vector<Box> stack_nondet_mix;
-			#pragma omp parallel for schedule(dynamic,1)
-			for(int kk = 0; kk < stack_nondet.size(); kk++)
+			#pragma omp parallel
 			{
-				Box box_nondet = stack_nondet.at(kk);
-				pdrh_model model_nondet = model_dd;
-				stringstream s;
-				for (int j = 0; j < box_nondet.get_dimension_size(); j++)
+				#pragma omp for schedule(dynamic,1)
+				for(int kk = 0; kk < stack_nondet.size(); kk++)
 				{
-					s << "#define _" << box_nondet.get_var_of(j) << "_a " << box_nondet.get_interval_of(j).leftBound() << endl;
-					model_nondet.defs.push_back(s.str());
-					s.str("");
-					s << "#define _" << box_nondet.get_var_of(j) << "_b " << box_nondet.get_interval_of(j).rightBound() << endl;
-					model_nondet.defs.push_back(s.str());
-					s.str("");
-				}
-				// initializing the probability value and removing the value from the probability map
-				DInterval p_value = p_temp[box_nondet];
-				p_temp.erase(box_nondet);
-				// initializing rv stack and removing the value from the partition map
-				stack_rv = partition_map[box_nondet];
-				partition_map.erase(box_nondet);
-				// mixed rv stack
-				vector<Box> stack_rv_mix;
-				//#pragma omp parallel for schedule(dynamic,1)
-				for(int k = 0; k < stack_rv.size(); k++)
-				{
-					Box box_rv = stack_rv.at(k);
-					pdrh_model model_rv = model_nondet;
-
-					if(flag_rv)
+					Box box_nondet = stack_nondet.at(kk);
+					pdrh_model model_nondet = model_dd;
+					stringstream s;
+					for (int j = 0; j < box_nondet.get_dimension_size(); j++)
 					{
-						#pragma omp critical
+						s << "#define _" << box_nondet.get_var_of(j) << "_a " << box_nondet.get_interval_of(j).leftBound() << endl;
+						model_nondet.defs.push_back(s.str());
+						s.str("");
+						s << "#define _" << box_nondet.get_var_of(j) << "_b " << box_nondet.get_interval_of(j).rightBound() << endl;
+						model_nondet.defs.push_back(s.str());
+						s.str("");
+					}
+					// initializing the probability value and removing the value from the probability map
+					DInterval p_value = p_temp[box_nondet];
+					p_temp.erase(box_nondet);
+					// initializing rv stack and removing the value from the partition map
+					stack_rv = partition_map[box_nondet];
+					partition_map.erase(box_nondet);
+					// mixed rv stack
+					vector<Box> stack_rv_mix;
+					//#pragma omp parallel for schedule(dynamic,1)
+					for(int k = 0; k < stack_rv.size(); k++)
+					{
+						Box box_rv = stack_rv.at(k);
+						pdrh_model model_rv = model_nondet;
+
+						if(flag_rv)
 						{
 							stringstream s;
 							for (int j = 0; j < box_rv.get_dimension_size(); j++)
@@ -1098,75 +1097,75 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 								model_rv.vars.push_back(var);
 							}
 						}
-					}
-					// evaluating the boxes
-					int eval = dec_proc.evaluate(model_rv, box_rv.get_min_width() / 1000);
-					// interpreting the result
-					#pragma omp critical
-					{
-						switch (eval)
+						// evaluating the boxes
+						int eval = dec_proc.evaluate(model_rv, box_rv.get_min_width() / 1000);
+						// interpreting the result
+						#pragma omp critical
 						{
-							case -1:
-								p_value = DInterval(p_value.leftBound(), p_value.rightBound() - box_rv.get_value().leftBound());
-								//cout << setprecision(8) << scientific << p_value << " | " << width(p_value) << endl;
-								break;
-							case 1:
-								p_value = DInterval(p_value.leftBound() + box_rv.get_value().leftBound(), p_value.rightBound());
-								//cout << setprecision(8) << scientific << p_value << " | " << width(p_value) << endl;
-								break;
-							case 0:
-								//cout << "For RV box " << box_rv << " is undecidable" << endl;
-								// branching boxes here
-								if(flag_rv)
-								{
-									vector <Box> branch_rv = BoxFactory::branch_box(box_rv);
-									for (int j = 0; j < branch_rv.size(); j++)
+							switch (eval)
+							{
+								case -1:
+									p_value = DInterval(p_value.leftBound(), p_value.rightBound() - box_rv.get_value().leftBound());
+									//cout << setprecision(8) << scientific << p_value << " | " << width(p_value) << endl;
+									break;
+								case 1:
+									p_value = DInterval(p_value.leftBound() + box_rv.get_value().leftBound(), p_value.rightBound());
+									//cout << setprecision(8) << scientific << p_value << " | " << width(p_value) << endl;
+									break;
+								case 0:
+									//cout << "For RV box " << box_rv << " is undecidable" << endl;
+									// branching boxes here
+									if(flag_rv)
 									{
-										stack_rv_mix.push_back(branch_rv.at(j));
+										vector <Box> branch_rv = BoxFactory::branch_box(box_rv);
+										for (int j = 0; j < branch_rv.size(); j++)
+										{
+											stack_rv_mix.push_back(branch_rv.at(j));
+										}
 									}
-								}
-								else
-								{
-									stack_rv_mix.push_back(box_rv);
-								}
-								break;
+									else
+									{
+										stack_rv_mix.push_back(box_rv);
+									}
+									break;
+							}
 						}
 					}
-				}
-				// checking the width of probability interval and the maximum dimension of nondeterministic box
-				if((width(p_value) <= epsilon) || (box_nondet.get_max_width() <= max_nondet))
-				{
-					p_res[box_nondet] += p_value * box_dd.get_value();
-				}
-				else
-				{
-					if(flag_nondet)
+					// checking the width of probability interval and the maximum dimension of nondeterministic box
+					if((width(p_value) <= epsilon) || (box_nondet.get_max_width() <= max_nondet))
 					{
-						vector <Box> branch_nondet = BoxFactory::branch_box(box_nondet);
-						// sorting the branched boxes
-						sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
-						DInterval p_temp_value = p_res[box_nondet];
-						p_res.erase(box_nondet);
-						for (int j = 0; j < branch_nondet.size(); j++)
-						{
-							p_temp[branch_nondet.at(j)] = p_value;
-							// updating the resulting probability map
-							p_res[branch_nondet.at(j)] = p_temp_value;
-							partition_map[branch_nondet.at(j)] = stack_rv_mix;
-						}
+						p_res[box_nondet] += p_value * box_dd.get_value();
 					}
 					else
 					{
-						p_temp[box_nondet] = p_value;
-						partition_map[box_nondet] = stack_rv_mix;
+						if(flag_nondet)
+						{
+							vector <Box> branch_nondet = BoxFactory::branch_box(box_nondet);
+							// sorting the branched boxes
+							sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
+							DInterval p_temp_value = p_res[box_nondet];
+							p_res.erase(box_nondet);
+							for (int j = 0; j < branch_nondet.size(); j++)
+							{
+								p_temp[branch_nondet.at(j)] = p_value;
+								// updating the resulting probability map
+								p_res[branch_nondet.at(j)] = p_temp_value;
+								partition_map[branch_nondet.at(j)] = stack_rv_mix;
+							}
+						}
+						else
+						{
+							p_temp[box_nondet] = p_value;
+							partition_map[box_nondet] = stack_rv_mix;
+						}
 					}
+					stack_rv_mix.clear();
 				}
-				stack_rv_mix.clear();
-				cout << "intermediate p_res " << box_dd << endl;
-				for(auto it = p_res.begin(); it != p_res.end(); it++)
-				{
-					cout << setprecision(5) << scientific << "P(" << it->first << ") = " << p_res[it->first] << " | " << width(p_res[it->first]) << endl;
-				}
+			}
+			cout << "intermediate p_res " << box_dd << endl;
+			for(auto it = p_res.begin(); it != p_res.end(); it++)
+			{
+				cout << setprecision(5) << scientific << "P(" << it->first << ") = " << p_res[it->first] << " | " << width(p_res[it->first]) << endl;
 			}
 			stack_nondet.clear();
 			// setting nondeterministic boxes
@@ -1926,6 +1925,7 @@ int main(int argc, char* argv[])
 			break;
 		case 3:
 			p_map = evaluate_npha(model);
+			cout << "==============================" << endl;
 			cout << "Probability map:" << endl;
 			for (auto it = p_map.begin(); it != p_map.end(); it++)
 			{

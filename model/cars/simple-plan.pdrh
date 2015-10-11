@@ -6,23 +6,27 @@ MODEL_TYPE(NPHA)
 #define v_100 27.78 // m/s
 #define drag 3.028e-4 // some average value (1/m)
 #define a_dec 5.25
-#define tau 0.8
+//#define tau 0.8
+#define mu 1
+#define alpha 0.05776 
+//#define beta 4.01746
 
 [0,1000] s; // distance m
 [0,60] v; // velocity m/s (16.67 m/s = 60 km/h)
-[0,120] t; // time in seconds
-[0,120] time;
-//[0.8,1.5] tau; // reaction time (s) (nondet)
+[0,40] t; // time in seconds
+[0,40] time;
+[0.8,1.5] tau; // reaction time (s) (nondet)
 //[0.5,1.5] mu; // decceleration multiplier modelling road conditions (random)
-//U(0.5,1.5)mu;
-N(1.0,0.1)mu;
+//N(1.0,0.1)mu;
+//N(0.05,0.01)alpha;
+N(4,0.1)beta;
 
 // accelerating
 {
 mode 1;
 flow:
 d/dt[s]= v;
-d/dt[v]= 0.05776*exp(-0.05776*t+4.01746) - drag * v*v;
+d/dt[v]= alpha*exp(-alpha*t+beta) - drag*v*v;
 d/dt[t]= 1.0;
 jump:
 (and (v = v_100))==>@2(and (s' = s) (v' = v) (t' = 0));
@@ -33,7 +37,7 @@ jump:
 mode 2;
 flow:
 d/dt[s]= v;
-d/dt[v]= - drag * v*v;
+d/dt[v]= - drag*v*v;
 d/dt[t]= 1.0;
 jump:
 (and (t = tau))==>@3(and (s' = s) (v' = v) (t' = 0));
@@ -44,7 +48,7 @@ jump:
 mode 3;
 flow:
 d/dt[s]= v;
-d/dt[v]= - a_dec * mu - drag*v;
+d/dt[v]= - a_dec * mu - drag*v*v;
 d/dt[t]= 1.0;
 jump:
 
@@ -55,6 +59,8 @@ init:
 
 goal:
 @3(and(s>=300)(s<=310)(v=0));
+//@3(and(s<=300)(v=0));
 
 goal_c:
 @3(and(v=0)(or(s<300)(s>310)));
+//@3(and(s>300)(v=0));

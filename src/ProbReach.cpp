@@ -54,8 +54,9 @@ int evaluate_ha(pdrh_model model)
 	//cout << "Evaluate HA" << endl;
 	DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
 	//cout << "Before decision procedure" << endl;
-	vector<Box> result = dec_proc.evaluate_guided(model, -1);
+	//vector<Box> result = dec_proc.evaluate_guided(model, -1);
 	//cout << "Evaluated HA" << endl;
+	/*
 	if(result.at(0).get_dimension_size() == 0)
 	{
 		return -1;
@@ -71,6 +72,8 @@ int evaluate_ha(pdrh_model model)
 			return 0;
 		}
 	}
+	 */
+	return dec_proc.evaluate(model, -1);
 }
 
 DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
@@ -1043,9 +1046,9 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 		while(!p_temp.empty())
 		{
 			vector<Box> stack_nondet_mix;
-			#pragma omp parallel
-			{
-				#pragma omp for schedule(dynamic,1)
+			//#pragma omp parallel
+			//{
+				//#pragma omp for schedule(dynamic,1)
 				for(int kk = 0; kk < stack_nondet.size(); kk++)
 				{
 					Box box_nondet = stack_nondet.at(kk);
@@ -1062,16 +1065,16 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 					}
 					// initializing the probability value and removing the value from the probability map
 					DInterval p_value = p_temp[box_nondet];
-					#pragma omp critical
-					{
+					//#pragma omp critical
+					//{
 						p_temp.erase(box_nondet);
 						// initializing rv stack and removing the value from the partition map
 						stack_rv = partition_map[box_nondet];
 						partition_map.erase(box_nondet);
 						// mixed rv stack
-					}
+					//}
 					vector<Box> stack_rv_mix;
-					//#pragma omp parallel for schedule(dynamic,1)
+					#pragma omp parallel for schedule(dynamic,1)
 					for(int k = 0; k < stack_rv.size(); k++)
 					{
 						Box box_rv = stack_rv.at(k);
@@ -1132,9 +1135,11 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 									}
 									break;
 							}
+							cout << setprecision(8) << scientific << p_value << " | " << width(p_value) << endl;
 						}
 					}
 					// checking the width of probability interval and the maximum dimension of nondeterministic box
+					//cout << setprecision(8) << scientific << p_value << " | " << width(p_value) << endl;
 					#pragma omp critical
 					{
 						if((width(p_value) <= epsilon) || (box_nondet.get_max_width() <= max_nondet))
@@ -1167,7 +1172,7 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 						stack_rv_mix.clear();
 					}
 				}
-			}
+			//}
 			cout << "intermediate p_res " << box_dd << endl;
 			for(auto it = p_res.begin(); it != p_res.end(); it++)
 			{
@@ -1277,13 +1282,35 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 
 	vector<Box> sat_boxes, unsat_boxes, undec_boxes;
 
-	double mode_disp, step_disp, time_disp;
+	int mode_disp, step_disp, time_disp;
+
+	int prev_mode = model.init.mode;
 
 	for(int i = 0; i < series_size; i++)
 	{
-		mode_disp = csv["Mode"].at(i).leftBound();
-		step_disp = csv["Step"].at(i).leftBound();
-		time_disp = csv["Time"].at(i).leftBound();
+		mode_disp = (int) csv["Mode"].at(i).leftBound();
+		step_disp = (int) csv["Step"].at(i).leftBound();
+		time_disp = (int) csv["Time"].at(i).leftBound();
+
+		if(mode_disp != prev_mode)
+		{
+			for(int j = 0; j < model.modes.size(); j++)
+			{
+				if(model.modes.at(j).id == prev_mode)
+				{
+					for(int k = 0; k < model.modes.at(j).jumps.size(); k++)
+					{
+						stringstream tmp_stream;
+						tmp_stream << "(and " << model.modes.at(j).jumps.at(k).guard << "(tau>=" << csv["Time"].at(i-1).leftBound() << ")(tau<=" << csv["Time"].at(i).leftBound() <<"))";
+						model.modes.at(j).jumps.at(k).guard = tmp_stream.str();
+						cout << "Changing mode from " << prev_mode << " to " << mode_disp << " with guard " << model.modes.at(j).jumps.at(k).guard << endl;
+					}
+				}
+			}
+			prev_mode = mode_disp;
+		}
+
+		model.modes[csv["Mode"].at(i).leftBound()];
 
 		model.goal.mode = csv["Mode"].at(i).leftBound();
 		model.goal_c.mode = csv["Mode"].at(i).leftBound();
@@ -1295,8 +1322,16 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 					(strcmp(it->first.c_str(), "Mode") == 0) ||
 					(strcmp(it->first.c_str(), "Step") == 0)))
 			{
-				s << "(" << it->first << " >= " << it->second.at(i).leftBound() << ")";
-				s << "(" << it->first << " <= " << it->second.at(i).rightBound() << ")";
+				double left_bound = it->second.at(i).leftBound();
+				if(!std::isnan(left_bound))
+				{
+					s << "(" << it->first << " >= " << it->second.at(i).leftBound() << ")";
+					s << "(" << it->first << " <= " << it->second.at(i).rightBound() << ")";
+				}
+				//else
+				//{
+				//	cout << it->second.at(i).leftBound() << endl;
+				//}
 			}
 		}
 		s << ")";
@@ -1310,85 +1345,88 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		tmp << "-l " << csv["Step"].at(i).leftBound() << " -k " << csv["Step"].at(i).leftBound() << " -z";
 		dreach_options = tmp.str();
 
-		//cout << "Before the loop" << endl;
-
 		while(true)
 		{
-			//cout << "Main loop" << endl;
-
-			pdrh_model tmp_model = model;
-			Box box = boxes.front();
-			boxes.erase(boxes.begin());
-
-			for(int k = 0; k < box.get_dimension_size(); k++)
+			vector<Box> branched_boxes;
+			#pragma omp parallel for
+			for(int j = 0; j < boxes.size(); j++)
 			{
-				for(int l = 0; l < tmp_model.vars.size(); l++)
+				pdrh_model tmp_model = model;
+				Box box = boxes.at(j);
+
+				for(int k = 0; k < box.get_dimension_size(); k++)
 				{
-					stringstream s;
-					if(strcmp(box.get_var_of(k).c_str(), tmp_model.vars.at(l).name.c_str()) == 0)
+					for(int l = 0; l < tmp_model.vars.size(); l++)
 					{
-						s << "#define _" << box.get_var_of(k) << "_a " << box.get_interval_of(k).leftBound();
-						tmp_model.defs.push_back(s.str());
-						s.str("");
-						s << "#define _" << box.get_var_of(k) << "_b " << box.get_interval_of(k).rightBound();
-						tmp_model.defs.push_back(s.str());
-						s.str("");
+						stringstream s;
+						if(strcmp(box.get_var_of(k).c_str(), tmp_model.vars.at(l).name.c_str()) == 0)
+						{
+							s << "#define _" << box.get_var_of(k) << "_a " << box.get_interval_of(k).leftBound();
+							tmp_model.defs.push_back(s.str());
+							s.str("");
+							s << "#define _" << box.get_var_of(k) << "_b " << box.get_interval_of(k).rightBound();
+							tmp_model.defs.push_back(s.str());
+							s.str("");
+						}
+						if(strcmp(domain.get_var_of(k).c_str(), tmp_model.vars.at(l).name.c_str()) == 0)
+						{
+							double radius = 10 * width(domain.get_interval_of(k));
+							tmp_model.vars.at(l).range = DInterval(tmp_model.vars.at(l).range.leftBound() - radius, model.vars.at(l).range.rightBound() + radius);
+						}
 					}
-					if(strcmp(domain.get_var_of(k).c_str(), tmp_model.vars.at(l).name.c_str()) == 0)
+				}
+
+				int eval_res = evaluate_ha(tmp_model);
+
+				#pragma omp critical
+				{
+					switch (eval_res)
 					{
-						double radius = 10 * width(domain.get_interval_of(k));
-						tmp_model.vars.at(l).range = DInterval(tmp_model.vars.at(l).range.leftBound() - radius, model.vars.at(l).range.rightBound() + radius);
+						case -1:
+							unsat_boxes.push_back(box);
+							//cout << "unsat" << endl;
+							break;
+						case 1:
+							sat_boxes.push_back(box);
+							//cout << "sat" << endl;
+							break;
+						case 0:
+							vector<Box> tmp_vector = BoxFactory::branch_box(box, model.param_syn);
+							//cout << "undec" << endl;
+							if(tmp_vector.size() == 1)
+							{
+								undec_boxes.push_back(box);
+							}
+							else
+							{
+								for (int j = 0; j < tmp_vector.size(); j++)
+								{
+									branched_boxes.push_back(tmp_vector.at(j));
+								}
+							}
+							break;
 					}
 				}
 			}
 
-			//cout << "Before the switch" << endl;
+			boxes.clear();
 
-			switch (evaluate_ha(tmp_model))
+			if(branched_boxes.size() == 0) break;
+
+			for(int j = 0; j < branched_boxes.size(); j++)
 			{
-				case -1:
-					unsat_boxes.push_back(box);
-					//cout << "unsat" << endl;
-					break;
-				case 1:
-					sat_boxes.push_back(box);
-					//cout << "sat" << endl;
-					break;
-				case 0:
-					vector<Box> tmp_vector = BoxFactory::branch_box(box, model.param_syn);
-					//cout << "undec" << endl;
-					if(tmp_vector.size() == 1)
-					{
-						undec_boxes.push_back(box);
-					}
-					else
-					{
-						for (int j = 0; j < tmp_vector.size(); j++)
-						{
-							boxes.push_back(tmp_vector.at(j));
-						}
-					}
-					/*
-					if(box.get_max_width() <= epsilon)
-					{
-						undec_boxes.push_back(box);
-					}
-					else
-					{
-						vector<Box> tmp_vector = BoxFactory::branch_box(box);
-						for (int j = 0; j < tmp_vector.size(); j++)
-						{
-							boxes.push_back(tmp_vector.at(j));
-						}
-					}
-					*/
-					break;
+				boxes.push_back(branched_boxes.at(j));
 			}
 
-			//cout << "After the switch" << endl;
-
-			if(boxes.size() == 0) break;
 		}
+
+		// saving SAT boxes
+		/*
+		for(int j = 0; j < sat_boxes.size(); j++)
+		{
+			boxes.push_back(sat_boxes.at(j));
+		}
+		 */
 
 		sat_boxes = BoxFactory::merge_boxes(sat_boxes);
 		unsat_boxes = BoxFactory::merge_boxes(unsat_boxes);

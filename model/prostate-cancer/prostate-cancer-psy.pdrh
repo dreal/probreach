@@ -1,8 +1,8 @@
-MODEL_TYPE(PSY;r0:0.01;r1:0.01)
-#define	alphax	0.0197
-#define alphay	0.0242
-#define	betax	0.0175
-#define	betay	0.0168
+MODEL_TYPE(PSY;alphax:0.005;alphay:0.005;betax:0.005;betay:0.005)
+//#define	alphax	0.0197
+//#define alphay	0.0242
+//#define	betax	0.0175
+//#define	betay	0.0168
 #define	k1	10.0
 #define	k2	1.0
 #define	k3	10.0
@@ -21,20 +21,23 @@ MODEL_TYPE(PSY;r0:0.01;r1:0.01)
 #define T	2200.0
 
 // therapy plan
-//#define	r0	1.1
-//#define	r1	10.0
+#define	r0	1.6
+#define	r1	10.7
 
 [0,T]time;
 [0,T]tau;
+
+[0.0,0.05]alphax;
+[0.0,0.05]alphay;
+[0.0,0.05]betax;
+[0.0,0.05]betay;
 
 [0.0,100.0]x;
 [0.0,100.0]y;
 [0.0,100.0]z;
 [0.0,100.0]v;
-[1.3,1.8]r0;
-[11.5,12.5]r1;
-
-//[0,0.05]alphay;
+//[1.3,1.8]r0;
+//[11.5,12.5]r1;
 
 {
 mode 1;

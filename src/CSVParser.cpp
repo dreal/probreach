@@ -80,6 +80,7 @@ std::map<string, vector<DInterval> > CSVParser::parse(string filename)
                 if(!is.str().empty())
                 {
                     is >> value;
+                    //cout << value << endl;
                 }
                 DInterval interval(value);
                 if((strcmp(vars.at(i).c_str(), "Time") != 0) &&

@@ -1282,7 +1282,8 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 
 	vector<Box> sat_boxes, unsat_boxes, undec_boxes;
 
-	int mode_disp, step_disp, time_disp;
+	int mode_disp, step_disp;
+	double time_disp;
 
 	int prev_mode = model.init.mode;
 
@@ -1290,7 +1291,21 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 	{
 		mode_disp = (int) csv["Mode"].at(i).leftBound();
 		step_disp = (int) csv["Step"].at(i).leftBound();
-		time_disp = (int) csv["Time"].at(i).leftBound();
+		time_disp = (double) csv["Time"].at(i).leftBound();
+
+		for(int j = 0; j < model.vars.size(); j++)
+		{
+			if(strcmp(model.vars.at(j).name.c_str(),"tau") == 0)
+			{
+				//cout << model.vars.at(j).name << " : " << model.vars.at(j).range << " time disp " << time_disp << endl;
+				model.vars.at(j).range = DInterval(0, time_disp);
+			}
+			if(strcmp(model.vars.at(j).name.c_str(),"time") == 0)
+			{
+				//cout << model.vars.at(j).name << " : " << model.vars.at(j).range << " time disp " << time_disp << endl;
+				model.vars.at(j).range = DInterval(0, time_disp);
+			}
+		}
 
 		if(mode_disp != prev_mode)
 		{
@@ -1370,7 +1385,8 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 						}
 						if(strcmp(domain.get_var_of(k).c_str(), tmp_model.vars.at(l).name.c_str()) == 0)
 						{
-							double radius = 10 * width(domain.get_interval_of(k));
+							//double radius = 10 * width(domain.get_interval_of(k));
+							double radius = 0;
 							tmp_model.vars.at(l).range = DInterval(tmp_model.vars.at(l).range.leftBound() - radius, model.vars.at(l).range.rightBound() + radius);
 						}
 					}
@@ -1428,9 +1444,9 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		}
 		 */
 
-		sat_boxes = BoxFactory::merge_boxes(sat_boxes);
-		unsat_boxes = BoxFactory::merge_boxes(unsat_boxes);
-		undec_boxes = BoxFactory::merge_boxes(undec_boxes);
+		//sat_boxes = BoxFactory::merge_boxes(sat_boxes);
+		//unsat_boxes = BoxFactory::merge_boxes(unsat_boxes);
+		//undec_boxes = BoxFactory::merge_boxes(undec_boxes);
 
 		cout << "====================" << endl;
 		cout << "Step : " << step_disp << " Mode : " << mode_disp << " Time : " << time_disp << endl;

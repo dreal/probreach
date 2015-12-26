@@ -15,7 +15,7 @@
 #include "PartialSum.h"
 #include "RV.h"
 //#include "nRV.h"
-#include "Box.h"
+#include "old_Box.h"
 
 using namespace std;
 using namespace capd;
@@ -66,7 +66,7 @@ class MulRVIntegral
 		// and precision
 		MulRVIntegral(vector<RV>, double, double);
 
-		DInterval calculate_box(Box);
+		DInterval calculate_box(old_Box);
 
 		// The method returns the vector of random variables
 		vector<RV> get_rv();

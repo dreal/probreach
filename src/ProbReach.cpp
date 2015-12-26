@@ -27,6 +27,7 @@
 #include "FileParser.h"
 #include "CSVParser.h"
 #include<capd/dynsys/OdeTraits.h>
+#include "box.h"
 
 using namespace capd;
 using namespace std;
@@ -54,7 +55,7 @@ int evaluate_ha(pdrh_model model)
 	//cout << "Evaluate HA" << endl;
 	DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
 	//cout << "Before decision procedure" << endl;
-	//vector<Box> result = dec_proc.evaluate_guided(model, -1);
+	//vector<old_Box> result = dec_proc.evaluate_guided(model, -1);
 	//cout << "Evaluated HA" << endl;
 	/*
 	if(result.at(0).get_dimension_size() == 0)
@@ -76,7 +77,7 @@ int evaluate_ha(pdrh_model model)
 	return dec_proc.evaluate(model, -1);
 }
 
-DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
+DInterval branch_and_evaluate(pdrh_model model, vector<old_Box> cart_prod, DInterval init_prob)
 {
 	double startTime = time(NULL);
 
@@ -84,7 +85,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 	DInterval P_lower = init_prob.leftBound();
 	DInterval P_upper = init_prob.rightBound();
 
-    vector<Box> mixed_boxes;
+    vector<old_Box> mixed_boxes;
 
 	if(verbose)
 	{
@@ -96,7 +97,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 	   	cout << "| [" << setprecision(12) << scientific << P_lower.leftBound() << ", " << P_upper.rightBound() << "] | " << P_upper.rightBound() - P_lower.leftBound() << " | " << setprecision(0) << fixed << time(NULL) - startTime << " sec   | " << time(NULL) - startTime << " sec |" << endl;
 	}
 
-	vector<Box> json_intervals;
+	vector<old_Box> json_intervals;
 	vector<DInterval> json_probability;
 	vector<double> json_operation_time;
 	vector<double> json_total_time;
@@ -111,14 +112,14 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 		nondet_intervals.push_back(PartialSum(model.params.at(i).name, "1", model.params.at(i).range));
 	}
 
-	vector<Box> n_boxes;
+	vector<old_Box> n_boxes;
 	if(nondet_intervals.size() > 0)
 	{
-		n_boxes.push_back(Box(nondet_intervals));
+		n_boxes.push_back(old_Box(nondet_intervals));
 	}
 
 	// fix later
-	std::map<Box,DInterval> P_map;
+	std::map<old_Box,DInterval> P_map;
 	P_map[n_boxes.at(0)] = init_prob;
 
 	cout << "Probability map:" << endl;
@@ -152,7 +153,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 			for(int j = 0; j < cart_prod.size(); j++)
 			{
 				double operationTime = time(NULL);
-				Box box = cart_prod.at(j);
+				old_Box box = cart_prod.at(j);
 				// creating a model for the box above
 				pdrh_model rv_model = model;
 				stringstream s;
@@ -171,7 +172,7 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 					rv_model.vars.push_back(var);
 				}
 				// dReach is called here
-				vector<Box> result = dec_proc.evaluate_guided(rv_model, box.get_min_width() / 1000);
+				vector<old_Box> result = dec_proc.evaluate_guided(rv_model, box.get_min_width() / 1000);
 				int is_borel = 0;
 				if(result.at(0).get_dimension_size() == 0)
 				{
@@ -257,9 +258,9 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 
 		for(int i = 0; i < mixed_boxes_size; i++)
 		{
-			Box box = mixed_boxes.front();
+			old_Box box = mixed_boxes.front();
     		mixed_boxes.erase(mixed_boxes.begin());
-    		vector<Box> temp = BoxFactory::branch_box(box);
+    		vector<old_Box> temp = BoxFactory::branch_box(box);
     		for(int j = 0; j < temp.size(); j++)
 			{
 				mixed_boxes.push_back(temp.at(j));
@@ -270,9 +271,9 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 		{
 			while (mixed_boxes.size() < num_threads)
 	    	{
-	    		Box box = mixed_boxes.front();
+	    		old_Box box = mixed_boxes.front();
 	    		mixed_boxes.erase(mixed_boxes.begin());
-	    		vector<Box> temp = BoxFactory::branch_box(box);
+	    		vector<old_Box> temp = BoxFactory::branch_box(box);
 
 	    		for(int i = 0; i < temp.size(); i++)
 				{
@@ -351,14 +352,14 @@ DInterval branch_and_evaluate(pdrh_model model, vector<Box> cart_prod, DInterval
 	return DInterval(P_lower.leftBound(), P_upper.rightBound());
 }
 
-std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box> cart_prod, DInterval init_prob)
+std::map<old_Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<old_Box> cart_prod, DInterval init_prob)
 {
 
 	DecisionProcedure dec_proc = DecisionProcedure(dreach_bin, dreach_options, dreal_options);
 	DInterval P_lower = init_prob.leftBound();
 	DInterval P_upper = init_prob.rightBound();
 
-	vector<Box> mixed_boxes, mixed_n_boxes;
+	vector<old_Box> mixed_boxes, mixed_n_boxes;
 
 	//sorting initial partition
 	sort(cart_prod.begin(), cart_prod.end(), BoxFactory::compare_boxes_des);
@@ -369,17 +370,17 @@ std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box
 		nondet_intervals.push_back(PartialSum(model.params.at(i).name, "1", model.params.at(i).range));
 	}
 
-	vector<Box> n_boxes;
+	vector<old_Box> n_boxes;
 	if(nondet_intervals.size() > 0)
 	{
-		n_boxes.push_back(Box(nondet_intervals));
+		n_boxes.push_back(old_Box(nondet_intervals));
 	}
 
 	// fix later
-	std::map<Box,DInterval> P_map, P_result;
+	std::map<old_Box,DInterval> P_map, P_result;
 	P_map[n_boxes.at(0)] = init_prob;
 
-	std::map<Box, vector<Box>> partition_map;
+	std::map<old_Box, vector<old_Box>> partition_map;
 	partition_map[n_boxes.at(0)] = cart_prod;
 
 	while(!P_map.empty())
@@ -391,7 +392,7 @@ std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box
 			for (auto it = partition_map.begin(); it != partition_map.end(); it++)
 			{
 				cout << setprecision(5) << scientific << it->first << endl;
-				vector<Box> tmp_box_vector = it->second;
+				vector<old_Box> tmp_box_vector = it->second;
 				for(int i = 0; i < tmp_box_vector.size(); i++)
 				{
 					cout << i << ") " << tmp_box_vector.at(i) << endl;
@@ -423,7 +424,7 @@ std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box
 			//cout << "---------------------------------" << endl;
 			for (int j = 0; j < partition_map[n_boxes.at(k)].size(); j++)
 			{
-				Box box = partition_map[n_boxes.at(k)].at(j);
+				old_Box box = partition_map[n_boxes.at(k)].at(j);
 				// creating a model for the box above
 				pdrh_model rv_model = nondet_model;
 				// modifying the model to handle random parameters
@@ -444,7 +445,7 @@ std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box
 				}
 
 				// dReach is called here
-				vector <Box> result = dec_proc.evaluate_guided(rv_model, box.get_min_width() / 1000);
+				vector <old_Box> result = dec_proc.evaluate_guided(rv_model, box.get_min_width() / 1000);
 				int is_borel = 0;
 				if (result.at(0).get_dimension_size() == 0)
 				{
@@ -502,7 +503,7 @@ std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box
 			}
 			else
 			{
-				vector<Box> n_branch = BoxFactory::branch_box(n_boxes.at(k));
+				vector<old_Box> n_branch = BoxFactory::branch_box(n_boxes.at(k));
 				for (int i = 0; i < n_branch.size(); i++)
 				{
 					P_map[n_branch.at(i)] = DInterval(P_lower.leftBound(), P_upper.rightBound());
@@ -514,9 +515,9 @@ std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box
 				int mixed_boxes_size = mixed_boxes.size();
 				for (int i = 0; i < mixed_boxes_size; i++)
 				{
-					Box box = mixed_boxes.front();
+					old_Box box = mixed_boxes.front();
 					mixed_boxes.erase(mixed_boxes.begin());
-					vector <Box> temp = BoxFactory::branch_box(box);
+					vector <old_Box> temp = BoxFactory::branch_box(box);
 					for (int j = 0; j < temp.size(); j++)
 					{
 						mixed_boxes.push_back(temp.at(j));
@@ -527,9 +528,9 @@ std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box
 				{
 					while (mixed_boxes.size() < num_threads)
 					{
-						Box box = mixed_boxes.front();
+						old_Box box = mixed_boxes.front();
 						mixed_boxes.erase(mixed_boxes.begin());
-						vector <Box> temp = BoxFactory::branch_box(box);
+						vector <old_Box> temp = BoxFactory::branch_box(box);
 
 						for (int i = 0; i < temp.size(); i++)
 						{
@@ -568,7 +569,7 @@ std::map<Box, DInterval> branch_and_evaluate_nondet(pdrh_model model, vector<Box
 	return P_result;
 }
 
-DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
+DInterval solution_guided(pdrh_model model, old_Box domain, DInterval init_prob)
 {
 	double startTime = time(NULL);
 
@@ -576,8 +577,8 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 	DInterval P_lower = init_prob.leftBound();
 	DInterval P_upper = init_prob.rightBound();
 
-	vector<Box> mixed_boxes;
-	vector<Box> cart_prod;
+	vector<old_Box> mixed_boxes;
+	vector<old_Box> cart_prod;
 	cart_prod.push_back(domain);
 
 	if(verbose)
@@ -595,14 +596,14 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 
 	while(true)
 	{
-		vector<Box> result;
+		vector<old_Box> result;
 		#pragma omp parallel
 		{
 			#pragma omp for schedule(dynamic)
 			for(int j = 0; j < cart_prod.size(); j++)
 			{
 				double operationTime = time(NULL);
-				Box box = cart_prod.at(j);
+				old_Box box = cart_prod.at(j);
 				// creating a model for the box above
 				pdrh_model rv_model = model;
 				stringstream s;
@@ -638,7 +639,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 						// outputting solution
 						for(int i = 0; i < result.size(); i++)
 						{
-							Box temp_box = result.at(i);
+							old_Box temp_box = result.at(i);
 							vector<PartialSum> temp_vector;
 							for(int k = 0; k < temp_box.get_dimension_size(); k++)
 							{
@@ -647,7 +648,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 																 temp_box.get_dimension(k).get_fun(),
 																 DInterval(interv.leftBound() - box.get_min_width() / 1000000, interv.rightBound() + box.get_min_width() / 1000000)));
 							}
-							result.at(i) = Box(temp_vector);
+							result.at(i) = old_Box(temp_vector);
 
 
 						}
@@ -657,7 +658,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 						{
 							cout << i << scientific << setprecision(12) << ") " << result.at(i) << endl;
 							cout << "Cut: " << endl;
-							vector<Box> cut = BoxFactory::cut_box(box, result.at(i));
+							vector<old_Box> cut = BoxFactory::cut_box(box, result.at(i));
 							for(int k = 0; k < cut.size(); k++)
 							{
 								cout << i << "." << k << scientific << setprecision(12) << ") " << cut.at(k) << endl;
@@ -698,9 +699,9 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 						else
 						{
 							//mixed_boxes.push_back(box);
-							vector<Box> temp = BoxFactory::cut_box(box, result.at(0));
+							vector<old_Box> temp = BoxFactory::cut_box(box, result.at(0));
 							/*
-							cout << "Box: " << scientific << setprecision(16) <<  box << endl;
+							cout << "old_Box: " << scientific << setprecision(16) <<  box << endl;
 							cout << "Solution: " << scientific << setprecision(16) << result.at(0) << endl;
 							cout << "Cut: " << endl;
 							for(int k = 0; k < temp.size(); k++)
@@ -709,7 +710,7 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 							}
 							*/
 							cout << "delta = " << scientific << setprecision(16) << box.get_min_width() / 1000000 << endl;
-							//vector<Box> temp = BoxFactory::branch_box(box);
+							//vector<old_Box> temp = BoxFactory::branch_box(box);
 							for(int k = 0; k < temp.size(); k++)
 							{
 								mixed_boxes.push_back(temp.at(k));
@@ -740,10 +741,10 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 		/*
 		for(int i = 0; i < mixed_boxes_size; i++)
 		{
-			Box box = mixed_boxes.front();
+			old_Box box = mixed_boxes.front();
 			mixed_boxes.erase(mixed_boxes.begin());
-			//vector<Box> temp = BoxFactory::cut_box(box, result[0]);
-			vector<Box> temp = BoxFactory::branch_box(box);
+			//vector<old_Box> temp = BoxFactory::cut_box(box, result[0]);
+			vector<old_Box> temp = BoxFactory::branch_box(box);
 			for(int j = 0; j < temp.size(); j++)
 			{
 				mixed_boxes.push_back(temp.at(j));
@@ -756,9 +757,9 @@ DInterval solution_guided(pdrh_model model, Box domain, DInterval init_prob)
 		{
 			while (mixed_boxes.size() < num_threads)
 			{
-				Box box = mixed_boxes.front();
+				old_Box box = mixed_boxes.front();
 				mixed_boxes.erase(mixed_boxes.begin());
-				vector<Box> temp = BoxFactory::branch_box(box);
+				vector<old_Box> temp = BoxFactory::branch_box(box);
 
 				for(int i = 0; i < temp.size(); i++)
 				{
@@ -795,8 +796,8 @@ DInterval evaluate_pha(pdrh_model model)
 {
 	vector<DInterval> P;
 	DInterval P_final(0.0);
-	vector<Box> dd_cart_prod;
-	vector<Box> rv_cart_prod;
+	vector<old_Box> dd_cart_prod;
+	vector<old_Box> rv_cart_prod;
 	// case when DDs are present
 	if(model.dds.size() > 0)
 	{
@@ -825,7 +826,7 @@ DInterval evaluate_pha(pdrh_model model)
 	}
 	// calculating multiple integral for RVs
 	DInterval init_prob;
-	Box domain;
+	old_Box domain;
 	if(model.rvs.size() > 0)
 	{
 		MulRVIntegral mul_integral(model.rvs, inf_coeff, epsilon);
@@ -836,7 +837,7 @@ DInterval evaluate_pha(pdrh_model model)
 		{
 			partial_sums.push_back(PartialSum(model.rvs.at(i).get_var(), model.rvs.at(i).get_pdf(), model.rvs.at(i).get_domain()));
 		}
-		domain = Box(partial_sums);
+		domain = old_Box(partial_sums);
 	}
 
 	// case when only RVs are present
@@ -881,7 +882,7 @@ DInterval evaluate_pha(pdrh_model model)
 			else
 			{
 				DecisionProcedure dec_proc(dreach_bin, dreach_options, dreal_options);
-				vector<Box> result = dec_proc.evaluate_guided(dd_model, -1);
+				vector<old_Box> result = dec_proc.evaluate_guided(dd_model, -1);
 				// outputting solution
 				int res = 0;
 				if(result.at(0).get_dimension_size() == 0)
@@ -923,10 +924,10 @@ DInterval evaluate_pha(pdrh_model model)
 	return P_final;
 }
 
-std::map<Box, DInterval> evaluate_npha(pdrh_model model)
+std::map<old_Box, DInterval> evaluate_npha(pdrh_model model)
 {
-	std::map<Box, DInterval> p_dd, p_res, p_temp;
-	vector<Box> stack_dd, stack_rv, stack_nondet;
+	std::map<old_Box, DInterval> p_dd, p_res, p_temp;
+	vector<old_Box> stack_dd, stack_rv, stack_nondet;
 
 	bool flag_rv = true;
 	bool flag_nondet = true;
@@ -979,14 +980,14 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 
 	// obtaining Cartesian product of RVs
 	MulRVIntegral mul_integral(model.rvs, inf_coeff, epsilon);
-	vector<Box> partition_rv = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
+	vector<old_Box> partition_rv = BoxFactory::calculate_cart_prod(mul_integral.get_partial_sums());
 	DInterval init_prob = DInterval(0.0, 2.0 - mul_integral.get_value().leftBound());
 	vector<PartialSum> partial_sums;
 	for(int i = 0; i < model.rvs.size(); i++)
 	{
 		partial_sums.push_back(PartialSum(model.rvs.at(i).get_var(), model.rvs.at(i).get_pdf(), model.rvs.at(i).get_domain()));
 	}
-	Box domain = Box(partial_sums);
+	old_Box domain = old_Box(partial_sums);
 
 	// obtaining domain of nondeterministic parameters
 	vector<PartialSum> nondet_intervals;
@@ -996,16 +997,16 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 		nondet_intervals.push_back(PartialSum(model.params.at(i).name, "1", model.params.at(i).range));
 	}
 
-	stack_nondet.push_back(Box(nondet_intervals));
+	stack_nondet.push_back(old_Box(nondet_intervals));
 
 	// making all the threads busy
 	if(stack_nondet.size() < num_threads)
 	{
 		while (stack_nondet.size() < num_threads)
 		{
-			Box box = stack_nondet.front();
+			old_Box box = stack_nondet.front();
 			stack_nondet.erase(stack_nondet.begin());
-			vector<Box> temp = BoxFactory::branch_box(box);
+			vector<old_Box> temp = BoxFactory::branch_box(box);
 			for(int i = 0; i < temp.size(); i++)
 			{
 				stack_nondet.push_back(temp.at(i));
@@ -1014,7 +1015,7 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 	}
 
 	// partition_map
-	std::map<Box, vector<Box> > partition_map;
+	std::map<old_Box, vector<old_Box> > partition_map;
 
 	// initializing probability map
 	for(int i = 0; i < stack_nondet.size(); i++)
@@ -1027,7 +1028,7 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 	//#pragma omp parallel for schedule(dynamic,1)
 	for(int i = 0; i < stack_dd.size(); i++)
 	{
-		Box box_dd = stack_dd.at(i);
+		old_Box box_dd = stack_dd.at(i);
 		pdrh_model model_dd = model;
 
 		stringstream s;
@@ -1045,13 +1046,13 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 		}
 		while(!p_temp.empty())
 		{
-			vector<Box> stack_nondet_mix;
+			vector<old_Box> stack_nondet_mix;
 			//#pragma omp parallel
 			//{
 				//#pragma omp for schedule(dynamic,1)
 				for(int kk = 0; kk < stack_nondet.size(); kk++)
 				{
-					Box box_nondet = stack_nondet.at(kk);
+					old_Box box_nondet = stack_nondet.at(kk);
 					pdrh_model model_nondet = model_dd;
 					stringstream s;
 					for (int j = 0; j < box_nondet.get_dimension_size(); j++)
@@ -1073,11 +1074,11 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 						partition_map.erase(box_nondet);
 						// mixed rv stack
 					//}
-					vector<Box> stack_rv_mix;
+					vector<old_Box> stack_rv_mix;
 					#pragma omp parallel for schedule(dynamic,1)
 					for(int k = 0; k < stack_rv.size(); k++)
 					{
-						Box box_rv = stack_rv.at(k);
+						old_Box box_rv = stack_rv.at(k);
 						pdrh_model model_rv = model_nondet;
 
 						if(flag_rv)
@@ -1123,7 +1124,7 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 									// branching boxes here
 									if(flag_rv)
 									{
-										vector <Box> branch_rv = BoxFactory::branch_box(box_rv);
+										vector <old_Box> branch_rv = BoxFactory::branch_box(box_rv);
 										for (int j = 0; j < branch_rv.size(); j++)
 										{
 											stack_rv_mix.push_back(branch_rv.at(j));
@@ -1150,7 +1151,7 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 						{
 							if(flag_nondet)
 							{
-								vector <Box> branch_nondet = BoxFactory::branch_box(box_nondet);
+								vector <old_Box> branch_nondet = BoxFactory::branch_box(box_nondet);
 								// sorting the branched boxes
 								sort(stack_rv_mix.begin(), stack_rv_mix.end(), BoxFactory::compare_boxes_des);
 								DInterval p_temp_value = p_res[box_nondet];
@@ -1194,9 +1195,9 @@ std::map<Box, DInterval> evaluate_npha(pdrh_model model)
 	return p_res;
 }
 
-vector<Box> prepartition(vector<Box> boxes, std::map<string, double> precision)
+vector<old_Box> prepartition(vector<old_Box> boxes, std::map<string, double> precision)
 {
-	vector<Box> tmp_list;
+	vector<old_Box> tmp_list;
 	for(long int i = 0; i < boxes.size(); i++)
 	{
 		tmp_list.push_back(boxes.at(i));
@@ -1205,13 +1206,13 @@ vector<Box> prepartition(vector<Box> boxes, std::map<string, double> precision)
 
 	while(tmp_list.size() > 0)
 	{
-		Box tmp_box = tmp_list.front();
+		old_Box tmp_box = tmp_list.front();
 		tmp_list.erase(tmp_list.begin());
 		if (tmp_box.get_max_width() > 0)
 		{
-			vector<Box> tmp_vector = BoxFactory::branch_box(tmp_box, precision);
-			//vector<Box> tmp_vector = BoxFactory::branch_box(tmp_box, epsilon);
-			//vector<Box> tmp_vector = BoxFactory::branch_box(tmp_box);
+			vector<old_Box> tmp_vector = BoxFactory::branch_box(tmp_box, precision);
+			//vector<old_Box> tmp_vector = BoxFactory::branch_box(tmp_box, epsilon);
+			//vector<old_Box> tmp_vector = BoxFactory::branch_box(tmp_box);
 			if(tmp_vector.size() == 1)
 			{
 				boxes.push_back(tmp_box);
@@ -1258,7 +1259,7 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		dimensions.push_back(PartialSum(model.params.at(i).name, "", model.params.at(i).range, -1));
 	}
 	*/
-	Box domain(dimensions);
+	old_Box domain(dimensions);
 
 	cout << "Parameter domain: " << domain << endl;
 
@@ -1268,7 +1269,7 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 	cout << "Series size: " << series_size << " time points" << endl;
 
 	// initializing the stack
-	vector<Box> boxes;
+	vector<old_Box> boxes;
 	boxes.push_back(domain);
 	if(prepartition_flag)
 	{
@@ -1280,7 +1281,7 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 
 	// initializing stacks
 
-	vector<Box> sat_boxes, unsat_boxes, undec_boxes;
+	vector<old_Box> sat_boxes, unsat_boxes, undec_boxes;
 
 	int mode_disp, step_disp;
 	double time_disp;
@@ -1362,12 +1363,12 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 
 		while(true)
 		{
-			vector<Box> branched_boxes;
+			vector<old_Box> branched_boxes;
 			#pragma omp parallel for
 			for(int j = 0; j < boxes.size(); j++)
 			{
 				pdrh_model tmp_model = model;
-				Box box = boxes.at(j);
+				old_Box box = boxes.at(j);
 
 				for(int k = 0; k < box.get_dimension_size(); k++)
 				{
@@ -1407,7 +1408,7 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 							//cout << "sat" << endl;
 							break;
 						case 0:
-							vector<Box> tmp_vector = BoxFactory::branch_box(box, model.param_syn);
+							vector<old_Box> tmp_vector = BoxFactory::branch_box(box, model.param_syn);
 							//cout << "undec" << endl;
 							if(tmp_vector.size() == 1)
 							{
@@ -1899,6 +1900,7 @@ int main(int argc, char* argv[])
 	*/
 
 	// setting max number of threads by default
+	/*
 	#ifdef _OPENMP
 		max_num_threads = omp_get_max_threads();
 		num_threads = max_num_threads;
@@ -1954,6 +1956,7 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
+	 */
 
 	/*
 	cout << "Parameters" << endl;
@@ -1962,8 +1965,8 @@ int main(int argc, char* argv[])
 		cout << i << ") " << model.params.at(i).name << " " << model.params.at(i).range << endl;
 	}
 	*/
-
-	std::map<Box, DInterval> p_map;
+/*
+	std::map<old_Box, DInterval> p_map;
 	switch (model.model_type)
 	{
 		case 1:
@@ -2002,6 +2005,18 @@ int main(int argc, char* argv[])
 			synthesize(model, csv);
 			break;
 	}
+ */
+
+	std::map<std::string, capd::interval> edges;
+
+	edges["a"] = capd::interval(0,1);
+	edges["b"] = capd::interval(2,3);
+	edges["c"] = capd::interval(0.54,1.02);
+	edges["d"] = capd::interval(-0.1,-0.01);
+
+	box b = box(edges);
+
+	cout << "The box: " << b << endl;
 
 	return EXIT_SUCCESS;
 }

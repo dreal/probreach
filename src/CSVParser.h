@@ -10,7 +10,7 @@
 using namespace std;
 using namespace capd;
 
-// Box class declaration
+// old_Box class declaration
 class CSVParser
 {
 private:

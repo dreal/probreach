@@ -18,7 +18,7 @@
 #include "DecisionProcedure.h"
 #include "PartialSum.h"
 #include "RV.h"
-#include "Box.h"
+#include "old_Box.h"
 #include "FileParser.h"
 
 using namespace std;
@@ -123,7 +123,7 @@ string DecisionProcedure::generate_drh(pdrh_model model, bool flag)
 	return drh_filename_base;
 }
 
-// The methods gets an arbitrary Box as an input parameter
+// The methods gets an arbitrary old_Box as an input parameter
 // and return 1 if the indicator function over this box equals 1,
 // -1 if indicator function equals to 0 and 0 if the box contains
 // both values where the indicator function takes both values
@@ -144,7 +144,7 @@ int DecisionProcedure::evaluate(pdrh_model model, double precision)
 
 		#pragma omp critical
 		{
-			Box box = parse_solution(string(phi + ".model"));
+			old_Box box = parse_solution(string(phi + ".model"));
 			cout << "Solution: " << box << endl;
 		}
 		#pragma omp critical
@@ -155,7 +155,7 @@ int DecisionProcedure::evaluate(pdrh_model model, double precision)
 		{
 			#pragma omp critical
 			{
-				Box box = parse_solution(string(phi_c + ".model"));
+				old_Box box = parse_solution(string(phi_c + ".model"));
 				cout << "Solution: " << box << endl;
 			}
 			return 0;
@@ -172,14 +172,14 @@ int DecisionProcedure::evaluate(pdrh_model model, double precision)
 }
 */
 
-vector<Box> DecisionProcedure::evaluate_guided(pdrh_model model, double precision)
+vector<old_Box> DecisionProcedure::evaluate_guided(pdrh_model model, double precision)
 {
 	string phi;
 	string phi_c;
 
-	vector<Box> result;
-	result.push_back(Box());
-	result.push_back(Box());
+	vector<old_Box> result;
+	result.push_back(old_Box());
+	result.push_back(old_Box());
 
 	#pragma omp critical
 	{
@@ -357,7 +357,7 @@ void DecisionProcedure::remove_aux_files()
 	file_base.clear();
 }
 
-Box DecisionProcedure::parse_solution(pdrh_model model, string filename)
+old_Box DecisionProcedure::parse_solution(pdrh_model model, string filename)
 {
 
 	//cout << "Parsing solution" << endl;
@@ -399,7 +399,7 @@ Box DecisionProcedure::parse_solution(pdrh_model model, string filename)
 		*/
 		//remove_aux_file(filename);
 		//cout << "Parsed the model file" << endl;
-		Box result = Box(intervals);
+		old_Box result = old_Box(intervals);
 		//cout << "The resulting box is created" << endl;
 		return result;
 	}

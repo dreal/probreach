@@ -9,7 +9,7 @@
 #include<capd/intervals/lib.h>
 #include<string>
 #include "PartialSum.h"
-#include "Box.h"
+#include "old_Box.h"
 #include "RV.h"
 #include "DD.h"
 

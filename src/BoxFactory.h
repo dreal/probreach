@@ -8,7 +8,7 @@
 #include<capd/intervals/lib.h>
 #include<string>
 #include "PartialSum.h"
-#include "Box.h"
+#include "old_Box.h"
 
 using namespace std;
 using namespace capd;
@@ -22,30 +22,30 @@ class BoxFactory
 
 		// The method gets a vector of vectors of PartialSum as an input parameter
 		// and return a Cartesian product of the vectors
-		static vector<Box> calculate_cart_prod(vector< vector<PartialSum> >);
+		static vector<old_Box> calculate_cart_prod(vector< vector<PartialSum> >);
 
-		// The method gets a Box of n demensions as an input parameter and returns 
+		// The method gets a old_Box of n demensions as an input parameter and returns
 		// a vector of 2^n boxes obtained by dividing each edge of the primary 
 		// box in halves
-		static vector<Box> branch_box(Box);
+		static vector<old_Box> branch_box(old_Box);
 
-		static vector<Box> branch_box(Box, std::map<string, double>);
+		static vector<old_Box> branch_box(old_Box, std::map<string, double>);
 
-		static bool compare_boxes_des(Box, Box);
+		static bool compare_boxes_des(old_Box, old_Box);
 
-		static vector<Box> merge_boxes(vector<Box>);
+		static vector<old_Box> merge_boxes(vector<old_Box>);
 
-		static Box merge_two_boxes(Box, Box);
+		static old_Box merge_two_boxes(old_Box, old_Box);
 
-		static int compare_boxes(Box, Box);
+		static int compare_boxes(old_Box, old_Box);
 
-		static vector<Box> cut_box(Box, Box);
+		static vector<old_Box> cut_box(old_Box, old_Box);
 
-		//static Box two_boxes_intersection(Box, Box);
+		//static old_Box two_boxes_intersection(old_Box, old_Box);
 
-		//static Box boxes_intersection(vector<Box>);
+		//static old_Box boxes_intersection(vector<old_Box>);
 
-		//static vector<Box> vectors_intersection(vector<Box>, vector<Box>);
+		//static vector<old_Box> vectors_intersection(vector<old_Box>, vector<old_Box>);
 		
 }; 
 #endif  

@@ -11,7 +11,7 @@
 #include<string>
 #include "PartialSum.h"
 #include "RV.h"
-#include "Box.h"
+#include "old_Box.h"
 #include "FileParser.h"
 
 using namespace std;
@@ -51,17 +51,17 @@ class DecisionProcedure
 		// @param dreach binary path, dreach options, dreal options
 		DecisionProcedure(string, string, string);
 
-		// The method get a Box and a flag as input parameters and 
+		// The method get a old_Box and a flag as input parameters and
 		// generates the DRH model for the problem if flag is true and 
 		// creates a DRH model for the inverted problem is the flag is false.
 		// The methods returns a full path to the generated DRH file.
 		//
 		// @param box from the domain of random variables, flag triggering
 		// generation of the inverse model
-		// string generate_drh(Box, bool);
+		// string generate_drh(old_Box, bool);
 		string generate_drh(pdrh_model, bool);
 
-		// The methods gets an arbitrary Box as an input parameter
+		// The methods gets an arbitrary old_Box as an input parameter
 		// and return 1 if the indicator function over this box equals 1,
 		// -1 if indicator function equals to 0 and 0 if the box contains
 		// both values where the indicator function takes both values
@@ -69,7 +69,7 @@ class DecisionProcedure
 		// @param box from the domain of random variables.
 		//int evaluate(pdrh_model, double);
 
-		vector<Box> evaluate_guided(pdrh_model, double);
+		vector<old_Box> evaluate_guided(pdrh_model, double);
 
 		int evaluate(pdrh_model, double);
 
@@ -92,7 +92,7 @@ class DecisionProcedure
 		// @param filename base
 		void remove_aux_file(string);
 
-		Box parse_solution(pdrh_model, string);
+		old_Box parse_solution(pdrh_model, string);
 
 };
 #endif 

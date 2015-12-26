@@ -11,7 +11,7 @@
 #include<capd/intervals/lib.h>
 #include<regex>
 #include "BoxFactory.h"
-#include "Box.h"
+#include "old_Box.h"
 #include "PartialSum.h"
 #include "FileParser.h"
 #include "RV.h"

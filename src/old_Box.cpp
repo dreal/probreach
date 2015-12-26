@@ -7,7 +7,7 @@
 #include<sstream>
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
-#include "Box.h"
+#include "old_Box.h"
 #include "PartialSum.h"
 
 using namespace std;
@@ -16,13 +16,13 @@ using namespace capd;
 // Constructor of the class
 //
 // @param the dimensions of the box	
-Box::Box(vector<PartialSum> dimensions)
+old_Box::old_Box(vector<PartialSum> dimensions)
 {
 	this->dimensions = dimensions;
 	calculate_params();
 }
 
-Box::Box()
+old_Box::old_Box()
 {
 	
 }
@@ -30,7 +30,7 @@ Box::Box()
 // Method for calculating parameters such as 
 // box value and width of the shortest and
 // the longest intervals
-void Box::calculate_params()
+void old_Box::calculate_params()
 {
 	min_width = width(dimensions.at(0).get_interval());
 	max_width = min_width;
@@ -53,38 +53,38 @@ void Box::calculate_params()
 // The method returns the dimension
 // 
 // @param dimension index
-PartialSum Box::get_dimension(int index) const
+PartialSum old_Box::get_dimension(int index) const
 {
 	return dimensions.at(index);
 }
 
 // The method returns the box dimensions
-vector<PartialSum> Box::get_dimensions()
+vector<PartialSum> old_Box::get_dimensions()
 {
 	return dimensions;
 }
 
 // The methods return the box value
-DInterval Box::get_value()
+DInterval old_Box::get_value()
 {
 	return value;
 }
 
-void Box::set_value(DInterval value)
+void old_Box::set_value(DInterval value)
 {
 	this->value = value;
 }
 
 // The method returns the width of the shortest
 // interval in the box dimensions
-double Box::get_min_width()
+double old_Box::get_min_width()
 {
 	return min_width;
 }
 
 // The method returns the width of the longest
 // interval in the box dimensions
-double Box::get_max_width()
+double old_Box::get_max_width()
 {
 	return max_width;
 }
@@ -93,7 +93,7 @@ double Box::get_max_width()
 // partial some at the dimension
 // 
 // @param dimension index
-DInterval Box::get_value_of(int index)
+DInterval old_Box::get_value_of(int index)
 {
 	return get_dimension(index).get_value();
 }
@@ -102,7 +102,7 @@ DInterval Box::get_value_of(int index)
 // partial some at the dimension
 // 
 // @param dimension index
-DInterval Box::get_interval_of(int index) const
+DInterval old_Box::get_interval_of(int index) const
 {
 	return get_dimension(index).get_interval();
 }
@@ -111,7 +111,7 @@ DInterval Box::get_interval_of(int index) const
 // random variable at the dimension
 // 
 // @param dimension index
-string Box::get_var_of(int index)
+string old_Box::get_var_of(int index)
 {
 	return get_dimension(index).get_var();
 }
@@ -120,19 +120,19 @@ string Box::get_var_of(int index)
 // random variable at the dimension
 // 
 // @param dimension index
-string Box::get_fun_of(int index)
+string old_Box::get_fun_of(int index)
 {
 	return get_dimension(index).get_fun();
 }
 
 // The method returns the number of dimensions
 // in the box
-int Box::get_dimension_size() const
+int old_Box::get_dimension_size() const
 {
 	return dimensions.size();
 }
 
-ostream& operator<<(ostream& strm, const Box& box)
+ostream& operator<<(ostream& strm, const old_Box & box)
 {
 	for(int i = 0; i < box.get_dimension_size() - 1; i++)
 	{
@@ -143,7 +143,7 @@ ostream& operator<<(ostream& strm, const Box& box)
 	return strm;
 }
 
-bool operator<(const Box& left, const Box& right)
+bool operator<(const old_Box & left, const old_Box & right)
 {
 	for(int i = 0; i < left.get_dimension_size(); i++)
 	{
@@ -159,7 +159,7 @@ bool operator<(const Box& left, const Box& right)
 	return false;
 }
 
-bool operator==(const Box& left, const Box& right)
+bool operator==(const old_Box & left, const old_Box & right)
 {
 	if(left < right) return false;
 	if(right < left) return false;

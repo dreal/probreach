@@ -13,12 +13,12 @@
 using namespace std;
 using namespace capd;
 
-// Box class declaration
-class Box
+// old_Box class declaration
+class old_Box
 { 
 	private:
 
-		// Box dimensions
+		// old_Box dimensions
 		vector<PartialSum> dimensions;
 
 		// Product of the values of the partial sums 
@@ -43,9 +43,9 @@ class Box
 		// Constructor of the class
 		//
 		// @param the dimensions of the box	
-		Box(vector<PartialSum>);
+		old_Box(vector<PartialSum>);
 
-		Box();
+		old_Box();
 
 		// The method returns the box dimensions
 		vector<PartialSum> get_dimensions();
@@ -92,11 +92,11 @@ class Box
 		// in the box
 		int get_dimension_size() const;
 
-		friend ostream& operator<<(ostream&, const Box&);
+		friend ostream& operator<<(ostream&, const old_Box &);
 
-		friend bool operator<(const Box&, const Box&);
+		friend bool operator<(const old_Box &, const old_Box &);
 
-		friend bool operator==(const Box&, const Box&);
+		friend bool operator==(const old_Box &, const old_Box &);
 
 }; 
 #endif  

@@ -16,7 +16,7 @@
 #include "PartialSum.h"
 #include "RV.h"
 //#include "nRV.h"
-#include "Box.h"
+#include "old_Box.h"
 #include "Integral.h"
 
 using namespace std;
@@ -34,7 +34,7 @@ MulRVIntegral::MulRVIntegral(vector<RV> rv, double coef, double precision)
 	calculate_value();
 }
 
-capd::DInterval MulRVIntegral::calculate_box(Box box)
+capd::DInterval MulRVIntegral::calculate_box(old_Box box)
 {
 	DInterval prod = 1;
 	for(int i = 0; i < box.get_dimension_size(); i++)

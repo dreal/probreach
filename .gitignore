@@ -3,3 +3,9 @@ bin/
 .o.d
 .obj/
 .idea/
+src/.obj
+src/logs/
+cmake_install.cmake
+CMakeFiles/
+Makefile
+ProbReach

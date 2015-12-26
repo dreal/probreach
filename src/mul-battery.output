@@ -1,7 +1,0 @@
-Input arguments:
-epsilon = 0.01
-filename = ../model/mul-battery/mul-battery-plan
-number of cores used = 4
-dReach version = ../bin/dReach
-dReach options: -l 4 -k 4 -z 
-dReal options: 

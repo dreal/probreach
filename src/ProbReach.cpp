@@ -28,6 +28,7 @@
 #include "CSVParser.h"
 #include<capd/dynsys/OdeTraits.h>
 #include "box.h"
+#include "measure.h"
 
 using namespace capd;
 using namespace std;
@@ -2007,16 +2008,46 @@ int main(int argc, char* argv[])
 	}
  */
 
-	std::map<std::string, capd::interval> edges;
+	std::map<std::string, capd::interval> e;
 
-	edges["a"] = capd::interval(0,1);
-	edges["b"] = capd::interval(2,3);
-	edges["c"] = capd::interval(0.54,1.02);
-	edges["d"] = capd::interval(-0.1,-0.01);
+	e.insert(make_pair(std::string("a"), capd::interval(0,1)));
+	e.insert(make_pair(std::string("b"), capd::interval(2,3)));
+	e.insert(make_pair(std::string("c"), capd::interval(0.54,1.02)));
+	e.insert(make_pair(std::string("d"), capd::interval(-0.1,-0.01)));
 
-	box b = box(edges);
+	box b(e);
 
-	cout << "The box: " << b << endl;
+	std::cout << "The box: " << b << " has a volume: " << measure::volume(b) << std::endl;
+
+	e.clear();
+
+	e.insert(make_pair(std::string("a"), capd::interval(1)));
+	e.insert(make_pair(std::string("b"), capd::interval(1.08e-7)));
+	e.insert(make_pair(std::string("c"), capd::interval(0.54)));
+	e.insert(make_pair(std::string("d"), capd::interval(-0.1)));
+
+	dd_box d(e);
+	std::cout << "The dd_box: " << d << " has a volume: " << measure::volume(d) << std::endl;
+
+	e.clear();
+
+	e.insert(make_pair(std::string("a"), capd::interval(0,1)));
+	e.insert(make_pair(std::string("b"), capd::interval(2,3)));
+	e.insert(make_pair(std::string("c"), capd::interval(0.54,1.02)));
+	e.insert(make_pair(std::string("d"), capd::interval(-0.1,-0.01)));
+
+	rv_box r(e);
+	std::cout << "The rv_box: " << r << " has a volume: " << measure::volume(r) << std::endl;
+
+	e.clear();
+
+	e.insert(make_pair(std::string("a"), capd::interval(0,1)));
+	e.insert(make_pair(std::string("b"), capd::interval(2,3)));
+	e.insert(make_pair(std::string("c"), capd::interval(0.54,1.02)));
+	e.insert(make_pair(std::string("d"), capd::interval(-0.1,0.0)));
+
+	nd_box n(e);
+	std::cout << "The nd_box: " << n << " has a volume: " << measure::volume(n) << std::endl;
 
 	return EXIT_SUCCESS;
 }

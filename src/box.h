@@ -9,17 +9,36 @@
 #define PROBREACH_BOX_H
 
 
-class box {
-
-private:
+class box
+{
+protected:
     std::map<std::string, capd::interval> edges;
 
 public:
+    box();
     box(std::map<std::string, capd::interval>);
     friend std::ostream& operator<<(std::ostream&, const box &);
-    std::map<std::string, capd::interval> get_edges() const;
-
+    std::map<std::string, capd::interval> get_map() const;
+    std::vector<capd::interval> get_intervals();
+    std::vector<std::string> get_vars();
 };
 
+class dd_box : public box
+{
+public:
+    dd_box(std::map<std::string, capd::interval>);
+};
+
+class rv_box : public box
+{
+public:
+    rv_box(std::map<std::string, capd::interval>);
+};
+
+class nd_box : public box
+{
+public:
+    nd_box(std::map<std::string, capd::interval>);
+};
 
 #endif //PROBREACH_BOX_H

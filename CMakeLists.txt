@@ -18,5 +18,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall --std=c++11 -fopenmp ${CAPD_CX
 
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
-add_executable(ProbReach ${SOURCES} src/box.cpp src/box.h)
+add_executable(ProbReach ${SOURCES} src/box.cpp src/box.h src/measure.h src/measure.cpp)
 target_link_libraries(ProbReach "${IBEX_LIBS} ${CAPD_LIBS}")

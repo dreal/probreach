@@ -1,6 +1,8 @@
 //
 // Created by fedor on 27/12/15.
 //
+#include<capd/capdlib.h>
+#include<capd/intervals/lib.h>
 
 #include "measure.h"
 /**
@@ -12,7 +14,7 @@ capd::interval measure::volume(box b)
     capd::interval v(1.0);
     for(auto it = i.cbegin(); it != i.cend(); it++)
     {
-        v *= capd::filib::width(*it);
+        v *= capd::intervals::width(*it);
     }
     return v;
 }

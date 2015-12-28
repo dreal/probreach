@@ -1,6 +1,9 @@
 //
 // Created by fedor on 26/12/15.
 //
+#include<capd/capdlib.h>
+#include<capd/intervals/lib.h>
+
 #include "box.h"
 box::box()
 {
@@ -11,7 +14,7 @@ box::box(std::map<std::string, capd::interval> e)
 {
     for(auto it = e.cbegin(); it != e.cend(); it++)
     {
-        if(capd::filib::width(it->second) < 0)
+        if(capd::intervals::width(it->second) < 0)
         {
             std::ostringstream s;
             s << "invalid interval " << it->first << ":" << it->second << " while creating a box";
@@ -40,7 +43,7 @@ dd_box::dd_box(std::map<std::string, capd::interval> e)
 {
     for(auto it = e.cbegin(); it != e.cend(); it++)
     {
-        if(capd::filib::width(it->second) > 0)
+        if(capd::intervals::width(it->second) > 0)
         {
             std::ostringstream s;
             s << "invalid interval " << it->first << ":" << it->second << " while creating a dd_box";

@@ -2033,7 +2033,7 @@ int main(int argc, char* argv[])
 
 	e.insert(make_pair(std::string("a"), capd::interval(0,1)));
 	e.insert(make_pair(std::string("b"), capd::interval(2,3)));
-	e.insert(make_pair(std::string("c"), capd::interval(0.54,1.02)));
+	e.insert(make_pair(std::string("c"), capd::interval(1.7e-9,1.02)));
 	e.insert(make_pair(std::string("d"), capd::interval(-0.1,-0.01)));
 
 	rv_box r(e);

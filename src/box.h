@@ -3,7 +3,6 @@
 //
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
-#include<string>
 
 #ifndef PROBREACH_BOX_H
 #define PROBREACH_BOX_H

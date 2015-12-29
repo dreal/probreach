@@ -29,6 +29,7 @@
 #include<capd/dynsys/OdeTraits.h>
 #include "box.h"
 #include "measure.h"
+#include "box_factory.h"
 
 using namespace capd;
 using namespace std;
@@ -2048,6 +2049,62 @@ int main(int argc, char* argv[])
 
 	nd_box n(e);
 	std::cout << "The nd_box: " << n << " has a volume: " << measure::volume(n) << std::endl;
+
+	std::map<std::string, std::vector<capd::interval>> m;
+	std::vector<capd::interval> v;
+	v.push_back(capd::interval(0,1));
+	v.push_back(capd::interval(1,2));
+	v.push_back(capd::interval(2,3));
+
+	m["x"] = v;
+
+	v.clear();
+	v.push_back(capd::interval(0,1));
+	v.push_back(capd::interval(1,2));
+
+	m["y"] = v;
+
+	v.clear();
+	v.push_back(capd::interval(0,1));
+	v.push_back(capd::interval(1,2));
+	v.push_back(capd::interval(2,3));
+	v.push_back(capd::interval(3,4));
+
+	m["z"] = v;
+
+	std::vector<box> prod = box_factory::cartesian_product(m);
+	for(box b : prod)
+	{
+		std::cout << "box: " << b << endl;
+	}
+
+	std::vector<box> bisect = box_factory::bisect(b);
+	std::cout << "Bisecting box " << b << std::endl;
+	for(box i : bisect)
+	{
+		std::cout << i << std::endl;
+	}
+
+	bisect = box_factory::bisect(d);
+	std::cout << "Bisecting box " << d << std::endl;
+	for(box i : bisect)
+	{
+		std::cout << i << std::endl;
+	}
+
+	bisect = box_factory::bisect(r);
+	std::cout << "Bisecting box " << r << std::endl;
+	for(box i : bisect)
+	{
+		std::cout << i << std::endl;
+	}
+
+	bisect = box_factory::bisect(n);
+	std::cout << "Bisecting box " << n << std::endl;
+	for(box i : bisect)
+	{
+		std::cout << i << std::endl;
+	}
 
 	return EXIT_SUCCESS;
 }

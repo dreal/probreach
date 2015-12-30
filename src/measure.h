@@ -10,14 +10,19 @@
 
 namespace measure
 {
-    //std::map<std::string, std::string> rv_measure;
-    //std::map<std::string, std::map<capd::interval, capd::interval> > dd_measure;
+    extern std::map<std::string, std::string> rv_map;
+    extern std::map<std::string, std::map<capd::interval, double> > dd_map;
 
     capd::interval volume(box);
+    std::string gaussian(std::string, double, double);
+    std::string uniform(std::string, double, double);
+    std::string exp(std::string, double);
+
+    std::map<capd::interval, std::vector<capd::interval>> integral(std::string, std::string, capd::interval, double);
 
     //capd::interval measure(dd_box);
     //capd::interval measure(rv_box);
-    //std::vector<capd::interval> integral(std::string, std::string, capd::interval, double);
+
 
 }
 

@@ -2009,6 +2009,7 @@ int main(int argc, char* argv[])
 	}
  */
 
+	/*
 	std::map<std::string, capd::interval> e;
 
 	e.insert(make_pair(std::string("a"), capd::interval(0,1)));
@@ -2105,6 +2106,19 @@ int main(int argc, char* argv[])
 	{
 		std::cout << i << std::endl;
 	}
+	 */
+
+	measure::rv_map.insert(make_pair("x", measure::gaussian("x", 0, 1e-3)));
+	measure::rv_map.insert(make_pair("y", measure::exp("y", 1)));
+	measure::rv_map.insert(make_pair("z", measure::uniform("z", 1, 3)));
+
+	std::map<capd::interval, std::vector<capd::interval>> x_itg = measure::integral("x", measure::rv_map["x"], capd::interval(-5, 5), 1e-9);
+	std::map<capd::interval, std::vector<capd::interval>> y_itg = measure::integral("y", measure::rv_map["y"], capd::interval(0, 10), 1e-9);
+	std::map<capd::interval, std::vector<capd::interval>> z_itg = measure::integral("z", measure::rv_map["z"], capd::interval(1, 3), 1e-9);
+
+	std::cout << std::setprecision(16) << "itg(gaussian) = " << x_itg.cbegin()->first << " " << capd::intervals::width(x_itg.cbegin()->first) << " " << x_itg.cbegin()->second.size() << " intervals" << std::endl;
+	std::cout << std::setprecision(16) << "itg(exp) = " << y_itg.cbegin()->first << " " << capd::intervals::width(y_itg.cbegin()->first) << " " << y_itg.cbegin()->second.size() << " intervals" << std::endl;
+	std::cout << std::setprecision(16) << "itg(uniform) = " << z_itg.cbegin()->first << " " << capd::intervals::width(z_itg.cbegin()->first) << " " << z_itg.cbegin()->second.size() << " intervals" << std::endl;
 
 	return EXIT_SUCCESS;
 }

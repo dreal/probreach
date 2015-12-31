@@ -3,8 +3,9 @@
 //
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
-
+#include<ibex.h>
 #include "measure.h"
+#include "box_factory.h"
 
 std::map<std::string, std::string> measure::rv_map;
 
@@ -56,6 +57,79 @@ capd::interval measure::volume(box b)
         v *= capd::intervals::width(it);
     }
     return v;
+}
+
+double measure::binomial(int k, int n)
+{
+    int res = 1;
+    for(int i = 1; i <= k; i++)
+    {
+        res *= (double) (n + 1 - i) / (double) i;
+    }
+    return res;
+}
+
+double measure::precision(double e, int n)
+{
+    std::stringstream s;
+    for(int i = 0; i < n; i++)
+    {
+        s << measure::binomial(i + 1, n) << "*e^" << i + 1 << "+";
+    }
+    s << "-" << e;
+
+    ibex::Function f("e", s.str().c_str());
+    ibex::IntervalVector b(1, ibex::Interval(0, 1));
+    ibex::CtcFwdBwd c(f);
+    ibex::CtcFixPoint fp(c, e);
+    fp.contract(b);
+
+    return b[0].lb();
+}
+
+std::vector<rv_box> measure::partition(rv_box b, double e)
+{
+    std::map<std::string, capd::interval> edges = b.get_map();
+    std::map<std::string, std::vector<capd::interval>> m;
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        if(measure::rv_map.find(it->first) != measure::rv_map.cend())
+        {
+            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, measure::precision(e, edges.size()));
+            //std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size()));
+            m.insert(make_pair(it->first, itg.second));
+        }
+        else
+        {
+            std::stringstream s;
+            s << "Measure for " << it->first << " is undefined";
+            throw s.str();
+        }
+    }
+    std::vector<box> p = box_factory::cartesian_product(m);
+    std::vector<rv_box> rv_p(p.cbegin(), p.cend());
+    return rv_p;
+}
+
+capd::interval measure::p_measure(rv_box b, double e)
+{
+    std::map<std::string, capd::interval> edges = b.get_map();
+    capd::interval res(1.0);
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        if(measure::rv_map.find(it->first) != measure::rv_map.cend())
+        {
+            res *= measure::integral(it->first, measure::rv_map[it->first], it->second, measure::precision(e, edges.size())).first;
+            //res *= measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size())).first;
+        }
+        else
+        {
+            std::stringstream s;
+            s << "Measure for " << it->first << " is undefined";
+            throw s.str();
+        }
+    }
+    return res;
 }
 
 capd::interval measure::bounds::gaussian(double mu, double sigma, double e)

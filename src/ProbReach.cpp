@@ -2108,21 +2108,31 @@ int main(int argc, char* argv[])
 	}
 	 */
 
-	measure::rv_map.insert(make_pair("x", measure::distribution::gaussian("x", 0, 1e-1)));
-	measure::rv_map.insert(make_pair("y", measure::distribution::exp("y", 1)));
-	measure::rv_map.insert(make_pair("z", measure::distribution::uniform("z", 1, 3)));
+	measure::rv_map.insert(make_pair("x", measure::distribution::gaussian("x", 0, 1)));
+	measure::rv_map.insert(make_pair("y", measure::distribution::gaussian("y", 0, 1)));
+	measure::rv_map.insert(make_pair("z", measure::distribution::gaussian("z", 0, 1)));
 
-	std::pair<capd::interval, std::vector<capd::interval>> x_itg = measure::integral("x", measure::rv_map["x"], capd::interval(-5, 5), 1e-12);
-	std::pair<capd::interval, std::vector<capd::interval>> y_itg = measure::integral("y", measure::rv_map["y"], capd::interval(0, 33), 1e-12);
-	std::pair<capd::interval, std::vector<capd::interval>> z_itg = measure::integral("z", measure::rv_map["z"], capd::interval(1, 3), 1e-12);
+	std::map<std::string, capd::interval> e;
 
-	std::cout << std::setprecision(16) << "itg(gaussian) = " << x_itg.first << " " << capd::intervals::width(x_itg.first) << " " << x_itg.second.size() << " intervals" << std::endl;
-	std::cout << std::setprecision(16) << "itg(exp) = " << y_itg.first << " " << capd::intervals::width(y_itg.first) << " " << y_itg.second.size() << " intervals" << std::endl;
-	std::cout << std::setprecision(16) << "itg(uniform) = " << z_itg.first << " " << capd::intervals::width(z_itg.first) << " " << z_itg.second.size() << " intervals" << std::endl;
+	e.insert(make_pair(std::string("x"), capd::interval(-5,5)));
+	e.insert(make_pair(std::string("y"), capd::interval(-5,5)));
+	e.insert(make_pair(std::string("z"), capd::interval(-5,5)));
 
-	std::cout << "gaussian bounds: " << measure::bounds::gaussian(0, 1e-1, 1e-9) << std::endl;
-	std::cout << "exp bounds: " << measure::bounds::exp(1, 1e-9) << std::endl;
-		
+	rv_box b(e);
+
+	capd::interval p = measure::p_measure(b, 1e-1);
+
+	std::cout << std::setprecision(16) << "P(" << b << ")=" << p << " | " << capd::intervals::width(p) << std::endl;
+
+	std::vector<rv_box> partition = measure::partition(b, 1e-1);
+	std::cout << partition.size() << " boxes in partition" << std::endl;
+	/*
+	for(rv_box r : partition)
+	{
+		std::cout << r << std::endl;
+	}
+	*/
+
 	return EXIT_SUCCESS;
 }
 

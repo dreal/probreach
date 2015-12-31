@@ -58,7 +58,17 @@ rv_box::rv_box(std::map<std::string, capd::interval> e):box(e)
 
 }
 
+rv_box::rv_box(box b):box(b.get_map())
+{
+
+}
+
 nd_box::nd_box(std::map<std::string, capd::interval> e):box(e)
+{
+
+}
+
+nd_box::nd_box(box b):box(b.get_map())
 {
 
 }

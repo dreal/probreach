@@ -16,8 +16,12 @@ namespace measure
     std::pair<capd::interval, std::vector<capd::interval>> integral(std::string, std::string, capd::interval, double);
 
     capd::interval volume(box);
-    capd::interval measure(rv_box, double);
-    capd::interval measure(dd_box, double);
+    std::vector<rv_box> partition(rv_box, double);
+    capd::interval p_measure(rv_box, double);
+    capd::interval p_measure(dd_box, double);
+
+    double binomial(int, int);
+    double precision(double, int);
 
     namespace bounds
     {

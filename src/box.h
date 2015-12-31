@@ -32,12 +32,14 @@ class rv_box : public box
 {
 public:
     rv_box(std::map<std::string, capd::interval>);
+    rv_box(box);
 };
 
 class nd_box : public box
 {
 public:
     nd_box(std::map<std::string, capd::interval>);
+    nd_box(box);
 };
 
 #endif //PROBREACH_BOX_H

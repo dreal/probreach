@@ -8,7 +8,7 @@ include_directories("/home/fedor/dreal3/build/release/include")
 
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
-add_executable(ProbReach ${SOURCES} src/box_factory.cpp src/box_factory.cpp src/box_factory.h)
+add_executable(ProbReach ${SOURCES})
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libcapd.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libibex.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libprim.a)

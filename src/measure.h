@@ -13,17 +13,24 @@ namespace measure
     extern std::map<std::string, std::string> rv_map;
     extern std::map<std::string, std::map<capd::interval, double> > dd_map;
 
+    std::pair<capd::interval, std::vector<capd::interval>> integral(std::string, std::string, capd::interval, double);
+
     capd::interval volume(box);
-    std::string gaussian(std::string, double, double);
-    std::string uniform(std::string, double, double);
-    std::string exp(std::string, double);
+    capd::interval measure(rv_box, double);
+    capd::interval measure(dd_box, double);
 
-    std::map<capd::interval, std::vector<capd::interval>> integral(std::string, std::string, capd::interval, double);
+    namespace bounds
+    {
+        capd::interval gaussian(double, double, double);
+        capd::interval exp(double, double);
+    }
 
-    //capd::interval measure(dd_box);
-    //capd::interval measure(rv_box);
-
-
+    namespace distribution
+    {
+        std::string gaussian(std::string, double, double);
+        std::string uniform(std::string, double, double);
+        std::string exp(std::string, double);
+    }
 }
 
 #endif //PROBREACH_MEASURE_H

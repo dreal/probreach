@@ -2108,18 +2108,21 @@ int main(int argc, char* argv[])
 	}
 	 */
 
-	measure::rv_map.insert(make_pair("x", measure::gaussian("x", 0, 1e-3)));
-	measure::rv_map.insert(make_pair("y", measure::exp("y", 1)));
-	measure::rv_map.insert(make_pair("z", measure::uniform("z", 1, 3)));
+	measure::rv_map.insert(make_pair("x", measure::distribution::gaussian("x", 0, 1e-1)));
+	measure::rv_map.insert(make_pair("y", measure::distribution::exp("y", 1)));
+	measure::rv_map.insert(make_pair("z", measure::distribution::uniform("z", 1, 3)));
 
-	std::map<capd::interval, std::vector<capd::interval>> x_itg = measure::integral("x", measure::rv_map["x"], capd::interval(-5, 5), 1e-9);
-	std::map<capd::interval, std::vector<capd::interval>> y_itg = measure::integral("y", measure::rv_map["y"], capd::interval(0, 10), 1e-9);
-	std::map<capd::interval, std::vector<capd::interval>> z_itg = measure::integral("z", measure::rv_map["z"], capd::interval(1, 3), 1e-9);
+	std::pair<capd::interval, std::vector<capd::interval>> x_itg = measure::integral("x", measure::rv_map["x"], capd::interval(-5, 5), 1e-12);
+	std::pair<capd::interval, std::vector<capd::interval>> y_itg = measure::integral("y", measure::rv_map["y"], capd::interval(0, 33), 1e-12);
+	std::pair<capd::interval, std::vector<capd::interval>> z_itg = measure::integral("z", measure::rv_map["z"], capd::interval(1, 3), 1e-12);
 
-	std::cout << std::setprecision(16) << "itg(gaussian) = " << x_itg.cbegin()->first << " " << capd::intervals::width(x_itg.cbegin()->first) << " " << x_itg.cbegin()->second.size() << " intervals" << std::endl;
-	std::cout << std::setprecision(16) << "itg(exp) = " << y_itg.cbegin()->first << " " << capd::intervals::width(y_itg.cbegin()->first) << " " << y_itg.cbegin()->second.size() << " intervals" << std::endl;
-	std::cout << std::setprecision(16) << "itg(uniform) = " << z_itg.cbegin()->first << " " << capd::intervals::width(z_itg.cbegin()->first) << " " << z_itg.cbegin()->second.size() << " intervals" << std::endl;
+	std::cout << std::setprecision(16) << "itg(gaussian) = " << x_itg.first << " " << capd::intervals::width(x_itg.first) << " " << x_itg.second.size() << " intervals" << std::endl;
+	std::cout << std::setprecision(16) << "itg(exp) = " << y_itg.first << " " << capd::intervals::width(y_itg.first) << " " << y_itg.second.size() << " intervals" << std::endl;
+	std::cout << std::setprecision(16) << "itg(uniform) = " << z_itg.first << " " << capd::intervals::width(z_itg.first) << " " << z_itg.second.size() << " intervals" << std::endl;
 
+	std::cout << "gaussian bounds: " << measure::bounds::gaussian(0, 1e-1, 1e-9) << std::endl;
+	std::cout << "exp bounds: " << measure::bounds::exp(1, 1e-9) << std::endl;
+		
 	return EXIT_SUCCESS;
 }
 

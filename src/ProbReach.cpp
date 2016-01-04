@@ -30,6 +30,8 @@
 #include "box.h"
 #include "measure.h"
 #include "box_factory.h"
+#include "version.h"
+//#include "dreal.h"
 
 using namespace capd;
 using namespace std;
@@ -1510,7 +1512,8 @@ void print_help()
 
 void print_version()
 {
-	cout << "ProbReach " << probreach_version << endl;
+	//cout << "ProbReach " << probreach_version << endl;
+	cout << "ProbReach " << PROBREACH_VERSION << endl;
 }
 
 void parse_cmd(int argc, char* argv[])
@@ -2108,6 +2111,7 @@ int main(int argc, char* argv[])
 	}
 	 */
 
+	// testing continuous measure
 	measure::rv_map.insert(make_pair("x", measure::distribution::gaussian("x", 0, 1)));
 	measure::rv_map.insert(make_pair("y", measure::distribution::gaussian("y", 0, 1)));
 	measure::rv_map.insert(make_pair("z", measure::distribution::gaussian("z", 0, 1)));
@@ -2126,12 +2130,31 @@ int main(int argc, char* argv[])
 
 	std::vector<rv_box> partition = measure::partition(b, 1e-1);
 	std::cout << partition.size() << " boxes in partition" << std::endl;
-	/*
-	for(rv_box r : partition)
-	{
-		std::cout << r << std::endl;
-	}
-	*/
+
+	// testing discrete measure
+	std::map<capd::interval, capd::interval> values;
+	values.insert(make_pair(capd::interval(1), capd::interval(0.01)));
+	values.insert(make_pair(capd::interval(2), capd::interval(0.99)));
+
+	measure::dd_map.insert(make_pair("a", values));
+	values.clear();
+	values.insert(make_pair(capd::interval(-1), capd::interval(0.2)));
+	values.insert(make_pair(capd::interval(0), capd::interval(0.3)));
+	values.insert(make_pair(capd::interval(1), capd::interval(0.5)));
+	measure::dd_map.insert(make_pair("b", values));
+
+	e.clear();
+	e.insert(make_pair(std::string("a"), capd::interval(1)));
+	e.insert(make_pair(std::string("b"), capd::interval(0)));
+	//e.insert(make_pair(std::string("c"), capd::interval(0)));
+
+	dd_box d(e);
+
+	capd::interval p_dd = measure::p_measure(d);
+
+	std::cout << std::setprecision(16) << "P(" << d << ")=" << p_dd << " | " << capd::intervals::width(p_dd) << std::endl;
+
+	print_version();
 
 	return EXIT_SUCCESS;
 }

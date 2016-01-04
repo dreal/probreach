@@ -1,0 +1,37 @@
+#define diffuse 1e-3 // sec^-1
+#define rho 1e-2 // no units
+#define ProtSA_f 10e4 // M^-1 * sec^-1
+#define ProtSA_b 1e-3 // sec^-1 
+#define deg_Prot 1e-3 // sec^-1
+
+[0,1500] time;
+[0,1500] tau;
+[0,1] SAin;
+[0,1] SAout;
+[0,1] Prot;
+[0,1] ProtSA;
+
+{
+mode 1;
+flow:
+d/dt[Prot]=-ProtSA_f*Prot*SAin +ProtSA_b*ProtSA -deg_Prot*Prot;
+d/dt[SAin]=-ProtSA_f*Prot*SAin +ProtSA_b*ProtSA + diffuse*(SAout*rho-SAin);
+d/dt[ProtSA]= ProtSA_f*Prot*SAin -ProtSA_b*ProtSA;
+d/dt[SAout] = 0;
+d/dt[tau] = 1;
+jump:
+
+}
+
+init:
+@1(and
+		(tau = 0)
+		(SAin = 0)
+		(SAout = 5e-6)
+		(Prot = 1e-7)
+		(ProtSA = 0)
+	);
+
+goal:
+//@1(and(tau = 100));
+@1(and(SAin = 1e-6));

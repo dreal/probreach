@@ -1,0 +1,40 @@
+#define _ProtSA_b_a 0.4375
+#define _ProtSA_b_b 0.5
+#define _ProtSA_f_a 187.5
+#define _ProtSA_f_b 250
+#define _deg_Prot_a 0.1875
+#define _deg_Prot_b 0.25
+#define _diffuse_a 0.1875
+#define _diffuse_b 0.25
+#define _rho_a 0.4375
+#define _rho_b 0.5
+[0,10]time;
+[0,10]tau;
+[0,1]SAin;
+[0,1]SAout;
+[0,1]Prot;
+[0,1]ProtSA;
+[0,0.5]ProtSA_b;
+[0,500]ProtSA_f;
+[0,0.5]deg_Prot;
+[0,0.5]diffuse;
+[0,0.5]rho;
+{
+mode 1;
+flow:
+d/dt[Prot]=-ProtSA_f*Prot*SAin+ProtSA_b*ProtSA-deg_Prot*Prot;
+d/dt[SAin]=-ProtSA_f*Prot*SAin+ProtSA_b*ProtSA+diffuse*(SAout*rho-SAin);
+d/dt[ProtSA]=ProtSA_f*Prot*SAin-ProtSA_b*ProtSA;
+d/dt[SAout]=0;
+d/dt[tau]=1;
+d/dt[ProtSA_b]=0.0;
+d/dt[ProtSA_f]=0.0;
+d/dt[deg_Prot]=0.0;
+d/dt[diffuse]=0.0;
+d/dt[rho]=0.0;
+jump:
+}
+init:
+@1(and(and(tau=0)(SAin=0)(SAout=5e-6)(Prot=1e-7)(ProtSA=0))(ProtSA_b>=_ProtSA_b_a)(ProtSA_b<=_ProtSA_b_b)(ProtSA_f>=_ProtSA_f_a)(ProtSA_f<=_ProtSA_f_b)(deg_Prot>=_deg_Prot_a)(deg_Prot<=_deg_Prot_b)(diffuse>=_diffuse_a)(diffuse<=_diffuse_b)(rho>=_rho_a)(rho<=_rho_b));
+goal:
+@1(and (tau = 10) (and (SAin >= 6.48e-07)(SAin <= 8.48e-07)(SAout >= 4.9e-06)(SAout <= 5.1e-06)));

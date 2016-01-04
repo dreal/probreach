@@ -8,6 +8,7 @@
 #include "box_factory.h"
 
 std::map<std::string, std::string> measure::rv_map;
+std::map<std::string, std::map<capd::interval, capd::interval>> measure::dd_map;
 
 std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::string var, std::string fun, capd::interval it, double e)
 {
@@ -103,7 +104,7 @@ std::vector<rv_box> measure::partition(rv_box b, double e)
         {
             std::stringstream s;
             s << "Measure for " << it->first << " is undefined";
-            throw s.str();
+            throw std::invalid_argument(s.str());
         }
     }
     std::vector<box> p = box_factory::cartesian_product(m);
@@ -126,7 +127,36 @@ capd::interval measure::p_measure(rv_box b, double e)
         {
             std::stringstream s;
             s << "Measure for " << it->first << " is undefined";
-            throw s.str();
+            throw std::invalid_argument(s.str());
+        }
+    }
+    return res;
+}
+
+capd::interval measure::p_measure(dd_box b)
+{
+    std::map<std::string, capd::interval> edges = b.get_map();
+    capd::interval res(1.0);
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        if(measure::dd_map.find(it->first) != measure::dd_map.cend())
+        {
+            if(measure::dd_map.at(it->first).find(it->second) != measure::dd_map.at(it->first).cend())
+            {
+                res *= dd_map.at(it->first).at(it->second);
+            }
+            else
+            {
+                std::stringstream s;
+                s << "Measure for " << it->first << " = " << it->second << " is undefined";
+                throw std::invalid_argument(s.str());
+            }
+        }
+        else
+        {
+            std::stringstream s;
+            s << "Measure for " << it->first << " is undefined";
+            throw std::invalid_argument(s.str());
         }
     }
     return res;

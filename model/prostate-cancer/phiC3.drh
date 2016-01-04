@@ -1,0 +1,156 @@
+#define _alphax_a 0
+#define _alphax_b 0.0125
+#define _alphay_a 0
+#define _alphay_b 0.0125
+#define _betax_a 0.025
+#define _betax_b 0.0375
+#define _betay_a 0.0375
+#define _betay_b 0.05
+[0, 83]time;
+[0, 83]tau;
+[0, 0.05]alphax;
+[0, 0.05]alphay;
+[0, 0.05]betax;
+[0, 0.05]betay;
+[0, 100]x;
+[0, 100]y;
+[0, 100]z;
+[0, 100]v;
+{
+mode 1;
+flow:
+d/dt[x]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03);
+d/dt[y]=1.0*((0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[z]=1.0*(-z*0.08+0.02);
+d/dt[v]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03+(0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[tau]=1.0*1.0;
+d/dt[alphax]=0.0;
+d/dt[alphay]=0.0;
+d/dt[betax]=0.0;
+d/dt[betay]=0.0;
+jump:
+(v=1.6)==>@2(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+{
+mode 2;
+flow:
+d/dt[x]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03);
+d/dt[y]=1.0*((0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[z]=1.0*((12.0-z)*0.08+0.02);
+d/dt[v]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03+(0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[tau]=1.0*1.0;
+d/dt[alphax]=0.0;
+d/dt[alphay]=0.0;
+d/dt[betax]=0.0;
+d/dt[betay]=0.0;
+jump:
+(v=12.7)==>@3(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+{
+mode 3;
+flow:
+d/dt[x]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03);
+d/dt[y]=1.0*((0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[z]=1.0*(-z*0.08+0.02);
+d/dt[v]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03+(0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[tau]=1.0*1.0;
+d/dt[alphax]=0.0;
+d/dt[alphay]=0.0;
+d/dt[betax]=0.0;
+d/dt[betay]=0.0;
+jump:
+(v=1.6)==>@4(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+{
+mode 4;
+flow:
+d/dt[x]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03);
+d/dt[y]=1.0*((0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[z]=1.0*((12.0-z)*0.08+0.02);
+d/dt[v]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03+(0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[tau]=1.0*1.0;
+d/dt[alphax]=0.0;
+d/dt[alphay]=0.0;
+d/dt[betax]=0.0;
+d/dt[betay]=0.0;
+jump:
+(v=12.7)==>@5(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+{
+mode 5;
+flow:
+d/dt[x]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03);
+d/dt[y]=1.0*((0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[z]=1.0*(-z*0.08+0.02);
+d/dt[v]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03+(0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[tau]=1.0*1.0;
+d/dt[alphax]=0.0;
+d/dt[alphay]=0.0;
+d/dt[betax]=0.0;
+d/dt[betay]=0.0;
+jump:
+(v=1.6)==>@6(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+{
+mode 6;
+flow:
+d/dt[x]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03);
+d/dt[y]=1.0*((0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[z]=1.0*((12.0-z)*0.08+0.02);
+d/dt[v]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03+(0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[tau]=1.0*1.0;
+d/dt[alphax]=0.0;
+d/dt[alphay]=0.0;
+d/dt[betax]=0.0;
+d/dt[betay]=0.0;
+jump:
+(v=12.7)==>@7(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+{
+mode 7;
+flow:
+d/dt[x]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03);
+d/dt[y]=1.0*((0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[z]=1.0*(-z*0.08+0.02);
+d/dt[v]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03+(0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[tau]=1.0*1.0;
+d/dt[alphax]=0.0;
+d/dt[alphay]=0.0;
+d/dt[betax]=0.0;
+d/dt[betay]=0.0;
+jump:
+(v=1.6)==>@8(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+{
+mode 8;
+flow:
+d/dt[x]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03);
+d/dt[y]=1.0*((0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[z]=1.0*((12.0-z)*0.08+0.02);
+d/dt[v]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03+(0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[tau]=1.0*1.0;
+d/dt[alphax]=0.0;
+d/dt[alphay]=0.0;
+d/dt[betax]=0.0;
+d/dt[betay]=0.0;
+jump:
+(v=12.7)==>@9(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+{
+mode 9;
+flow:
+d/dt[x]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03);
+d/dt[y]=1.0*((0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[z]=1.0*(-z*0.08+0.02);
+d/dt[v]=1.0*((((alphax/(1+exp((10.0-z)*1.0)))-(betax/(1+exp((z-10.0)*2))))-(0.00005*(1-(z/12.0)))-0.01)*x+0.03+(0.00005*(1-(z/12.0)))*x+((alphay*(1-(1.0*(z/12.0))))-betay)*y);
+d/dt[tau]=1.0*1.0;
+d/dt[alphax]=0.0;
+d/dt[alphay]=0.0;
+d/dt[betax]=0.0;
+d/dt[betay]=0.0;
+jump:
+}
+init:
+@1(and(and(v=19.1)(x=19)(y=0.1)(z=12.5)(tau=0))(alphax>=_alphax_a)(alphax<=_alphax_b)(alphay>=_alphay_a)(alphay<=_alphay_b)(betax>=_betax_a)(betax<=_betax_b)(betay>=_betay_a)(betay<=_betay_b));
+goal:
+@1(and (tau = 83) (not (and (v >= -1.5)(v <= 6.5))));

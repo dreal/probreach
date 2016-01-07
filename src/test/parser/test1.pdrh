@@ -1,0 +1,50 @@
+model:
+
+    pha;
+
+/*
+ * Defines the time bound for every flow
+ */
+time:
+
+    [0,1000];
+
+/*
+ * The variable declaration goes here
+ */
+[0.1, 0.2] a; // variable 1
+[-1e-7,  1e-7]b; // variable 2
+[1.0956e5] c; // constant 1
+[16552] mode1; // constant 2
+
+{
+    mode @1;
+        invt:
+            (a >= b);
+            (a / b <= c);
+        flow:
+            d/dt[a]=a * b*c;
+            d/dt[b]= a * c;
+        jump:
+            (a >= d)or(c*b<d)==>@2(a'=b*c)and(b'=a*d);
+}
+
+{
+    mode @2;
+        invt:
+            (a < b);
+            (a / b > c);
+        flow:
+            d/dt[a]=a - b*c;
+            d/dt[b]= a / c;
+        jump:
+            (a >= d)or(c*b<d)==>@1(a'=b*c)and(b'=a*d);
+}
+
+init:
+
+    @1(a=0)and(b=0);
+
+goal:
+
+    @2(a>=b)and();

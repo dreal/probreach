@@ -18,9 +18,19 @@ void yyerror(const char *s);
 }
 
 // terminals
-%token MODEL TIME DIST
+%token MODEL TIME
+%token DIST PDF N_DIST U_DIST E_DIST G_DIST DD_DIST
+%token INF
+
 %token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE
-%token D_DT IMPLY
+%token D_DT TRANS PRIME
+
+%token EXP LOG SIN COS TAN ASIN ACOS ATAN
+%token NOT AND OR XOR IMPLY
+%token PLUS MINUS TIMES DIVIDE POWER
+%token EQ GT LT GE LE
+%token TRUE FALSE
+
 %token <sval> model_type
 %token <sval> dist_type
 %token <sval> elem_fun
@@ -28,9 +38,15 @@ void yyerror(const char *s);
 %token <fval> n_float
 %token <ival> n_int
 
+%left PLUS MINUS
+%left TIMES DIVIDE
+%left NEG
+%right POWER
+
 %%
 pdrh:
-	model time declarations
+	model time declarations modes init goal { ; }
+	| model time declarations modes init synthesize { ; }
 
 model:
 	MODEL ':' model_type ';' { ; }
@@ -64,11 +80,25 @@ invt:
 	INVT ':' props { ; }
 
 props:
-	props prop { ; }
+	props prop ';' { ; }
 	| prop ';' { ; }
 
-// PROPOSITION
 prop:
+    atom { ; }
+    | NOT atom { ; }
+    | atom AND atom { ; }
+    | atom OR atom { ; }
+    | atom XOR atom { ; }
+    | atom IMPLY atom { ; }
+
+atom:
+    '(' expr EQ expr ')' { ; }
+    | '(' expr GT expr ')' { ; }
+    | '(' expr LT expr ')' { ; }
+    | '(' expr GE expr ')' { ; }
+    | '(' expr LE expr ')' { ; }
+    | '(' TRUE ')' { ; }
+    | '(' FALSE ')' { ; }
 
 flow:
 	FLOW ':' odes { ; }
@@ -78,10 +108,27 @@ odes:
 	| ode { ; }
 
 ode:
-	D_DT '[' identifier ']' '=' expr ';'
+	D_DT '[' identifier ']' EQ expr ';' { ; }
 
-// EXPRESSION
+// SEPARATE A RESET EXPRESSION FROM REGULAR MATHS EXPRESSIONS
 expr:
+    variable { ; }
+    | number { ; }
+    | MINUS expr %prec NEG
+    | expr PLUS expr { ; }
+    | expr MINUS expr { ; }
+    | expr TIMES expr { ; }
+    | expr DIVIDE expr { ; }
+    | expr POWER expr { ; }
+    | EXP '(' expr ')' { ; }
+    | LOG '(' expr ')' { ; }
+    | SIN '(' expr ')' { ; }
+    | COS '(' expr ')' { ; }
+    | TAN '(' expr ')' { ; }
+    | ASIN '(' expr ')' { ; }
+    | ACOS '(' expr ')' { ; }
+    | ATAN '(' expr ')' { ; }
+    | '(' expr ')' { ; }
 
 jumps_section:
 	JUMP ':' jumps { ; }
@@ -91,17 +138,31 @@ jumps:
 	| jump { ; }
 
 jump:
-	prop IMPLY '@' prop ';' { ; }
+	prop TRANS '@' n_int prop ';' { ; }
 
 init:
-	'@' n_int prop ';' { ; }
+	INIT ':' '@' n_int prop ';' { ; }
 
 goal:
-	'@' n_int prop ';' { ; }
+	GOAL ':' '@' n_int prop ';' { ; }
+
+synthesize:
+	SYNTHESIZE ':' syn_group { ; }
+
+syn_group:
+	syn_group syn_line ';' { ; }
+	| syn_line ';' { ; }
+
+syn_line:
+    identifier ':' number
 
 number:
 	n_float { ; }
 	| n_int { ; }
+
+variable:
+	identifier { ; }
+	| identifier PRIME { ; }
 
 %%
 

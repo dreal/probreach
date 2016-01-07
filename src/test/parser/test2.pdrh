@@ -20,7 +20,7 @@ time:
 {
     mode @1;
         invt:
-            (-a >= b);
+            (a >= b);
             (a / b <= c);
         flow:
             d/dt[a]=a * b*c;
@@ -45,6 +45,7 @@ init:
 
     @1(a=0)and(b=0);
 
-goal:
+synthesize:
 
-    @2(a>=b)and(TRUE);
+a:1e-3;
+b:3.45;

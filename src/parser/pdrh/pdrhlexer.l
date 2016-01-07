@@ -8,15 +8,30 @@ int line_num = 1;
 %x COMMENT
 
 %%
-
 "//".*\n	 		  	{ ++line_num; }
-
 "/*"            		{ BEGIN(COMMENT); }
 <COMMENT>"*/" 			{ BEGIN(INITIAL); }
 <COMMENT>\n    			{ ++line_num; }
 <COMMENT>.    			;
 
 [ \t]				    ;
+
+"+"                     { return PLUS; }
+"-"                     { return MINUS; }
+"*"                     { return TIMES; }
+"/"                     { return DIVIDE; }
+"^"                     { return POWER; }
+
+"="                     { return EQ; }
+">"                     { return GT; }
+"<"                     { return LT; }
+">="                    { return GE; }
+"<="                    { return LE; }
+
+"'"                     { return PRIME; }
+
+TRUE                    { return TRUE; }
+FALSE                   { return FALSE; }
 
 model                   { return MODEL; }
 ha                      { yylval.sval = strdup(yytext); return model_type; }
@@ -27,49 +42,46 @@ psy                     { yylval.sval = strdup(yytext); return model_type; }
 
 time                    { return TIME; }
 
-dist                    { std::cout << "token: " << yytext << std::endl; }
-pdf                     { std::cout << "token: " << yytext << std::endl; }
-u                       { std::cout << "token: " << yytext << std::endl; }
-n                       { std::cout << "token: " << yytext << std::endl; }
-e                       { std::cout << "token: " << yytext << std::endl; }
-g                       { std::cout << "token: " << yytext << std::endl; }
-dd                      { std::cout << "token: " << yytext << std::endl; }
-inf                     { std::cout << "token: " << yytext << std::endl; }
+dist                    { return DIST; }
+pdf                     { return PDF; }
+u                       { return U_DIST; }
+n                       { return N_DIST; }
+e                       { return E_DIST; }
+g                       { return G_DIST; }
+dd                      { return DD_DIST; }
+inf                     { return INF; }
 
-mode                    { std::cout << "token: " << yytext << std::endl; }
-invt                    { std::cout << "token: " << yytext << std::endl; }
-flow                    { std::cout << "token: " << yytext << std::endl; }
+mode                    { return MODE; }
+invt                    { return INVT; }
+flow                    { return FLOW; }
 "d/dt"                  { return D_DT; }
-jump                    { std::cout << "token: " << yytext << std::endl; }
-init                    { std::cout << "token: " << yytext << std::endl; }
-goal                    { std::cout << "token: " << yytext << std::endl; }
-synthesize              { std::cout << "token: " << yytext << std::endl; }
+jump                    { return JUMP; }
+init                    { return INIT; }
+goal                    { return GOAL; }
+synthesize              { return SYNTHESIZE; }
 
-not	            		{ std::cout << "set op: " << yytext[0] << std::endl; }
-and                    	{ std::cout << "set op: " << yytext << std::endl; }
-or                    	{ std::cout << "set op: " << yytext << std::endl; }
-xor                    	{ std::cout << "set op: " << yytext << std::endl; }
-=>                    	{ std::cout << "set op: " << yytext << std::endl; }
+not	            		{ return NOT; }
+and                    	{ return AND; }
+or                    	{ return OR; }
+xor                    	{ return XOR; }
+"=>"                   	{ return IMPLY; }
 
-exp              	    { std::cout << "elem funtion: " << yytext << std::endl; }
-log              	    { std::cout << "elem funtion: " << yytext << std::endl; }
-sin              	    { std::cout << "elem funtion: " << yytext << std::endl; }
-cos              	    { std::cout << "elem funtion: " << yytext << std::endl; }
-tan              	    { std::cout << "elem funtion: " << yytext << std::endl; }
-asin              	    { std::cout << "elem funtion: " << yytext << std::endl; }
-acos              	    { std::cout << "elem funtion: " << yytext << std::endl; }
-atan              	    { std::cout << "elem funtion: " << yytext << std::endl; }
+exp              	    { return EXP; }
+log              	    { return LOG; }
+sin              	    { return SIN; }
+cos              	    { return COS; }
+tan              	    { return TAN; }
+asin              	    { return ASIN; }
+acos              	    { return ACOS; }
+atan              	    { return ATAN; }
 
 [0-9]+          	    { yylval.ival = atoi(yytext); return n_int; }
+
 [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?	{ yylval.fval = atof(yytext); return n_float; }
 [a-zA-Z_][a-zA-Z0-9_]*  { yylval.sval = strdup(yytext); return identifier; }
 
-[\[\]\(\):;,\{\}@']	    { return yytext[0]; }
-==>	                    { return "IMPLY"; }
-
-[-+*/^=><]	            { std::cout << "operator: " << yytext[0] << std::endl; }
-">="                    { std::cout << "operator: " << yytext << std::endl; }
-"<="                    { std::cout << "operator: " << yytext << std::endl; }
+[\[\]\(\):;,\{\}@]	    { return yytext[0]; }
+"==>"	                { return TRANS; }
 
 \n                      { ++line_num; }
 .					    ;

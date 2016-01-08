@@ -20,7 +20,7 @@ void yyerror(const char *s);
 // terminals
 %token MODEL TIME
 %token DIST PDF N_DIST U_DIST E_DIST G_DIST DD_DIST
-%token INF
+%token INFTY
 
 %token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE
 %token D_DT TRANS PRIME
@@ -32,8 +32,6 @@ void yyerror(const char *s);
 %token TRUE FALSE
 
 %token <sval> model_type
-%token <sval> dist_type
-%token <sval> elem_fun
 %token <sval> identifier
 %token <fval> n_float
 %token <ival> n_int
@@ -48,6 +46,7 @@ pdrh:
 	model time declarations modes init goal { ; }
 	| model time declarations modes init synthesize { ; }
 
+
 model:
 	MODEL ':' model_type ';' { ; }
 
@@ -61,12 +60,32 @@ declarations:
 declaration:
 	var_declaration { ; }
 	| const_declaration { ; }
+	| dist_declaration { ; }
 
 var_declaration:
 	'[' number ',' number ']' identifier ';' { ; }
 
 const_declaration:
 	'[' number ']' identifier ';' { ; }
+
+dist_declaration:
+    PDF '(' expr ',' pdf_bound ',' pdf_bound ',' number ')' identifier ';' { ; }
+    | N_DIST '(' number ',' number ')' identifier ';' { ; }
+    | U_DIST '(' number ',' number ')' identifier ';' { ; }
+    | E_DIST '(' number ')' identifier ';' { ; }
+    | DD_DIST '(' dd_pairs ')' identifier ';' { ; }
+
+pdf_bound:
+    number { ; }
+    | INFTY { ; }
+    | MINUS INFTY { ; }
+
+dd_pairs:
+    dd_pairs ',' dd_pair { ; }
+    | dd_pair { ; }
+
+dd_pair:
+    number ':' number
 
 modes:
 	modes mode { ; }
@@ -147,13 +166,13 @@ goal:
 	GOAL ':' '@' n_int prop ';' { ; }
 
 synthesize:
-	SYNTHESIZE ':' syn_group { ; }
+	SYNTHESIZE ':' syn_pairs { ; }
 
-syn_group:
-	syn_group syn_line ';' { ; }
-	| syn_line ';' { ; }
+syn_pairs:
+	syn_pairs syn_pair ';' { ; }
+	| syn_pair ';' { ; }
 
-syn_line:
+syn_pair:
     identifier ':' number
 
 number:

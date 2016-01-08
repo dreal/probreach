@@ -42,14 +42,13 @@ psy                     { yylval.sval = strdup(yytext); return model_type; }
 
 time                    { return TIME; }
 
-dist                    { return DIST; }
-pdf                     { return PDF; }
-u                       { return U_DIST; }
-n                       { return N_DIST; }
-e                       { return E_DIST; }
-g                       { return G_DIST; }
-dd                      { return DD_DIST; }
-inf                     { return INF; }
+dist_pdf                { return PDF; }
+dist_uniform            { return U_DIST; }
+dist_normal             { return N_DIST; }
+dist_exp                { return E_DIST; }
+dist_gamma              { return G_DIST; }
+dist_discrete           { return DD_DIST; }
+infty                   { return INFTY; }
 
 mode                    { return MODE; }
 invt                    { return INVT; }

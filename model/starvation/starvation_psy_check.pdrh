@@ -7,7 +7,7 @@
  * Joshua A. Enszer and Mark A. Stadtherr
  */
 
-MODEL_TYPE(PSY;b:1e-3;k:1e-1)
+MODEL_TYPE(PSY;M_25:1e-1)
 
 #define a 0.013
 #define C 772.3
@@ -21,6 +21,7 @@ MODEL_TYPE(PSY;b:1e-3;k:1e-1)
 
 [0.05,0.075]b;
 [9, 11] k;
+[20,30] M_25;
 
 //fat
 [1,100]F;

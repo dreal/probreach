@@ -1905,7 +1905,6 @@ int main(int argc, char* argv[])
 	*/
 
 	// setting max number of threads by default
-	/*
 	#ifdef _OPENMP
 		max_num_threads = omp_get_max_threads();
 		num_threads = max_num_threads;
@@ -1961,16 +1960,13 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
-	 */
 
-	/*
 	cout << "Parameters" << endl;
 	for(int i = 0; i < model.params.size(); i++)
 	{
 		cout << i << ") " << model.params.at(i).name << " " << model.params.at(i).range << endl;
 	}
-	*/
-/*
+
 	std::map<old_Box, DInterval> p_map;
 	switch (model.model_type)
 	{
@@ -2010,7 +2006,7 @@ int main(int argc, char* argv[])
 			synthesize(model, csv);
 			break;
 	}
- */
+
 
 	/*
 	std::map<std::string, capd::interval> e;
@@ -2112,6 +2108,7 @@ int main(int argc, char* argv[])
 	 */
 
 	// testing continuous measure
+	/*
 	measure::rv_map.insert(make_pair("x", measure::distribution::gaussian("x", 0, 1)));
 	measure::rv_map.insert(make_pair("y", measure::distribution::gaussian("y", 0, 1)));
 	measure::rv_map.insert(make_pair("z", measure::distribution::gaussian("z", 0, 1)));
@@ -2155,6 +2152,7 @@ int main(int argc, char* argv[])
 	std::cout << std::setprecision(16) << "P(" << d << ")=" << p_dd << " | " << capd::intervals::width(p_dd) << std::endl;
 
 	print_version();
+	*/
 
 	return EXIT_SUCCESS;
 }

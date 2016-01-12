@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare --std=c++11 
 include_directories("/home/fedor/dreal3/build/release/include/ibex")
 include_directories("/home/fedor/dreal3/build/release/include")
 include_directories("/home/fedor/dreal3/src/api")
+include_directories("${PROJECT_SOURCE_DIR}")
 
 set (PROBREACH_VERSION_MAJOR 1)
 set (PROBREACH_VERSION_MINOR 2)

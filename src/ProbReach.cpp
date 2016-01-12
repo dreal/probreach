@@ -31,6 +31,7 @@
 #include "measure.h"
 #include "box_factory.h"
 #include "version.h"
+#include "pugixml.hpp"
 //#include "dreal.h"
 
 using namespace capd;
@@ -53,6 +54,9 @@ double series_noise = 1;
 string series_filename;
 bool prepartition_flag = false;
 bool guided = false;
+bool xml_output_flag = false;
+pugi::xml_document xml_output;
+bool merge_flag = false;
 
 int evaluate_ha(pdrh_model model)
 {
@@ -1240,6 +1244,19 @@ vector<old_Box> prepartition(vector<old_Box> boxes, std::map<string, double> pre
 
 void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 {
+	pugi::xml_node root_node;
+	std::stringstream s;
+	s << filename << "." << time(NULL) << ".xml";
+	string xml_filename = s.str();
+	if(xml_output_flag)
+	{
+		root_node.set_name("data");
+		root_node.append_attribute("progress");
+		root_node.attribute("progress").set_value(100);
+
+		xml_output.append_child("data").append_attribute("progress").set_value(100);
+	}
+
 	// parameter domain
 	vector<PartialSum> dimensions;
 	cout << "Parameters to synthesise:" << endl;
@@ -1449,9 +1466,73 @@ void synthesize(pdrh_model model, std::map<string, vector<DInterval>> csv)
 		}
 		 */
 
-		//sat_boxes = BoxFactory::merge_boxes(sat_boxes);
-		//unsat_boxes = BoxFactory::merge_boxes(unsat_boxes);
-		//undec_boxes = BoxFactory::merge_boxes(undec_boxes);
+		if(merge_flag)
+		{
+			sat_boxes = BoxFactory::merge_boxes(sat_boxes);
+			unsat_boxes = BoxFactory::merge_boxes(unsat_boxes);
+			undec_boxes = BoxFactory::merge_boxes(undec_boxes);
+		}
+
+		// finding node by the attribute name and value
+		if(xml_output_flag)
+		{
+			stringstream s;
+			s << time_disp;
+			pugi::xml_node point = xml_output.child("data").find_child_by_attribute("point", "time", s.str().c_str());
+			// if node already exists we remove it
+			if (!point.empty())
+			{
+				xml_output.child("data").remove_child(point);
+			}
+			point = xml_output.child("data").append_child("point");
+			point.append_attribute("time").set_value(time_disp);
+			// output sat boxes
+			for(int k = 0; k < sat_boxes.size(); k++)
+			{
+				old_Box box = sat_boxes.at(k);
+				pugi::xml_node box_node = point.append_child("box");
+				box_node.append_attribute("type").set_value("sat");
+				for(int j = 0; j < box.get_dimension_size(); j++)
+				{
+					pugi::xml_node interval_node = box_node.append_child("interval");
+					interval_node.append_attribute("var").set_value(box.get_dimension(j).get_var().c_str());
+					interval_node.append_attribute("left").set_value(box.get_dimension(j).get_interval().leftBound());
+					interval_node.append_attribute("right").set_value(box.get_dimension(j).get_interval().rightBound());
+				}
+			}
+
+			// output unsat boxes
+			for(int k = 0; k < unsat_boxes.size(); k++)
+			{
+				old_Box box = unsat_boxes.at(k);
+				pugi::xml_node box_node = point.append_child("box");
+				box_node.append_attribute("type").set_value("unsat");
+				for(int j = 0; j < box.get_dimension_size(); j++)
+				{
+					pugi::xml_node interval_node = box_node.append_child("interval");
+					interval_node.append_attribute("var").set_value(box.get_dimension(j).get_var().c_str());
+					interval_node.append_attribute("left").set_value(box.get_dimension(j).get_interval().leftBound());
+					interval_node.append_attribute("right").set_value(box.get_dimension(j).get_interval().rightBound());
+				}
+			}
+
+			// output undec boxes
+			for(int k = 0; k < undec_boxes.size(); k++)
+			{
+				old_Box box = undec_boxes.at(k);
+				pugi::xml_node box_node = point.append_child("box");
+				box_node.append_attribute("type").set_value("undec");
+				for(int j = 0; j < box.get_dimension_size(); j++)
+				{
+					pugi::xml_node interval_node = box_node.append_child("interval");
+					interval_node.append_attribute("var").set_value(box.get_dimension(j).get_var().c_str());
+					interval_node.append_attribute("left").set_value(box.get_dimension(j).get_interval().leftBound());
+					interval_node.append_attribute("right").set_value(box.get_dimension(j).get_interval().rightBound());
+				}
+			}
+
+			xml_output.save_file(xml_filename.c_str());
+		}
 
 		cout << "====================" << endl;
 		cout << "Step : " << step_disp << " Mode : " << mode_disp << " Time : " << time_disp << endl;
@@ -1655,6 +1736,16 @@ void parse_cmd(int argc, char* argv[])
 		else if(strcmp(argv[i], "--verbose") == 0)
 		{
 			verbose = true;
+		}
+		//merge flag
+		else if(strcmp(argv[i], "--merge-boxes") == 0)
+		{
+			merge_flag = true;
+		}
+		//xml_output
+		else if(strcmp(argv[i], "--xml-output") == 0)
+		{
+			xml_output_flag = true;
 		}
 		//solution-guided
 		else if(strcmp(argv[i], "--guided") == 0)

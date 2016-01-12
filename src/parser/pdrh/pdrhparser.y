@@ -105,7 +105,7 @@ props:
 prop:
     atom { ; }
     | NOT atom { ; }
-    | atom AND atom { ; }
+    | atom atom { ; }
     | atom OR atom { ; }
     | atom XOR atom { ; }
     | atom IMPLY atom { ; }

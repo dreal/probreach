@@ -1,6 +1,8 @@
 %{
 #include <cstdio>
 #include <iostream>
+#include <string>
+#include <sstream>
 
 // stuff from flex that bison needs to know about:
 extern "C" int yylex();
@@ -18,9 +20,10 @@ void yyerror(const char *s);
 }
 
 // terminals
-%token MODEL TIME
+%token MODEL TIME DEFINE
 %token DIST PDF N_DIST U_DIST E_DIST G_DIST DD_DIST
 %token INFTY
+%token WSPACE ENDL
 
 %token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE
 %token D_DT TRANS PRIME
@@ -28,7 +31,7 @@ void yyerror(const char *s);
 %token EXP LOG SIN COS TAN ASIN ACOS ATAN
 %token NOT AND OR XOR IMPLY
 %token PLUS MINUS TIMES DIVIDE POWER
-%token EQ GT LT GE LE
+%token EQ GT LT GE LE NE
 %token TRUE FALSE
 
 %token <sval> model_type
@@ -36,6 +39,7 @@ void yyerror(const char *s);
 %token <fval> n_float
 %token <ival> n_int
 
+%left EQ LT GT LE GE NE
 %left PLUS MINUS
 %left TIMES DIVIDE
 %left NEG
@@ -43,15 +47,8 @@ void yyerror(const char *s);
 
 %%
 pdrh:
-	model time declarations modes init goal { ; }
-	| model time declarations modes init synthesize { ; }
-
-
-model:
-	MODEL ':' model_type ';' { ; }
-
-time:
-	TIME ':' '[' number ',' number ']' ';' { ; }
+	declarations modes init goal { ; }
+	| declarations modes init synthesize { ; }
 
 declarations:
 	declarations declaration { ; }
@@ -59,14 +56,12 @@ declarations:
 
 declaration:
 	var_declaration { ; }
-	| const_declaration { ; }
 	| dist_declaration { ; }
 
 var_declaration:
 	'[' number ',' number ']' identifier ';' { ; }
-
-const_declaration:
-	'[' number ']' identifier ';' { ; }
+	| '[' number ']' identifier ';' { ; }
+	| '[' number ',' number ']' TIME ';' { ; }
 
 dist_declaration:
     PDF '(' expr ',' pdf_bound ',' pdf_bound ',' number ')' identifier ';' { ; }
@@ -92,11 +87,12 @@ modes:
 	| mode { ; }
 
 mode:
-	'{' MODE '@' n_int ';' invt flow jumps_section '}' { ; }
-	| '{' MODE '@' n_int ';' flow jumps_section '}' { ; }
+	'{' MODE n_int ';' invt flow jumps_section '}' { ; }
+	| '{' MODE n_int ';' flow jumps_section '}' { ; }
 
 invt:
 	INVT ':' props { ; }
+	| INVT ':'
 
 props:
 	props prop ';' { ; }
@@ -105,19 +101,29 @@ props:
 prop:
     atom { ; }
     | NOT atom { ; }
-    | atom atom { ; }
-    | atom OR atom { ; }
-    | atom XOR atom { ; }
-    | atom IMPLY atom { ; }
+    | '(' AND atoms ')' { ; }
+    | '(' OR atoms ')' { ; }
+    | '(' XOR atoms ')' { ; }
+    | '(' IMPLY atom atom ')' { ; }
+
+atoms:
+	atoms atom { ; }
+	| atom { ; }
 
 atom:
-    '(' expr EQ expr ')' { ; }
-    | '(' expr GT expr ')' { ; }
-    | '(' expr LT expr ')' { ; }
-    | '(' expr GE expr ')' { ; }
-    | '(' expr LE expr ')' { ; }
-    | '(' TRUE ')' { ; }
-    | '(' FALSE ')' { ; }
+    expr EQ expr { ; }
+    | expr GT expr { ; }
+    | expr LT expr { ; }
+    | expr GE expr { ; }
+    | expr LE expr { ; }
+    | TRUE { ; }
+    | FALSE { ; }
+    | '(' atom ')' { ; }
+    | NOT atom { ; }
+    | '(' AND atoms ')' { ; }
+    | '(' OR atoms ')' { ; }
+    | '(' XOR atoms ')' { ; }
+    | '(' IMPLY atom atom ')' { ; }
 
 flow:
 	FLOW ':' odes { ; }
@@ -188,20 +194,38 @@ variable:
 int main(int argc, char* argv[]) {
 
 	// open a file handle to a particular file:
-	FILE *myfile = fopen(argv[1], "r");
+	FILE *pdrhfile = fopen(argv[1], "r");
 	// make sure it's valid:
-	if (!myfile) {
+	if (!pdrhfile) {
 		std::cout << "I can't open " << argv[1] << std::endl;
 		return -1;
 	}
+
+	std::stringstream s, pdrhnameprep;
+
+	pdrhnameprep << argv[1] << ".preprocessed";
+
+	s << "cpp -w -P " << argv[1] << " > " << pdrhnameprep.str().c_str();
+
+	system(s.str().c_str());
+
+	FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
+    // make sure it's valid:
+    if (!pdrhfileprep) {
+    	std::cout << "I can't open " << pdrhnameprep << std::endl;
+    	return -1;
+    }
+
 	// set lex to read from it instead of defaulting to STDIN:
-	yyin = myfile;
+	yyin = pdrhfileprep;
 
 	// parse through the input until there is no more:
 	do {
 		yyparse();
 	} while (!feof(yyin));
 
+	std::remove(pdrhnameprep.str().c_str());
+	std::cout << "File " << argv[1] << " is parsed successfully" << std::endl;
 }
 
 void yyerror(const char *s) {

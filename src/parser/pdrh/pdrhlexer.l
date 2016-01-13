@@ -27,11 +27,12 @@ int line_num = 1;
 "<"                     { return LT; }
 ">="                    { return GE; }
 "<="                    { return LE; }
+"!="                    { return NE; }
 
 "'"                     { return PRIME; }
 
-TRUE                    { return TRUE; }
-FALSE                   { return FALSE; }
+true                    { return TRUE; }
+false                   { return FALSE; }
 
 model                   { return MODEL; }
 ha                      { yylval.sval = strdup(yytext); return model_type; }
@@ -75,7 +76,6 @@ acos              	    { return ACOS; }
 atan              	    { return ATAN; }
 
 [0-9]+          	    { yylval.ival = atoi(yytext); return n_int; }
-
 [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?	{ yylval.fval = atof(yytext); return n_float; }
 [a-zA-Z_][a-zA-Z0-9_]*  { yylval.sval = strdup(yytext); return identifier; }
 

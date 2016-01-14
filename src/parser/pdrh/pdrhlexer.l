@@ -14,8 +14,6 @@ int line_num = 1;
 <COMMENT>\n    			{ ++line_num; }
 <COMMENT>.    			;
 
-[ \t]				    ;
-
 "+"                     { return PLUS; }
 "-"                     { return MINUS; }
 "*"                     { return TIMES; }
@@ -34,6 +32,7 @@ int line_num = 1;
 true                    { return TRUE; }
 false                   { return FALSE; }
 
+timeprecision           { return TIME_PREC; }
 model                   { return MODEL; }
 ha                      { yylval.sval = strdup(yytext); return model_type; }
 pha                     { yylval.sval = strdup(yytext); return model_type; }
@@ -66,6 +65,8 @@ or                    	{ return OR; }
 xor                    	{ return XOR; }
 "=>"                   	{ return IMPLY; }
 
+abs                     { return ABS; }
+sqrt              	    { return SQRT; }
 exp              	    { return EXP; }
 log              	    { return LOG; }
 sin              	    { return SIN; }
@@ -76,12 +77,13 @@ acos              	    { return ACOS; }
 atan              	    { return ATAN; }
 
 [0-9]+          	    { yylval.ival = atoi(yytext); return n_int; }
-[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?	{ yylval.fval = atof(yytext); return n_float; }
+[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?	{ yylval.fval = atof(yytext); return n_float; }
 [a-zA-Z_][a-zA-Z0-9_]*  { yylval.sval = strdup(yytext); return identifier; }
 
 [\[\]\(\):;,\{\}@]	    { return yytext[0]; }
 "==>"	                { return TRANS; }
 
 \n                      { ++line_num; }
-.					    ;
+[ \t]+				    ;
+
 %%

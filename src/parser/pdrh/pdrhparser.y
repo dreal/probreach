@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cmath>
+#include <limits>
 
 // stuff from flex that bison needs to know about:
 extern "C" int yylex();
@@ -20,15 +22,14 @@ void yyerror(const char *s);
 }
 
 // terminals
-%token MODEL TIME DEFINE
-%token DIST PDF N_DIST U_DIST E_DIST G_DIST DD_DIST
+%token MODEL TIME
+%token PDF N_DIST U_DIST E_DIST G_DIST DD_DIST
 %token INFTY
-%token WSPACE ENDL
 
-%token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE
+%token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE TIME_PREC
 %token D_DT TRANS PRIME
 
-%token EXP LOG SIN COS TAN ASIN ACOS ATAN
+%token SQRT EXP LOG SIN COS TAN ASIN ACOS ATAN ABS
 %token NOT AND OR XOR IMPLY
 %token PLUS MINUS TIMES DIVIDE POWER
 %token EQ GT LT GE LE NE
@@ -42,13 +43,20 @@ void yyerror(const char *s);
 %left EQ LT GT LE GE NE
 %left PLUS MINUS
 %left TIMES DIVIDE
-%left NEG
+%precedence UMINUS UPLUS
 %right POWER
+
+%type<sval> variable
+%type<fval> number arthm_expr pdf_bound
 
 %%
 pdrh:
-	declarations modes init goal { ; }
-	| declarations modes init synthesize { ; }
+	declarations modes init synthesize { ; }
+	| declarations modes init goal { ; }
+	| model declarations modes init goal { ; }
+
+model:
+	MODEL ':' model_type ';'
 
 declarations:
 	declarations declaration { ; }
@@ -59,28 +67,29 @@ declaration:
 	| dist_declaration { ; }
 
 var_declaration:
-	'[' number ',' number ']' identifier ';' { ; }
-	| '[' number ']' identifier ';' { ; }
-	| '[' number ',' number ']' TIME ';' { ; }
+	'[' arthm_expr ',' arthm_expr ']' identifier ';' { ; }
+	| '[' arthm_expr ']' identifier ';'	{ ; }
+	| '[' arthm_expr ',' arthm_expr ']' TIME ';' { ; }
 
 dist_declaration:
-    PDF '(' expr ',' pdf_bound ',' pdf_bound ',' number ')' identifier ';' { ; }
-    | N_DIST '(' number ',' number ')' identifier ';' { ; }
-    | U_DIST '(' number ',' number ')' identifier ';' { ; }
-    | E_DIST '(' number ')' identifier ';' { ; }
+    PDF '(' expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')' identifier ';' { ; }
+    | G_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';' { ; }
+    | N_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';' { ; }
+    | U_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';' { ; }
+    | E_DIST '(' arthm_expr ')' identifier ';' { ; }
     | DD_DIST '(' dd_pairs ')' identifier ';' { ; }
 
 pdf_bound:
-    number { ; }
-    | INFTY { ; }
-    | MINUS INFTY { ; }
+    arthm_expr 		{ $$ = $1; }
+    | INFTY 		{ $$ = std::numeric_limits<double>::infinity(); }
+    | MINUS INFTY 	{ $$ = -std::numeric_limits<double>::infinity(); }
 
 dd_pairs:
     dd_pairs ',' dd_pair { ; }
     | dd_pair { ; }
 
 dd_pair:
-    number ':' number
+    arthm_expr ':' arthm_expr { ; }
 
 modes:
 	modes mode { ; }
@@ -89,41 +98,39 @@ modes:
 mode:
 	'{' MODE n_int ';' invt flow jumps_section '}' { ; }
 	| '{' MODE n_int ';' flow jumps_section '}' { ; }
+	| '{' MODE n_int ';' timeprec flow jumps_section '}' { ; }
+	| '{' MODE n_int ';' timeprec invt flow jumps_section '}' { ; }
+
+timeprec:
+	TIME_PREC ':' number ';' { ; }
 
 invt:
-	INVT ':' props { ; }
+	INVT ':' prop_list { ; }
 	| INVT ':'
 
-props:
-	props prop ';' { ; }
+prop_list:
+	prop_list prop ';' { ; }
 	| prop ';' { ; }
 
+props:
+	props prop { ; }
+	| prop { ; }
+
 prop:
-    atom { ; }
-    | NOT atom { ; }
-    | '(' AND atoms ')' { ; }
-    | '(' OR atoms ')' { ; }
-    | '(' XOR atoms ')' { ; }
-    | '(' IMPLY atom atom ')' { ; }
-
-atoms:
-	atoms atom { ; }
-	| atom { ; }
-
-atom:
     expr EQ expr { ; }
     | expr GT expr { ; }
     | expr LT expr { ; }
     | expr GE expr { ; }
     | expr LE expr { ; }
+    | expr NE expr { ; }
     | TRUE { ; }
     | FALSE { ; }
-    | '(' atom ')' { ; }
-    | NOT atom { ; }
-    | '(' AND atoms ')' { ; }
-    | '(' OR atoms ')' { ; }
-    | '(' XOR atoms ')' { ; }
-    | '(' IMPLY atom atom ')' { ; }
+    | '(' prop ')' { ; }
+    | NOT prop { ; }
+    | '(' AND props ')' { ; }
+    | '(' OR props ')' { ; }
+    | '(' XOR props ')' { ; }
+    | '(' IMPLY prop prop ')' { ; }
 
 flow:
 	FLOW ':' odes { ; }
@@ -139,12 +146,15 @@ ode:
 expr:
     variable { ; }
     | number { ; }
-    | MINUS expr %prec NEG
+    | MINUS expr %prec UMINUS { ; }
+    | PLUS expr %prec UPLUS { ; }
     | expr PLUS expr { ; }
     | expr MINUS expr { ; }
     | expr TIMES expr { ; }
     | expr DIVIDE expr { ; }
     | expr POWER expr { ; }
+    | ABS '(' expr ')' { ; }
+    | SQRT '(' expr ')' { ; }
     | EXP '(' expr ')' { ; }
     | LOG '(' expr ')' { ; }
     | SIN '(' expr ')' { ; }
@@ -154,22 +164,55 @@ expr:
     | ACOS '(' expr ')' { ; }
     | ATAN '(' expr ')' { ; }
     | '(' expr ')' { ; }
+    ;
+
+arthm_expr:
+	number 							{ $$ = $1; }
+	| MINUS arthm_expr %prec UMINUS { $$ = -$2; }
+	| PLUS arthm_expr %prec UPLUS 	{ $$ = $2; }
+	| arthm_expr PLUS arthm_expr 	{ $$ = $1 + $3; }
+	| arthm_expr MINUS arthm_expr 	{ $$ = $1 - $3; }
+	| arthm_expr TIMES arthm_expr 	{ $$ = $1 * $3; }
+	| arthm_expr DIVIDE arthm_expr 	{ $$ = $1 / $3; }
+	| arthm_expr POWER arthm_expr 	{ $$ = std::pow($1, $3); }
+	| ABS '(' arthm_expr ')' 		{ $$ = std::abs($3); }
+	| SQRT '(' arthm_expr ')' 		{ $$ = std::sqrt($3); }
+	| EXP '(' arthm_expr ')' 		{ $$ = std::exp($3); }
+	| LOG '(' arthm_expr ')' 		{ $$ = std::log($3); }
+	| SIN '(' arthm_expr ')' 		{ $$ = std::sin($3); }
+	| COS '(' arthm_expr ')' 		{ $$ = std::cos($3); }
+	| TAN '(' arthm_expr ')' 		{ $$ = std::tan($3); }
+	| ASIN '(' arthm_expr ')' 		{ $$ = std::asin($3); }
+	| ACOS '(' arthm_expr ')' 		{ $$ = std::acos($3); }
+	| ATAN '(' arthm_expr ')' 		{ $$ = std::atan($3); }
+	| '(' arthm_expr ')' 			{ $$ = $2; }
+	;
+
 
 jumps_section:
 	JUMP ':' jumps { ; }
+	| JUMP ':' { ; }
 
 jumps:
 	jumps jump { ; }
 	| jump { ; }
 
 jump:
-	prop TRANS '@' n_int prop ';' { ; }
+	prop TRANS state { ; }
 
 init:
-	INIT ':' '@' n_int prop ';' { ; }
+	INIT ':' states
 
 goal:
-	GOAL ':' '@' n_int prop ';' { ; }
+	GOAL ':' states
+
+state:
+	'@' n_int prop ';' { ; }
+
+states:
+	states state { ; }
+	| state { ; }
+	;
 
 synthesize:
 	SYNTHESIZE ':' syn_pairs { ; }
@@ -179,19 +222,26 @@ syn_pairs:
 	| syn_pair ';' { ; }
 
 syn_pair:
-    identifier ':' number
+    identifier ':' number { ; }
 
 number:
-	n_float { ; }
-	| n_int { ; }
+	n_float 			{ $$ = $1 ; }
+	| n_int 			{ $$ = $1 ; }
 
 variable:
-	identifier { ; }
-	| identifier PRIME { ; }
+	identifier 			{ $$ = $1; }
+	| identifier PRIME 	{
+							std::stringstream s;
+							s << $1 << "'";
+							$$ = const_cast<char*>(s.str().c_str());
+						}
+	;
 
 %%
 
 int main(int argc, char* argv[]) {
+
+	std::cout << "Parsing " << argv[1];
 
 	// open a file handle to a particular file:
 	FILE *pdrhfile = fopen(argv[1], "r");
@@ -225,11 +275,11 @@ int main(int argc, char* argv[]) {
 	} while (!feof(yyin));
 
 	std::remove(pdrhnameprep.str().c_str());
-	std::cout << "File " << argv[1] << " is parsed successfully" << std::endl;
+	std::cout << " --- OK" << std::endl;
 }
 
 void yyerror(const char *s) {
-	std::cout << "EEK, parse error on line " << line_num << "!  Message: " << s << std::endl;
+	std::cout << " | parse error on line " << line_num << "!  Message: " << s << " --- FAIL" << std::endl;
 	// might as well halt now:
 	exit(-1);
 }

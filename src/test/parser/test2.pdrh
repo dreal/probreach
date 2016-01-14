@@ -16,7 +16,7 @@
             d/dt[a]=a * b*c;
             d/dt[b]= a * c;
         jump:
-            (a >= d)or(c*b<d)==>@2(a'=b*c)and(b'=a*d);
+            (or(a >= d)(c*b<d))==>@2(and(a'=b*c)(b'=a*d));
 }
 
 {
@@ -28,12 +28,12 @@
             d/dt[a]=a - b*c;
             d/dt[b]= a / c;
         jump:
-            (a >= d)or(c*b<d)==>@1(a'=b*c)and(b'=a*d);
+            (or(a >= d)(c*b<d))==>@1(and(a'=b*c)(b'=a*d));
 }
 
 init:
 
-    @1(a=0)and(b=0);
+    @1(and(a=0)(b=0));
 
 synthesize:
 

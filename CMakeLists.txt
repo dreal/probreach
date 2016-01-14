@@ -6,7 +6,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare --std=c++11 
 include_directories("/home/fedor/dreal3/build/release/include/ibex")
 include_directories("/home/fedor/dreal3/build/release/include")
 include_directories("/home/fedor/dreal3/src/api")
-include_directories("${PROJECT_SOURCE_DIR}")
+include_directories("${PROJECT_SOURCE_DIR}/src")
+include_directories("${PROJECT_SOURCE_DIR}/src/xml")
 
 set (PROBREACH_VERSION_MAJOR 1)
 set (PROBREACH_VERSION_MINOR 2)
@@ -20,7 +21,7 @@ configure_file (
   "${PROJECT_SOURCE_DIR}/src/version.h"
   )
 
-file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/xml/*.cpp)
 
 add_executable(ProbReach ${SOURCES})
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libcapd.a)

@@ -5,8 +5,8 @@ model:
 /*
  * The variable declaration goes here
  */
-dist_pdf(x + 1/5, -infty, infty, 0)r2_r3;
-dist_pdf(x + 1/5, -infty, infty, 0)r2_r13;
+dist_pdf(x - 1/5, -infty, infty, 0)r2_r3;
+dist_pdf(x - 1/5, -infty, infty, 0)r2_r13;
 
 [0.1, 0.2] a; // variable 1
 [-1e-7 + 67 + sin(-3),  1e-7+1e9]b; // variable 2
@@ -14,8 +14,8 @@ dist_pdf(x + 1/5, -infty, infty, 0)r2_r13;
 [16552] mode1; // constant 2
 [0,1000] time; // time declaration
 
-dist_pdf(x + 1/5, -5, 5, 0)x;
-dist_pdf(x + 1/5, -infty, 5, 0)r;
+dist_pdf(x - 1/5, -5, 5, 0)x;
+dist_pdf(x - 1/5, -infty, 5, 0)r;
 dist_normal(0,1)y;
 dist_uniform(-1,1)z;
 dist_exp(1e-4) p;
@@ -24,11 +24,14 @@ dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
 {
     mode 1;
         invt:
+            (5>=3+4);
             (-a>=b);
             (a/b<=c);
-            (((Gp-339.0000)*0.0005)<=0);
+            (a+b-c<=d);
             (((kp1/10)-(kp2/10000)*Gp-(kp3/10000)*Id)<=0);
             (tau>=0);
+            (((Gp-339.0000)*0.0005)<=0);
+            (a*b-c*d+e/(f+g)>=(i-j/k)*l+m);
         flow:
             d/dt[a]=5 - a * b*c + d;
             d/dt[b]= a * c;

@@ -23,7 +23,7 @@ configure_file (
 
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/xml/*.cpp)
 
-add_executable(ProbReach ${SOURCES})
+add_executable(ProbReach ${SOURCES} src/pdrh_config.cpp src/pdrh_config.h src/model.cpp src/model.h)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libcapd.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libibex.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libprim.a)

@@ -5,6 +5,9 @@
 #include <sstream>
 #include <cmath>
 #include <limits>
+#include "../../model.h"
+#include<capd/capdlib.h>
+#include<capd/intervals/lib.h>
 
 // stuff from flex that bison needs to know about:
 extern "C" int yylex();
@@ -46,8 +49,12 @@ void yyerror(const char *s);
 %precedence UMINUS UPLUS
 %right POWER
 
-%type<sval> variable
+%type<sval> reset_var
+%type<sval> expr prop props
 %type<fval> number arthm_expr pdf_bound
+
+// to compile
+//bison -d -o pdrhparser.c pdrhparser.y && flex -o pdrhlexer.c pdrhlexer.l && g++ -O2 -std=c++11 `/home/fedor/dreal3/build/release/bin/capd-config --cflags` pdrhparser.h pdrhparser.c pdrhlexer.c ../../model.cpp -lfl `/home/fedor/dreal3/build/release/bin/capd-config --libs` -o pdrh && ./pdrh ../../test/parser/test1.pdrh
 
 %%
 pdrh:
@@ -56,7 +63,7 @@ pdrh:
 	| model declarations modes init goal { ; }
 
 model:
-	MODEL ':' model_type ';'
+	MODEL ':' model_type ';' { ; }
 
 declarations:
 	declarations declaration { ; }
@@ -67,9 +74,9 @@ declaration:
 	| dist_declaration { ; }
 
 var_declaration:
-	'[' arthm_expr ',' arthm_expr ']' identifier ';' { ; }
-	| '[' arthm_expr ']' identifier ';'	{ ; }
-	| '[' arthm_expr ',' arthm_expr ']' TIME ';' { ; }
+	'[' arthm_expr ',' arthm_expr ']' identifier ';'    { pdrh::push_var($6, capd::interval($2, $4)); }
+	| '[' arthm_expr ']' identifier ';'	                { pdrh::push_var($4, capd::interval($2, $2)); }
+	| '[' arthm_expr ',' arthm_expr ']' TIME ';'        { pdrh::push_time_bounds(capd::interval($2, $4)); }
 
 dist_declaration:
     PDF '(' expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')' identifier ';' { ; }
@@ -81,7 +88,7 @@ dist_declaration:
 
 pdf_bound:
     arthm_expr 		{ $$ = $1; }
-    | INFTY 		{ $$ = std::numeric_limits<double>::infinity(); }
+    | INFTY 		{ $$ = +std::numeric_limits<double>::infinity(); }
     | MINUS INFTY 	{ $$ = -std::numeric_limits<double>::infinity(); }
 
 dd_pairs:
@@ -109,28 +116,88 @@ invt:
 	| INVT ':'
 
 prop_list:
-	prop_list prop ';' { ; }
-	| prop ';' { ; }
+	prop_list prop ';'  { std::cout << "invariant: " << $2 << std::endl; }
+	| prop ';'          { std::cout << "invariant: " << $1 << std::endl; }
 
 props:
-	props prop { ; }
-	| prop { ; }
+	props prop              {
+                                std::stringstream s;
+                                s << $1 << " " << $2;
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+	| prop                  {   $$ = $1; }
 
 prop:
-    expr EQ expr { ; }
-    | expr GT expr { ; }
-    | expr LT expr { ; }
-    | expr GE expr { ; }
-    | expr LE expr { ; }
-    | expr NE expr { ; }
-    | TRUE { ; }
-    | FALSE { ; }
-    | '(' prop ')' { ; }
-    | NOT prop { ; }
-    | '(' AND props ')' { ; }
-    | '(' OR props ')' { ; }
-    | '(' XOR props ')' { ; }
-    | '(' IMPLY prop prop ')' { ; }
+    expr EQ expr            {
+                                std::stringstream s;
+                                s << "(= " << $1 << " " << $3 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | expr GT expr          {
+                                std::stringstream s;
+                                s << "(> " << $1 << " " << $3 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | expr LT expr          {
+                                std::stringstream s;
+                                s << "(< " << $1 << " " << $3 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | expr GE expr          {
+                                std::stringstream s;
+                                s << "(>= " << $1 << " " << $3 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | expr LE expr          {
+                                std::stringstream s;
+                                s << "(<= " << $1 << " " << $3 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | expr NE expr          {
+                                std::stringstream s;
+                                s << "(not (= " << $1 << " " << $3 << "))";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | TRUE                  {
+                                std::stringstream s;
+                                s << "(true)";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | FALSE                 {
+                                std::stringstream s;
+                                s << "(false)";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | '(' prop ')'          {
+                                std::stringstream s;
+                                s << "(" << $2 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | NOT prop              {
+                                std::stringstream s;
+                                s << "(not " << $2 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | '(' AND props ')'     {
+                                std::stringstream s;
+                                s << "(and " << $3 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | '(' OR props ')'      {
+                                std::stringstream s;
+                                s << "(or " << $3 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | '(' XOR props ')'     {
+                                std::stringstream s;
+                                s << "(xor " << $3 << ")";
+                                $$ = const_cast<char*>(s.str().c_str());
+                            }
+    | '(' IMPLY prop prop ')'   {
+                                    std::stringstream s;
+                                    s << "(=> " << $3 << " " << $4 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
 
 flow:
 	FLOW ':' odes { ; }
@@ -144,26 +211,105 @@ ode:
 
 // SEPARATE A RESET EXPRESSION FROM REGULAR MATHS EXPRESSIONS
 expr:
-    variable { ; }
-    | number { ; }
-    | MINUS expr %prec UMINUS { ; }
-    | PLUS expr %prec UPLUS { ; }
-    | expr PLUS expr { ; }
-    | expr MINUS expr { ; }
-    | expr TIMES expr { ; }
-    | expr DIVIDE expr { ; }
-    | expr POWER expr { ; }
-    | ABS '(' expr ')' { ; }
-    | SQRT '(' expr ')' { ; }
-    | EXP '(' expr ')' { ; }
-    | LOG '(' expr ')' { ; }
-    | SIN '(' expr ')' { ; }
-    | COS '(' expr ')' { ; }
-    | TAN '(' expr ')' { ; }
-    | ASIN '(' expr ')' { ; }
-    | ACOS '(' expr ')' { ; }
-    | ATAN '(' expr ')' { ; }
-    | '(' expr ')' { ; }
+    identifier                  {   $$ = $1; }
+    | number                    {
+                                    std::stringstream s;
+                                    s << $1;
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | MINUS expr %prec UMINUS   {
+                                    std::stringstream s;
+                                    s << "(- 0 " << $2 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                    std::cout << "unary minus: " << $$ << std::endl;
+
+                                }
+    | PLUS expr %prec UPLUS     {
+                                    std::stringstream s;
+                                    s << "(+ 0 " << $2 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                    std::cout << "unary plus: " << $$ << std::endl;
+                                }
+    | expr PLUS expr            {
+                                    std::stringstream s;
+                                    s << "(+ " << $1 << " " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | expr MINUS expr           {
+                                    std::stringstream s;
+                                    s << "(- " << $1 << " " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | expr TIMES expr           {
+                                    std::stringstream s;
+                                    s << "(* " << $1 << " " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | expr DIVIDE expr          {
+                                    std::stringstream s;
+                                    s << "(/ " << $1 << " " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | expr POWER expr           {
+                                    std::stringstream s;
+                                    s << "(^ " << $1 << " " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | ABS '(' expr ')'          {
+                                    std::stringstream s;
+                                    s << "(abs " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | SQRT '(' expr ')'         {
+                                    std::stringstream s;
+                                    s << "(^ " << $3 << " 0.5)";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | EXP '(' expr ')'          {
+                                    std::stringstream s;
+                                    s << "(exp " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | LOG '(' expr ')'          {
+                                    std::stringstream s;
+                                    s << "(log " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | SIN '(' expr ')'          {
+                                    std::stringstream s;
+                                    s << "(sin " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | COS '(' expr ')'          {
+                                    std::stringstream s;
+                                    s << "(cos " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | TAN '(' expr ')'          {
+                                    std::stringstream s;
+                                    s << "(tan " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | ASIN '(' expr ')'         {
+                                    std::stringstream s;
+                                    s << "(asin " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | ACOS '(' expr ')'         {
+                                    std::stringstream s;
+                                    s << "(acos " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | ATAN '(' expr ')'         {
+                                    std::stringstream s;
+                                    s << "(atan " << $3 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
+    | '(' expr ')'              {
+                                    std::stringstream s;
+                                    s << "(" << $2 << ")";
+                                    $$ = const_cast<char*>(s.str().c_str());
+                                }
     ;
 
 arthm_expr:
@@ -188,6 +334,27 @@ arthm_expr:
 	| '(' arthm_expr ')' 			{ $$ = $2; }
 	;
 
+reset_props:
+	reset_props reset_prop { ; }
+	| reset_prop { ; }
+
+reset_prop:
+    reset_var EQ expr { ; }
+    | TRUE { ; }
+    | FALSE { ; }
+    | '(' reset_prop ')' { ; }
+    | '(' AND reset_props ')' { ; }
+
+reset_var:
+    identifier PRIME 	{
+							std::stringstream s;
+							s << $1 << "'";
+							$$ = const_cast<char*>(s.str().c_str());
+						}
+	;
+
+reset_state:
+	'@' n_int reset_prop ';' { ; }
 
 jumps_section:
 	JUMP ':' jumps { ; }
@@ -198,7 +365,7 @@ jumps:
 	| jump { ; }
 
 jump:
-	prop TRANS state { ; }
+	prop TRANS reset_state { ; }
 
 init:
 	INIT ':' states
@@ -225,17 +392,8 @@ syn_pair:
     identifier ':' number { ; }
 
 number:
-	n_float 			{ $$ = $1 ; }
-	| n_int 			{ $$ = $1 ; }
-
-variable:
-	identifier 			{ $$ = $1; }
-	| identifier PRIME 	{
-							std::stringstream s;
-							s << $1 << "'";
-							$$ = const_cast<char*>(s.str().c_str());
-						}
-	;
+	n_float 			{ $$ = $1; }
+	| n_int 			{ $$ = $1; }
 
 %%
 

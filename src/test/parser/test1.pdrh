@@ -9,7 +9,7 @@ dist_pdf(x + 1/5, -infty, infty, 0)r2_r3;
 dist_pdf(x + 1/5, -infty, infty, 0)r2_r13;
 
 [0.1, 0.2] a; // variable 1
-[-1e-7 + 67 + sin(-3),  1e-7]b; // variable 2
+[-1e-7 + 67 + sin(-3),  1e-7+1e9]b; // variable 2
 [1.0956e5*(-2.235e-7)*exp(-14)] c; // constant 1
 [16552] mode1; // constant 2
 [0,1000] time; // time declaration
@@ -30,7 +30,7 @@ dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
             (((kp1/10)-(kp2/10000)*Gp-(kp3/10000)*Id)<=0);
             (tau>=0);
         flow:
-            d/dt[a]=a * b*c;
+            d/dt[a]=5 - a * b*c + d;
             d/dt[b]= a * c;
         jump:
             (and(tau >= 0)(((kp1/10)-(kp2/10000)*Gp-(kp3/10000)*Id)<= 0)(((Gp-339.0000)*0.0005)<=0))==>@4(and(Ip'=Ip));

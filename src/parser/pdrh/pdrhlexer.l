@@ -14,6 +14,8 @@ int line_num = 1;
 <COMMENT>\n    			{ ++line_num; }
 <COMMENT>.    			;
 
+"#define"               { ++line_num; }
+
 "+"                     { return PLUS; }
 "-"                     { return MINUS; }
 "*"                     { return TIMES; }

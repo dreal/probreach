@@ -58,6 +58,13 @@ void yyerror(const char *s);
 // to compile
 //bison -d -o pdrhparser.c pdrhparser.y && flex -o pdrhlexer.c pdrhlexer.l && g++ -O2 -std=c++11 `/home/fedor/dreal3/build/release/bin/capd-config --cflags` pdrhparser.h pdrhparser.c pdrhlexer.c ../../model.cpp -lfl `/home/fedor/dreal3/build/release/bin/capd-config --libs` -o pdrh && ./pdrh ../../test/parser/test1.pdrh
 
+// declaring some variables
+%{
+pdrh::mode *cur_mode = new pdrh::mode;
+pdrh::mode::jump *cur_jump = new pdrh::mode::jump;
+std::vector<pdrh::state> cur_states;
+%}
+
 %%
 pdrh:
 	declarations modes init synthesize { ; }
@@ -76,17 +83,105 @@ declaration:
 	| dist_declaration { ; }
 
 var_declaration:
-	'[' arthm_expr ',' arthm_expr ']' identifier ';'    { pdrh::push_var($6, capd::interval($2, $4)); }
-	| '[' arthm_expr ']' identifier ';'	                { pdrh::push_var($4, capd::interval($2, $2)); }
+	'[' arthm_expr ',' arthm_expr ']' identifier ';'    {
+	                                                        if(!pdrh::check_var($6))
+                                                            {
+                                                                pdrh::push_var($6, capd::interval($2, $4));
+                                                            }
+                                                            else
+                                                            {
+                                                               std::stringstream s;
+                                                               s << "multiple declaration of variable \"" << $6 << "\"";
+                                                               yyerror(s.str().c_str());
+                                                            }
+                                                        }
+	| '[' arthm_expr ']' identifier ';'	                {
+                                                            if(!pdrh::check_var($4))
+                                                            {
+                                                               pdrh::push_var($4, capd::interval($2, $2));
+                                                            }
+                                                            else
+                                                            {
+                                                               std::stringstream s;
+                                                               s << "multiple declaration of variable \"" << $4 << "\"";
+                                                               yyerror(s.str().c_str());
+                                                            }
+                                                        }
 	| '[' arthm_expr ',' arthm_expr ']' TIME ';'        { pdrh::push_time_bounds(capd::interval($2, $4)); }
 
 dist_declaration:
-    PDF '(' expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')' identifier ';' { ; }
-    | G_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';' { ; }
-    | N_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';' { ; }
-    | U_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';' { ; }
-    | E_DIST '(' arthm_expr ')' identifier ';' { ; }
-    | DD_DIST '(' dd_pairs ')' identifier ';' { ; }
+    PDF '(' expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')' identifier ';'  {
+                                                                                    if(!pdrh::check_var($11))
+                                                                                    {
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                       std::stringstream s;
+                                                                                       s << "multiple declaration of variable \"" << $11 << "\"";
+                                                                                       yyerror(s.str().c_str());
+                                                                                    }
+                                                                                }
+    | G_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
+                                                                                    if(!pdrh::check_var($7))
+                                                                                    {
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                       std::stringstream s;
+                                                                                       s << "multiple declaration of variable \"" << $7 << "\"";
+                                                                                       yyerror(s.str().c_str());
+                                                                                    }
+                                                                                }
+    | N_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
+                                                                                    if(!pdrh::check_var($7))
+                                                                                    {
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                       std::stringstream s;
+                                                                                       s << "multiple declaration of variable \"" << $7 << "\"";
+                                                                                       yyerror(s.str().c_str());
+                                                                                    }
+                                                                                }
+    | U_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
+                                                                                    if(!pdrh::check_var($7))
+                                                                                    {
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                       std::stringstream s;
+                                                                                       s << "multiple declaration of variable \"" << $7 << "\"";
+                                                                                       yyerror(s.str().c_str());
+                                                                                    }
+                                                                                }
+    | E_DIST '(' arthm_expr ')' identifier ';'                                  {
+                                                                                    if(!pdrh::check_var($5))
+                                                                                    {
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                       std::stringstream s;
+                                                                                       s << "multiple declaration of variable \"" << $5 << "\"";
+                                                                                       yyerror(s.str().c_str());
+                                                                                    }
+                                                                                }
+    | DD_DIST '(' dd_pairs ')' identifier ';'                                   {
+                                                                                    if(!pdrh::check_var($5))
+                                                                                    {
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                       std::stringstream s;
+                                                                                       s << "multiple declaration of variable \"" << $5 << "\"";
+                                                                                       yyerror(s.str().c_str());
+                                                                                    }
+                                                                                }
 
 pdf_bound:
     arthm_expr 		{ $$ = $1; }
@@ -101,14 +196,34 @@ dd_pair:
     arthm_expr ':' arthm_expr { ; }
 
 modes:
-	modes mode { ; }
-	| mode { ; }
+	modes mode  { ; }
+	| mode      { ; }
 
 mode:
-	'{' MODE n_int ';' invt flow jumps_section '}' { ; }
-	| '{' MODE n_int ';' flow jumps_section '}' { ; }
-	| '{' MODE n_int ';' timeprec flow jumps_section '}' { ; }
-	| '{' MODE n_int ';' timeprec invt flow jumps_section '}' { ; }
+	'{' MODE n_int ';' invt flow jumps_section '}'              {
+                                                                    cur_mode->id = $3;
+                                                                    pdrh::push_mode(*cur_mode);
+                                                                    delete cur_mode;
+                                                                    cur_mode = new pdrh::mode;
+                                                                }
+	| '{' MODE n_int ';' flow jumps_section '}'                 {
+                                                                    cur_mode->id = $3;
+                                                                    pdrh::push_mode(*cur_mode);
+                                                                    delete cur_mode;
+                                                                    cur_mode = new pdrh::mode;
+                                                                }
+	| '{' MODE n_int ';' timeprec flow jumps_section '}'        {
+	                                                                cur_mode->id = $3;
+                                                                    pdrh::push_mode(*cur_mode);
+                                                                    delete cur_mode;
+                                                                    cur_mode = new pdrh::mode;
+                                                                }
+	| '{' MODE n_int ';' timeprec invt flow jumps_section '}'   {
+	                                                                cur_mode->id = $3;
+                                                                    pdrh::push_mode(*cur_mode);
+                                                                    delete cur_mode;
+                                                                    cur_mode = new pdrh::mode;
+                                                                }
 
 timeprec:
 	TIME_PREC ':' number ';' { ; }
@@ -119,11 +234,11 @@ invt:
 
 prop_list:
 	prop_list prop ';'  {
-	                        std::cout << "invariant: " << $2 << std::endl;
+	                        pdrh::push_invt(*cur_mode, strdup($2));
                           	free($2);
                         }
 	| prop ';'          {
-	                        std::cout << "invariant: " << $1 << std::endl;
+	                        pdrh::push_invt(*cur_mode, strdup($1));
 	                        free($1);
 	                    }
 props:
@@ -214,10 +329,24 @@ odes:
 	| ode { ; }
 
 ode:
-	D_DT '[' identifier ']' EQ expr ';' { ; }
+	D_DT '[' identifier ']' EQ expr ';'     {
+	                                            pdrh::push_ode(*cur_mode, strdup($3), strdup($6));
+	                                            free($3); free($6);
+	                                        }
 
 expr:
-    identifier                  {   $$ = $1; }
+    identifier                  {
+                                    if(pdrh::check_var($1))
+                                    {
+                                        $$ = $1;
+                                    }
+                                    else
+                                    {
+                                        std::stringstream s;
+                                        s << "undefined variable \"" << $1 << "\"";
+                                        yyerror(s.str().c_str());
+                                    }
+                                }
     | number                    {
                                     std::stringstream s;
                                     s << $1;
@@ -340,7 +469,7 @@ reset_props:
 	| reset_prop { ; }
 
 reset_prop:
-    reset_var EQ expr { ; }
+    reset_var EQ expr { pdrh::push_reset(*cur_mode, *cur_jump, strdup($1), strdup($3)); }
     | TRUE { ; }
     | FALSE { ; }
     | '(' reset_prop ')' { ; }
@@ -348,14 +477,25 @@ reset_prop:
 
 reset_var:
     identifier PRIME 	{
-							std::stringstream s;
-							s << $1 << "'";
-							$$ = const_cast<char*>(s.str().c_str());
+                            if(pdrh::check_var($1))
+                            {
+                                std::stringstream s;
+                                s << $1 << "'";
+                                $$ = strdup(s.str().c_str());
+                            }
+                            else
+                            {
+                                std::stringstream s;
+                                s << "undefined variable \"" << $1 << "\"";
+                                yyerror(s.str().c_str());
+                            }
 						}
 	;
 
 reset_state:
-	'@' n_int reset_prop ';' { ; }
+	'@' n_int reset_prop ';'    {
+	 	                            cur_jump->next_id = $2;
+	 	                        }
 
 jumps_section:
 	JUMP ':' jumps { ; }
@@ -366,16 +506,33 @@ jumps:
 	| jump { ; }
 
 jump:
-	prop TRANS reset_state { ; }
+	prop TRANS reset_state  {
+	                            cur_jump->guard = strdup($1);
+	                            pdrh::push_jump(*cur_mode, *cur_jump);
+	                            delete cur_jump;
+	                            cur_jump = new pdrh::mode::jump;
+	                        }
 
 init:
-	INIT ':' states
+	INIT ':' states     {
+	                        pdrh::push_init(cur_states);
+	                        cur_states.clear();
+	                    }
 
 goal:
-	GOAL ':' states
+	GOAL ':' states     {
+	                        pdrh::push_goal(cur_states);
+                            cur_states.clear();
+                        }
 
 state:
-	'@' n_int prop ';' { ; }
+	'@' n_int prop ';'  {
+	                        pdrh::state *s = new pdrh::state;
+	                        s->id = $2;
+	                        s->prop = strdup($3);
+	                        cur_states.push_back(*s);
+	                        delete s;
+	                    }
 
 states:
 	states state { ; }
@@ -390,7 +547,18 @@ syn_pairs:
 	| syn_pair ';' { ; }
 
 syn_pair:
-    identifier ':' number { ; }
+    identifier ':' number   {
+                                if(pdrh::check_var($1))
+                                {
+                                    pdrh::push_syn_pair(strdup($1), $3);
+                                }
+                                else
+                                {
+                                   std::stringstream s;
+                                   s << "undefined variable \"" << $1 << "\"";
+                                   yyerror(s.str().c_str());
+                                }
+                            }
 
 number:
 	n_float 			{ $$ = $1; }
@@ -436,16 +604,15 @@ int main(int argc, char* argv[]) {
 	std::remove(pdrhnameprep.str().c_str());
 	std::cout << " --- OK" << std::endl;
 
-	std::cout << "DECLARED VARIABLES:" << std::endl;
-	for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
-	{
-	    std::cout << "var: \"" << it->first << "\" domain: " << it->second << std::endl;
-	}
+	std::cout << pdrh::print_model() << std::endl;
+
+	delete cur_mode;
+	delete cur_jump;
 
 }
 
 void yyerror(const char *s) {
-	std::cout << " | parse error on line " << line_num << "!  Message: " << s << " --- FAIL" << std::endl;
+	std::cout << " | parse error on line " << line_num << ": " << s << std::endl;
 	// might as well halt now:
 	exit(-1);
 }

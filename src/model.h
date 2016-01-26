@@ -28,7 +28,7 @@ namespace pdrh
         struct jump
         {
             std::string guard;
-            mode* successor;
+            int next_id;
             std::map<std::string, std::string> reset;
         };
         std::vector<jump> jumps;
@@ -39,7 +39,7 @@ namespace pdrh
     // state struct
     struct state
     {
-        mode* m;
+        int id;
         std::string prop;
     };
     extern std::vector<state> init;
@@ -54,11 +54,16 @@ namespace pdrh
     void push_ode(pdrh::mode&, std::string, std::string);
     void push_jump(pdrh::mode&, pdrh::mode::jump);
     // first argument is the address of the jump, second argument is the variable name, third argument is the reset expression
-    void push_reset(pdrh::mode::jump&, std::string, std::string);
-    void push_init(pdrh::state);
-    void push_goal(pdrh::state);
-    void push_syn_param(std::string, double);
+    void push_reset(pdrh::mode&, pdrh::mode::jump&, std::string, std::string);
+    void push_init(std::vector<pdrh::state>);
+    void push_goal(std::vector<pdrh::state>);
+    void push_syn_pair(std::string, double);
     void push_time_bounds(capd::interval);
+
+    bool check_var(std::string);
+
+    std::string print_model();
+
 }
 
 

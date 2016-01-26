@@ -14,27 +14,24 @@
             (a+2+4>=b-1-17);
             (-a>=b);
             (a/b<=c);
-            (a+b-c<=d);
-            (a*b-c*d+e/(f+g)>=(i-j/k)*l+m);
+            (a+b-c<=a);
+            (a*b-c*a+b/(c+a)>=(b-c/a)*b+c);
             (a >= b);
             (a / b <= c);
         flow:
             d/dt[a]=a * b*c;
             d/dt[b]= a * c;
         jump:
-            (or(a >= d)(c*b<d))==>@2(and(a'=b*c)(b'=a*d));
+            (or(a >= b)(c*b<a))==>@2(and(a'=b*c)(b'=a*c));
 }
 
 {
     mode 2;
-        invt:
-            (a < b);
-            (a / b > c);
         flow:
             d/dt[a]=a - b*c;
             d/dt[b]= a / c;
         jump:
-            (or(a >= d)(c*b<d))==>@1(and(a'=b*c)(b'=a*d));
+            (or(a >= b)(c*b<a))==>@1(and(a'=b*c)(b'=a*c));
 }
 
 init:

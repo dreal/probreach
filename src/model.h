@@ -8,17 +8,18 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include<capd/capdlib.h>
-#include<capd/intervals/lib.h>
+#include <capd/capdlib.h>
+#include <capd/intervals/lib.h>
+#include <tuple>
 
 namespace pdrh
 {
     extern int type;
     extern capd::interval time;
-    extern std::map<std::string, std::string> rv_map;
+    extern std::map<std::string, std::tuple<std::string, capd::interval, capd::interval>> rv_map;
     extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
     extern std::map<std::string, capd::interval> var_map;
-    extern std::map<std::string, double> syn_map;
+    extern std::map<std::string, capd::interval> syn_map;
     // mode struct
     struct mode
     {
@@ -46,8 +47,8 @@ namespace pdrh
     extern std::vector<state> goal;
 
     void push_var(std::string, capd::interval);
-    void push_rv(std::string, std::string);
     void push_dd(std::string, std::map<capd::interval, capd::interval>);
+    void push_rv(std::string, std::string, capd::interval, capd::interval);
     void push_mode(pdrh::mode);
     void push_invt(pdrh::mode&, std::string);
     // first argument is the address of the mode, second argument is the variable name, third argument is the ode
@@ -57,9 +58,8 @@ namespace pdrh
     void push_reset(pdrh::mode&, pdrh::mode::jump&, std::string, std::string);
     void push_init(std::vector<pdrh::state>);
     void push_goal(std::vector<pdrh::state>);
-    void push_syn_pair(std::string, double);
+    void push_syn_pair(std::string, capd::interval);
     void push_time_bounds(capd::interval);
-
     bool check_var(std::string);
 
     std::string print_model();

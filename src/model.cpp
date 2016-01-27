@@ -6,10 +6,10 @@
 #include <map>
 
 int pdrh::type;
-std::map<std::string, std::string> pdrh::rv_map;
+std::map<std::string, std::tuple<std::string, capd::interval, capd::interval>> pdrh::rv_map;
 std::map<std::string, std::map<capd::interval, capd::interval>> pdrh::dd_map;
 std::map<std::string, capd::interval> pdrh::var_map;
-std::map<std::string, double> pdrh::syn_map;
+std::map<std::string, capd::interval> pdrh::syn_map;
 capd::interval pdrh::time;
 std::vector<pdrh::mode> pdrh::modes;
 std::vector<pdrh::state> pdrh::init;
@@ -109,9 +109,19 @@ void pdrh::push_goal(std::vector<pdrh::state> s)
     pdrh::goal = s;
 }
 
-void pdrh::push_syn_pair(std::string var, double e)
+void pdrh::push_syn_pair(std::string var, capd::interval e)
 {
     pdrh::syn_map.insert(make_pair(var, e));
+}
+
+void pdrh::push_rv(std::string var, std::string pdf, capd::interval domain, capd::interval start)
+{
+    pdrh::rv_map.insert(make_pair(var, make_tuple(pdf, domain, start)));
+}
+
+void pdrh::push_dd(std::string var, std::map<capd::interval, capd::interval> m)
+{
+    pdrh::dd_map.insert(make_pair(var, m));
 }
 
 std::string pdrh::print_model()
@@ -121,6 +131,21 @@ std::string pdrh::print_model()
     for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
     {
         out << "|   " << it->first << " " << it->second << std::endl;
+    }
+    out << "CONTINUOUS RANDOM VARIABLES:" << std::endl;
+    for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
+    {
+        out << "|   pdf(" << it->first << ") = " << std::get<0>(it->second) << "  | " << std::get<1>(it->second) << " |   " << std::get<2>(it->second) << std::endl;
+    }
+    out << "DISCRETE RANDOM VARIABLES:" << std::endl;
+    for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)
+    {
+        out << "|   dd(" << it->first << ") = (";
+        for(auto it2 = it->second.cbegin(); it2 != it->second.cend(); it2++)
+        {
+            out << it2->first << " : " << it2->second << ", ";
+        }
+        out << ")" << std::endl;
     }
     out << "TIME DOMAIN:" << std::endl;
     out << "|   " << pdrh::time << std::endl;

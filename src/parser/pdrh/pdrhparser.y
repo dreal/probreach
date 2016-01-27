@@ -51,7 +51,7 @@ void yyerror(const char *s);
 %right POWER
 
 %type<sval> reset_var
-%type<sval> expr
+%type<sval> expr pdf_expr
 %type<fval> number arthm_expr pdf_bound
 %type<sval> prop props
 
@@ -63,6 +63,7 @@ void yyerror(const char *s);
 pdrh::mode *cur_mode = new pdrh::mode;
 pdrh::mode::jump *cur_jump = new pdrh::mode::jump;
 std::vector<pdrh::state> cur_states;
+std::map<capd::interval, capd::interval> cur_dd;
 %}
 
 %%
@@ -110,10 +111,12 @@ var_declaration:
 	| '[' arthm_expr ',' arthm_expr ']' TIME ';'        { pdrh::push_time_bounds(capd::interval($2, $4)); }
 
 dist_declaration:
-    PDF '(' expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')' identifier ';'  {
+    PDF '(' pdf_expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')' identifier ';'
+                                                                                {
                                                                                     if(!pdrh::check_var($11))
                                                                                     {
-
+                                                                                        pdrh::push_var($11, capd::interval($5, $7));
+                                                                                        pdrh::push_rv(strdup($11), strdup($3), capd::interval($5, $7), capd::interval($9));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -125,7 +128,8 @@ dist_declaration:
     | G_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
                                                                                     if(!pdrh::check_var($7))
                                                                                     {
-
+                                                                                        pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
+                                                                                                                            std::numeric_limits<double>::infinity()));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -137,7 +141,8 @@ dist_declaration:
     | N_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
                                                                                     if(!pdrh::check_var($7))
                                                                                     {
-
+                                                                                        pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
+                                                                                                                             std::numeric_limits<double>::infinity()));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -149,7 +154,8 @@ dist_declaration:
     | U_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
                                                                                     if(!pdrh::check_var($7))
                                                                                     {
-
+                                                                                        pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
+                                                                                                                             std::numeric_limits<double>::infinity()));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -161,7 +167,8 @@ dist_declaration:
     | E_DIST '(' arthm_expr ')' identifier ';'                                  {
                                                                                     if(!pdrh::check_var($5))
                                                                                     {
-
+                                                                                        pdrh::push_var($5, capd::interval(-std::numeric_limits<double>::infinity(),
+                                                                                                                             std::numeric_limits<double>::infinity()));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -173,7 +180,10 @@ dist_declaration:
     | DD_DIST '(' dd_pairs ')' identifier ';'                                   {
                                                                                     if(!pdrh::check_var($5))
                                                                                     {
-
+                                                                                        pdrh::push_var($5, capd::interval(-std::numeric_limits<double>::infinity(),
+                                                                                                                             std::numeric_limits<double>::infinity()));
+                                                                                        pdrh::push_dd($5, cur_dd);
+                                                                                        cur_dd.clear();
                                                                                     }
                                                                                     else
                                                                                     {
@@ -188,12 +198,113 @@ pdf_bound:
     | INFTY 		{ $$ = +std::numeric_limits<double>::infinity(); }
     | MINUS INFTY 	{ $$ = -std::numeric_limits<double>::infinity(); }
 
+pdf_expr:
+    identifier                      {
+                                        $$ = $1;
+                                    }
+    | number                        {
+                                        std::stringstream s;
+                                        s << $1;
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | MINUS pdf_expr %prec UMINUS   {
+                                        std::stringstream s;
+                                        s << "-" << $2;
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | PLUS pdf_expr %prec UPLUS     {
+                                        $$ = $2;
+                                    }
+    | pdf_expr MINUS pdf_expr       {
+                                        std::stringstream s;
+                                        s << $1 << "-" << $3;
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | pdf_expr PLUS pdf_expr        {
+                                        std::stringstream s;
+                                        s << $1 << "+" << $3;
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | pdf_expr TIMES pdf_expr       {
+                                        std::stringstream s;
+                                        s << $1 << "*" << $3;
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | pdf_expr DIVIDE pdf_expr      {
+                                        std::stringstream s;
+                                        s << $1 << "/" << $3;
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | pdf_expr POWER pdf_expr       {
+                                        std::stringstream s;
+                                        s << $1 << "^" << $3;
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | ABS '(' pdf_expr ')'          {
+                                        std::stringstream s;
+                                        s << "abs(" << $3 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | SQRT '(' pdf_expr ')'         {
+                                        std::stringstream s;
+                                        s << $3 << "^0.5";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | EXP '(' pdf_expr ')'          {
+                                        std::stringstream s;
+                                        s << "exp(" << $3 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | LOG '(' pdf_expr ')'          {
+                                        std::stringstream s;
+                                        s << "log(" << $3 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | SIN '(' pdf_expr ')'          {
+                                        std::stringstream s;
+                                        s << "sin(" << $3 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | COS '(' pdf_expr ')'          {
+                                        std::stringstream s;
+                                        s << "cos(" << $3 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | TAN '(' pdf_expr ')'          {
+                                        std::stringstream s;
+                                        s << "tan(" << $3 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | ASIN '(' pdf_expr ')'         {
+                                        std::stringstream s;
+                                        s << "asin(" << $3 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | ACOS '(' pdf_expr ')'         {
+                                        std::stringstream s;
+                                        s << "acos(" << $3 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | ATAN '(' pdf_expr ')'         {
+                                        std::stringstream s;
+                                        s << "atan(" << $3 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    | '(' pdf_expr ')'              {
+                                        std::stringstream s;
+                                        s << "(" << $2 << ")";
+                                        $$ = strdup(s.str().c_str());
+                                    }
+    ;
+
 dd_pairs:
     dd_pairs ',' dd_pair { ; }
     | dd_pair { ; }
 
 dd_pair:
-    arthm_expr ':' arthm_expr { ; }
+    arthm_expr ':' arthm_expr   {
+                                    cur_dd.insert(std::make_pair(capd::interval($1), capd::interval($3)));
+                                }
 
 modes:
 	modes mode  { ; }
@@ -550,7 +661,7 @@ syn_pair:
     identifier ':' number   {
                                 if(pdrh::check_var($1))
                                 {
-                                    pdrh::push_syn_pair(strdup($1), $3);
+                                    pdrh::push_syn_pair(strdup($1), capd::interval($3));
                                 }
                                 else
                                 {
@@ -608,7 +719,8 @@ int main(int argc, char* argv[]) {
 
 	delete cur_mode;
 	delete cur_jump;
-
+	cur_states.clear();
+    cur_dd.clear();
 }
 
 void yyerror(const char *s) {

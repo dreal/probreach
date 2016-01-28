@@ -2340,7 +2340,29 @@ int main(int argc, char* argv[])
 	std::remove(pdrhnameprep.str().c_str());
 	std::cout << " --- OK" << std::endl;
 
-	std::cout << pdrh::print_model() << std::endl;
+	//std::cout << pdrh::print_model() << std::endl;
+
+	std::vector<pdrh::mode*> init_modes, goal_modes;
+
+	init_modes = pdrh::get_init_modes();
+	goal_modes = pdrh::get_goal_modes();
+
+	std::cout << "OBTAINING SHORTEST PATH:" << std::endl;
+
+	for(pdrh::mode* begin : init_modes)
+	{
+		for(pdrh::mode* end : goal_modes)
+		{
+			std::cout << "BETWEEN " << begin->id << " AND " << end->id << ":" << std::endl;
+			std::vector<pdrh::mode*> path = pdrh::get_shortest_path(begin, end);
+			std::cout << "PATH: ";
+			for(pdrh::mode* m : path)
+			{
+				std::cout << m->id << " ";
+			}
+			std::cout << std::endl;
+		}
+	}
 
 	return EXIT_SUCCESS;
 }

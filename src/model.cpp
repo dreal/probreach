@@ -94,11 +94,6 @@ void pdrh::push_jump(pdrh::mode& m, mode::jump j)
     m.jumps.push_back(j);
 }
 
-bool pdrh::check_var(std::string var)
-{
-    return (pdrh::var_map.find(var) != pdrh::var_map.cend());
-}
-
 void pdrh::push_init(std::vector<pdrh::state> s)
 {
     pdrh::init = s;
@@ -122,6 +117,115 @@ void pdrh::push_rv(std::string var, std::string pdf, capd::interval domain, capd
 void pdrh::push_dd(std::string var, std::map<capd::interval, capd::interval> m)
 {
     pdrh::dd_map.insert(make_pair(var, m));
+}
+
+bool pdrh::var_exists(std::string var)
+{
+    return (pdrh::var_map.find(var) != pdrh::var_map.cend());
+}
+
+pdrh::mode* pdrh::get_mode(int id)
+{
+    for(int i = 0; i < pdrh::modes.size(); i++)
+    {
+        if(pdrh::modes.at(i).id == id)
+        {
+            return &pdrh::modes.at(i);
+        }
+    }
+    return NULL;
+}
+
+std::vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* end)
+{
+    // initializing the path
+    std::vector<pdrh::mode*> path;
+    path.push_back(begin);
+    //initializing the stack
+    std::vector<pdrh::mode*> stack;
+    stack.push_back(begin);
+    while(!stack.empty())
+    {
+        // removing the first element of the stack
+        pdrh::mode* cur_mode = stack.front();
+        stack.erase(stack.cbegin());
+        // getting successors
+        std::vector<pdrh::mode*> successors = pdrh::get_successors(cur_mode);
+        if(std::find(successors.cbegin(), successors.cend(), end) != successors.end())
+        {
+            path.push_back(end);
+            return path;
+        }
+        for(pdrh::mode* suc_mode : successors)
+        {
+            if(std::find(stack.cbegin(), stack.cend(), suc_mode) == stack.end())
+            {
+                stack.push_back(cur_mode);
+                path.push_back(cur_mode);
+            }
+        }
+    }
+    return path;
+}
+
+std::vector<pdrh::mode*> pdrh::get_successors(pdrh::mode* m)
+{
+    std::vector<pdrh::mode*> res;
+    for(pdrh::mode::jump j : m->jumps)
+    {
+        pdrh::mode *tmp = pdrh::get_mode(j.next_id);
+        if(tmp != NULL)
+        {
+            res.push_back(tmp);
+        }
+        else
+        {
+            std::ostringstream s;
+            s << "mode \"" << j.next_id << "\" is not defined but appears in the jump: " << pdrh::print_jump(j) << std::endl;
+            throw std::invalid_argument(s.str());
+        }
+    }
+    return res;
+}
+
+std::vector<pdrh::mode*> pdrh::get_init_modes()
+{
+    std::vector<pdrh::mode*> res;
+    for(pdrh::state st : pdrh::init)
+    {
+        pdrh::mode *tmp = pdrh::get_mode(st.id);
+        if(tmp != NULL)
+        {
+            res.push_back(tmp);
+        }
+        else
+        {
+            std::ostringstream s;
+            s << "mode \"" << st.id << "\" is not defined but appears in the init" << std::endl;
+            throw std::invalid_argument(s.str());
+        }
+    }
+    return res;
+}
+
+std::vector<pdrh::mode*> pdrh::get_goal_modes()
+{
+    std::vector<pdrh::mode*> res;
+    for(pdrh::state st : pdrh::goal)
+    {
+        pdrh::mode *tmp = pdrh::get_mode(st.id);
+        if(tmp != NULL)
+        {
+            res.push_back(tmp);
+        }
+        else
+        {
+            std::ostringstream s;
+            s << "mode \"" << st.id << "\" is not defined but appears in the goal" << std::endl;
+            throw std::invalid_argument(s.str());
+        }
+    }
+    return res;
 }
 
 std::string pdrh::print_model()
@@ -205,5 +309,12 @@ std::string pdrh::print_model()
         }
     }
 
+    return out.str();
+}
+
+std::string pdrh::print_jump(mode::jump j)
+{
+    std::stringstream out;
+    out << j.guard << " ==>  @" << j.next_id << std::endl;
     return out.str();
 }

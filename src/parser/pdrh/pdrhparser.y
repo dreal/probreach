@@ -102,7 +102,7 @@ declaration:
 
 var_declaration:
 	'[' arthm_expr ',' arthm_expr ']' identifier ';'    {
-	                                                        if(!pdrh::check_var($6))
+	                                                        if(!pdrh::var_exists($6))
                                                             {
                                                                 pdrh::push_var($6, capd::interval($2, $4));
                                                             }
@@ -114,7 +114,7 @@ var_declaration:
                                                             }
                                                         }
 	| '[' arthm_expr ']' identifier ';'	                {
-                                                            if(!pdrh::check_var($4))
+                                                            if(!pdrh::var_exists($4))
                                                             {
                                                                pdrh::push_var($4, capd::interval($2, $2));
                                                             }
@@ -130,7 +130,7 @@ var_declaration:
 dist_declaration:
     PDF '(' pdf_expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')' identifier ';'
                                                                                 {
-                                                                                    if(!pdrh::check_var($11))
+                                                                                    if(!pdrh::var_exists($11))
                                                                                     {
                                                                                         pdrh::push_var($11, capd::interval($5, $7));
                                                                                         pdrh::push_rv(strdup($11), strdup($3), capd::interval($5, $7), capd::interval($9));
@@ -143,7 +143,7 @@ dist_declaration:
                                                                                     }
                                                                                 }
     | G_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
-                                                                                    if(!pdrh::check_var($7))
+                                                                                    if(!pdrh::var_exists($7))
                                                                                     {
                                                                                         pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                             std::numeric_limits<double>::infinity()));
@@ -156,7 +156,7 @@ dist_declaration:
                                                                                     }
                                                                                 }
     | N_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
-                                                                                    if(!pdrh::check_var($7))
+                                                                                    if(!pdrh::var_exists($7))
                                                                                     {
                                                                                         pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
@@ -169,7 +169,7 @@ dist_declaration:
                                                                                     }
                                                                                 }
     | U_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
-                                                                                    if(!pdrh::check_var($7))
+                                                                                    if(!pdrh::var_exists($7))
                                                                                     {
                                                                                         pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
@@ -182,7 +182,7 @@ dist_declaration:
                                                                                     }
                                                                                 }
     | E_DIST '(' arthm_expr ')' identifier ';'                                  {
-                                                                                    if(!pdrh::check_var($5))
+                                                                                    if(!pdrh::var_exists($5))
                                                                                     {
                                                                                         pdrh::push_var($5, capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
@@ -195,7 +195,7 @@ dist_declaration:
                                                                                     }
                                                                                 }
     | DD_DIST '(' dd_pairs ')' identifier ';'                                   {
-                                                                                    if(!pdrh::check_var($5))
+                                                                                    if(!pdrh::var_exists($5))
                                                                                     {
                                                                                         pdrh::push_var($5, capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
@@ -329,32 +329,68 @@ modes:
 
 mode:
 	'{' MODE n_int ';' invt flow jumps_section '}'              {
-	                                                                cur_dd.clear();
-                                                                    cur_mode->id = $3;
-                                                                    pdrh::push_mode(*cur_mode);
-                                                                    delete cur_mode;
-                                                                    cur_mode = new pdrh::mode;
+	                                                                if(pdrh::get_mode($3) == NULL)
+	                                                                {
+                                                                        cur_dd.clear();
+                                                                        cur_mode->id = $3;
+                                                                        pdrh::push_mode(*cur_mode);
+                                                                        delete cur_mode;
+                                                                        cur_mode = new pdrh::mode;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        std::stringstream s;
+                                                                        s << "multiple declaration of mode \"" << $3 << "\"";
+                                                                        yyerror(s.str().c_str());
+                                                                    }
                                                                 }
 	| '{' MODE n_int ';' flow jumps_section '}'                 {
-	                                                                cur_dd.clear();
-                                                                    cur_mode->id = $3;
-                                                                    pdrh::push_mode(*cur_mode);
-                                                                    delete cur_mode;
-                                                                    cur_mode = new pdrh::mode;
+	                                                                if(pdrh::get_mode($3) == NULL)
+                                                                    {
+                                                                        cur_dd.clear();
+                                                                        cur_mode->id = $3;
+                                                                        pdrh::push_mode(*cur_mode);
+                                                                        delete cur_mode;
+                                                                        cur_mode = new pdrh::mode;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        std::stringstream s;
+                                                                        s << "multiple declaration of mode \"" << $3 << "\"";
+                                                                        yyerror(s.str().c_str());
+                                                                    }
                                                                 }
 	| '{' MODE n_int ';' timeprec flow jumps_section '}'        {
-	                                                                cur_dd.clear();
-	                                                                cur_mode->id = $3;
-                                                                    pdrh::push_mode(*cur_mode);
-                                                                    delete cur_mode;
-                                                                    cur_mode = new pdrh::mode;
+	                                                                if(pdrh::get_mode($3) == NULL)
+                                                                    {
+                                                                        cur_dd.clear();
+                                                                        cur_mode->id = $3;
+                                                                        pdrh::push_mode(*cur_mode);
+                                                                        delete cur_mode;
+                                                                        cur_mode = new pdrh::mode;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        std::stringstream s;
+                                                                        s << "multiple declaration of mode \"" << $3 << "\"";
+                                                                        yyerror(s.str().c_str());
+                                                                    }
                                                                 }
 	| '{' MODE n_int ';' timeprec invt flow jumps_section '}'   {
-	                                                                cur_dd.clear();
-	                                                                cur_mode->id = $3;
-                                                                    pdrh::push_mode(*cur_mode);
-                                                                    delete cur_mode;
-                                                                    cur_mode = new pdrh::mode;
+	                                                                if(pdrh::get_mode($3) == NULL)
+                                                                    {
+                                                                        cur_dd.clear();
+                                                                        cur_mode->id = $3;
+                                                                        pdrh::push_mode(*cur_mode);
+                                                                        delete cur_mode;
+                                                                        cur_mode = new pdrh::mode;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        std::stringstream s;
+                                                                        s << "multiple declaration of mode \"" << $3 << "\"";
+                                                                        yyerror(s.str().c_str());
+                                                                    }
                                                                 }
 
 timeprec:
@@ -468,7 +504,7 @@ ode:
 
 expr:
     identifier                  {
-                                    if(pdrh::check_var($1))
+                                    if(pdrh::var_exists($1))
                                     {
                                         $$ = $1;
                                     }
@@ -609,7 +645,7 @@ reset_prop:
 
 reset_var:
     identifier PRIME 	{
-                            if(pdrh::check_var($1))
+                            if(pdrh::var_exists($1))
                             {
                                 std::stringstream s;
                                 s << $1 << "'";
@@ -661,11 +697,20 @@ goal:
 
 state:
 	'@' n_int prop ';'  {
-	                        pdrh::state *s = new pdrh::state;
-	                        s->id = $2;
-	                        s->prop = strdup($3);
-	                        cur_states.push_back(*s);
-	                        delete s;
+	                        if(pdrh::get_mode($2) != NULL)
+                            {
+                                pdrh::state *s = new pdrh::state;
+                                s->id = $2;
+                                s->prop = strdup($3);
+                                cur_states.push_back(*s);
+                                delete s;
+	                        }
+	                        else
+	                        {
+	                            std::stringstream s;
+                                s << "mode \"" << $2 << "\" does not exist";
+                                yyerror(s.str().c_str());
+	                        }
 	                    }
 
 states:
@@ -682,7 +727,7 @@ syn_pairs:
 
 syn_pair:
     identifier ':' number   {
-                                if(pdrh::check_var($1))
+                                if(pdrh::var_exists($1))
                                 {
                                     pdrh::push_syn_pair(strdup($1), capd::interval($3));
                                 }

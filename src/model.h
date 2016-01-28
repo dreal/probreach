@@ -60,10 +60,18 @@ namespace pdrh
     void push_goal(std::vector<pdrh::state>);
     void push_syn_pair(std::string, capd::interval);
     void push_time_bounds(capd::interval);
-    bool check_var(std::string);
+
+    bool var_exists(std::string);
+    pdrh::mode* get_mode(int);
+
+    std::vector<pdrh::mode*> get_init_modes();
+    std::vector<pdrh::mode*> get_goal_modes();
+
+    std::vector<pdrh::mode*> get_successors(pdrh::mode*);
+    std::vector<pdrh::mode*> get_shortest_path(pdrh::mode*, pdrh::mode*);
 
     std::string print_model();
-
+    std::string print_jump(pdrh::mode::jump);
 }
 
 

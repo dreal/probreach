@@ -33,7 +33,10 @@ dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
             d/dt[a]=5 - a * b*c + c;
             d/dt[b]= a * c;
         jump:
-            (and(a >= 0)(((r2_r3/10)-(r2_r3/10000)*r2_r13-(b/10000)*p)<= 0)(((q-339.0000)*0.0005)<=0))==>@4(and(a'=a));
+            (and(a >= 0))==>@2(and(a'=a));
+            (and(a >= 0))==>@3(and(a'=a));
+            (and(a >= 0))==>@4(and(a'=a));
+            (and(a >= 0))==>@5(and(a'=a));
 }
 
 {
@@ -48,10 +51,49 @@ dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
             (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
 }
 
+{
+    mode 3;
+        invt:
+            (a<b);
+            (a/b>c);
+        flow:
+            d/dt[a]=a-b*c;
+            d/dt[b]=a/c;
+        jump:
+            (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+}
+
+{
+    mode 4;
+        invt:
+            (a<b);
+            (a/b>c);
+        flow:
+            d/dt[a]=a-b*c;
+            d/dt[b]=a/c;
+        jump:
+            (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+}
+
+{
+    mode 5;
+        invt:
+            (a<b);
+            (a/b>c);
+        flow:
+            d/dt[a]=a-b*c;
+            d/dt[b]=a/c;
+        jump:
+            (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+}
+
 init:
 
     @1(and(a=0)(b=0));
+    @2(and(a>=b)(true));
+    @3(and(a>=b)(true));
 
 goal:
     @2(and(a>=b)(true));
     @1(and(a>=b)(true));
+    @3(and(a>=b)(true));

@@ -32,6 +32,11 @@
 #include "box_factory.h"
 #include "version.h"
 #include "pugixml.hpp"
+extern "C"
+{
+#include "parser/pdrh/pdrhparser.h"
+}
+#include "model.h"
 //#include "dreal.h"
 
 using namespace capd;
@@ -57,6 +62,13 @@ bool guided = false;
 bool xml_output_flag = false;
 pugi::xml_document xml_output;
 bool merge_flag = false;
+
+extern "C" int yyparse();
+extern "C" FILE *yyin;
+//extern pdrh::mode *cur_mode;
+//extern pdrh::mode::jump *cur_jump;
+//extern std::vector<pdrh::state> cur_states;
+//extern std::map<capd::interval, capd::interval> cur_dd;
 
 int evaluate_ha(pdrh_model model)
 {
@@ -1995,6 +2007,7 @@ int main(int argc, char* argv[])
 	}
 	*/
 
+	/*
 	// setting max number of threads by default
 	#ifdef _OPENMP
 		max_num_threads = omp_get_max_threads();
@@ -2097,7 +2110,7 @@ int main(int argc, char* argv[])
 			synthesize(model, csv);
 			break;
 	}
-
+	*/
 
 	/*
 	std::map<std::string, capd::interval> e;
@@ -2244,6 +2257,88 @@ int main(int argc, char* argv[])
 
 	print_version();
 	*/
+
+	/*
+	std::cout << "Parsing " << argv[1];
+
+	// open a file handle to a particular file:
+	FILE *pdrhfile = fopen(argv[1], "r");
+	// make sure it's valid:
+	if (!pdrhfile) {
+		std::cout << "I can't open " << argv[1] << std::endl;
+		return -1;
+	}
+
+	std::stringstream s, pdrhnameprep;
+
+	pdrhnameprep << argv[1] << ".preprocessed";
+
+	s << "cpp -w -P " << argv[1] << " > " << pdrhnameprep.str().c_str();
+
+	system(s.str().c_str());
+
+	FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
+	// make sure it's valid:
+	if (!pdrhfileprep) {
+		std::cout << "I can't open " << pdrhnameprep << std::endl;
+		return -1;
+	}
+
+	// set lex to read from it instead of defaulting to STDIN:
+	yyin = pdrhfileprep;
+
+	// parse through the input until there is no more:
+	do {
+		yyparse();
+	} while (!feof(yyin));
+
+	std::remove(pdrhnameprep.str().c_str());
+	std::cout << " --- OK" << std::endl;
+
+	std::cout << pdrh::print_model() << std::endl;
+
+	delete cur_mode;
+	delete cur_jump;
+	cur_states.clear();
+	cur_dd.clear();
+	*/
+
+	std::cout << "Parsing " << argv[1];
+
+	// open a file handle to a particular file:
+	FILE *pdrhfile = fopen(argv[1], "r");
+	// make sure it's valid:
+	if (!pdrhfile)
+	{
+		std::cout << "I can't open " << argv[1] << std::endl;
+		return -1;
+	}
+
+	std::stringstream s, pdrhnameprep;
+
+	pdrhnameprep << argv[1] << ".preprocessed";
+
+	s << "cpp -w -P " << argv[1] << " > " << pdrhnameprep.str().c_str();
+
+	system(s.str().c_str());
+
+	FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
+	// make sure it's valid:
+	if (!pdrhfileprep) {
+		std::cout << "I can't open " << pdrhnameprep << std::endl;
+		return -1;
+	}
+	// set lex to read from it instead of defaulting to STDIN:
+	yyin = pdrhfileprep;
+	// parse through the input until there is no more:
+	do {
+		yyparse();
+	} while (!feof(yyin));
+
+	std::remove(pdrhnameprep.str().c_str());
+	std::cout << " --- OK" << std::endl;
+
+	std::cout << pdrh::print_model() << std::endl;
 
 	return EXIT_SUCCESS;
 }

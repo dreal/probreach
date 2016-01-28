@@ -127,6 +127,7 @@ void pdrh::push_dd(std::string var, std::map<capd::interval, capd::interval> m)
 std::string pdrh::print_model()
 {
     std::stringstream out;
+    out << "MODEL TYPE: " << pdrh::type << std::endl;
     out << "VARIABLES:" << std::endl;
     for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
     {

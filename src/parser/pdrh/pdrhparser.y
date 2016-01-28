@@ -6,9 +6,9 @@
 #include <sstream>
 #include <cmath>
 #include <limits>
-#include "../../model.h"
-#include<capd/capdlib.h>
-#include<capd/intervals/lib.h>
+#include "../../src/model.h"
+#include <capd/capdlib.h>
+#include <capd/intervals/lib.h>
 
 // stuff from flex that bison needs to know about:
 extern "C" int yylex();
@@ -73,7 +73,24 @@ pdrh:
 	| model declarations modes init goal { ; }
 
 model:
-	MODEL ':' model_type ';' { ; }
+	MODEL ':' model_type ';'    {
+	                                if(strcmp(strdup($3), "ha") == 0)
+	                                {
+	                                    pdrh::type = 0;
+	                                } else if(strcmp(strdup($3), "pha") == 0)
+	                                {
+	                                    pdrh::type = 1;
+	                                } else if(strcmp(strdup($3), "nha") == 0)
+                                    {
+                                        pdrh::type = 2;
+                                    }else if(strcmp(strdup($3), "npha") == 0)
+                                    {
+                                        pdrh::type = 3;
+                                    }else if(strcmp(strdup($3), "psy") == 0)
+                                    {
+                                        pdrh::type = 4;
+                                    }
+	                            }
 
 declarations:
 	declarations declaration { ; }
@@ -676,7 +693,7 @@ number:
 	| n_int 			{ $$ = $1; }
 
 %%
-
+/*
 int main(int argc, char* argv[]) {
 
 	std::cout << "Parsing " << argv[1];
@@ -722,7 +739,7 @@ int main(int argc, char* argv[]) {
 	cur_states.clear();
     cur_dd.clear();
 }
-
+*/
 void yyerror(const char *s) {
 	std::cout << " | parse error on line " << line_num << ": " << s << std::endl;
 	// might as well halt now:

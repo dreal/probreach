@@ -1,4 +1,5 @@
 bin/
+build/
 .o
 .o.d
 .obj/

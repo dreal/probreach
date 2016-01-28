@@ -329,24 +329,28 @@ modes:
 
 mode:
 	'{' MODE n_int ';' invt flow jumps_section '}'              {
+	                                                                cur_dd.clear();
                                                                     cur_mode->id = $3;
                                                                     pdrh::push_mode(*cur_mode);
                                                                     delete cur_mode;
                                                                     cur_mode = new pdrh::mode;
                                                                 }
 	| '{' MODE n_int ';' flow jumps_section '}'                 {
+	                                                                cur_dd.clear();
                                                                     cur_mode->id = $3;
                                                                     pdrh::push_mode(*cur_mode);
                                                                     delete cur_mode;
                                                                     cur_mode = new pdrh::mode;
                                                                 }
 	| '{' MODE n_int ';' timeprec flow jumps_section '}'        {
+	                                                                cur_dd.clear();
 	                                                                cur_mode->id = $3;
                                                                     pdrh::push_mode(*cur_mode);
                                                                     delete cur_mode;
                                                                     cur_mode = new pdrh::mode;
                                                                 }
 	| '{' MODE n_int ';' timeprec invt flow jumps_section '}'   {
+	                                                                cur_dd.clear();
 	                                                                cur_mode->id = $3;
                                                                     pdrh::push_mode(*cur_mode);
                                                                     delete cur_mode;
@@ -643,6 +647,8 @@ jump:
 
 init:
 	INIT ':' states     {
+	                        delete cur_mode;
+                         	delete cur_jump;
 	                        pdrh::push_init(cur_states);
 	                        cur_states.clear();
 	                    }

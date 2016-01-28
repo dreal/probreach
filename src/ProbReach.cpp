@@ -34,10 +34,12 @@
 #include "pugixml.hpp"
 extern "C"
 {
-#include "parser/pdrh/pdrhparser.h"
+#include "../build/release/pdrhparser.h"
 }
 #include "model.h"
-//#include "dreal.h"
+//#include <boost/graph/graph_traits.hpp>
+//#include <boost/graph/adjacency_list.hpp>
+//#include <boost/graph/dijkstra_shortest_paths.hpp>
 
 using namespace capd;
 using namespace std;

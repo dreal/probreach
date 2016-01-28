@@ -41,6 +41,13 @@ if(FLEX_FOUND)
     FLEX_TARGET(pdrh_lexer ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhlexer.l  ${PROJECT_SOURCE_DIR}/build/release/pdrhlexer.c)
     ADD_FLEX_BISON_DEPENDENCY(pdrh_lexer pdrh_parser)
 endif(FLEX_FOUND)
+# Boost
+#find_package(Boost)
+#if(Boost_FOUND)
+#    include_directories(${Boost_INCLUDE_DIRS})
+#    message(WARNING ${Boost_INCLUDE_DIRS})
+#    target_link_libraries(ProbReach ${Boost_LIBRARIES})
+#endif(Boost_FOUND)
 # setting propeties for the fgenerated lexer and parser files
 set_source_files_properties(${PROJECT_SOURCE_DIR}/build/release/pdrhparser.c GENERATED PROPERTIES LANGUAGE CXX)
 set_source_files_properties(${PROJECT_SOURCE_DIR}/build/release/pdrhlexer.c GENERATED PROPERTIES LANGUAGE CXX)

@@ -2348,7 +2348,6 @@ int main(int argc, char* argv[])
 	goal_modes = pdrh::get_goal_modes();
 
 	std::cout << "OBTAINING SHORTEST PATH:" << std::endl;
-
 	for(pdrh::mode* begin : init_modes)
 	{
 		for(pdrh::mode* end : goal_modes)
@@ -2363,6 +2362,28 @@ int main(int argc, char* argv[])
 			std::cout << std::endl;
 		}
 	}
+
+	int length = 4;
+	std::cout << "OBTAINING PATHS OF LENGTH " << length << " :" << std::endl;
+	for(pdrh::mode* begin : init_modes)
+	{
+		for(pdrh::mode* end : goal_modes)
+		{
+			std::cout << "BETWEEN " << begin->id << " AND " << end->id << ":" << std::endl;
+			std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_paths(begin, end, length);
+			for(std::vector<pdrh::mode*> path : paths)
+			{
+				std::cout << "PATH: ";
+				for(pdrh::mode* m : path)
+				{
+					std::cout << m->id << " ";
+				}
+				std::cout << std::endl;
+			}
+
+		}
+	}
+
 
 	return EXIT_SUCCESS;
 }

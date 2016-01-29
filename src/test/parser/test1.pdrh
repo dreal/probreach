@@ -33,10 +33,10 @@ dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
             d/dt[a]=5 - a * b*c + c;
             d/dt[b]= a * c;
         jump:
-            (and(a >= 0))==>@2(and(a'=a));
-            (and(a >= 0))==>@3(and(a'=a));
-            (and(a >= 0))==>@4(and(a'=a));
-            (and(a >= 0))==>@5(and(a'=a));
+            (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@2(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@3(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@4(and(a'=b*c)(b'=a*c));
 }
 
 {
@@ -49,6 +49,9 @@ dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
             d/dt[b]=a/c;
         jump:
             (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@2(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@3(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@4(and(a'=b*c)(b'=a*c));
 }
 
 {
@@ -61,6 +64,9 @@ dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
             d/dt[b]=a/c;
         jump:
             (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@2(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@3(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@4(and(a'=b*c)(b'=a*c));
 }
 
 {
@@ -73,6 +79,9 @@ dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
             d/dt[b]=a/c;
         jump:
             (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@2(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@3(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@4(and(a'=b*c)(b'=a*c));
 }
 
 {
@@ -84,7 +93,7 @@ dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
             d/dt[a]=a-b*c;
             d/dt[b]=a/c;
         jump:
-            (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+
 }
 
 init:
@@ -92,8 +101,12 @@ init:
     @1(and(a=0)(b=0));
     @2(and(a>=b)(true));
     @3(and(a>=b)(true));
+    @4(and(a>=b)(true));
+    @5(and(a>=b)(true));
 
 goal:
-    @2(and(a>=b)(true));
     @1(and(a>=b)(true));
+    @2(and(a>=b)(true));
     @3(and(a>=b)(true));
+    @5(and(a>=b)(true));
+    @4(and(a>=b)(true));

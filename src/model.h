@@ -69,6 +69,7 @@ namespace pdrh
 
     std::vector<pdrh::mode*> get_successors(pdrh::mode*);
     std::vector<pdrh::mode*> get_shortest_path(pdrh::mode*, pdrh::mode*);
+    std::vector<std::vector<pdrh::mode*>> get_paths(pdrh::mode*, pdrh::mode*, int);
 
     std::string print_model();
     std::string print_jump(pdrh::mode::jump);

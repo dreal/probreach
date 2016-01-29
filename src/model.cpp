@@ -138,34 +138,98 @@ pdrh::mode* pdrh::get_mode(int id)
 
 std::vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* end)
 {
-    // initializing the path
+    // initializing the set of paths
+    std::vector<std::vector<pdrh::mode*>> paths;
     std::vector<pdrh::mode*> path;
-    path.push_back(begin);
-    //initializing the stack
-    std::vector<pdrh::mode*> stack;
-    stack.push_back(begin);
-    while(!stack.empty())
+    // checking if the initial state is the end state
+    if(begin == end)
     {
-        // removing the first element of the stack
-        pdrh::mode* cur_mode = stack.front();
-        stack.erase(stack.cbegin());
-        // getting successors
-        std::vector<pdrh::mode*> successors = pdrh::get_successors(cur_mode);
-        if(std::find(successors.cbegin(), successors.cend(), end) != successors.end())
+        // pushing the initial mode to the initial path
+        path.push_back(begin);
+        return path;
+    }
+    else
+    {
+        // pushing the initial mode to the initial path
+        path.push_back(begin);
+        // pushing the initial path to the set of paths
+        paths.push_back(path);
+        while(!paths.empty())
         {
-            path.push_back(end);
-            return path;
-        }
-        for(pdrh::mode* suc_mode : successors)
-        {
-            if(std::find(stack.cbegin(), stack.cend(), suc_mode) == stack.end())
+            // getting the first path in the set of paths
+            path = paths.front();
+            paths.erase(paths.cbegin());
+            // getting the mode in the path
+            pdrh::mode* cur_mode = path.back();
+            std::vector<pdrh::mode*> successors = pdrh::get_successors(cur_mode);
+            // proceeding if the current mode has successors
+            if(!successors.empty())
             {
-                stack.push_back(cur_mode);
-                path.push_back(cur_mode);
+                // checking if one of the successors is the end mode
+                if (std::find(successors.cbegin(), successors.cend(), end) != successors.cend())
+                {
+                    path.push_back(end);
+                    paths.clear();
+                    return path;
+                }
+                else
+                {
+                    // iterating through the successors of the current mode
+                    for (pdrh::mode *suc_mode : successors)
+                    {
+                        // checking if a successor does not appear in the current path
+                        if (std::find(path.cbegin(), path.cend(), suc_mode) == path.cend())
+                        {
+                            std::vector<pdrh::mode*> tmp_path = path;
+                            tmp_path.push_back(suc_mode);
+                            paths.push_back(tmp_path);
+                        }
+                    }
+                }
             }
         }
     }
+    path.clear();
     return path;
+}
+
+std::vector<std::vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::mode* end, int path_length)
+{
+    // initializing the set of paths
+    std::vector<std::vector<pdrh::mode*>> paths;
+    std::vector<pdrh::mode*> path;
+    path.push_back(begin);
+    // initializing the stack
+    std::vector<std::vector<pdrh::mode*>> stack;
+    stack.push_back(path);
+    while(!stack.empty())
+    {
+        // getting the first paths from the set of paths
+        path = stack.front();
+        stack.erase(stack.cbegin());
+        // checking if the correct path of the required length is found
+        if((path.back() == end) && (path.size() == path_length))
+        {
+            paths.push_back(path);
+        }
+        // proceeding only if the length of the current path is smaller then the required length
+        else if(path.size() < path_length)
+        {
+            // getting the last mode in the path
+            pdrh::mode* cur_mode = path.back();
+            // getting the successors of the mode
+            std::vector<pdrh::mode*> successors = pdrh::get_successors(cur_mode);
+            for(pdrh::mode* suc_mode : successors)
+            {
+                // appending the successor the current paths
+                std::vector<pdrh::mode*> new_path = path;
+                new_path.push_back(suc_mode);
+                // pushing the new path to the set of the paths
+                stack.push_back(new_path);
+            }
+        }
+    }
+    return paths;
 }
 
 std::vector<pdrh::mode*> pdrh::get_successors(pdrh::mode* m)

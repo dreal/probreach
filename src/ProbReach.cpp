@@ -32,14 +32,11 @@
 #include "box_factory.h"
 #include "version.h"
 #include "pugixml.hpp"
+#include "model.h"
 extern "C"
 {
 #include "../build/release/pdrhparser.h"
 }
-#include "model.h"
-//#include <boost/graph/graph_traits.hpp>
-//#include <boost/graph/adjacency_list.hpp>
-//#include <boost/graph/dijkstra_shortest_paths.hpp>
 
 using namespace capd;
 using namespace std;
@@ -2340,50 +2337,7 @@ int main(int argc, char* argv[])
 	std::remove(pdrhnameprep.str().c_str());
 	std::cout << " --- OK" << std::endl;
 
-	//std::cout << pdrh::print_model() << std::endl;
-
-	std::vector<pdrh::mode*> init_modes, goal_modes;
-
-	init_modes = pdrh::get_init_modes();
-	goal_modes = pdrh::get_goal_modes();
-
-	std::cout << "OBTAINING SHORTEST PATH:" << std::endl;
-	for(pdrh::mode* begin : init_modes)
-	{
-		for(pdrh::mode* end : goal_modes)
-		{
-			std::cout << "BETWEEN " << begin->id << " AND " << end->id << ":" << std::endl;
-			std::vector<pdrh::mode*> path = pdrh::get_shortest_path(begin, end);
-			std::cout << "PATH: ";
-			for(pdrh::mode* m : path)
-			{
-				std::cout << m->id << " ";
-			}
-			std::cout << std::endl;
-		}
-	}
-
-	int length = 4;
-	std::cout << "OBTAINING PATHS OF LENGTH " << length << " :" << std::endl;
-	for(pdrh::mode* begin : init_modes)
-	{
-		for(pdrh::mode* end : goal_modes)
-		{
-			std::cout << "BETWEEN " << begin->id << " AND " << end->id << ":" << std::endl;
-			std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_paths(begin, end, length);
-			for(std::vector<pdrh::mode*> path : paths)
-			{
-				std::cout << "PATH: ";
-				for(pdrh::mode* m : path)
-				{
-					std::cout << m->id << " ";
-				}
-				std::cout << std::endl;
-			}
-
-		}
-	}
-
+	std::cout << pdrh::model_to_string() << std::endl;
 
 	return EXIT_SUCCESS;
 }

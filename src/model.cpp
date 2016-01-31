@@ -4,9 +4,10 @@
 
 #include "model.h"
 #include <map>
+#include <tuple>
 
 int pdrh::type;
-std::map<std::string, std::tuple<std::string, capd::interval, capd::interval>> pdrh::rv_map;
+std::map<std::string, std::tuple<pdrh::node*, capd::interval, capd::interval>> pdrh::rv_map;
 std::map<std::string, std::map<capd::interval, capd::interval>> pdrh::dd_map;
 std::map<std::string, capd::interval> pdrh::var_map;
 std::map<std::string, capd::interval> pdrh::syn_map;
@@ -49,7 +50,7 @@ void pdrh::push_time_bounds(capd::interval domain)
 }
 
 // adding invariant
-void pdrh::push_invt(pdrh::mode& m, std::string invt)
+void pdrh::push_invt(pdrh::mode& m, pdrh::node* invt)
 {
     m.invts.push_back(invt);
 }
@@ -59,7 +60,7 @@ void pdrh::push_mode(pdrh::mode m)
     pdrh::modes.push_back(m);
 }
 
-void pdrh::push_ode(pdrh::mode& m, std::string var, std::string ode)
+void pdrh::push_ode(pdrh::mode& m, std::string var, pdrh::node* ode)
 {
     if(pdrh::var_map.find(var) != pdrh::var_map.cend())
     {
@@ -83,7 +84,7 @@ void pdrh::push_ode(pdrh::mode& m, std::string var, std::string ode)
     }
 }
 
-void pdrh::push_reset(pdrh::mode& m, pdrh::mode::jump& j, std::string var, std::string expr)
+void pdrh::push_reset(pdrh::mode& m, pdrh::mode::jump& j, std::string var, pdrh::node* expr)
 {
     // implement error check
     j.reset.insert(make_pair(var, expr));
@@ -109,9 +110,9 @@ void pdrh::push_syn_pair(std::string var, capd::interval e)
     pdrh::syn_map.insert(make_pair(var, e));
 }
 
-void pdrh::push_rv(std::string var, std::string pdf, capd::interval domain, capd::interval start)
+void pdrh::push_rv(std::string var, pdrh::node* pdf, capd::interval domain, capd::interval start)
 {
-    pdrh::rv_map.insert(make_pair(var, make_tuple(pdf, domain, start)));
+    pdrh::rv_map.insert(make_pair(var, std::make_tuple(pdf, domain, start)));
 }
 
 void pdrh::push_dd(std::string var, std::map<capd::interval, capd::interval> m)
@@ -292,7 +293,7 @@ std::vector<pdrh::mode*> pdrh::get_goal_modes()
     return res;
 }
 
-std::string pdrh::print_model()
+std::string pdrh::model_to_string()
 {
     std::stringstream out;
     out << "MODEL TYPE: " << pdrh::type << std::endl;
@@ -304,7 +305,7 @@ std::string pdrh::print_model()
     out << "CONTINUOUS RANDOM VARIABLES:" << std::endl;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
-        out << "|   pdf(" << it->first << ") = " << std::get<0>(it->second) << "  | " << std::get<1>(it->second) << " |   " << std::get<2>(it->second) << std::endl;
+        out << "|   pdf(" << it->first << ") = " << pdrh::node_to_string_infix(std::get<0>(it->second)) << "  | " << std::get<1>(it->second) << " |   " << std::get<2>(it->second) << std::endl;
     }
     out << "DISCRETE RANDOM VARIABLES:" << std::endl;
     for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)
@@ -323,9 +324,9 @@ std::string pdrh::print_model()
     {
         out << "|   MODE: " << m.id << ";" << std::endl;
         out << "|   INVARIANTS:" << std::endl;
-        for(std::string s : m.invts)
+        for(pdrh::node* n : m.invts)
         {
-            out << "|   |   " << s << std::endl;
+            out << "|   |   " << pdrh::node_to_string_prefix(n) << std::endl;
         }
         out << "|   FLOW_MAP:" << std::endl;
         for(auto it = m.flow_map.cbegin(); it != m.flow_map.cend(); it++)
@@ -335,17 +336,17 @@ std::string pdrh::print_model()
         out << "|   ODES:" << std::endl;
         for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++)
         {
-            out << "|   |   d[" << it->first << "]/dt = " << it->second << std::endl;
+            out << "|   |   d[" << it->first << "]/dt = " << pdrh::node_to_string_prefix(it->second) << std::endl;
         }
         out << "|   JUMPS:" << std::endl;
         for(pdrh::mode::jump j : m.jumps)
         {
-            out << "|   |   GUARD: " << j.guard << std::endl;
+            out << "|   |   GUARD: " << pdrh::node_to_string_prefix(j.guard) << std::endl;
             out << "|   |   SUCCESSOR: " << j.next_id << std::endl;
             out << "|   |   RESETS:" << std::endl;
             for(auto it = j.reset.cbegin(); it != j.reset.cend(); it++)
             {
-                out << "|   |   |   " << it->first << " := " << it->second << std::endl;
+                out << "|   |   |   " << it->first << " := " << pdrh::node_to_string_prefix(it->second) << std::endl;
             }
         }
     }
@@ -353,7 +354,7 @@ std::string pdrh::print_model()
     for(pdrh::state s : pdrh::init)
     {
         out << "|   MODE: " << s.id << std::endl;
-        out << "|   PROPOSITION: " << s.prop << std::endl;
+        out << "|   PROPOSITION: " << pdrh::node_to_string_prefix(s.prop) << std::endl;
     }
     if(pdrh::goal.size() > 0)
     {
@@ -361,7 +362,7 @@ std::string pdrh::print_model()
         for(pdrh::state s : pdrh::goal)
         {
             out << "|   MODE: " << s.id << std::endl;
-            out << "|   PROPOSITION: " << s.prop << std::endl;
+            out << "|   PROPOSITION: " << pdrh::node_to_string_prefix(s.prop) << std::endl;
         }
     }
     else
@@ -381,4 +382,63 @@ std::string pdrh::print_jump(mode::jump j)
     std::stringstream out;
     out << j.guard << " ==>  @" << j.next_id << std::endl;
     return out.str();
+}
+
+pdrh::node* pdrh::push_terminal_node(std::string value)
+{
+    pdrh::node* n;
+    n = new pdrh::node;
+    n->value = value;
+    return n;
+}
+
+pdrh::node* pdrh::push_operation_node(std::string value, std::vector<pdrh::node*> operands)
+{
+    pdrh::node* n;
+    n = new pdrh::node;
+    n->value = value;
+    n->operands = operands;
+    return n;
+}
+
+std::string pdrh::node_to_string_prefix(pdrh::node* n)
+{
+    std::stringstream s;
+    // checking whether n is an operation node
+    if(n->operands.size() > 0)
+    {
+        s << "(" << n->value;
+        for(pdrh::node* op : n->operands)
+        {
+            s << pdrh::node_to_string_prefix(op);
+        }
+        s << ")";
+    }
+    else
+    {
+        s  << " " << n->value;
+    }
+    return s.str();
+}
+
+std::string pdrh::node_to_string_infix(pdrh::node* n)
+{
+    std::stringstream s;
+    // checking whether n is an operation node
+    if(n->operands.size() > 0)
+    {
+        s << "(";
+        for(int i = 0; i < n->operands.size() - 1; i++)
+        {
+            s << pdrh::node_to_string_infix(n->operands.at(i));
+            s << n->value;
+        }
+        s << pdrh::node_to_string_infix(n->operands.at(n->operands.size() - 1));
+        s << ")";
+    }
+    else
+    {
+        s << n->value;
+    }
+    return s.str();
 }

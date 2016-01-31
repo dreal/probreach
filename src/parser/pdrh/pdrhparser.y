@@ -19,10 +19,13 @@ extern int line_num;
 void yyerror(const char *s);
 %}
 
-%union {
-	int ival;
-	float fval;
-	char* sval;
+%union
+{
+	int                         ival;
+	float                       fval;
+	char*                       sval;
+    pdrh::node*                 nval;
+    std::vector<pdrh::node*>*   nval_list;
 }
 
 // terminals
@@ -51,9 +54,9 @@ void yyerror(const char *s);
 %right POWER
 
 %type<sval> reset_var
-%type<sval> expr pdf_expr
 %type<fval> number arthm_expr pdf_bound
-%type<sval> prop props
+%type<nval_list> props
+%type<nval> pdf_expr prop expr
 
 // to compile
 //bison -d -o pdrhparser.c pdrhparser.y && flex -o pdrhlexer.c pdrhlexer.l && g++ -O2 -std=c++11 `/home/fedor/dreal3/build/release/bin/capd-config --cflags` pdrhparser.h pdrhparser.c pdrhlexer.c ../../model.cpp -lfl `/home/fedor/dreal3/build/release/bin/capd-config --libs` -o pdrh && ./pdrh ../../test/parser/test1.pdrh
@@ -133,7 +136,7 @@ dist_declaration:
                                                                                     if(!pdrh::var_exists($11))
                                                                                     {
                                                                                         pdrh::push_var($11, capd::interval($5, $7));
-                                                                                        pdrh::push_rv(strdup($11), strdup($3), capd::interval($5, $7), capd::interval($9));
+                                                                                        pdrh::push_rv(strdup($11), $3, capd::interval($5, $7), capd::interval($9));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -217,100 +220,105 @@ pdf_bound:
 
 pdf_expr:
     identifier                      {
-                                        $$ = $1;
+                                        $$ = pdrh::push_terminal_node($1);
                                     }
     | number                        {
                                         std::stringstream s;
                                         s << $1;
-                                        $$ = strdup(s.str().c_str());
+                                        $$ = pdrh::push_terminal_node(strdup(s.str().c_str()));
                                     }
     | MINUS pdf_expr %prec UMINUS   {
-                                        std::stringstream s;
-                                        s << "-" << $2;
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($2);
+                                        $$ = pdrh::push_operation_node("-", operands);
                                     }
     | PLUS pdf_expr %prec UPLUS     {
-                                        $$ = $2;
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($2);
+                                        $$ = pdrh::push_operation_node("+", operands);
                                     }
     | pdf_expr MINUS pdf_expr       {
-                                        std::stringstream s;
-                                        s << $1 << "-" << $3;
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($1);
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("-", operands);
                                     }
     | pdf_expr PLUS pdf_expr        {
-                                        std::stringstream s;
-                                        s << $1 << "+" << $3;
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($1);
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("+", operands);
                                     }
     | pdf_expr TIMES pdf_expr       {
-                                        std::stringstream s;
-                                        s << $1 << "*" << $3;
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($1);
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("*", operands);
                                     }
     | pdf_expr DIVIDE pdf_expr      {
-                                        std::stringstream s;
-                                        s << $1 << "/" << $3;
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($1);
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("/", operands);
                                     }
     | pdf_expr POWER pdf_expr       {
-                                        std::stringstream s;
-                                        s << $1 << "^" << $3;
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($1);
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("^", operands);
                                     }
     | ABS '(' pdf_expr ')'          {
-                                        std::stringstream s;
-                                        s << "abs(" << $3 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("abs", operands);
                                     }
     | SQRT '(' pdf_expr ')'         {
-                                        std::stringstream s;
-                                        s << $3 << "^0.5";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("sqrt", operands);
                                     }
     | EXP '(' pdf_expr ')'          {
-                                        std::stringstream s;
-                                        s << "exp(" << $3 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("exp", operands);
                                     }
     | LOG '(' pdf_expr ')'          {
-                                        std::stringstream s;
-                                        s << "log(" << $3 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("log", operands);
                                     }
     | SIN '(' pdf_expr ')'          {
-                                        std::stringstream s;
-                                        s << "sin(" << $3 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("sin", operands);
                                     }
     | COS '(' pdf_expr ')'          {
-                                        std::stringstream s;
-                                        s << "cos(" << $3 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("cos", operands);
                                     }
     | TAN '(' pdf_expr ')'          {
-                                        std::stringstream s;
-                                        s << "tan(" << $3 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("tan", operands);
                                     }
     | ASIN '(' pdf_expr ')'         {
-                                        std::stringstream s;
-                                        s << "asin(" << $3 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("asin", operands);
                                     }
     | ACOS '(' pdf_expr ')'         {
-                                        std::stringstream s;
-                                        s << "acos(" << $3 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("acos", operands);
                                     }
     | ATAN '(' pdf_expr ')'         {
-                                        std::stringstream s;
-                                        s << "atan(" << $3 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        std::vector<pdrh::node*> operands;
+                                        operands.push_back($3);
+                                        $$ = pdrh::push_operation_node("atan", operands);
                                     }
     | '(' pdf_expr ')'              {
-                                        std::stringstream s;
-                                        s << "(" << $2 << ")";
-                                        $$ = strdup(s.str().c_str());
+                                        $$ = $2;
                                     }
     ;
 
@@ -402,91 +410,85 @@ invt:
 
 prop_list:
 	prop_list prop ';'  {
-	                        pdrh::push_invt(*cur_mode, strdup($2));
-                          	free($2);
+	                        pdrh::push_invt(*cur_mode, $2);
                         }
 	| prop ';'          {
-	                        pdrh::push_invt(*cur_mode, strdup($1));
-	                        free($1);
+	                        pdrh::push_invt(*cur_mode, $1);
 	                    }
 props:
 	props prop              {
-	                            std::stringstream s;
-	                            s << $1 << " " << $2;
-	                            $$ = strdup(s.str().c_str());
+	                            $$->push_back($2);
 	                        }
-	| prop                  { $$ = $1; }
+	| prop                  {
+	                            $$ = new std::vector<pdrh::node*>;
+	                            $$->push_back($1);
+	                        }
 
 prop:
     expr EQ expr            {
-                                std::stringstream s;
-                                s << "(= " << $1 << " " << $3 << ")";
-                                $$ = strdup(s.str().c_str());
+                                std::vector<pdrh::node*> operands;
+                                operands.push_back($1);
+                                operands.push_back($3);
+                                $$ = pdrh::push_operation_node("=", operands);
                             }
     | expr GT expr          {
-                                std::stringstream s;
-                                s << "(> " << $1 << " " << $3 << ")";
-                                $$ = strdup(s.str().c_str());
+                                std::vector<pdrh::node*> operands;
+                                operands.push_back($1);
+                                operands.push_back($3);
+                                $$ = pdrh::push_operation_node(">", operands);
                             }
     | expr LT expr          {
-                                std::stringstream s;
-                                s << "(< " << $1 << " " << $3 << ")";
-                                $$ = strdup(s.str().c_str());
+                                std::vector<pdrh::node*> operands;
+                                operands.push_back($1);
+                                operands.push_back($3);
+                                $$ = pdrh::push_operation_node("<", operands);
                             }
     | expr GE expr          {
-                                std::stringstream s;
-                                s << "(>= " << $1 << " " << $3 << ")";
-                                $$ = strdup(s.str().c_str());
+                                std::vector<pdrh::node*> operands;
+                                operands.push_back($1);
+                                operands.push_back($3);
+                                $$ = pdrh::push_operation_node(">=", operands);
                             }
     | expr LE expr          {
-                                std::stringstream s;
-                                s << "(<= " << $1 << " " << $3 << ")";
-                                $$ = strdup(s.str().c_str());
+                                std::vector<pdrh::node*> operands;
+                                operands.push_back($1);
+                                operands.push_back($3);
+                                $$ = pdrh::push_operation_node("<=", operands);
                             }
     | expr NE expr          {
-                                std::stringstream s;
-                                s << "(not (= " << $1 << " " << $3 << "))";
-                                $$ = strdup(s.str().c_str());
+                                std::vector<pdrh::node*> operands;
+                                operands.push_back($1);
+                                operands.push_back($3);
+                                $$ = pdrh::push_operation_node("!=", operands);
                             }
     | TRUE                  {
-                                std::stringstream s;
-                                s << "(true)";
-                                $$ = strdup(s.str().c_str());
+                                $$ = pdrh::push_terminal_node("(true)");
                             }
     | FALSE                 {
-                                std::stringstream s;
-                                s << "(false)";
-                                $$ = strdup(s.str().c_str());
+                                $$ = pdrh::push_terminal_node("(false)");
                             }
     | '(' prop ')'          {
-                                std::stringstream s;
-                                s << "(" << $2 << ")";
-                                $$ = strdup(s.str().c_str());
+                                $$ = $2;
                             }
     | NOT prop              {
-                                std::stringstream s;
-                                s << "(not " << $2 << ")";
-                                $$ = strdup(s.str().c_str());
+                                std::vector<pdrh::node*> operands;
+                                operands.push_back($2);
+                                $$ = pdrh::push_operation_node("not", operands);
                             }
     | '(' AND props ')'     {
-                                std::stringstream s;
-                                s << "(and " << $3 << ")";
-                                $$ = strdup(s.str().c_str());
+                                $$ = pdrh::push_operation_node("and", *($3));
                             }
     | '(' OR props ')'      {
-                                std::stringstream s;
-                                s << "(or " << $3 << ")";
-                                $$ = strdup(s.str().c_str());
+                                $$ = pdrh::push_operation_node("or", *($3));
                             }
     | '(' XOR props ')'     {
-                                std::stringstream s;
-                                s << "(xor " << $3 << ")";
-                                $$ = strdup(s.str().c_str());
+                                $$ = pdrh::push_operation_node("xor", *($3));
                             }
     | '(' IMPLY prop prop ')'   {
-                                    std::stringstream s;
-                                    s << "(=> " << $3 << " " << $4 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    operands.push_back($4);
+                                    $$ = pdrh::push_operation_node("=>", operands);
                                 }
 
 flow:
@@ -498,15 +500,15 @@ odes:
 
 ode:
 	D_DT '[' identifier ']' EQ expr ';'     {
-	                                            pdrh::push_ode(*cur_mode, strdup($3), strdup($6));
-	                                            free($3); free($6);
+	                                            pdrh::push_ode(*cur_mode, strdup($3), $6);
+	                                            free($3);
 	                                        }
 
 expr:
     identifier                  {
                                     if(pdrh::var_exists($1))
                                     {
-                                        $$ = $1;
+                                        $$ = pdrh::push_terminal_node($1);
                                     }
                                     else
                                     {
@@ -518,92 +520,96 @@ expr:
     | number                    {
                                     std::stringstream s;
                                     s << $1;
-                                    $$ = strdup(s.str().c_str());
+                                    $$ = pdrh::push_terminal_node(strdup(s.str().c_str()));
                                 }
     | MINUS expr %prec UMINUS   {
-                                    std::stringstream s;
-                                    s << "(- 0 " << $2 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($2);
+                                    $$ = pdrh::push_operation_node("-", operands);
                                 }
     | PLUS expr %prec UPLUS     {
-                                    std::stringstream s;
-                                    s << "(+ 0 " << $2 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    $$ = $2;
                                 }
     | expr MINUS expr           {
-                                    std::stringstream s;
-                                    s << "(- " << $1 << " " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($1);
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("-", operands);
                                 }
     | expr PLUS expr            {
-                                    std::stringstream s;
-                                    s << "(+ " << $1 << " " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($1);
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("+", operands);
                                 }
     | expr TIMES expr           {
-                                    std::stringstream s;
-                                    s << "(* " << $1 << " " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($1);
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("*", operands);
                                 }
     | expr DIVIDE expr          {
-                                    std::stringstream s;
-                                    s << "(/ " << $1 << " " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($1);
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("/", operands);
                                 }
     | expr POWER expr           {
-                                    std::stringstream s;
-                                    s << "(^ " << $1 << " " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($1);
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("^", operands);
                                 }
     | ABS '(' expr ')'          {
-                                    std::stringstream s;
-                                    s << "(abs " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("abs", operands);
                                 }
     | SQRT '(' expr ')'         {
-                                    std::stringstream s;
-                                    s << "(^ " << $3 << " 0.5)";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    operands.push_back(pdrh::push_terminal_node("0.5"));
+                                    $$ = pdrh::push_operation_node("^", operands);
                                 }
     | EXP '(' expr ')'          {
-                                    std::stringstream s;
-                                    s << "(exp " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("exp", operands);
                                 }
     | LOG '(' expr ')'          {
-                                    std::stringstream s;
-                                    s << "(log " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("log", operands);
                                 }
     | SIN '(' expr ')'          {
-                                    std::stringstream s;
-                                    s << "(sin " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("sin", operands);
                                 }
     | COS '(' expr ')'          {
-                                    std::stringstream s;
-                                    s << "(cos " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("cos", operands);
                                 }
     | TAN '(' expr ')'          {
-                                    std::stringstream s;
-                                    s << "(tan " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("tan", operands);
                                 }
     | ASIN '(' expr ')'         {
-                                    std::stringstream s;
-                                    s << "(asin " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("asin", operands);
                                 }
     | ACOS '(' expr ')'         {
-                                    std::stringstream s;
-                                    s << "(acos " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("acos", operands);
                                 }
     | ATAN '(' expr ')'         {
-                                    std::stringstream s;
-                                    s << "(atan " << $3 << ")";
-                                    $$ = strdup(s.str().c_str());
+                                    std::vector<pdrh::node*> operands;
+                                    operands.push_back($3);
+                                    $$ = pdrh::push_operation_node("atan", operands);
                                 }
     | '(' expr ')'              {
                                     $$ = $2;
@@ -637,7 +643,7 @@ reset_props:
 	| reset_prop { ; }
 
 reset_prop:
-    reset_var EQ expr { pdrh::push_reset(*cur_mode, *cur_jump, strdup($1), strdup($3)); }
+    reset_var EQ expr { pdrh::push_reset(*cur_mode, *cur_jump, strdup($1), $3); }
     | TRUE { ; }
     | FALSE { ; }
     | '(' reset_prop ')' { ; }
@@ -675,7 +681,7 @@ jumps:
 
 jump:
 	prop TRANS reset_state  {
-	                            cur_jump->guard = strdup($1);
+	                            cur_jump->guard = $1;
 	                            pdrh::push_jump(*cur_mode, *cur_jump);
 	                            delete cur_jump;
 	                            cur_jump = new pdrh::mode::jump;
@@ -701,7 +707,7 @@ state:
                             {
                                 pdrh::state *s = new pdrh::state;
                                 s->id = $2;
-                                s->prop = strdup($3);
+                                s->prop = $3;
                                 cur_states.push_back(*s);
                                 delete s;
 	                        }

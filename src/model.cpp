@@ -233,6 +233,20 @@ std::vector<std::vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::m
     return paths;
 }
 
+std::vector<std::vector<pdrh::mode*>> pdrh::get_all_paths(int path_length)
+{
+    std::vector<std::vector<pdrh::mode*>> res;
+    for(pdrh::state i : pdrh::init)
+    {
+        for(pdrh::state g : pdrh::goal)
+        {
+            std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_paths(pdrh::get_mode(i.id), pdrh::get_mode(g.id), path_length);
+            res.insert(res.end(), paths.begin(), paths.end());
+        }
+    }
+    return res;
+}
+
 std::vector<pdrh::mode*> pdrh::get_successors(pdrh::mode* m)
 {
     std::vector<pdrh::mode*> res;
@@ -421,6 +435,34 @@ std::string pdrh::node_to_string_prefix(pdrh::node* n)
     return s.str();
 }
 
+// implement index modification
+/*
+std::string pdrh::node_to_string_prefix(pdrh::node* n, int index)
+{
+    std::stringstream s;
+    // checking whether n is an operation node
+    if(n->operands.size() > 0)
+    {
+        s << "(" << n->value;
+        for(pdrh::node* op : n->operands)
+        {
+            s << pdrh::node_to_string_prefix(op);
+        }
+        s << ")";
+    }
+    else
+    {
+        s  << " " << n->value;
+    }
+    return s.str();
+}
+*/
+
+bool pdrh::is_var(std::string var)
+{
+    return pdrh::var_map.find(var) != pdrh::var_map.cend();
+}
+
 std::string pdrh::node_to_string_infix(pdrh::node* n)
 {
     std::stringstream s;
@@ -440,5 +482,43 @@ std::string pdrh::node_to_string_infix(pdrh::node* n)
     {
         s << n->value;
     }
+    return s.str();
+}
+
+std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
+{
+    std::stringstream s;
+    // setting logic
+    s << "(set-logic QF_NRA_ODE)" << std::endl;
+    // declaring variables and defining bounds
+    for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
+    {
+        s << "(declare-fun " << it->first << " () Real)" << std::endl;
+        for(int i = 0; i < path.size(); i++)
+        {
+            s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << std::endl;
+            s << "(assert (>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << ")" << std::endl;
+            s << "(assert (<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << ")" << std::endl;
+            s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << std::endl;
+            s << "(assert (>= " << it->first << "_" << i << "_t " << it->second.leftBound() << ")" << std::endl;
+            s << "(assert (<= " << it->first << "_" << i << "_t " << it->second.rightBound() << ")" << std::endl;
+        }
+    }
+    // defining odes
+    for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
+    {
+        if(std::find(path.cbegin(), path_it, *path_it) == path_it)
+        {
+            s << "(define-ode flow_" << (*path_it)->id << " (";
+            for(auto ode_it = (*path_it)->odes.cbegin(); ode_it != (*path_it)->odes.cend(); ode_it++)
+            {
+                s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
+            }
+            s << "))" << std::endl;
+        }
+    }
+    // final statements
+    s << "(check-sat)" << std::endl;
+    s << "(exit)" << std::endl;
     return s.str();
 }

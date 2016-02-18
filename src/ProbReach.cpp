@@ -2339,6 +2339,21 @@ int main(int argc, char* argv[])
 
 	std::cout << pdrh::model_to_string() << std::endl;
 
+	std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_all_paths(3);
+	for(std::vector<pdrh::mode*> path : paths)
+	{
+		std::cout << "Generating SMT2 for path: ";
+		for(pdrh::mode* m : path)
+		{
+			std::cout << m->id;
+		}
+		std::cout << std::endl;
+		std::cout << pdrh::reach_to_smt2(path) << std::endl;
+	}
+
+	//std::cout << "Reachability to SMT2. Shortest path" << std::endl;
+	//std::cout << pdrh::reach_to_smt2() << std::endl;
+
 	return EXIT_SUCCESS;
 }
 

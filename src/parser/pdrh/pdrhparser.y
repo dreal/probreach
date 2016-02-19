@@ -653,9 +653,7 @@ reset_var:
     identifier PRIME 	{
                             if(pdrh::var_exists($1))
                             {
-                                std::stringstream s;
-                                s << $1 << "'";
-                                $$ = strdup(s.str().c_str());
+                                $$ = $1;
                             }
                             else
                             {

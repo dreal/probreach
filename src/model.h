@@ -28,7 +28,7 @@ namespace pdrh
     std::string node_to_string_prefix(node*);
     std::string node_to_string_infix(node*);
     // the second argument is a step
-    std::string node_to_string_prefix(node*, int);
+    std::string node_fix_index(node*, int, std::string);
 
     extern int type;
     extern capd::interval time;
@@ -36,8 +36,6 @@ namespace pdrh
     extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
     extern std::map<std::string, capd::interval> var_map;
     extern std::map<std::string, capd::interval> syn_map;
-
-    bool is_var(std::string);
 
     // mode struct
     struct mode
@@ -86,14 +84,16 @@ namespace pdrh
 
     std::vector<pdrh::mode*> get_init_modes();
     std::vector<pdrh::mode*> get_goal_modes();
-
     std::vector<pdrh::mode*> get_successors(pdrh::mode*);
     std::vector<pdrh::mode*> get_shortest_path(pdrh::mode*, pdrh::mode*);
     std::vector<std::vector<pdrh::mode*>> get_paths(pdrh::mode*, pdrh::mode*, int);
     std::vector<std::vector<pdrh::mode*>> get_all_paths(int);
+    // returns <first_map_keys> \ <second_map_keys>
+    std::vector<std::string> get_keys_diff(std::map<std::string, capd::interval>, std::map<std::string, capd::interval>);
+
+
 
     std::string reach_to_smt2(std::vector<pdrh::mode*>);
-
     std::string model_to_string();
     std::string print_jump(pdrh::mode::jump);
 

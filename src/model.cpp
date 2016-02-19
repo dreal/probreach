@@ -55,8 +55,15 @@ void pdrh::push_invt(pdrh::mode& m, pdrh::node* invt)
     m.invts.push_back(invt);
 }
 
+// adding mode
 void pdrh::push_mode(pdrh::mode m)
 {
+    std::vector<std::string> extra_vars = pdrh::get_keys_diff(pdrh::var_map, m.flow_map);
+    for(std::string var : extra_vars)
+    {
+        m.flow_map.insert(make_pair(var, pdrh::var_map[var]));
+        m.odes.insert(make_pair(var, pdrh::push_terminal_node("0")));
+    }
     pdrh::modes.push_back(m);
 }
 
@@ -209,12 +216,12 @@ std::vector<std::vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::m
         path = stack.front();
         stack.erase(stack.cbegin());
         // checking if the correct path of the required length is found
-        if((path.back() == end) && (path.size() == path_length))
+        if((path.back() == end) && (path.size() == path_length + 1))
         {
             paths.push_back(path);
         }
         // proceeding only if the length of the current path is smaller then the required length
-        else if(path.size() < path_length)
+        else if(path.size() < path_length + 1)
         {
             // getting the last mode in the path
             pdrh::mode* cur_mode = path.back();
@@ -302,6 +309,19 @@ std::vector<pdrh::mode*> pdrh::get_goal_modes()
             std::ostringstream s;
             s << "mode \"" << st.id << "\" is not defined but appears in the goal" << std::endl;
             throw std::invalid_argument(s.str());
+        }
+    }
+    return res;
+}
+
+std::vector<std::string> pdrh::get_keys_diff(std::map<std::string, capd::interval> left, std::map<std::string, capd::interval> right)
+{
+    std::vector<std::string> res;
+    for(auto it = left.cbegin(); it != left.cend(); it++)
+    {
+        if(right.find(it->first) == right.cend())
+        {
+            res.push_back(it->first);
         }
     }
     return res;
@@ -435,9 +455,7 @@ std::string pdrh::node_to_string_prefix(pdrh::node* n)
     return s.str();
 }
 
-// implement index modification
-/*
-std::string pdrh::node_to_string_prefix(pdrh::node* n, int index)
+std::string pdrh::node_fix_index(pdrh::node* n, int step, std::string index)
 {
     std::stringstream s;
     // checking whether n is an operation node
@@ -446,21 +464,19 @@ std::string pdrh::node_to_string_prefix(pdrh::node* n, int index)
         s << "(" << n->value;
         for(pdrh::node* op : n->operands)
         {
-            s << pdrh::node_to_string_prefix(op);
+            s << pdrh::node_fix_index(op, step, index);
         }
         s << ")";
     }
     else
     {
         s  << " " << n->value;
+        if(pdrh::var_exists(n->value))
+        {
+            s  << "_" << step << "_" << index;
+        }
     }
     return s.str();
-}
-*/
-
-bool pdrh::is_var(std::string var)
-{
-    return pdrh::var_map.find(var) != pdrh::var_map.cend();
 }
 
 std::string pdrh::node_to_string_infix(pdrh::node* n)
@@ -497,12 +513,19 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
         for(int i = 0; i < path.size(); i++)
         {
             s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << std::endl;
-            s << "(assert (>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << ")" << std::endl;
-            s << "(assert (<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << ")" << std::endl;
+            s << "(assert (>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << "))" << std::endl;
+            s << "(assert (<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << "))" << std::endl;
             s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << std::endl;
-            s << "(assert (>= " << it->first << "_" << i << "_t " << it->second.leftBound() << ")" << std::endl;
-            s << "(assert (<= " << it->first << "_" << i << "_t " << it->second.rightBound() << ")" << std::endl;
+            s << "(assert (>= " << it->first << "_" << i << "_t " << it->second.leftBound() << "))" << std::endl;
+            s << "(assert (<= " << it->first << "_" << i << "_t " << it->second.rightBound() << "))" << std::endl;
         }
+    }
+    // declaring time
+    for(int i = 0; i < path.size(); i++)
+    {
+        s << "(declare-fun time_" << i << " () Real)" << std::endl;
+        s << "(assert (>= time_" << i << " " << pdrh::time.leftBound() << "))" << std::endl;
+        s << "(assert (<= time_" << i << " " << pdrh::time.rightBound() << "))" << std::endl;
     }
     // defining odes
     for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
@@ -517,6 +540,69 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
             s << "))" << std::endl;
         }
     }
+
+    // defining initial states
+    s << "(assert (or ";
+    for(pdrh::state st : pdrh::init)
+    {
+        if(path.front()->id == st.id)
+        {
+            s << pdrh::node_fix_index(st.prop, 0, "0");
+        }
+    }
+    s << "))" << std::endl;
+
+    // defining trajectory
+    int step = 0;
+    for(pdrh::mode* m : path)
+    {
+        // defining integrals
+        s << "(assert (= [";
+        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
+        {
+            s << ode_it->first << "_" << step << "_t ";
+        }
+        s << "] (integral 0.0 time_" << step << " [";
+        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
+        {
+            s << ode_it->first << "_" << step << "_0 ";
+        }
+        s << "] flow_" << m->id << ")))" << std::endl;
+        // defining invariants
+        for(pdrh::node* invt : m->invts)
+        {
+            s << "(assert (forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << "))" << std::endl;
+        }
+        // checking the current depth
+        if(step < path.size() - 1)
+        {
+            // defining jumps
+            for (pdrh::mode::jump j : m->jumps)
+            {
+                s << "(assert " << pdrh::node_fix_index(j.guard, step, "t") << ")" << std::endl;
+                s << "(assert (and ";
+                for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
+                {
+                    s << "(= " << reset_it->first << "_" << step + 1 << "_0 " <<
+                    pdrh::node_fix_index(reset_it->second, step, "t") << ")";
+                }
+                s << "))" << std::endl;
+            }
+        }
+        step++;
+    }
+
+    // defining goal
+    s << "(assert (or ";
+    for(pdrh::state st : pdrh::goal)
+    {
+        if(path.back()->id == st.id)
+        {
+            s << pdrh::node_fix_index(st.prop, path.size() - 1, "t");
+        }
+    }
+    s << "))" << std::endl;
+
     // final statements
     s << "(check-sat)" << std::endl;
     s << "(exit)" << std::endl;

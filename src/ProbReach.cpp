@@ -2303,28 +2303,24 @@ int main(int argc, char* argv[])
 	*/
 
 	std::cout << "Parsing " << argv[1];
-
 	// open a file handle to a particular file:
 	FILE *pdrhfile = fopen(argv[1], "r");
 	// make sure it's valid:
 	if (!pdrhfile)
 	{
-		std::cout << "I can't open " << argv[1] << std::endl;
+		std::cout << "Couldn't open " << argv[1] << std::endl;
 		return -1;
 	}
-
+	// preprocessing the file
 	std::stringstream s, pdrhnameprep;
-
 	pdrhnameprep << argv[1] << ".preprocessed";
-
 	s << "cpp -w -P " << argv[1] << " > " << pdrhnameprep.str().c_str();
-
 	system(s.str().c_str());
-
+	// parsing the preprocessed file
 	FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
 	// make sure it's valid:
 	if (!pdrhfileprep) {
-		std::cout << "I can't open " << pdrhnameprep << std::endl;
+		std::cout << "Couldn't open " << pdrhnameprep << std::endl;
 		return -1;
 	}
 	// set lex to read from it instead of defaulting to STDIN:
@@ -2333,27 +2329,46 @@ int main(int argc, char* argv[])
 	do {
 		yyparse();
 	} while (!feof(yyin));
-
 	std::remove(pdrhnameprep.str().c_str());
 	std::cout << " --- OK" << std::endl;
-
-	std::cout << pdrh::model_to_string() << std::endl;
-
-	std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_all_paths(3);
+	// printing out the model
+	//std::cout << pdrh::model_to_string() << std::endl;
+	std::istringstream buf(argv[2]);
+	int reach_depth;
+	buf >> reach_depth;
+	// getting raw filename here
+	// check the filename for validity (it should have .pdrh or .drh extension)
+	std::string filename = std::string(argv[1]);
+	size_t ext_index = filename.find_last_of('.');
+	std::string raw_filename = filename.substr(0, ext_index);
+	// retrieving all possible paths of length <reach_depth>
+	std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_all_paths(reach_depth);
+	int path_index = 0;
 	for(std::vector<pdrh::mode*> path : paths)
 	{
-		std::cout << "Generating SMT2 for path: ";
+		std::stringstream p_stream;
 		for(pdrh::mode* m : path)
 		{
-			std::cout << m->id;
+			p_stream << m->id << " ";
 		}
-		std::cout << std::endl;
-		std::cout << pdrh::reach_to_smt2(path) << std::endl;
+		// removing trailing whitespace
+		std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << std::endl;
+		// creating a name for the smt2 file
+		std::stringstream f_stream;
+		f_stream << raw_filename << "_" << reach_depth << "_" << path_index << ".smt2";
+		std::string smt_filename = f_stream.str();
+		// writing to the file
+		std::ofstream smt_file;
+		smt_file.open(smt_filename.c_str());
+		smt_file << pdrh::reach_to_smt2(path);
+		smt_file.close();
+		std::cout << "The generated path is written to: " << smt_filename << std::endl;
+		s.str("");
+		s << "dReal --model " << smt_filename;
+		system(s.str().c_str());
+		path_index++;
 	}
-
-	//std::cout << "Reachability to SMT2. Shortest path" << std::endl;
-	//std::cout << pdrh::reach_to_smt2() << std::endl;
-
+	// ADD MODEL TYPE CHECK
 	return EXIT_SUCCESS;
 }
 

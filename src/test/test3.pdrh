@@ -21,7 +21,7 @@ flow:
     d/dt[t]     = 1.0;
     d/dt[v0]    = 0;
 jump:
-    (and (t > 1e-9) (Sy = 0)) ==> @1(and (Sx' = Sx) (Sy' = 0) (t' = 0) (v0' = 0.9 * v0));
+    (and (t > 1e-6) (Sy = 0)) ==> @1(and (Sx' = Sx) (Sy' = 0) (t' = 0) (v0' = 0.9 * v0));
 }
 
 init:

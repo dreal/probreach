@@ -33,6 +33,7 @@
 #include "version.h"
 #include "pugixml.hpp"
 #include "model.h"
+#include "pdrh_config.h"
 extern "C"
 {
 #include "../build/release/pdrhparser.h"
@@ -64,12 +65,10 @@ bool xml_output_flag = false;
 pugi::xml_document xml_output;
 bool merge_flag = false;
 
+pdrh_config config;
+
 extern "C" int yyparse();
 extern "C" FILE *yyin;
-//extern pdrh::mode *cur_mode;
-//extern pdrh::mode::jump *cur_jump;
-//extern std::vector<pdrh::state> cur_states;
-//extern std::map<capd::interval, capd::interval> cur_dd;
 
 int evaluate_ha(pdrh_model model)
 {
@@ -1604,10 +1603,10 @@ void print_help()
 	cout << endl;
 }
 
-void print_version()
-{
-	cout << "ProbReach " << PROBREACH_VERSION << endl;
-}
+//void print_version()
+//{
+//	cout << "ProbReach " << PROBREACH_VERSION << endl;
+//}
 
 void parse_cmd(int argc, char* argv[])
 {
@@ -1620,7 +1619,7 @@ void parse_cmd(int argc, char* argv[])
 	//only one -h/--help or --version is provided
 	if(argc == 2)
 	{
-		if((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) 
+		if((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0))
 		{
 			print_help();
 			exit(EXIT_SUCCESS);
@@ -1635,69 +1634,23 @@ void parse_cmd(int argc, char* argv[])
 	int opt_end = argc;
 	stringstream s;
 	cmatch matches;
-	/*
-	for(int i = 1; i < argc; i++)
-	{
-		//reached --dreach flag
-		if(strcmp(argv[i], "--dreach") == 0)
-		{
-			//indicating the end of ProbReach options
-			opt_end = i;
-			while(true)
-			{
-				//reached the end of command line
-				if(i == argc - 1) break;
-				//next arg after --dreach flag
-				i++;
-				//reached --dreal flag
-				if(strcmp(argv[i], "--dreal") == 0) break;
-				s << argv[i] << " ";
-			}
-			//composing dReach options
-			dreach_options = s.str();
-		}
-		//reached --dreal flag
-		if(strcmp(argv[i], "--dreal") == 0)
-		{
-			//empty stream
-			s.str("");
-			while(true)
-			{
-				//reached the end of command line
-				if(i == argc - 1) break;
-				//next arg after --dreal flag
-				i++;
-				//if --dreach found while reading dReal options
-				if(strcmp(argv[i], "--dreach") == 0)
-				{
-					cerr << "dReal options must be specified after dReach options" << endl;
-					exit(EXIT_FAILURE);
-				}
-				s << argv[i] << " ";
-			}
-			//composing dReal options
-			dreal_options = s.str();
-		}
-
-	}
-	*/
 	//parsing ProbReach options
 	for(int i = 1; i < argc; i++)
 	{
 		//extracting a file name
 		if(regex_match(argv[i], matches, regex("(.*/)*(.*).pdrh")) ||
-				regex_match(argv[i], matches, regex("(.*/)*(.*).drh")))
+		   regex_match(argv[i], matches, regex("(.*/)*(.*).drh")))
 		{
 			filename = matches[1].str() + matches[2].str();
 			opt_end = i;
 			break;
 		}
-		//help
+			//help
 		else if((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0))
 		{
 			print_help();
 		}
-		//epsilon
+			//epsilon
 		else if(strcmp(argv[i], "-e") == 0)
 		{
 			i++;
@@ -1709,7 +1662,7 @@ void parse_cmd(int argc, char* argv[])
 				exit(EXIT_FAILURE);
 			}
 		}
-		// max_nondet
+			// max_nondet
 		else if(strcmp(argv[i], "--max_nondet") == 0)
 		{
 			i++;
@@ -1721,28 +1674,28 @@ void parse_cmd(int argc, char* argv[])
 				exit(EXIT_FAILURE);
 			}
 		}
-		// noise
-		/*
-		else if(strcmp(argv[i], "--noise") == 0)
-		{
-			i++;
-			istringstream is(argv[i]);
-			is >> series_noise;
-			if(series_noise <= 0)
-			{
-				cerr << "--noise should be positive" << endl;
-				exit(EXIT_FAILURE);
-			}
-		}
-		*/
-		// time series filename
+			// noise
+			/*
+            else if(strcmp(argv[i], "--noise") == 0)
+            {
+                i++;
+                istringstream is(argv[i]);
+                is >> series_noise;
+                if(series_noise <= 0)
+                {
+                    cerr << "--noise should be positive" << endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
+            */
+			// time series filename
 		else if(strcmp(argv[i], "--series") == 0)
 		{
 			i++;
 			series_filename = argv[i];
 			istringstream is(argv[i]);
 		}
-		//dReal binary
+			//dReal binary
 		else if((strcmp(argv[i], "-l") == 0) || (strcmp(argv[i], "--solver")))
 		{
 			i++;
@@ -1750,44 +1703,44 @@ void parse_cmd(int argc, char* argv[])
 			os << argv[i];
 			dreach_bin = os.str();
 		}
-		//verbose
+			//verbose
 		else if(strcmp(argv[i], "--verbose") == 0)
 		{
 			verbose = true;
 		}
-		//merge flag
+			//merge flag
 		else if(strcmp(argv[i], "--merge-boxes") == 0)
 		{
 			merge_flag = true;
 		}
-		//xml_output
+			//xml_output
 		else if(strcmp(argv[i], "--xml-output") == 0)
 		{
 			xml_output_flag = true;
 		}
-		//solution-guided
+			//solution-guided
 		else if(strcmp(argv[i], "--guided") == 0)
 		{
 			guided = true;
 		}
-		//prepartition flag
+			//prepartition flag
 		else if(strcmp(argv[i], "--partition") == 0)
 		{
 			prepartition_flag = true;
 		}
-		//visualize
+			//visualize
 		else if(strcmp(argv[i], "--visualize") == 0)
 		{
 			visualize = true;
 			i++;
 			vis_par = argv[i];
 		}
-		//version
+			//version
 		else if(strcmp(argv[i], "--version") == 0)
 		{
 			print_version();
 		}
-		//number of cores
+			//number of cores
 		else if(strcmp(argv[i], "-t") == 0)
 		{
 			i++;
@@ -1796,10 +1749,10 @@ void parse_cmd(int argc, char* argv[])
 			if(num_threads <= max_num_threads)
 			{
 				if(num_threads > 0)
-				{	
-					#ifdef _OPENMP
-						omp_set_num_threads(num_threads);
-					#endif
+				{
+#ifdef _OPENMP
+					omp_set_num_threads(num_threads);
+#endif
 				}
 				else
 				{
@@ -1807,11 +1760,11 @@ void parse_cmd(int argc, char* argv[])
 					exit(EXIT_FAILURE);
 				}
 			}
-	    	else
-	    	{
-	    		cerr << "Max number of cores available is " << max_num_threads << ". You specified " << num_threads << endl;
+			else
+			{
+				cerr << "Max number of cores available is " << max_num_threads << ". You specified " << num_threads << endl;
 				exit(EXIT_FAILURE);
-	    	}
+			}
 		}
 		else
 		{
@@ -1843,187 +1796,7 @@ void parse_cmd(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-	/*
-	cout << "ODE solving with CAPD" << endl;
 
-	try{
-		cout.precision(16);
-		// This is the vector field for the Planar Restricted Circular 3 Body Problem
-		IMap vectorField("par:v0,alpha,g;var:Sx,Sy,tau;fun:v0*cos(alpha),v0*sin(alpha)-g*tau,1;");
-
-		// params
-		interval v0 = interval(20,20);
-		interval alpha = interval(0.7854);
-		interval g = interval(9.8);
-		// set parameter values
-		vectorField.setParameter("v0",v0);
-		vectorField.setParameter("alpha",alpha);
-		vectorField.setParameter("g",g);
-		// The solver uses high order enclosure method to verify the existence of the solution.
-		// The order will be set to 20.
-		IOdeSolver solver(vectorField,20);
-		ITimeMap timeMap(solver);
-		//timeMap.stopAfterStep(true);
-		// This is our initial condition
-		// Time series data
-
-		double s_time [] = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.89};
-		double s_Sx [] = {0,1.414210965,2.82842193,4.242632895,5.65684386,7.071054825,8.48526579,9.899476755,11.31368772,12.72789869,14.14210965,
-						 15.55632062,16.97053158,18.38474255,19.79895351,21.21316448,22.62737544,24.04158641,25.45579737,26.87000834,28.2842193,
-						 29.69843027,31.11264123,32.5268522,33.94106316,35.35527413,36.76948509,38.18369606,39.59790702,40.87069689};
-		double s_Sy [] = {0,1.36521616,2.632432319,3.801648479,4.872864639,5.846080799,6.721296958,7.498513118,8.177729278,8.758945437,9.242161597,
-						9.627377757,9.914593917,10.10381008,10.19502624,10.1882424,10.08345856,9.880674715,9.579890875,9.181107035,8.684323194,
-						8.089539354,7.396755514,6.605971674,5.717187833,4.730403993,3.645620153,2.462836312,1.182052472,-0.054442984};
-		double noise = 0.1;
-
-		int series_size = sizeof(s_time)/sizeof(*s_time);
-
-		interval Sx[series_size];
-		interval Sy[series_size];
-		interval time[series_size];
-
-		for(int i = 0; i < series_size; i++)
-		{
-			Sx[i] = interval(s_Sx[i] - noise, s_Sx[i] + noise);
-			Sy[i] = interval(s_Sy[i] - noise, s_Sy[i] + noise);
-			time[i] = interval(s_time[i]);
-		}
-
-		IVector x(3);
-		x[0]=Sx[0];
-		x[1]=Sy[0];
-		x[2]=time[0];
-		C0HORect2Set s(x);
-		// we integrate the set s over the time T
-		interval T(time[series_size - 1] - time[0]);
-		IVector v = timeMap(T,s);
-		interval inter_Sx;
-		interval inter_Sy;
-		interval inter_tau;
-		intersection(v[0],Sx[series_size - 1],inter_Sx);
-		intersection(v[1],Sy[series_size - 1],inter_Sy);
-		intersection(v[2],time[series_size - 1],inter_tau);
-		cout << "Sx subset : " << v[0].subset(Sx[1]) << endl;
-		cout << "Sx eclosure : " << v[0] << " Sx series: " << Sx[series_size - 1] << " intersection: ";
-		if(intersection(v[0],Sx[series_size - 1],inter_Sx))
-		{
-			 cout << inter_Sx << endl;
-		}
-		else
-		{
-			cout << " empty set " << endl;
-		}
-		cout << "Sy enclosure: " << v[1] << " Sy series: " << Sy[series_size - 1] << " intersection: ";
-		if(intersection(v[1],Sy[series_size - 1],inter_Sy))
-		{
-			cout << inter_Sy << endl;
-		}
-		else
-		{
-			cout << " empty set " << endl;
-		}
-		cout << "tau enclosure: " << v[2] << " tau series: " << time[series_size - 1] << " intersection: ";
-		if(intersection(v[2],time[series_size - 1],inter_tau))
-		{
-			cout << inter_tau << endl;
-		}
-		else
-		{
-			cout << " empty set " << endl;
-		}
-
-	}catch(exception& e)
-	{
-		cout << "\n\nException caught!\n" << e.what() << endl << endl;
-	}
-
-
-	try{
-
-		cout.precision(16);
-
-		// params
-		// default
-		//interval alphax(0.0197);
-		//interval alphay(0.0242);
-		//interval betax(0.0175);
-		//interval betay(0.0168);
-		//interval k1(10.0);
-		//interval k2(1.0);
-		//interval k3(10.0);
-		//interval k4(2);
-		//interval m1(0.00005);
-		//interval z0(12.0);
-		//interval gamma(0.08);
-		//interval d0(1.0);
-		//interval c1(0.01);
-		//interval c2(0.03);
-		//interval c3(0.02);
-		interval alphax(-1,1);
-		interval alphay(-1,1);
-		interval betax(-1,1);
-		interval betay(-1,1);
-		interval k1(10.0);
-		interval k2(1.0);
-		interval k3(10.0);
-		interval k4(2);
-		interval m1(0.00005);
-		interval z0(12.0);
-		interval gamma(0.08);
-		interval d0(1.0);
-		interval c1(0.01);
-		interval c2(0.03);
-		interval c3(0.02);
-
-		string params("par:alphax,alphay,betax,betay,k1,k2,k3,k4,m1,z0,gamma,d0,c1,c2,c3;");
-		string vars("var:x,y,z;");
-		string funs("fun:(((alphax/(1+exp((k1-z)*k2)))-(betax/(1+exp((z-k3)*k4)))) - (m1 * (1 - (z / z0))) - c1) * x + c2,(m1 * (1 - (z / z0))) * x + ((alphay * (1 - (d0 * (z / z0)))) - betay) * y,-z * gamma + c3;");
-
-		IMap vectorField(string(params + vars + funs));
-
-		vectorField.setParameter("alphax",alphax);
-		vectorField.setParameter("alphay",alphay);
-		vectorField.setParameter("betax",betax);
-		vectorField.setParameter("betay",betay);
-		vectorField.setParameter("k1",k1);
-		vectorField.setParameter("k2",k2);
-		vectorField.setParameter("k3",k3);
-		vectorField.setParameter("k4",k4);
-		vectorField.setParameter("m1",m1);
-		vectorField.setParameter("z0",z0);
-		vectorField.setParameter("gamma",gamma);
-		vectorField.setParameter("d0",d0);
-		vectorField.setParameter("c1",c1);
-		vectorField.setParameter("c2",c2);
-		vectorField.setParameter("c3",c3);
-
-		// The solver uses high order enclosure method to verify the existence of the solution.
-		// The order will be set to 20.
-		IOdeSolver solver(vectorField,15);
-		ITimeMap timeMap(solver);
-		//timeMap.stopAfterStep(true);
-		// This is our initial condition
-		// Time series data
-
-		IVector x(3);
-		x[0]=interval(14,19);
-		x[1]=interval(0.04,0.1);
-		x[2]=interval(12.5,14.5);
-		cout << "Solving ODE" << endl;
-		C0HORect2Set s(x);
-		// we integrate the set s over the time T
-		interval T(10);
-		cout << "Results:" << endl;
-		IVector v = timeMap(T,s);
-		cout << "x = " << v[0] << endl;
-		cout << "y = " << v[1] << endl;
-		cout << "z = " << v[2] << endl;
-
-	}catch(exception& e)
-	{
-		cout << "\n\nException caught!\n" << e.what() << endl << endl;
-	}
-	*/
 
 	/*
 	// setting max number of threads by default
@@ -2130,238 +1903,67 @@ int main(int argc, char* argv[])
 	}
 	*/
 
-	/*
-	std::map<std::string, capd::interval> e;
+	// setting max number of threads by default
+	#ifdef _OPENMP
+		max_num_threads = omp_get_max_threads();
+		num_threads = max_num_threads;
+		omp_set_num_threads(num_threads);
+	#endif
 
-	e.insert(make_pair(std::string("a"), capd::interval(0,1)));
-	e.insert(make_pair(std::string("b"), capd::interval(2,3)));
-	e.insert(make_pair(std::string("c"), capd::interval(0.54,1.02)));
-	e.insert(make_pair(std::string("d"), capd::interval(-0.1,-0.01)));
+	cout.precision(16);
 
-	box b(e);
+	// parse command line
+	config = parse_pdrh_config(argc, argv);
 
-	std::cout << "The box: " << b << " has a volume: " << measure::volume(b) << std::endl;
-
-	e.clear();
-
-	e.insert(make_pair(std::string("a"), capd::interval(1)));
-	e.insert(make_pair(std::string("b"), capd::interval(1.08e-7)));
-	e.insert(make_pair(std::string("c"), capd::interval(0.54)));
-	e.insert(make_pair(std::string("d"), capd::interval(-0.1)));
-
-	dd_box d(e);
-	std::cout << "The dd_box: " << d << " has a volume: " << measure::volume(d) << std::endl;
-
-	e.clear();
-
-	e.insert(make_pair(std::string("a"), capd::interval(0,1)));
-	e.insert(make_pair(std::string("b"), capd::interval(2,3)));
-	e.insert(make_pair(std::string("c"), capd::interval(1.7e-9,1.02)));
-	e.insert(make_pair(std::string("d"), capd::interval(-0.1,-0.01)));
-
-	rv_box r(e);
-	std::cout << "The rv_box: " << r << " has a volume: " << measure::volume(r) << std::endl;
-
-	e.clear();
-
-	e.insert(make_pair(std::string("a"), capd::interval(0,1)));
-	e.insert(make_pair(std::string("b"), capd::interval(2,3)));
-	e.insert(make_pair(std::string("c"), capd::interval(0.54,1.02)));
-	e.insert(make_pair(std::string("d"), capd::interval(-0.1,0.0)));
-
-	nd_box n(e);
-	std::cout << "The nd_box: " << n << " has a volume: " << measure::volume(n) << std::endl;
-
-	std::map<std::string, std::vector<capd::interval>> m;
-	std::vector<capd::interval> v;
-	v.push_back(capd::interval(0,1));
-	v.push_back(capd::interval(1,2));
-	v.push_back(capd::interval(2,3));
-
-	m["x"] = v;
-
-	v.clear();
-	v.push_back(capd::interval(0,1));
-	v.push_back(capd::interval(1,2));
-
-	m["y"] = v;
-
-	v.clear();
-	v.push_back(capd::interval(0,1));
-	v.push_back(capd::interval(1,2));
-	v.push_back(capd::interval(2,3));
-	v.push_back(capd::interval(3,4));
-
-	m["z"] = v;
-
-	std::vector<box> prod = box_factory::cartesian_product(m);
-	for(box b : prod)
-	{
-		std::cout << "box: " << b << endl;
-	}
-
-	std::vector<box> bisect = box_factory::bisect(b);
-	std::cout << "Bisecting box " << b << std::endl;
-	for(box i : bisect)
-	{
-		std::cout << i << std::endl;
-	}
-
-	bisect = box_factory::bisect(d);
-	std::cout << "Bisecting box " << d << std::endl;
-	for(box i : bisect)
-	{
-		std::cout << i << std::endl;
-	}
-
-	bisect = box_factory::bisect(r);
-	std::cout << "Bisecting box " << r << std::endl;
-	for(box i : bisect)
-	{
-		std::cout << i << std::endl;
-	}
-
-	bisect = box_factory::bisect(n);
-	std::cout << "Bisecting box " << n << std::endl;
-	for(box i : bisect)
-	{
-		std::cout << i << std::endl;
-	}
-	 */
-
-	// testing continuous measure
-	/*
-	measure::rv_map.insert(make_pair("x", measure::distribution::gaussian("x", 0, 1)));
-	measure::rv_map.insert(make_pair("y", measure::distribution::gaussian("y", 0, 1)));
-	measure::rv_map.insert(make_pair("z", measure::distribution::gaussian("z", 0, 1)));
-
-	std::map<std::string, capd::interval> e;
-
-	e.insert(make_pair(std::string("x"), capd::interval(-5,5)));
-	e.insert(make_pair(std::string("y"), capd::interval(-5,5)));
-	e.insert(make_pair(std::string("z"), capd::interval(-5,5)));
-
-	rv_box b(e);
-
-	capd::interval p = measure::p_measure(b, 1e-1);
-
-	std::cout << std::setprecision(16) << "P(" << b << ")=" << p << " | " << capd::intervals::width(p) << std::endl;
-
-	std::vector<rv_box> partition = measure::partition(b, 1e-1);
-	std::cout << partition.size() << " boxes in partition" << std::endl;
-
-	// testing discrete measure
-	std::map<capd::interval, capd::interval> values;
-	values.insert(make_pair(capd::interval(1), capd::interval(0.01)));
-	values.insert(make_pair(capd::interval(2), capd::interval(0.99)));
-
-	measure::dd_map.insert(make_pair("a", values));
-	values.clear();
-	values.insert(make_pair(capd::interval(-1), capd::interval(0.2)));
-	values.insert(make_pair(capd::interval(0), capd::interval(0.3)));
-	values.insert(make_pair(capd::interval(1), capd::interval(0.5)));
-	measure::dd_map.insert(make_pair("b", values));
-
-	e.clear();
-	e.insert(make_pair(std::string("a"), capd::interval(1)));
-	e.insert(make_pair(std::string("b"), capd::interval(0)));
-	//e.insert(make_pair(std::string("c"), capd::interval(0)));
-
-	dd_box d(e);
-
-	capd::interval p_dd = measure::p_measure(d);
-
-	std::cout << std::setprecision(16) << "P(" << d << ")=" << p_dd << " | " << capd::intervals::width(p_dd) << std::endl;
-
-	print_version();
-	*/
-
-	/*
-	std::cout << "Parsing " << argv[1];
-
+	std::cout << "Parsing " << config.model_filename;
 	// open a file handle to a particular file:
-	FILE *pdrhfile = fopen(argv[1], "r");
-	// make sure it's valid:
-	if (!pdrhfile) {
-		std::cout << "I can't open " << argv[1] << std::endl;
-		return -1;
-	}
-
-	std::stringstream s, pdrhnameprep;
-
-	pdrhnameprep << argv[1] << ".preprocessed";
-
-	s << "cpp -w -P " << argv[1] << " > " << pdrhnameprep.str().c_str();
-
-	system(s.str().c_str());
-
-	FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
-	// make sure it's valid:
-	if (!pdrhfileprep) {
-		std::cout << "I can't open " << pdrhnameprep << std::endl;
-		return -1;
-	}
-
-	// set lex to read from it instead of defaulting to STDIN:
-	yyin = pdrhfileprep;
-
-	// parse through the input until there is no more:
-	do {
-		yyparse();
-	} while (!feof(yyin));
-
-	std::remove(pdrhnameprep.str().c_str());
-	std::cout << " --- OK" << std::endl;
-
-	std::cout << pdrh::print_model() << std::endl;
-
-	delete cur_mode;
-	delete cur_jump;
-	cur_states.clear();
-	cur_dd.clear();
-	*/
-
-	std::cout << "Parsing " << argv[1];
-	// open a file handle to a particular file:
-	FILE *pdrhfile = fopen(argv[1], "r");
+	FILE *pdrhfile = fopen(config.model_filename.c_str(), "r");
 	// make sure it's valid:
 	if (!pdrhfile)
 	{
-		std::cout << "Couldn't open " << argv[1] << std::endl;
+		std::cout << "Couldn't open " << config.model_filename << std::endl;
 		return -1;
 	}
 	// preprocessing the file
 	std::stringstream s, pdrhnameprep;
-	pdrhnameprep << argv[1] << ".preprocessed";
-	s << "cpp -w -P " << argv[1] << " > " << pdrhnameprep.str().c_str();
+	pdrhnameprep << config.model_filename << ".preprocessed";
+	s << "cpp -w -P " << config.model_filename << " > " << pdrhnameprep.str().c_str();
 	system(s.str().c_str());
 	// parsing the preprocessed file
 	FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
 	// make sure it's valid:
-	if (!pdrhfileprep) {
+	if (!pdrhfileprep)
+	{
 		std::cout << "Couldn't open " << pdrhnameprep << std::endl;
 		return -1;
 	}
 	// set lex to read from it instead of defaulting to STDIN:
 	yyin = pdrhfileprep;
 	// parse through the input until there is no more:
-	do {
+	do
+	{
 		yyparse();
-	} while (!feof(yyin));
+	}
+	while (!feof(yyin));
 	std::remove(pdrhnameprep.str().c_str());
 	std::cout << " --- OK" << std::endl;
-	// printing out the model
-	//std::cout << pdrh::model_to_string() << std::endl;
-	std::istringstream buf(argv[2]);
-	int reach_depth;
-	buf >> reach_depth;
+
 	// getting raw filename here
 	// check the filename for validity (it should have .pdrh or .drh extension)
-	std::string filename = std::string(argv[1]);
+	std::string filename = std::string(config.model_filename);
 	size_t ext_index = filename.find_last_of('.');
 	std::string raw_filename = filename.substr(0, ext_index);
-	// retrieving all possible paths of length <reach_depth>
-	std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_all_paths(reach_depth);
+	// retrieving all possible paths of length [min, max]
+	std::vector<std::vector<pdrh::mode*>> paths;
+	for(int i = config.reach_depth_min; i <= config.reach_depth_max; i++)
+	{
+		std::vector<std::vector<pdrh::mode*>> tmp_paths = pdrh::get_all_paths(i);
+		for(int j = 0; j < tmp_paths.size(); j++)
+		{
+			paths.push_back(tmp_paths.at(j));
+		}
+	}
+	// verifying the first formula
 	int path_index = 0;
 	for(std::vector<pdrh::mode*> path : paths)
 	{
@@ -2374,7 +1976,7 @@ int main(int argc, char* argv[])
 		std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << std::endl;
 		// creating a name for the smt2 file
 		std::stringstream f_stream;
-		f_stream << raw_filename << "_" << reach_depth << "_" << path_index << ".smt2";
+		f_stream << raw_filename << "_" << config.reach_depth_max << "_" << path_index << ".smt2";
 		std::string smt_filename = f_stream.str();
 		// writing to the file
 		std::ofstream smt_file;
@@ -2383,9 +1985,33 @@ int main(int argc, char* argv[])
 		smt_file.close();
 		std::cout << "The generated path is written to: " << smt_filename << std::endl;
 		s.str("");
-		//s << "/home/fedor/dreal3rel/dReal --model " << smt_filename;
-		//s << "dReal --model " << smt_filename;
-		s << "/home/fedor/dReal-2.14.06-linux/bin/dReal --model " << smt_filename;
+		s << config.solver_bin << " " << config.solver_opt << " " << smt_filename;
+		system(s.str().c_str());
+		path_index++;
+	}
+	// verifying the second formula
+	path_index = 0;
+	for(std::vector<pdrh::mode*> path : paths)
+	{
+		std::stringstream p_stream;
+		for(pdrh::mode* m : path)
+		{
+			p_stream << m->id << " ";
+		}
+		// removing trailing whitespace
+		std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << std::endl;
+		// creating a name for the smt2 file
+		std::stringstream f_stream;
+		f_stream << raw_filename << "_" << config.reach_depth_max << "_" << path_index << ".c.smt2";
+		std::string smt_filename = f_stream.str();
+		// writing to the file
+		std::ofstream smt_file;
+		smt_file.open(smt_filename.c_str());
+		smt_file << pdrh::reach_c_to_smt2(path);
+		smt_file.close();
+		std::cout << "The generated path is written to: " << smt_filename << std::endl;
+		s.str("");
+		s << config.solver_bin << " " << config.solver_opt << " " << smt_filename;
 		system(s.str().c_str());
 		path_index++;
 	}

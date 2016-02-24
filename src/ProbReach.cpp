@@ -46,6 +46,8 @@ double inf_coeff = 1e-01;
 double max_nondet = 1e-03;
 string filename;
 string dreach_bin = "dReach";
+string solver_bin = "";
+string solver_opt = "";
 bool verbose = false;
 bool visualize = false;
 char* vis_par = "";
@@ -1587,24 +1589,23 @@ void print_help()
 	cout << endl;
 	cout << "Help message:" << endl;
 	cout << endl;
-	cout << "	Run ./ProbReach <options> <model-file.pdrh> --dreach <dReach-options> --dreal <dReal-options>" << endl;
+	cout << "	Run ./ProbReach <options> <file.pdrh/file.drh> <solver-options>" << endl;
 	cout << endl;
 	cout << "options:" << endl;
 	cout << "	-e <double> - length of probability interval or maximum length of the box (default 0.001)" << endl;
-	cout << "	-l <string> - full path to dReach binary (default dReach)" << endl;
+	cout << "	-l/--solver </path/to/solver> - full path to the solver (default dReal)" << endl;
 	cout << "	-t <int> - number of CPU cores (default " << max_num_threads << ") (max " << max_num_threads << ")" << endl;
 	cout << "	-h/--help - help message" << endl;
 	cout << "	--version - version of the tool" << endl;
 	cout << "	--verbose - output computation details" << endl;
-	cout << "	--visualize <char*> - visualize output for specified continuous random parameter" << endl;
-	cout << "	--dreach - delimits dReach options (e.g. rechability depth)" << endl;
-	cout << "	--dreal - delimits dReal options (e.g. precision, ode step)" << endl;
+	//cout << "	--visualize <char*> - visualize output for specified continuous random parameter" << endl;
+	//cout << "	--dreach - delimits dReach options (e.g. rechability depth)" << endl;
+	//cout << "	--dreal - delimits dReal options (e.g. precision, ode step)" << endl;
 	cout << endl;
 }
 
 void print_version()
 {
-	//cout << "ProbReach " << probreach_version << endl;
 	cout << "ProbReach " << PROBREACH_VERSION << endl;
 }
 
@@ -1616,7 +1617,6 @@ void parse_cmd(int argc, char* argv[])
 		print_help();
 		exit(EXIT_FAILURE);
 	}
-
 	//only one -h/--help or --version is provided
 	if(argc == 2)
 	{
@@ -1631,10 +1631,11 @@ void parse_cmd(int argc, char* argv[])
 			exit(EXIT_SUCCESS);
 		}
 	}
-	// parsing --dreach and --dreal options
+	// parsing options
 	int opt_end = argc;
 	stringstream s;
 	cmatch matches;
+	/*
 	for(int i = 1; i < argc; i++)
 	{
 		//reached --dreach flag
@@ -1679,13 +1680,17 @@ void parse_cmd(int argc, char* argv[])
 		}
 
 	}
+	*/
 	//parsing ProbReach options
-	for(int i = 1; i < opt_end; i++)
+	for(int i = 1; i < argc; i++)
 	{
 		//extracting a file name
-		if(regex_match(argv[i], matches, regex("(.*/)*(.*).pdrh")))
+		if(regex_match(argv[i], matches, regex("(.*/)*(.*).pdrh")) ||
+				regex_match(argv[i], matches, regex("(.*/)*(.*).drh")))
 		{
 			filename = matches[1].str() + matches[2].str();
+			opt_end = i;
+			break;
 		}
 		//help
 		else if((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0))
@@ -1717,6 +1722,7 @@ void parse_cmd(int argc, char* argv[])
 			}
 		}
 		// noise
+		/*
 		else if(strcmp(argv[i], "--noise") == 0)
 		{
 			i++;
@@ -1728,6 +1734,7 @@ void parse_cmd(int argc, char* argv[])
 				exit(EXIT_FAILURE);
 			}
 		}
+		*/
 		// time series filename
 		else if(strcmp(argv[i], "--series") == 0)
 		{
@@ -1735,12 +1742,12 @@ void parse_cmd(int argc, char* argv[])
 			series_filename = argv[i];
 			istringstream is(argv[i]);
 		}
-		//dReach binary
-		else if(strcmp(argv[i], "-l") == 0)
+		//dReal binary
+		else if((strcmp(argv[i], "-l") == 0) || (strcmp(argv[i], "--solver")))
 		{
 			i++;
 			ostringstream os;
-			os << argv[i] << "dReach";
+			os << argv[i];
 			dreach_bin = os.str();
 		}
 		//verbose
@@ -1813,12 +1820,24 @@ void parse_cmd(int argc, char* argv[])
 			exit(EXIT_FAILURE);
 		}
 	}
-	//case if filename is not specified
+	// getting solver options
+	for(int i = opt_end + 1; i < argc; i++)
+	{
+		stringstream s;
+		s << argv[i] << " ";
+		solver_opt = s.str();
+	}
+	// case if filename is not specified
 	if(strcmp(filename.c_str(), "") == 0)
 	{
-		cerr << "PDRH file is not specified" << endl;
+		cerr << "model file is not specified" << endl;
 		print_help();
 		exit(EXIT_FAILURE);
+	}
+	// default solver binary is dReal
+	if(strcmp(solver_bin.c_str(), "") == 0)
+	{
+		solver_bin = "dReal";
 	}
 }
 
@@ -2364,7 +2383,9 @@ int main(int argc, char* argv[])
 		smt_file.close();
 		std::cout << "The generated path is written to: " << smt_filename << std::endl;
 		s.str("");
-		s << "dReal --model " << smt_filename;
+		//s << "/home/fedor/dreal3rel/dReal --model " << smt_filename;
+		//s << "dReal --model " << smt_filename;
+		s << "/home/fedor/dReal-2.14.06-linux/bin/dReal --model " << smt_filename;
 		system(s.str().c_str());
 		path_index++;
 	}

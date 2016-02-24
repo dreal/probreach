@@ -541,8 +541,12 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
         }
     }
 
+    // defining the formula as conjunction
+    s << "(assert (and " << std::endl;
+
     // defining initial states
-    s << "(assert (or ";
+    s << "(or ";
+    //s << "(assert (or ";
     for(pdrh::state st : pdrh::init)
     {
         if(path.front()->id == st.id)
@@ -550,14 +554,16 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
             s << pdrh::node_fix_index(st.prop, 0, "0");
         }
     }
-    s << "))" << std::endl;
+    //s << "))" << std::endl;
+    s << ")" << std::endl;
 
     // defining trajectory
     int step = 0;
     for(pdrh::mode* m : path)
     {
         // defining integrals
-        s << "(assert (= [";
+        //s << "(assert (= [";
+        s << "(= [";
         for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
         {
             s << ode_it->first << "_" << step << "_t ";
@@ -567,11 +573,14 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
         {
             s << ode_it->first << "_" << step << "_0 ";
         }
-        s << "] flow_" << m->id << ")))" << std::endl;
+        //s << "] flow_" << m->id << ")))" << std::endl;
+        s << "] flow_" << m->id << "))" << std::endl;
+
         // defining invariants
         for(pdrh::node* invt : m->invts)
         {
-            s << "(assert (forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << "))" << std::endl;
+            //s << "(assert (forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << "))" << std::endl;
+            s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << std::endl;
         }
         // checking the current depth
         if(step < path.size() - 1)
@@ -579,21 +588,23 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
             // defining jumps
             for (pdrh::mode::jump j : m->jumps)
             {
-                s << "(assert " << pdrh::node_fix_index(j.guard, step, "t") << ")" << std::endl;
-                s << "(assert (and ";
+                //s << "(assert " << pdrh::node_fix_index(j.guard, step, "t") << ")" << std::endl;
+                s << pdrh::node_fix_index(j.guard, step, "t") << std::endl;
+                //s << "(assert (and ";
                 for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
                 {
                     s << "(= " << reset_it->first << "_" << step + 1 << "_0 " <<
                     pdrh::node_fix_index(reset_it->second, step, "t") << ")";
                 }
-                s << "))" << std::endl;
+                //s << "))" << std::endl;
             }
         }
         step++;
     }
 
     // defining goal
-    s << "(assert (or ";
+    //s << "(assert (or ";
+    s << "(or ";
     for(pdrh::state st : pdrh::goal)
     {
         if(path.back()->id == st.id)
@@ -601,7 +612,8 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
             s << pdrh::node_fix_index(st.prop, path.size() - 1, "t");
         }
     }
-    s << "))" << std::endl;
+    //s << "))" << std::endl;
+    s << ")))" << std::endl;
 
     // final statements
     s << "(check-sat)" << std::endl;

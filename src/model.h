@@ -22,21 +22,18 @@ namespace pdrh
         // vector is empty if the node is terminal and non-empty if the node is operation node
         std::vector<node*> operands;
     };
-
     node* push_terminal_node(std::string);
     node* push_operation_node(std::string, std::vector<node*>);
     std::string node_to_string_prefix(node*);
     std::string node_to_string_infix(node*);
     // the second argument is a step
     std::string node_fix_index(node*, int, std::string);
-
     extern int type;
     extern capd::interval time;
     extern std::map<std::string, std::tuple<node*, capd::interval, capd::interval>> rv_map;
     extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
     extern std::map<std::string, capd::interval> var_map;
     extern std::map<std::string, capd::interval> syn_map;
-
     // mode struct
     struct mode
     {

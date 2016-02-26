@@ -1,0 +1,35 @@
+[5.0]       R;      // spring param
+[0.0025]    C;      // dumper param
+[7.0]       m;      // mass
+[9.8067]    g;
+[-9, 9]     x;      // height
+[-100, 100] v;      // velocity
+[0, 5]     time;
+
+{
+mode 1;
+invt:
+    (x >= 0);
+flow:
+    d/dt[x] = v;
+    d/dt[v] = - g;
+jump:
+    (and (x = 0) (v < 0))==>@2(and (x' = x) (v' = v));
+}
+
+{
+mode 2;
+invt:
+    (x <= 0);
+flow:
+    d/dt[x] = v;
+    d/dt[v] = - g - (R * v + x / C) / m;
+jump:
+    (and (x = 0) (v > 0))==>@1(and (x' = x) (v' = v));
+}
+
+init:
+@1(and (v = 0) (x = 9));
+
+goal:
+@1(and (x >= 6.0));

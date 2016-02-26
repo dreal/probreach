@@ -34,6 +34,9 @@
 #include "pugixml.hpp"
 #include "model.h"
 #include "pdrh_config.h"
+#include "solver/dreal_wrapper.h"
+#include "decision_procedure.h"
+
 extern "C"
 {
 #include "../build/release/pdrhparser.h"
@@ -64,8 +67,6 @@ bool guided = false;
 bool xml_output_flag = false;
 pugi::xml_document xml_output;
 bool merge_flag = false;
-
-pdrh_config config;
 
 extern "C" int yyparse();
 extern "C" FILE *yyin;
@@ -1913,21 +1914,21 @@ int main(int argc, char* argv[])
 	cout.precision(16);
 
 	// parse command line
-	config = parse_pdrh_config(argc, argv);
+	parse_pdrh_config(argc, argv);
 
-	std::cout << "Parsing " << config.model_filename;
+	std::cout << "Parsing " << global_config.model_filename;
 	// open a file handle to a particular file:
-	FILE *pdrhfile = fopen(config.model_filename.c_str(), "r");
+	FILE *pdrhfile = fopen(global_config.model_filename.c_str(), "r");
 	// make sure it's valid:
 	if (!pdrhfile)
 	{
-		std::cout << "Couldn't open " << config.model_filename << std::endl;
+		std::cout << "Couldn't open " << global_config.model_filename << std::endl;
 		return -1;
 	}
 	// preprocessing the file
 	std::stringstream s, pdrhnameprep;
-	pdrhnameprep << config.model_filename << ".preprocessed";
-	s << "cpp -w -P " << config.model_filename << " > " << pdrhnameprep.str().c_str();
+	pdrhnameprep << global_config.model_filename << ".preprocessed";
+	s << "cpp -w -P " << global_config.model_filename << " > " << pdrhnameprep.str().c_str();
 	system(s.str().c_str());
 	// parsing the preprocessed file
 	FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
@@ -1948,14 +1949,10 @@ int main(int argc, char* argv[])
 	std::remove(pdrhnameprep.str().c_str());
 	std::cout << " --- OK" << std::endl;
 
-	// getting raw filename here
-	// check the filename for validity (it should have .pdrh or .drh extension)
-	std::string filename = std::string(config.model_filename);
-	size_t ext_index = filename.find_last_of('.');
-	std::string raw_filename = filename.substr(0, ext_index);
+
 	// retrieving all possible paths of length [min, max]
 	std::vector<std::vector<pdrh::mode*>> paths;
-	for(int i = config.reach_depth_min; i <= config.reach_depth_max; i++)
+	for(int i = global_config.reach_depth_min; i <= global_config.reach_depth_max; i++)
 	{
 		std::vector<std::vector<pdrh::mode*>> tmp_paths = pdrh::get_all_paths(i);
 		for(int j = 0; j < tmp_paths.size(); j++)
@@ -1973,46 +1970,7 @@ int main(int argc, char* argv[])
 			p_stream << m->id << " ";
 		}
 		// removing trailing whitespace
-		std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << std::endl;
-		// creating a name for the smt2 file
-		std::stringstream f_stream;
-		f_stream << raw_filename << "_" << config.reach_depth_max << "_" << path_index << ".smt2";
-		std::string smt_filename = f_stream.str();
-		// writing to the file
-		std::ofstream smt_file;
-		smt_file.open(smt_filename.c_str());
-		smt_file << pdrh::reach_to_smt2(path);
-		smt_file.close();
-		std::cout << "The generated path is written to: " << smt_filename << std::endl;
-		s.str("");
-		s << config.solver_bin << " " << config.solver_opt << " " << smt_filename;
-		system(s.str().c_str());
-		path_index++;
-	}
-	// verifying the second formula
-	path_index = 0;
-	for(std::vector<pdrh::mode*> path : paths)
-	{
-		std::stringstream p_stream;
-		for(pdrh::mode* m : path)
-		{
-			p_stream << m->id << " ";
-		}
-		// removing trailing whitespace
-		std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << std::endl;
-		// creating a name for the smt2 file
-		std::stringstream f_stream;
-		f_stream << raw_filename << "_" << config.reach_depth_max << "_" << path_index << ".c.smt2";
-		std::string smt_filename = f_stream.str();
-		// writing to the file
-		std::ofstream smt_file;
-		smt_file.open(smt_filename.c_str());
-		smt_file << pdrh::reach_c_to_smt2(path);
-		smt_file.close();
-		std::cout << "The generated path is written to: " << smt_filename << std::endl;
-		s.str("");
-		s << config.solver_bin << " " << config.solver_opt << " " << smt_filename;
-		system(s.str().c_str());
+		std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << ". Result: " << decision_procedure::evaluate(path) << std::endl;
 		path_index++;
 	}
 	// ADD MODEL TYPE CHECK

@@ -64,7 +64,7 @@ configure_file (
 file(GLOB SOURCES   ${PROJECT_SOURCE_DIR}/src/*.cpp
                     ${PROJECT_SOURCE_DIR}/src/xml/*.cpp)
 # setting executable
-add_executable(ProbReach ${SOURCES} ${PROJECT_SOURCE_DIR}/build/release/pdrhparser.c ${PROJECT_SOURCE_DIR}/build/release/pdrhlexer.c src/pdrh_config.h src/pdrh_config.cpp)
+add_executable(ProbReach ${SOURCES} ${PROJECT_SOURCE_DIR}/build/release/pdrhparser.c ${PROJECT_SOURCE_DIR}/build/release/pdrhlexer.c src/pdrh_config.h src/pdrh_config.cpp src/solver/dreal_wrapper.h src/solver/dreal_wrapper.cpp src/decision_procedure.h src/decision_procedure.cpp)
 # linking libraries
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libcapd.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libibex.a)

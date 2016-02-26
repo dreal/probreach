@@ -645,7 +645,7 @@ std::string pdrh::reach_c_to_smt2(std::vector<mode *> path)
         }
     }
     // defining the negated reachability formula
-    s << "(assert (=> (and " << std::endl;
+    s << "(assert (and (and " << std::endl;
     // defining initial states
     s << "(or ";
     for(pdrh::state st : pdrh::init)
@@ -678,19 +678,22 @@ std::string pdrh::reach_c_to_smt2(std::vector<mode *> path)
             s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << std::endl;
         }
         // checking the current depth
-        if(step < path.size() - 1)
-        {
+        //if(step < path.size() - 1)
+        //{
             // defining jumps
             for (pdrh::mode::jump j : m->jumps)
             {
                 s << pdrh::node_fix_index(j.guard, step, "t") << std::endl;
-                for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
+                if(step < path.size() - 1)
                 {
-                    s << "(= " << reset_it->first << "_" << step + 1 << "_0 " <<
-                    pdrh::node_fix_index(reset_it->second, step, "t") << ")";
+                    for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
+                    {
+                        s << "(= " << reset_it->first << "_" << step + 1 << "_0 " <<
+                        pdrh::node_fix_index(reset_it->second, step, "t") << ")";
+                    }
                 }
             }
-        }
+        //}
         step++;
     }
     s << ")";
@@ -700,7 +703,7 @@ std::string pdrh::reach_c_to_smt2(std::vector<mode *> path)
     {
         if(path.back()->id == st.id)
         {
-            s << "(not " << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << ")";
+            s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << "))";
         }
     }
     s << ")))" << std::endl;

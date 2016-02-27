@@ -501,7 +501,7 @@ std::string pdrh::node_to_string_infix(pdrh::node* n)
     return s.str();
 }
 
-std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
+std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path, std::vector<box> boxes)
 {
     std::stringstream s;
     // setting logic
@@ -513,11 +513,17 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
         for(int i = 0; i < path.size(); i++)
         {
             s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << std::endl;
-            s << "(assert (>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << "))" << std::endl;
-            s << "(assert (<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << "))" << std::endl;
             s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << std::endl;
-            s << "(assert (>= " << it->first << "_" << i << "_t " << it->second.leftBound() << "))" << std::endl;
-            s << "(assert (<= " << it->first << "_" << i << "_t " << it->second.rightBound() << "))" << std::endl;
+            if(it->second.leftBound() != -std::numeric_limits<double>::infinity())
+            {
+                s << "(assert (>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << "))" << std::endl;
+                s << "(assert (>= " << it->first << "_" << i << "_t " << it->second.leftBound() << "))" << std::endl;
+            }
+            if(it->second.rightBound() != std::numeric_limits<double>::infinity())
+            {
+                s << "(assert (<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << "))" << std::endl;
+                s << "(assert (<= " << it->first << "_" << i << "_t " << it->second.rightBound() << "))" << std::endl;
+            }
         }
     }
     // declaring time
@@ -552,6 +558,16 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
         }
     }
     s << ")" << std::endl;
+    // defining boxes bounds
+    for(box b : boxes)
+    {
+        std::map<std::string, capd::interval> m = b.get_map();
+        for(auto it = m.cbegin(); it != m.cend(); it++)
+        {
+            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << std::endl;
+            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << std::endl;
+        }
+    }
     // defining trajectory
     int step = 0;
     for(pdrh::mode* m : path)
@@ -605,7 +621,7 @@ std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path)
     return s.str();
 }
 
-std::string pdrh::reach_c_to_smt2(std::vector<mode *> path)
+std::string pdrh::reach_c_to_smt2(std::vector<mode *> path, std::vector<box> boxes)
 {
     std::stringstream s;
     // setting logic
@@ -617,11 +633,17 @@ std::string pdrh::reach_c_to_smt2(std::vector<mode *> path)
         for(int i = 0; i < path.size(); i++)
         {
             s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << std::endl;
-            s << "(assert (>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << "))" << std::endl;
-            s << "(assert (<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << "))" << std::endl;
             s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << std::endl;
-            s << "(assert (>= " << it->first << "_" << i << "_t " << it->second.leftBound() << "))" << std::endl;
-            s << "(assert (<= " << it->first << "_" << i << "_t " << it->second.rightBound() << "))" << std::endl;
+            if(it->second.leftBound() != -std::numeric_limits<double>::infinity())
+            {
+                s << "(assert (>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << "))" << std::endl;
+                s << "(assert (>= " << it->first << "_" << i << "_t " << it->second.leftBound() << "))" << std::endl;
+            }
+            if(it->second.rightBound() != std::numeric_limits<double>::infinity())
+            {
+                s << "(assert (<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << "))" << std::endl;
+                s << "(assert (<= " << it->first << "_" << i << "_t " << it->second.rightBound() << "))" << std::endl;
+            }
         }
     }
     // declaring time
@@ -656,6 +678,16 @@ std::string pdrh::reach_c_to_smt2(std::vector<mode *> path)
         }
     }
     s << ")" << std::endl;
+    // defining boxes bounds
+    for(box b : boxes)
+    {
+        std::map<std::string, capd::interval> m = b.get_map();
+        for(auto it = m.cbegin(); it != m.cend(); it++)
+        {
+            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << std::endl;
+            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << std::endl;
+        }
+    }
     // defining trajectory
     int step = 0;
     for(pdrh::mode* m : path)

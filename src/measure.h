@@ -10,8 +10,6 @@
 
 namespace measure
 {
-    extern std::map<std::string, std::string> rv_map;
-    extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
 
     std::pair<capd::interval, std::vector<capd::interval>> integral(std::string, std::string, capd::interval, double);
 

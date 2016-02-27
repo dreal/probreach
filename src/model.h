@@ -11,6 +11,7 @@
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
 #include <tuple>
+#include <box.h>
 
 namespace pdrh
 {
@@ -88,8 +89,9 @@ namespace pdrh
     // returns <first_map_keys> \ <second_map_keys>
     std::vector<std::string> get_keys_diff(std::map<std::string, capd::interval>, std::map<std::string, capd::interval>);
 
-    std::string reach_to_smt2(std::vector<pdrh::mode*>);
-    std::string reach_c_to_smt2(std::vector<pdrh::mode*>);
+    std::string reach_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
+    std::string reach_c_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
+
     std::string model_to_string();
     std::string print_jump(pdrh::mode::jump);
 }

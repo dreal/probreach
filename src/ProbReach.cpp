@@ -1948,8 +1948,15 @@ int main(int argc, char* argv[])
 	while (!feof(yyin));
 	std::remove(pdrhnameprep.str().c_str());
 	std::cout << " --- OK" << std::endl;
-
-
+	std::cout << "dd map:" << std::endl;
+	for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)
+	{
+		std::cout << it->first << std::endl;
+		for(auto it2 = it->second.cbegin(); it2 != it->second.cend(); it2++)
+		{
+			std::cout << it2->first << " : " << it2->second << std::endl;
+		}
+	}
 	// retrieving all possible paths of length [min, max]
 	std::vector<std::vector<pdrh::mode*>> paths;
 	for(int i = global_config.reach_depth_min; i <= global_config.reach_depth_max; i++)
@@ -1962,6 +1969,26 @@ int main(int argc, char* argv[])
 	}
 	// verifying the first formula
 	int path_index = 0;
+	// getting dd_boxes
+	std::map<std::string, std::vector<capd::interval>> m;
+	for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)
+	{
+		std::vector<capd::interval> args;
+		for(auto it2 = it->second.cbegin(); it2 != it->second.cend(); it2++)
+		{
+			args.push_back(it2->first);
+		}
+		m.insert(make_pair(it->first, args));
+	}
+	std::vector<box> boxes = box_factory::cartesian_product(m);
+	//boxes.push_back(box(edges));
+	std::vector<std::vector<box>> stack;
+	for(box b : boxes)
+	{
+		std::vector<box> b_vector;
+		b_vector.push_back(b);
+		stack.push_back(b_vector);
+	}
 	for(std::vector<pdrh::mode*> path : paths)
 	{
 		std::stringstream p_stream;
@@ -1969,8 +1996,17 @@ int main(int argc, char* argv[])
 		{
 			p_stream << m->id << " ";
 		}
-		// removing trailing whitespace
-		std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << ". Result: " << decision_procedure::evaluate(path) << std::endl;
+		for(std::vector<box> b : stack)
+		{
+			std::cout << "Evaluating boxes:" << std::endl;
+			for(box bb : b)
+			{
+				std::cout << bb;
+			}
+			std::cout << std::endl;
+			// removing trailing whitespace
+			std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << ". Result: " << decision_procedure::evaluate(path, b) << std::endl;
+		}
 		path_index++;
 	}
 	// ADD MODEL TYPE CHECK

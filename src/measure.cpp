@@ -2,13 +2,12 @@
 // Created by fedor on 27/12/15.
 //
 #include<capd/capdlib.h>
-#include<capd/intervals/lib.h>
 #include<ibex.h>
+#include<tuple>
 #include "measure.h"
 #include "box_factory.h"
-
-std::map<std::string, std::string> measure::rv_map;
-std::map<std::string, std::map<capd::interval, capd::interval>> measure::dd_map;
+#include "model.h"
+#include "pdrh_config.h"
 
 std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::string var, std::string fun, capd::interval it, double e)
 {
@@ -94,9 +93,9 @@ std::vector<rv_box> measure::partition(rv_box b, double e)
     std::map<std::string, std::vector<capd::interval>> m;
     for(auto it = edges.cbegin(); it != edges.cend(); it++)
     {
-        if(measure::rv_map.find(it->first) != measure::rv_map.cend())
+        if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, measure::precision(e, edges.size()));
+            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])), std::get<1>(pdrh::rv_map[it->first]), measure::precision(e, edges.size()));
             //std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size()));
             m.insert(make_pair(it->first, itg.second));
         }
@@ -118,9 +117,9 @@ capd::interval measure::p_measure(rv_box b, double e)
     capd::interval res(1.0);
     for(auto it = edges.cbegin(); it != edges.cend(); it++)
     {
-        if(measure::rv_map.find(it->first) != measure::rv_map.cend())
+        if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            res *= measure::integral(it->first, measure::rv_map[it->first], it->second, measure::precision(e, edges.size())).first;
+            res *= measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])), std::get<1>(pdrh::rv_map[it->first]), measure::precision(e, edges.size())).first;
             //res *= measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size())).first;
         }
         else
@@ -139,11 +138,11 @@ capd::interval measure::p_measure(dd_box b)
     capd::interval res(1.0);
     for(auto it = edges.cbegin(); it != edges.cend(); it++)
     {
-        if(measure::dd_map.find(it->first) != measure::dd_map.cend())
+        if(pdrh::dd_map.find(it->first) != pdrh::dd_map.cend())
         {
-            if(measure::dd_map.at(it->first).find(it->second) != measure::dd_map.at(it->first).cend())
+            if(pdrh::dd_map.at(it->first).find(it->second) != pdrh::dd_map.at(it->first).cend())
             {
-                res *= dd_map.at(it->first).at(it->second);
+                res *= pdrh::dd_map.at(it->first).at(it->second);
             }
             else
             {
@@ -164,13 +163,12 @@ capd::interval measure::p_measure(dd_box b)
 
 capd::interval measure::bounds::gaussian(double mu, double sigma, double e)
 {
-    double k = 0.1;
     capd::interval i(mu - 3 * sigma, mu + 3 * sigma);
-    std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral("x", measure::distribution::gaussian("x", mu, sigma), i, (1-k) * e);
-    while(1 - itg.first.leftBound() > k * e)
+    std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral("x", measure::distribution::gaussian("x", mu, sigma), i, (1 - global_config.integral_inf_coeff) * e);
+    while(1 - itg.first.leftBound() > global_config.integral_inf_coeff * e)
     {
         i = capd::interval(i.leftBound() - sigma, i.rightBound() + sigma);
-        itg = measure::integral("x", measure::distribution::gaussian("x", mu, sigma), i, (1-k) * e);
+        itg = measure::integral("x", measure::distribution::gaussian("x", mu, sigma), i, (1 - global_config.integral_inf_coeff) * e);
     }
     return i;
 }

@@ -744,3 +744,287 @@ std::string pdrh::reach_c_to_smt2(std::vector<mode *> path, std::vector<box> box
     s << "(exit)" << std::endl;
     return s.str();
 }
+
+std::string pdrh::reach_to_smt2(std::vector<mode *> path, rv_box* b1, dd_box* b2, nd_box* b3)
+{
+    std::stringstream s;
+    // setting logic
+    s << "(set-logic QF_NRA_ODE)" << std::endl;
+    // declaring variables and defining bounds
+    for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
+    {
+        s << "(declare-fun " << it->first << " () Real)" << std::endl;
+        for(int i = 0; i < path.size(); i++)
+        {
+            s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << std::endl;
+            s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << std::endl;
+            if(it->second.leftBound() != -std::numeric_limits<double>::infinity())
+            {
+                s << "(assert (>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << "))" << std::endl;
+                s << "(assert (>= " << it->first << "_" << i << "_t " << it->second.leftBound() << "))" << std::endl;
+            }
+            if(it->second.rightBound() != std::numeric_limits<double>::infinity())
+            {
+                s << "(assert (<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << "))" << std::endl;
+                s << "(assert (<= " << it->first << "_" << i << "_t " << it->second.rightBound() << "))" << std::endl;
+            }
+        }
+    }
+    // declaring time
+    for(int i = 0; i < path.size(); i++)
+    {
+        s << "(declare-fun time_" << i << " () Real)" << std::endl;
+        s << "(assert (>= time_" << i << " " << pdrh::time.leftBound() << "))" << std::endl;
+        s << "(assert (<= time_" << i << " " << pdrh::time.rightBound() << "))" << std::endl;
+    }
+    // defining odes
+    for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
+    {
+        if(std::find(path.cbegin(), path_it, *path_it) == path_it)
+        {
+            s << "(define-ode flow_" << (*path_it)->id << " (";
+            for(auto ode_it = (*path_it)->odes.cbegin(); ode_it != (*path_it)->odes.cend(); ode_it++)
+            {
+                s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
+            }
+            s << "))" << std::endl;
+        }
+    }
+    // defining the reachability formula
+    s << "(assert (and " << std::endl;
+    // defining initial states
+    s << "(or ";
+    for(pdrh::state st : pdrh::init)
+    {
+        if(path.front()->id == st.id)
+        {
+            s << pdrh::node_fix_index(st.prop, 0, "0");
+        }
+    }
+    s << ")" << std::endl;
+    // defining rv box
+    if(b1 != NULL)
+    {
+        std::map<std::string, capd::interval> m = b1->get_map();
+        for(auto it = m.cbegin(); it != m.cend(); it++)
+        {
+            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << std::endl;
+            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << std::endl;
+        }
+    }
+    // defining dd box
+    if(b2 != NULL)
+    {
+        std::map<std::string, capd::interval> m = b2->get_map();
+        for(auto it = m.cbegin(); it != m.cend(); it++)
+        {
+            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << std::endl;
+            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << std::endl;
+        }
+    }
+    // defining nd box
+    if(b3 != NULL)
+    {
+        std::map<std::string, capd::interval> m = b3->get_map();
+        for(auto it = m.cbegin(); it != m.cend(); it++)
+        {
+            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << std::endl;
+            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << std::endl;
+        }
+    }
+    // defining trajectory
+    int step = 0;
+    for(pdrh::mode* m : path)
+    {
+        // defining integrals
+        s << "(= [";
+        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
+        {
+            s << ode_it->first << "_" << step << "_t ";
+        }
+        s << "] (integral 0.0 time_" << step << " [";
+        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
+        {
+            s << ode_it->first << "_" << step << "_0 ";
+        }
+        s << "] flow_" << m->id << "))" << std::endl;
+        // defining invariants
+        for(pdrh::node* invt : m->invts)
+        {
+            s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << std::endl;
+        }
+        // checking the current depth
+        if(step < path.size() - 1)
+        {
+            // defining jumps
+            for (pdrh::mode::jump j : m->jumps)
+            {
+                s << pdrh::node_fix_index(j.guard, step, "t") << std::endl;
+                for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
+                {
+                    s << "(= " << reset_it->first << "_" << step + 1 << "_0 " <<
+                    pdrh::node_fix_index(reset_it->second, step, "t") << ")";
+                }
+            }
+        }
+        step++;
+    }
+    // defining goal
+    s << "(or ";
+    for(pdrh::state st : pdrh::goal)
+    {
+        if(path.back()->id == st.id)
+        {
+            s << pdrh::node_fix_index(st.prop, path.size() - 1, "t");
+        }
+    }
+    s << ")))" << std::endl;
+    // final statements
+    s << "(check-sat)" << std::endl;
+    s << "(exit)" << std::endl;
+    return s.str();
+}
+
+std::string pdrh::reach_c_to_smt2(std::vector<mode *> path, rv_box* b1, dd_box* b2, nd_box* b3)
+{
+    std::stringstream s;
+    // setting logic
+    s << "(set-logic QF_NRA_ODE)" << std::endl;
+    // declaring variables and defining bounds
+    for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
+    {
+        s << "(declare-fun " << it->first << " () Real)" << std::endl;
+        for(int i = 0; i < path.size(); i++)
+        {
+            s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << std::endl;
+            s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << std::endl;
+            if(it->second.leftBound() != -std::numeric_limits<double>::infinity())
+            {
+                s << "(assert (>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << "))" << std::endl;
+                s << "(assert (>= " << it->first << "_" << i << "_t " << it->second.leftBound() << "))" << std::endl;
+            }
+            if(it->second.rightBound() != std::numeric_limits<double>::infinity())
+            {
+                s << "(assert (<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << "))" << std::endl;
+                s << "(assert (<= " << it->first << "_" << i << "_t " << it->second.rightBound() << "))" << std::endl;
+            }
+        }
+    }
+    // declaring time
+    for(int i = 0; i < path.size(); i++)
+    {
+        s << "(declare-fun time_" << i << " () Real)" << std::endl;
+        s << "(assert (>= time_" << i << " " << pdrh::time.leftBound() << "))" << std::endl;
+        s << "(assert (<= time_" << i << " " << pdrh::time.rightBound() << "))" << std::endl;
+    }
+    // defining odes
+    for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
+    {
+        if(std::find(path.cbegin(), path_it, *path_it) == path_it)
+        {
+            s << "(define-ode flow_" << (*path_it)->id << " (";
+            for(auto ode_it = (*path_it)->odes.cbegin(); ode_it != (*path_it)->odes.cend(); ode_it++)
+            {
+                s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
+            }
+            s << "))" << std::endl;
+        }
+    }
+    // defining the negated reachability formula
+    s << "(assert (and (and " << std::endl;
+    // defining initial states
+    s << "(or ";
+    for(pdrh::state st : pdrh::init)
+    {
+        if(path.front()->id == st.id)
+        {
+            s << pdrh::node_fix_index(st.prop, 0, "0");
+        }
+    }
+    s << ")" << std::endl;
+    // defining rv box
+    if(b1 != NULL)
+    {
+        std::map<std::string, capd::interval> m = b1->get_map();
+        for(auto it = m.cbegin(); it != m.cend(); it++)
+        {
+            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << std::endl;
+            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << std::endl;
+        }
+    }
+    // defining dd box
+    if(b2 != NULL)
+    {
+        std::map<std::string, capd::interval> m = b2->get_map();
+        for(auto it = m.cbegin(); it != m.cend(); it++)
+        {
+            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << std::endl;
+            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << std::endl;
+        }
+    }
+    // defining nd box
+    if(b3 != NULL)
+    {
+        std::map<std::string, capd::interval> m = b3->get_map();
+        for(auto it = m.cbegin(); it != m.cend(); it++)
+        {
+            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << std::endl;
+            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << std::endl;
+        }
+    }
+    // defining trajectory
+    int step = 0;
+    for(pdrh::mode* m : path)
+    {
+        // defining integrals
+        s << "(= [";
+        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
+        {
+            s << ode_it->first << "_" << step << "_t ";
+        }
+        s << "] (integral 0.0 time_" << step << " [";
+        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
+        {
+            s << ode_it->first << "_" << step << "_0 ";
+        }
+        s << "] flow_" << m->id << "))" << std::endl;
+        // defining invariants
+        for(pdrh::node* invt : m->invts)
+        {
+            s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << std::endl;
+        }
+        // checking the current depth
+        //if(step < path.size() - 1)
+        //{
+        // defining jumps
+        for (pdrh::mode::jump j : m->jumps)
+        {
+            s << pdrh::node_fix_index(j.guard, step, "t") << std::endl;
+            if(step < path.size() - 1)
+            {
+                for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
+                {
+                    s << "(= " << reset_it->first << "_" << step + 1 << "_0 " <<
+                    pdrh::node_fix_index(reset_it->second, step, "t") << ")";
+                }
+            }
+        }
+        //}
+        step++;
+    }
+    s << ")";
+    // defining goal
+    s << "(and ";
+    for(pdrh::state st : pdrh::goal)
+    {
+        if(path.back()->id == st.id)
+        {
+            s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << "))";
+        }
+    }
+    s << ")))" << std::endl;
+    // final statements
+    s << "(check-sat)" << std::endl;
+    s << "(exit)" << std::endl;
+    return s.str();
+}

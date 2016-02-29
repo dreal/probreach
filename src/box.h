@@ -26,6 +26,7 @@ class dd_box : public box
 {
 public:
     dd_box(std::map<std::string, capd::interval>);
+    dd_box(box);
 };
 
 class rv_box : public box

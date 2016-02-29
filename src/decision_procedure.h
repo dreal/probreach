@@ -11,6 +11,7 @@ namespace decision_procedure
 {
     enum result {SAT, UNSAT, UNDET, ERROR};
     int evaluate(std::vector<pdrh::mode*>, std::vector<box>);
+    int evaluate(std::vector<pdrh::mode*>, rv_box*, dd_box*, nd_box*);
 }
 
 #endif //PROBREACH_DECISION_PROCEDURE_H

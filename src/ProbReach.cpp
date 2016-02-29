@@ -1981,14 +1981,8 @@ int main(int argc, char* argv[])
 		m.insert(make_pair(it->first, args));
 	}
 	std::vector<box> boxes = box_factory::cartesian_product(m);
-	//boxes.push_back(box(edges));
-	std::vector<std::vector<box>> stack;
-	for(box b : boxes)
-	{
-		std::vector<box> b_vector;
-		b_vector.push_back(b);
-		stack.push_back(b_vector);
-	}
+	std::vector<dd_box> dd_boxes(boxes.cbegin(), boxes.cend());
+
 	for(std::vector<pdrh::mode*> path : paths)
 	{
 		std::stringstream p_stream;
@@ -1996,16 +1990,25 @@ int main(int argc, char* argv[])
 		{
 			p_stream << m->id << " ";
 		}
-		for(std::vector<box> b : stack)
+		for(dd_box b : dd_boxes)
 		{
-			std::cout << "Evaluating boxes:" << std::endl;
-			for(box bb : b)
-			{
-				std::cout << bb;
-			}
-			std::cout << std::endl;
+			//rv_box
+			std::cout << "Evaluating dd box: " << b << std::endl;
 			// removing trailing whitespace
-			std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << ". Result: " << decision_procedure::evaluate(path, b) << std::endl;
+			std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << std::endl;
+			int res = decision_procedure::evaluate(path, NULL, &b, NULL);
+			if(res == decision_procedure::SAT)
+			{
+				std::cout << "Result: " << capd::interval(1) * measure::p_measure(b) << std::endl;
+			}
+			else if(res == decision_procedure::UNSAT)
+			{
+				std::cout << "Result: " << capd::interval(0) * measure::p_measure(b) << std::endl;
+			}
+			else if(res == decision_procedure::UNDET)
+			{
+				std::cout << "Result: " << capd::interval(0, 1) * measure::p_measure(b) << std::endl;
+			}
 		}
 		path_index++;
 	}

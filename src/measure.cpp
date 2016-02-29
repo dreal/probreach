@@ -194,6 +194,7 @@ std::string measure::distribution::gaussian(std::string var, double mu, double s
     return s.str();
 }
 
+// check whether implemented correctly
 std::string measure::distribution::exp(std::string var, double lambda)
 {
     std::stringstream s;

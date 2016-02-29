@@ -53,6 +53,12 @@ dd_box::dd_box(std::map<std::string, capd::interval> e)
     this->edges = e;
 }
 
+
+dd_box::dd_box(box b):box(b.get_map())
+{
+
+}
+
 rv_box::rv_box(std::map<std::string, capd::interval> e):box(e)
 {
 

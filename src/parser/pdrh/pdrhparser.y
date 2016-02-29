@@ -7,6 +7,7 @@
 #include <cmath>
 #include <limits>
 #include "../../src/model.h"
+#include "../../src/measure.h"
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
 
@@ -135,7 +136,7 @@ dist_declaration:
                                                                                 {
                                                                                     if(!pdrh::var_exists($11))
                                                                                     {
-                                                                                        pdrh::push_var($11, capd::interval($5, $7));
+                                                                                        pdrh::push_var(strdup($11), capd::interval($5, $7));
                                                                                         pdrh::push_rv(strdup($11), $3, capd::interval($5, $7), capd::interval($9));
                                                                                     }
                                                                                     else
@@ -148,7 +149,7 @@ dist_declaration:
     | G_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
                                                                                     if(!pdrh::var_exists($7))
                                                                                     {
-                                                                                        pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
+                                                                                        pdrh::push_var(strdup($7), capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                             std::numeric_limits<double>::infinity()));
                                                                                     }
                                                                                     else

@@ -5,9 +5,11 @@
 #include "model.h"
 #include <map>
 #include <tuple>
+#include "measure.h"
+#include "pdrh_config.h"
 
 int pdrh::type;
-std::map<std::string, std::tuple<pdrh::node*, capd::interval, capd::interval>> pdrh::rv_map;
+std::map<std::string, std::tuple<std::string, capd::interval, double>> pdrh::rv_map;
 std::map<std::string, std::map<capd::interval, capd::interval>> pdrh::dd_map;
 std::map<std::string, capd::interval> pdrh::var_map;
 std::map<std::string, capd::interval> pdrh::syn_map;
@@ -117,7 +119,7 @@ void pdrh::push_syn_pair(std::string var, capd::interval e)
     pdrh::syn_map.insert(make_pair(var, e));
 }
 
-void pdrh::push_rv(std::string var, pdrh::node* pdf, capd::interval domain, capd::interval start)
+void pdrh::push_rv(std::string var, std::string pdf, capd::interval domain, double start)
 {
     pdrh::rv_map.insert(make_pair(var, std::make_tuple(pdf, domain, start)));
 }
@@ -339,7 +341,7 @@ std::string pdrh::model_to_string()
     out << "CONTINUOUS RANDOM VARIABLES:" << std::endl;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
-        out << "|   pdf(" << it->first << ") = " << pdrh::node_to_string_infix(std::get<0>(it->second)) << "  | " << std::get<1>(it->second) << " |   " << std::get<2>(it->second) << std::endl;
+        out << "|   pdf(" << it->first << ") = " << std::get<0>(it->second) << "  | " << std::get<1>(it->second) << " |   " << std::get<2>(it->second) << std::endl;
     }
     out << "DISCRETE RANDOM VARIABLES:" << std::endl;
     for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)

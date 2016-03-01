@@ -31,7 +31,7 @@ namespace pdrh
     std::string node_fix_index(node*, int, std::string);
     extern int type;
     extern capd::interval time;
-    extern std::map<std::string, std::tuple<node*, capd::interval, capd::interval>> rv_map;
+    extern std::map<std::string, std::tuple<std::string, capd::interval, double>> rv_map;
     extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
     extern std::map<std::string, capd::interval> var_map;
     extern std::map<std::string, capd::interval> syn_map;
@@ -63,7 +63,7 @@ namespace pdrh
 
     void push_var(std::string, capd::interval);
     void push_dd(std::string, std::map<capd::interval, capd::interval>);
-    void push_rv(std::string, node*, capd::interval, capd::interval);
+    void push_rv(std::string, std::string, capd::interval, double);
 
     void push_mode(pdrh::mode);
     void push_invt(pdrh::mode&, pdrh::node*);

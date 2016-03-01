@@ -30,7 +30,6 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
         capd::IFunction fun_fun("var:" + var + ";fun:" + fun + ";");
         capd::interval itg = (capd::intervals::width(i) / 6) * (fun_fun(i.leftBound()) + 4 * fun_fun(i.mid()) +
                                                                 fun_fun(i.rightBound())) - (power(capd::intervals::width(i),5) / 2880) * f4;
-
         if(capd::intervals::width(itg) <= e * (capd::intervals::width(i) / capd::intervals::width(it)))
         {
             partition.push_back(i);
@@ -61,10 +60,11 @@ capd::interval measure::volume(box b)
 
 double measure::binomial(int k, int n)
 {
-    int res = 1;
+    double res = 1;
     for(int i = 1; i <= k; i++)
     {
         res *= (double) (n + 1 - i) / (double) i;
+        //std::cout << "res (i=" << i << ") and (k=" << k << ") = " << res << std::endl;
     }
     return res;
 }
@@ -77,7 +77,7 @@ double measure::precision(double e, int n)
         s << measure::binomial(i + 1, n) << "*e^" << i + 1 << "+";
     }
     s << "-" << e;
-
+    //std::cout << "expression: " << s.str() << std::endl;
     ibex::Function f("e", s.str().c_str());
     ibex::IntervalVector b(1, ibex::Interval(0, 1));
     ibex::CtcFwdBwd c(f);
@@ -95,7 +95,7 @@ std::vector<rv_box> measure::partition(rv_box b, double e)
     {
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])), std::get<1>(pdrh::rv_map[it->first]), measure::precision(e, edges.size()));
+            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, std::get<0>(pdrh::rv_map[it->first]), std::get<1>(pdrh::rv_map[it->first]), measure::precision(e, edges.size()));
             //std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size()));
             m.insert(make_pair(it->first, itg.second));
         }
@@ -119,7 +119,7 @@ capd::interval measure::p_measure(rv_box b, double e)
     {
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            res *= measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])), std::get<1>(pdrh::rv_map[it->first]), measure::precision(e, edges.size())).first;
+            res *= measure::integral(it->first, std::get<0>(pdrh::rv_map[it->first]), std::get<1>(pdrh::rv_map[it->first]), measure::precision(e, edges.size())).first;
             //res *= measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size())).first;
         }
         else
@@ -175,15 +175,57 @@ capd::interval measure::bounds::gaussian(double mu, double sigma, double e)
 
 capd::interval measure::bounds::exp(double lambda, double e)
 {
-    double k = 0.1;
     capd::interval i(0, 3 / lambda);
-    std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral("x", measure::distribution::exp("x", lambda), i, (1-k) * e);
-    while(1 - itg.first.leftBound() > k * e)
+    std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral("x", measure::distribution::exp("x", lambda), i, (1-global_config.integral_inf_coeff) * e);
+    while(1 - itg.first.leftBound() > global_config.integral_inf_coeff * e)
     {
         i = capd::interval(0, i.rightBound() + (1 / lambda));
-        itg = measure::integral("x", measure::distribution::exp("x", lambda), i, (1-k) * e);
+        itg = measure::integral("x", measure::distribution::exp("x", lambda), i, (1-global_config.integral_inf_coeff) * e);
     }
     return i;
+}
+
+std::pair<capd::interval, std::vector<capd::interval>> measure::bounds::pdf(std::string var, std::string pdf, capd::interval domain, double start, double e)
+{
+    // checking if the starting point is in the domain
+    if(!domain.contains(start))
+    {
+        std::stringstream s;
+        s << "starting point " << start << " does not belong to the domain " << domain << " while trying to find pdf bounds";
+        throw std::invalid_argument(s.str());
+    }
+    // initializing the interval
+    capd::interval res = capd::interval(start);
+    while(true)
+    {
+        // setting the interval
+        res = capd::interval(res.leftBound() - global_config.integral_pdf_step, res.rightBound() + global_config.integral_pdf_step);
+        //std::cout << res << std::endl;
+        // adjusting left bound of the initial interval
+        if(res.leftBound() < domain.leftBound())
+        {
+            res = capd::interval(domain.leftBound(), res.rightBound());
+        }
+        // adjusting right bound of the initial interval
+        if(res.rightBound() > domain.rightBound())
+        {
+            res = capd::interval(res.leftBound(), domain.rightBound());
+        }
+        // calculating integral
+        std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(var, pdf, res, e);
+        // checking if the value of the integral satisfies the condition
+        if(1 - itg.first.leftBound() < e * global_config.integral_inf_coeff)
+        {
+            return make_pair(res, itg.second);
+        }
+        // the bound was reached but the precision value is not reached
+        else if(res == domain)
+        {
+            std::stringstream s;
+            s << "Unable to bound the integral of the pdf on " << domain << " by the value " << e * global_config.integral_inf_coeff;
+            throw std::out_of_range(s.str());
+        }
+    }
 }
 
 std::string measure::distribution::gaussian(std::string var, double mu, double sigma)
@@ -202,9 +244,39 @@ std::string measure::distribution::exp(std::string var, double lambda)
     return s.str();
 }
 
-std::string measure::distribution::uniform(std::string var, double a, double b)
+std::string measure::distribution::uniform(double a, double b)
 {
     std::stringstream s;
     s << "1 / (" << b << " - " << a << ")";
     return s.str();
 }
+
+std::vector<rv_box> measure::verified_partition()
+{
+    std::map<std::string, std::vector<capd::interval>> partition_map;
+    for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
+    {
+        std::pair<capd::interval, std::vector<capd::interval>> bound = measure::bounds::pdf(it->first,
+                                                                        std::get<0>(it->second), std::get<1>(it->second), std::get<2>(it->second),
+                                                                                 measure::precision(global_config.precision_prob, pdrh::rv_map.size()));
+
+        std::tuple<std::string, capd::interval, double> new_tuple = std::make_tuple(std::get<0>(it->second), bound.first, std::get<2>(it->second));
+        pdrh::rv_map[it->first] = new_tuple;
+        // updating partition map
+        partition_map.insert(std::make_pair(it->first, bound.second));
+    }
+    // cartesian product of partitions
+    std::vector<box> boxes = box_factory::cartesian_product(partition_map);
+    // converting boxes to rv_boxes
+    return std::vector<rv_box>(boxes.cbegin(), boxes.cend());
+}
+
+
+
+
+
+
+
+
+
+

@@ -137,7 +137,7 @@ dist_declaration:
                                                                                     if(!pdrh::var_exists($11))
                                                                                     {
                                                                                         pdrh::push_var(strdup($11), capd::interval($5, $7));
-                                                                                        pdrh::push_rv(strdup($11), $3, capd::interval($5, $7), capd::interval($9));
+                                                                                        pdrh::push_rv(strdup($11), pdrh::node_to_string_infix($3), capd::interval($5, $7), $9);
                                                                                     }
                                                                                     else
                                                                                     {
@@ -162,8 +162,11 @@ dist_declaration:
     | N_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
                                                                                     if(!pdrh::var_exists($7))
                                                                                     {
-                                                                                        pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
+                                                                                        pdrh::push_var(strdup($7), capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
+                                                                                        pdrh::push_rv(strdup($7), measure::distribution::gaussian(strdup($7), $3, $5),
+                                                                                                        capd::interval(-std::numeric_limits<double>::infinity(),
+                                                                                                          std::numeric_limits<double>::infinity()), $3);
                                                                                     }
                                                                                     else
                                                                                     {
@@ -177,6 +180,8 @@ dist_declaration:
                                                                                     {
                                                                                         pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
+                                                                                        pdrh::push_rv(strdup($7), measure::distribution::uniform($3, $5),
+                                                                                                         capd::interval($3, $5), $3);
                                                                                     }
                                                                                     else
                                                                                     {
@@ -190,6 +195,8 @@ dist_declaration:
                                                                                     {
                                                                                         pdrh::push_var($5, capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
+                                                                                        pdrh::push_rv(strdup($5), measure::distribution::exp(strdup($5), $3),
+                                                                                                                  capd::interval(0, std::numeric_limits<double>::infinity()), 0);
                                                                                     }
                                                                                     else
                                                                                     {

@@ -10,6 +10,7 @@ struct pdrh_config
 {
     // verified integration options
     double integral_inf_coeff = 1e-01;
+    double integral_pdf_step = 1e-01;
     // solver options
     std::string solver_bin = "dReal";
     std::string solver_opt = "";

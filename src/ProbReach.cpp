@@ -1948,6 +1948,7 @@ int main(int argc, char* argv[])
 	while (!feof(yyin));
 	std::remove(pdrhnameprep.str().c_str());
 	std::cout << " --- OK" << std::endl;
+	// outputting dd_map
 	std::cout << "dd map:" << std::endl;
 	for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)
 	{
@@ -1982,7 +1983,28 @@ int main(int argc, char* argv[])
 	}
 	std::vector<box> boxes = box_factory::cartesian_product(m);
 	std::vector<dd_box> dd_boxes(boxes.cbegin(), boxes.cend());
+	// outputting rv_map
+	std::cout << "rv map:" << std::endl;
+	for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
+	{
+		std::cout << it->first << " | " << std::get<0>(it->second) << " | " << std::get<1>(it->second) << " | " << std::get<2>(it->second) << std::endl;
+	}
+	std::vector<rv_box> rv_partition = measure::verified_partition();
+	std::cout << "Partition (" << rv_partition.size() << " boxes):" << std::endl;
+	/*
+	for(rv_box b : rv_partition)
+	{
+		std::cout << b << std::endl;
+	}
+	*/
+	std::cout << "rv map:" << std::endl;
+	for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
+	{
+		std::cout << it->first << " | " << std::get<0>(it->second) << " | " << std::get<1>(it->second) << " | " << std::get<2>(it->second) << std::endl;
+	}
+	//std::cout << scientific << measure::bounds::gaussian(20,1,measure::precision(global_config.precision_prob, pdrh::rv_map.size())) << std::endl;
 
+	/*
 	for(std::vector<pdrh::mode*> path : paths)
 	{
 		std::stringstream p_stream;
@@ -2012,6 +2034,7 @@ int main(int argc, char* argv[])
 		}
 		path_index++;
 	}
+	*/
 	// ADD MODEL TYPE CHECK
 	return EXIT_SUCCESS;
 }

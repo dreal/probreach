@@ -28,6 +28,8 @@ set(DREAL_DIR "/home/fedor/dreal3")
 include_directories("${DREAL_DIR}/build/release/include/ibex")
 include_directories("${DREAL_DIR}/build/release/include")
 include_directories("${PROJECT_SOURCE_DIR}/src")
+include_directories("${PROJECT_SOURCE_DIR}/src/logging")
+include_directories("${PROJECT_SOURCE_DIR}/src/solver")
 include_directories("${PROJECT_SOURCE_DIR}/src/xml")
 include_directories("${PROJECT_SOURCE_DIR}/build/release/")
 # BISON
@@ -62,9 +64,12 @@ configure_file (
   )
 # putting all source files together
 file(GLOB SOURCES   ${PROJECT_SOURCE_DIR}/src/*.cpp
-                    ${PROJECT_SOURCE_DIR}/src/xml/*.cpp)
+                    ${PROJECT_SOURCE_DIR}/src/xml/*.cpp
+                    ${PROJECT_SOURCE_DIR}/src/parser/*.cpp
+                    ${PROJECT_SOURCE_DIR}/src/solver/*.cpp
+                    ${PROJECT_SOURCE_DIR}/build/release/*.c)
 # setting executable
-add_executable(ProbReach ${SOURCES} ${PROJECT_SOURCE_DIR}/build/release/pdrhparser.c ${PROJECT_SOURCE_DIR}/build/release/pdrhlexer.c src/pdrh_config.h src/pdrh_config.cpp src/solver/dreal_wrapper.h src/solver/dreal_wrapper.cpp src/decision_procedure.h src/decision_procedure.cpp)
+add_executable(ProbReach ${SOURCES})
 # linking libraries
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libcapd.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libibex.a)

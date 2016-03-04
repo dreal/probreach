@@ -15,11 +15,17 @@ namespace measure
     std::pair<capd::interval, std::vector<capd::interval>> integral(std::string, std::string, capd::interval, double);
 
     capd::interval volume(box);
+    capd::interval p_measure(box, double);
+    capd::interval p_measure(box);
+    std::vector<box> partition(box, double);
+
     std::vector<rv_box> partition(rv_box, double);
     capd::interval p_measure(rv_box, double);
+    capd::interval p_measure(rv_box);
     capd::interval p_measure(dd_box);
+
     // obtain the partition of the parameter space
-    std::vector<rv_box> verified_partition();
+    std::vector<box> verified_partition();
 
     double binomial(int, int);
     double precision(double, int);
@@ -29,6 +35,7 @@ namespace measure
         capd::interval gaussian(double, double, double);
         capd::interval exp(double, double);
         std::pair<capd::interval, std::vector<capd::interval>> pdf(std::string, std::string, capd::interval, double, double);
+        rv_box get_rv_domain();
     }
 
     namespace distribution

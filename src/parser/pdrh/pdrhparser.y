@@ -6,10 +6,12 @@
 #include <sstream>
 #include <cmath>
 #include <limits>
-#include "../../src/model.h"
-#include "../../src/measure.h"
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
+#include "../../src/model.h"
+#include "../../src/measure.h"
+#include "../../src/pdrh_config.h"
+#include "../../src/logging/easylogging++.h"
 
 // stuff from flex that bison needs to know about:
 extern "C" int yylex();
@@ -72,27 +74,31 @@ std::map<capd::interval, capd::interval> cur_dd;
 
 %%
 pdrh:
-	declarations modes init synthesize { ; }
-	| declarations modes init goal { ; }
+	declarations modes init synthesize  {
+	                                        pdrh::model_type = pdrh::PSY;
+	                                    }
+	| declarations modes init goal      {
+	                                        pdrh::model_type = pdrh::HA;
+	                                    }
 	| model declarations modes init goal { ; }
 
 model:
 	MODEL ':' model_type ';'    {
 	                                if(strcmp(strdup($3), "ha") == 0)
 	                                {
-	                                    pdrh::type = 0;
+	                                    pdrh::model_type = pdrh::HA;
 	                                } else if(strcmp(strdup($3), "pha") == 0)
 	                                {
-	                                    pdrh::type = 1;
+	                                    pdrh::model_type = pdrh::PHA;
 	                                } else if(strcmp(strdup($3), "nha") == 0)
                                     {
-                                        pdrh::type = 2;
+                                        pdrh::model_type = pdrh::NHA;
                                     }else if(strcmp(strdup($3), "npha") == 0)
                                     {
-                                        pdrh::type = 3;
+                                        pdrh::model_type = pdrh::NPHA;
                                     }else if(strcmp(strdup($3), "psy") == 0)
                                     {
-                                        pdrh::type = 4;
+                                        pdrh::model_type = pdrh::PSY;
                                     }
 	                            }
 
@@ -756,55 +762,9 @@ number:
 	| n_int 			{ $$ = $1; }
 
 %%
-/*
-int main(int argc, char* argv[]) {
 
-	std::cout << "Parsing " << argv[1];
-
-	// open a file handle to a particular file:
-	FILE *pdrhfile = fopen(argv[1], "r");
-	// make sure it's valid:
-	if (!pdrhfile) {
-		std::cout << "I can't open " << argv[1] << std::endl;
-		return -1;
-	}
-
-	std::stringstream s, pdrhnameprep;
-
-	pdrhnameprep << argv[1] << ".preprocessed";
-
-	s << "cpp -w -P " << argv[1] << " > " << pdrhnameprep.str().c_str();
-
-	system(s.str().c_str());
-
-	FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
-    // make sure it's valid:
-    if (!pdrhfileprep) {
-    	std::cout << "I can't open " << pdrhnameprep << std::endl;
-    	return -1;
-    }
-
-	// set lex to read from it instead of defaulting to STDIN:
-	yyin = pdrhfileprep;
-
-	// parse through the input until there is no more:
-	do {
-		yyparse();
-	} while (!feof(yyin));
-
-	std::remove(pdrhnameprep.str().c_str());
-	std::cout << " --- OK" << std::endl;
-
-	std::cout << pdrh::print_model() << std::endl;
-
-	delete cur_mode;
-	delete cur_jump;
-	cur_states.clear();
-    cur_dd.clear();
-}
-*/
 void yyerror(const char *s) {
-	std::cout << " | parse error on line " << line_num << ": " << s << std::endl;
+	CLOG_IF(global_config.verbose, ERROR, "parser") << "line " << line_num << ": " << s;
 	// might as well halt now:
 	exit(-1);
 }

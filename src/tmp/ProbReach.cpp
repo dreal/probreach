@@ -36,6 +36,7 @@
 #include "pdrh_config.h"
 #include "solver/dreal_wrapper.h"
 #include "decision_procedure.h"
+#include "algorithm.h"
 
 extern "C"
 {
@@ -1981,15 +1982,16 @@ int main(int argc, char* argv[])
 		}
 		m.insert(make_pair(it->first, args));
 	}
-	std::vector<box> boxes = box_factory::cartesian_product(m);
-	std::vector<dd_box> dd_boxes(boxes.cbegin(), boxes.cend());
+	std::vector<box> dd_boxes = box_factory::cartesian_product(m);
 	// outputting rv_map
 	std::cout << "rv map:" << std::endl;
 	for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
 	{
 		std::cout << it->first << " | " << std::get<0>(it->second) << " | " << std::get<1>(it->second) << " | " << std::get<2>(it->second) << std::endl;
 	}
-	std::vector<rv_box> rv_partition = measure::verified_partition();
+	// setting up single integral precision
+	global_config.precision_prob_single = measure::precision(global_config.precision_prob, pdrh::rv_map.size());
+	std::vector<box> rv_partition = measure::verified_partition();
 	std::cout << "Partition (" << rv_partition.size() << " boxes):" << std::endl;
 	/*
 	for(rv_box b : rv_partition)
@@ -2003,8 +2005,9 @@ int main(int argc, char* argv[])
 		std::cout << it->first << " | " << std::get<0>(it->second) << " | " << std::get<1>(it->second) << " | " << std::get<2>(it->second) << std::endl;
 	}
 	//std::cout << scientific << measure::bounds::gaussian(20,1,measure::precision(global_config.precision_prob, pdrh::rv_map.size())) << std::endl;
+	rv_box rv_domain = measure::bounds::get_rv_domain();
 
-	/*
+	std::cout << "rv domain: " << rv_domain << std::endl;
 	for(std::vector<pdrh::mode*> path : paths)
 	{
 		std::stringstream p_stream;
@@ -2012,29 +2015,55 @@ int main(int argc, char* argv[])
 		{
 			p_stream << m->id << " ";
 		}
-		for(dd_box b : dd_boxes)
+		// removing trailing whitespace
+		std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << std::endl;
+		capd::interval p_value(1 - measure::p_measure(rv_domain).leftBound(),1);
+		std::cout << scientific << "(START). probability = " << p_value << std::endl;
+		for(rv_box b1 : rv_partition)
 		{
-			//rv_box
-			std::cout << "Evaluating dd box: " << b << std::endl;
-			// removing trailing whitespace
-			std::cout << "Evaluating path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" ")) << std::endl;
-			int res = decision_procedure::evaluate(path, NULL, &b, NULL);
-			if(res == decision_procedure::SAT)
+			for(dd_box b2 : dd_boxes)
 			{
-				std::cout << "Result: " << capd::interval(1) * measure::p_measure(b) << std::endl;
-			}
-			else if(res == decision_procedure::UNSAT)
-			{
-				std::cout << "Result: " << capd::interval(0) * measure::p_measure(b) << std::endl;
-			}
-			else if(res == decision_procedure::UNDET)
-			{
-				std::cout << "Result: " << capd::interval(0, 1) * measure::p_measure(b) << std::endl;
+				// rv_box
+				//std::cout << "Evaluating rv box: " << b1 << std::endl;
+				// dd_box
+				//std::cout << "Evaluating dd box: " << b2 << std::endl;
+				capd::interval p_box = measure::p_measure(b1) * measure::p_measure(b2);
+				int res = decision_procedure::evaluate(path, &b1, &b2, NULL);
+				if(res == decision_procedure::SAT)
+				{
+					if(p_box.leftBound() > 0)
+					{
+						p_value = capd::interval(p_value.leftBound() + p_box.leftBound(), p_value.rightBound());
+					}
+					std::cout << scientific << "(SAT). probability = " << p_value << std::endl;
+				}
+				else if(res == decision_procedure::UNSAT)
+				{
+					if(p_box.leftBound() > 0)
+					{
+						p_value = capd::interval(p_value.leftBound(), p_value.rightBound() - p_box.leftBound());
+					}
+					std::cout << scientific << "(UNSAT). probability = " << p_value << std::endl;
+				}
+				else if(res == decision_procedure::UNDET)
+				{
+					std::cout << scientific << "(UNDET). probability = " << p_value << std::endl;
+				}
+				else if(res == decision_procedure::ERROR)
+				{
+					std::cout << "Error occurred while calling the solver" << std::endl;
+					return EXIT_FAILURE;
+				}
+				else if(res == decision_procedure::SOLVER_TIMEOUT)
+				{
+					std::cout << scientific << "(SOLVER_TIMEOUT). probability = " << p_value << std::endl;
+				}
 			}
 		}
+		std::cout << scientific << "(FINISH). probability = " << p_value << std::endl;
 		path_index++;
 	}
-	*/
+
 	// ADD MODEL TYPE CHECK
 	return EXIT_SUCCESS;
 }

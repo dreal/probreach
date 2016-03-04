@@ -29,7 +29,8 @@ namespace pdrh
     std::string node_to_string_infix(node*);
     // the second argument is a step
     std::string node_fix_index(node*, int, std::string);
-    extern int type;
+    enum type {HA, PHA, NHA, NPHA, PSY};
+    extern type model_type;
     extern capd::interval time;
     extern std::map<std::string, std::tuple<std::string, capd::interval, double>> rv_map;
     extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
@@ -92,6 +93,9 @@ namespace pdrh
     // here only one initial mode and one goal mode
     std::string reach_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
     std::string reach_c_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
+
+    std::string reach_to_smt2(pdrh::state, pdrh::state, std::vector<pdrh::mode*>, std::vector<box>);
+    std::string reach_c_to_smt2(pdrh::state, pdrh::state, std::vector<pdrh::mode*>, std::vector<box>);
 
     // here only one initial mode and one goal mode
     std::string reach_to_smt2(std::vector<pdrh::mode*>, rv_box*, dd_box*, nd_box*);

@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
     el::Logger* parser_logger = el::Loggers::getLogger("parser");
     el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
     el::Logger* solver_logger = el::Loggers::getLogger("solver");
+    el::Logger* series_parser_logger = el::Loggers::getLogger("series-parser");
 
     // parse command line
     parse_pdrh_config(argc, argv);

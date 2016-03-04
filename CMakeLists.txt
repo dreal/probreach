@@ -30,6 +30,7 @@ include_directories("${DREAL_DIR}/build/release/include")
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/src/logging")
 include_directories("${PROJECT_SOURCE_DIR}/src/solver")
+include_directories("${PROJECT_SOURCE_DIR}/src/parser/csv")
 include_directories("${PROJECT_SOURCE_DIR}/src/xml")
 include_directories("${PROJECT_SOURCE_DIR}/build/release/")
 # BISON
@@ -65,11 +66,11 @@ configure_file (
 # putting all source files together
 file(GLOB SOURCES   ${PROJECT_SOURCE_DIR}/src/*.cpp
                     ${PROJECT_SOURCE_DIR}/src/xml/*.cpp
-                    ${PROJECT_SOURCE_DIR}/src/parser/*.cpp
+                    ${PROJECT_SOURCE_DIR}/src/parser/csv/*.cpp
                     ${PROJECT_SOURCE_DIR}/src/solver/*.cpp
                     ${PROJECT_SOURCE_DIR}/build/release/*.c)
 # setting executable
-add_executable(ProbReach ${SOURCES})
+add_executable(ProbReach ${SOURCES} src/parser/csv/csvparser.h src/parser/csv/csvparser.cpp)
 # linking libraries
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libcapd.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libibex.a)

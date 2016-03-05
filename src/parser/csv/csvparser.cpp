@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string.h>
 #include <easylogging++.h>
+#include <pdrh_config.h>
 #include "csvparser.h"
 
 std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string filename)
@@ -15,6 +16,7 @@ std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string 
     file.open(filename.c_str());
     if(file.is_open())
     {
+        CLOG_IF(global_config.verbose, INFO, "series-parser") << "Time series file: " << filename;
         std::string line;
         getline(file, line);
 
@@ -35,21 +37,22 @@ std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string 
         // creating noise vector
         for(int i = 0; i < cols.size(); i++)
         {
-            smatch matches;
-
+            // var name
+            std::string col = cols.at(i);
             // default noise value
             double noise = 0.1;
-            // var name
-            string var_name = cols.at(i);
+            // default variable name
+            std::string var_name = col;
             // checking if noise value is specified
-            if(regex_match(cols.at(i), matches, regex("(.*):(.*)")))
+            unsigned long col_pos = col.find_last_of(":");
+            if(pos != std::string::npos)
             {
-                var_name = matches[1].str();
-                istringstream is(matches[2]);
+                var_name = col.substr(0, col_pos - 1);
+                std::istringstream is(col.substr(col_pos + 1, col.length() - 1));
                 is >> noise;
                 if(noise <= 0)
                 {
-                    CLOG(ERROR, "series-parser") << "Noise value should be positive for " << var_name;
+                    CLOG(ERROR, "series-parser") << "Noise value for " << var_name << " should be positive";
                     exit(EXIT_FAILURE);
                 }
             }
@@ -62,7 +65,6 @@ std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string 
             noise_vector[var_name].push_back(noise);
             vars.push_back(var_name);
         }
-
         // fetching data
         while (getline(file, line))
         {
@@ -70,11 +72,10 @@ std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string 
             {
                 pos = line.find(delimiter);
                 std::istringstream is(line.substr(0, pos));
-                double value = numeric_limits<double>::quiet_NaN();
+                double value = std::numeric_limits<double>::quiet_NaN();
                 if(!is.str().empty())
                 {
                     is >> value;
-                    //cout << value << endl;
                 }
                 capd::interval interval(value);
                 if((strcmp(vars.at(i).c_str(), "Time") != 0) &&
@@ -89,7 +90,7 @@ std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string 
             }
             // last value in data
             std::istringstream is(line.substr(0, line.length() - 1));
-            double value = numeric_limits<double>::quiet_NaN();
+            double value = std::numeric_limits<double>::quiet_NaN();
             if(!is.str().empty())
             {
                 is >> value;
@@ -109,5 +110,6 @@ std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string 
         CLOG(ERROR, "series-parser") << "Could not open file " << filename;
         exit(EXIT_FAILURE);
     }
+    CLOG_IF(global_config.verbose, INFO, "series-parser") << "OK (" << result.cbegin()->second.size() << " rows; " << result.size() << " columns)";
     return result;
 }

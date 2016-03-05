@@ -20,6 +20,7 @@ public:
     std::map<std::string, capd::interval> get_map() const;
     std::vector<capd::interval> get_intervals();
     std::vector<std::string> get_vars();
+    bool empty();
 };
 
 class dd_box : public box

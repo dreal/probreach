@@ -10,6 +10,12 @@ box::box()
 
 }
 
+// returns true if box is empty
+bool box::empty()
+{
+    return (get_map().size() == 0);
+}
+
 box::box(std::map<std::string, capd::interval> e)
 {
     for(auto it = e.cbegin(); it != e.cend(); it++)
@@ -52,7 +58,6 @@ dd_box::dd_box(std::map<std::string, capd::interval> e)
     }
     this->edges = e;
 }
-
 
 dd_box::dd_box(box b):box(b.get_map())
 {

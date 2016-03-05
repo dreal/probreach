@@ -26,8 +26,8 @@ namespace algorithm
     std::map<box, decision_procedure::result> evaluate_nha(int);
     // evaluating reachability in nondeterministic hybrid automata (arg1: min depth, arg2: max depth)
     std::map<box, decision_procedure::result> evaluate_nha(int, int);
-    // performing parameter synthesis (arg: time series data)
-    std::vector<box> evaluate_psy(std::map<std::string, std::vector<capd::interval>>);
+    // performing parameter synthesis (arg: time series data). return: vectors of sat, undet and unsat boxes
+    std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> evaluate_psy(std::map<std::string, std::vector<capd::interval>>);
 }
 
 #endif //PROBREACH_ALGORITHM_H

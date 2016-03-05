@@ -8,6 +8,8 @@
 #include<string.h>
 #ifdef _OPENMP
     #include<omp.h>
+#include <logging/easylogging++.h>
+
 #endif
 #include "version.h"
 
@@ -70,7 +72,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.precision_prob;
             if (global_config.precision_prob <= 0)
             {
-                cerr << "-e should be positive" << endl;
+                CLOG(ERROR, "config") << "-e should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -83,7 +85,7 @@ void parse_pdrh_config(int argc, char* argv[])
             global_config.reach_depth_min = global_config.reach_depth_max;
             if(global_config.reach_depth_max < 0)
             {
-                cerr << "-k cannot be negative" << endl;
+                CLOG(ERROR, "config") << "-k cannot be negative";
                 exit(EXIT_FAILURE);
             }
         }
@@ -95,12 +97,12 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.reach_depth_min;
             if(global_config.reach_depth_min < 0)
             {
-                cerr << "-l cannot be negative" << endl;
+                CLOG(ERROR, "config") << "-l cannot be negative";
                 exit(EXIT_FAILURE);
             }
             else if(global_config.reach_depth_min > global_config.reach_depth_max)
             {
-                cerr << "minimum reachaility depth cannot be greater than the maximum one" << endl;
+                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be greater than the maximum one";
                 exit(EXIT_FAILURE);
             }
         }
@@ -112,12 +114,12 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.reach_depth_max;
             if(global_config.reach_depth_max < 0)
             {
-                cerr << "-u cannot be negative" << endl;
+                CLOG(ERROR, "config") << "-u cannot be negative";
                 exit(EXIT_FAILURE);
             }
             else if(global_config.reach_depth_min > global_config.reach_depth_max)
             {
-                cerr << "minimum reachaility depth cannot be greater than the maximum one" << endl;
+                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be greater than the maximum one";
                 exit(EXIT_FAILURE);
             }
         }
@@ -129,7 +131,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.precision_nondet;
             if(global_config.precision_nondet <= 0)
             {
-                cerr << "--max_nondet should be positive" << endl;
+                CLOG(ERROR, "config") << "--max_nondet should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -192,19 +194,19 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
                 else
                 {
-                    cerr << "Number of cores should be positive" << endl;
+                    CLOG(ERROR, "config") << "Number of cores should be positive";
                     exit(EXIT_FAILURE);
                 }
             }
             else
             {
-                cerr << "Max number of cores available is " << global_config.max_num_threads << ". You specified " << global_config.num_threads << endl;
+                CLOG(ERROR, "config") << "Max number of cores available is " << global_config.max_num_threads << ". You specified " << global_config.num_threads;
                 exit(EXIT_FAILURE);
             }
         }
         else
         {
-            cerr << "Unrecognized option: " << argv[i] << endl;
+            CLOG(ERROR, "config") << "Unrecognized option: " << argv[i];
             print_usage();
             exit(EXIT_FAILURE);
         }
@@ -220,10 +222,11 @@ void parse_pdrh_config(int argc, char* argv[])
     // case if filename is not specified
     if(strcmp(global_config.model_filename.c_str(), "") == 0)
     {
-        cerr << "model file is not specified" << endl;
+        CLOG(ERROR, "config") << "Model file is not specified";
         print_usage();
         exit(EXIT_FAILURE);
     }
+    CLOG_IF(global_config.verbose, INFO, "config") << "OK";
 }
 
 void print_usage()

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <parser/csv/csvparser.h>
 #include "pdrh_config.h"
 #include "model.h"
 #include "algorithm.h"
@@ -25,6 +26,7 @@ int main(int argc, char* argv[])
     el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
     el::Logger* solver_logger = el::Loggers::getLogger("solver");
     el::Logger* series_parser_logger = el::Loggers::getLogger("series-parser");
+    el::Logger* config_parser_logger = el::Loggers::getLogger("config");
 
     // parse command line
     parse_pdrh_config(argc, argv);
@@ -32,7 +34,7 @@ int main(int argc, char* argv[])
     std::cout.precision(16);
 
     // PDRH PARSER
-    CLOG_IF(global_config.verbose, INFO, "parser") << "Parsing " << global_config.model_filename;
+    CLOG_IF(global_config.verbose, INFO, "parser") << "Model file: " << global_config.model_filename;
     FILE *pdrhfile = fopen(global_config.model_filename.c_str(), "r");
     if (!pdrhfile)
     {
@@ -65,26 +67,46 @@ int main(int argc, char* argv[])
 
     switch(pdrh::model_type)
     {
+        // hybrid automata
         case pdrh::HA:
+        {
             decision_procedure::result res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
-            if(res == decision_procedure::SAT)
+            if (res == decision_procedure::SAT)
             {
                 std::cout << "sat" << std::endl;
             }
-            else if(res == decision_procedure::UNDET)
+            else if (res == decision_procedure::UNDET)
             {
                 std::cout << "undet" << std::endl;
             }
-            else if(res == decision_procedure::UNSAT)
+            else if (res == decision_procedure::UNSAT)
             {
                 std::cout << "unsat" << std::endl;
             }
-            else if(res == decision_procedure::ERROR)
+            else if (res == decision_procedure::ERROR)
             {
                 std::cout << "error" << std::endl;
                 return EXIT_FAILURE;
             }
             break;
+        }
+        case pdrh::PHA:
+        {
+            capd::interval probability = algorithm::evaluate_pha(global_config.reach_depth_min);
+            std::cout << probability << std::endl;
+            break;
+        }
+        // parameter synthesis
+        case pdrh::PSY:
+        {
+            if(global_config.series_filename.empty())
+            {
+                CLOG(ERROR, "series-parser") << "Time series file is not specified";
+                return EXIT_FAILURE;
+            }
+            std::map<std::string, std::vector<capd::interval>> time_series = csvparser::parse(global_config.series_filename);
+            break;
+        }
     }
     return EXIT_SUCCESS;
 }

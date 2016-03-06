@@ -37,6 +37,7 @@ namespace measure
         capd::interval exp(double, double);
         std::pair<capd::interval, std::vector<capd::interval>> pdf(std::string, std::string, capd::interval, double, double);
         box get_rv_domain();
+        void update();
     }
 
     namespace distribution

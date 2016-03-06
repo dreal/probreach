@@ -18,6 +18,8 @@ struct pdrh_config
     double precision_prob = 1e-03;
     double precision_prob_single = 1e-03;
     double precision_nondet = 1e-03;
+    bool partition_prob = false;
+    bool partition_nondet = false;
     double solver_precision_ratio = 1e-03;
     unsigned int solver_timeout = 10; // seconds
     int reach_depth_min = 0;

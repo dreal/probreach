@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
         }
         case pdrh::PHA:
         {
-            capd::interval probability = algorithm::evaluate_pha(global_config.reach_depth_min);
+            capd::interval probability = algorithm::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
             std::cout << probability << std::endl;
             break;
         }

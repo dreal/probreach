@@ -17,7 +17,6 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
 
     while(!stack.empty())
     {
-        std::cout << "var = " << var << " fun = " << fun << " interval = " << it << " precision = " << e <<std::endl;
         capd::interval i = stack.front();
         stack.erase(stack.begin());
 
@@ -141,7 +140,6 @@ capd::interval measure::p_measure(box b, double e)
     {
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            std::cout << "here" << std::endl;
             res *= measure::integral(it->first, std::get<0>(pdrh::rv_map[it->first]), it->second, measure::precision(e, edges.size())).first;
             //res *= measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size())).first;
         }
@@ -332,10 +330,6 @@ std::vector<box> measure::get_rv_partition()
         // updating partition map
         partition_map.insert(std::make_pair(it->first, bound.second));
     }
-    // cartesian product of partitions
-    //std::vector<box> boxes = box_factory::cartesian_product(partition_map);
-    // converting boxes to rv_boxes
-    //return std::vector<rv_box>(boxes.cbegin(), boxes.cend());
     return box_factory::cartesian_product(partition_map);
 }
 

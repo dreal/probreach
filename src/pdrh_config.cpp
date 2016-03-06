@@ -135,6 +135,18 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
+        // precision to volume ratio
+        else if(strcmp(argv[i], "--precision-ratio") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.solver_precision_ratio;
+            if(global_config.solver_precision_ratio <= 0)
+            {
+                CLOG(ERROR, "config") << "--precision-ratio should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
         // time series filename
         else if(strcmp(argv[i], "--series") == 0)
         {
@@ -157,6 +169,16 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--merge-boxes") == 0)
         {
             global_config.boxes_merge = true;
+        }
+        // partition continuous random parameters
+        else if(strcmp(argv[i], "--partition-prob") == 0)
+        {
+            global_config.partition_prob = true;
+        }
+        // partition continuous nondeterministic parameter
+        else if(strcmp(argv[i], "--partition-nondet") == 0)
+        {
+            global_config.partition_nondet = true;
         }
         //xml_output
         else if(strcmp(argv[i], "--xml-output") == 0)

@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <logging/easylogging++.h>
+#include <pdrh_config.h>
 
 std::vector<std::string> dreal::sat_answers = {"sat", "delta-sat"};
 std::vector<std::string> dreal::unsat_answers = {"unsat"};
@@ -66,6 +68,7 @@ int dreal::execute(std::string bin, std::string input, std::string args)
     */
     std::stringstream s;
     s << bin << " " << args << " " << input << " > " << input << ".output";
+    //LOG(DEBUG) << s.str();
     int res = system(s.str().c_str());
     if(res != 0)
     {
@@ -77,7 +80,7 @@ int dreal::execute(std::string bin, std::string input, std::string args)
     {
         res = dreal::parse_output(input + ".output");
     }
-        // unrecognized solver output
+    // unrecognized solver output
     catch(std::invalid_argument e)
     {
         std::cout << e.what() << std::endl;

@@ -93,6 +93,7 @@ int main(int argc, char* argv[])
         // probabilistic hybrid automata
         case pdrh::PHA:
         {
+            // move this check to parser
             if(pdrh::par_map.size() > 0)
             {
                 CLOG(ERROR, "algorithm") << "Found " << pdrh::par_map.size() << " nondeterministic parameters. Please specify correct model type";
@@ -106,7 +107,7 @@ int main(int argc, char* argv[])
         // nondeterministic probabilistic hybrid automata
         case pdrh::NPHA:
         {
-            
+
             break;
         }
         // parameter synthesis

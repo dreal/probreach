@@ -1,4 +1,4 @@
-model: pha;
+model: npha;
 
 [9.8067]    g; // taken from wikipedia
 [0, 100]    Sy; // vertical distance
@@ -6,6 +6,7 @@ model: pha;
 [0, 15]     t; // local time
 [0, 15]     time; // local time (required)
 [0.7854]    alpha; // angle to horizon
+[0, 10]     Sx_start; // initial position
 
 // dicrete random parameters
 //dist_discrete(20:5e-1, 30:4.9e-1, 50:1e-2)  v0; // initial velocity
@@ -32,8 +33,7 @@ jump:
 }
 
 init:
-@1(and (Sx = 0) (Sy = 0) (t = 0));
+@1(and (Sx = 0) (Sy = Sx_start) (t = 0));
 
 goal:
-// Probability for -l 0 -u 1 : [0.1373597394334019,0.1373680592960546]
 @1(and (Sx >= 100.0));

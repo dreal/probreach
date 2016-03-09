@@ -12,6 +12,7 @@ pdrh::type pdrh::model_type;
 std::map<std::string, std::tuple<std::string, capd::interval, double>> pdrh::rv_map;
 std::map<std::string, std::map<capd::interval, capd::interval>> pdrh::dd_map;
 std::map<std::string, capd::interval> pdrh::var_map;
+std::map<std::string, capd::interval> pdrh::par_map;
 std::map<std::string, capd::interval> pdrh::syn_map;
 capd::interval pdrh::time;
 std::vector<pdrh::mode> pdrh::modes;
@@ -65,6 +66,16 @@ void pdrh::push_mode(pdrh::mode m)
     {
         m.flow_map.insert(make_pair(var, pdrh::var_map[var]));
         m.odes.insert(make_pair(var, pdrh::push_terminal_node("0")));
+        // adding this variable to the list of parameters if it is not there yet,
+        // if it is not a continuous or discrete random variable and
+        // if its domain is an interval of length greater than 0
+        if(pdrh::par_map.find(var) == pdrh::par_map.cend() &&
+                pdrh::rv_map.find(var) == pdrh::rv_map.cend() &&
+                    pdrh::dd_map.find(var) == pdrh::dd_map.cend() &&
+                        capd::intervals::width(pdrh::var_map[var]) > 0)
+        {
+            pdrh::par_map.insert(make_pair(var, pdrh::var_map[var]));
+        }
     }
     pdrh::modes.push_back(m);
 }
@@ -77,6 +88,11 @@ void pdrh::push_ode(pdrh::mode& m, std::string var, pdrh::node* ode)
         {
             m.flow_map.insert(make_pair(var, pdrh::var_map[var]));
             m.odes.insert(make_pair(var, ode));
+            // removing a variable from the parameter list if there is an ode defined for it
+            if(pdrh::par_map.find(var) != pdrh::par_map.cend())
+            {
+                pdrh::par_map.erase(var);
+            }
         }
         else
         {

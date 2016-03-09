@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
     FILE *pdrhfile = fopen(global_config.model_filename.c_str(), "r");
     if (!pdrhfile)
     {
-        CLOG(ERROR, "parser") << "Couldn't open " << global_config.model_filename << std::endl;
+        CLOG(ERROR, "parser") << "Couldn't open " << global_config.model_filename;
         return -1;
     }
     std::stringstream s, pdrhnameprep;
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     // make sure it's valid:
     if (!pdrhfileprep)
     {
-        CLOG(ERROR, "parser") << "Couldn't open " << pdrhnameprep << std::endl;
+        CLOG(ERROR, "parser") << "Couldn't open " << pdrhnameprep;
         return -1;
     }
     // set lex to read from it instead of defaulting to STDIN:
@@ -90,10 +90,23 @@ int main(int argc, char* argv[])
             }
             break;
         }
+        // probabilistic hybrid automata
         case pdrh::PHA:
         {
+            if(pdrh::par_map.size() > 0)
+            {
+                CLOG(ERROR, "algorithm") << "Found " << pdrh::par_map.size() << " nondeterministic parameters. Please specify correct model type";
+                std::cout << "error" << std::endl;
+                return EXIT_FAILURE;
+            }
             capd::interval probability = algorithm::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
             std::cout << probability << std::endl;
+            break;
+        }
+        // nondeterministic probabilistic hybrid automata
+        case pdrh::NPHA:
+        {
+            
             break;
         }
         // parameter synthesis

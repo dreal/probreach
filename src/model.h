@@ -35,6 +35,7 @@ namespace pdrh
     extern std::map<std::string, std::tuple<std::string, capd::interval, double>> rv_map;
     extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
     extern std::map<std::string, capd::interval> var_map;
+    extern std::map<std::string, capd::interval> par_map;
     extern std::map<std::string, capd::interval> syn_map;
     // mode struct
     struct mode

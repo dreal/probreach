@@ -87,7 +87,6 @@ decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth)
     return decision_procedure::UNSAT;
 }
 
-
 capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
 {
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of continuous random variables domain";
@@ -239,4 +238,9 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
         }
     }
     return probability;
+}
+
+capd::interval algorithm::evaluate_pha(int depth)
+{
+    return algorithm::evaluate_pha(depth, depth);
 }

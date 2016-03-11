@@ -16,10 +16,22 @@ protected:
 public:
     box();
     box(std::map<std::string, capd::interval>);
-    friend std::ostream& operator<<(std::ostream&, const box &);
+
+    //friend std::ostream& operator<<(std::ostream&, const box &);
+    //inline bool operator< (const X& lhs, const X& rhs){ /* do actual comparison */ }
+    //inline bool operator> (const X& lhs, const X& rhs){ return rhs < lhs; }
+    //inline bool operator<=(const X& lhs, const X& rhs){ return !(lhs > rhs); }
+    //inline bool operator>=(const X& lhs, const X& rhs){ return !(lhs < rhs); }
+    //inline bool operator==(const X& lhs, const X& rhs){ /* do actual comparison */ }
+    //inline bool operator!=(const X& lhs, const X& rhs){ return !(lhs == rhs); }
+
+    friend std::ostream& operator<<(std::ostream&, const box&);
+    friend bool operator<(const box&, const box&);
+    friend bool operator==(const box&, const box&);
+
     std::map<std::string, capd::interval> get_map() const;
-    std::vector<capd::interval> get_intervals();
-    std::vector<std::string> get_vars();
+    std::vector<capd::interval> get_intervals() const;
+    std::vector<std::string> get_vars() const;
     bool empty();
 };
 

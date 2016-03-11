@@ -107,7 +107,11 @@ int main(int argc, char* argv[])
         // nondeterministic probabilistic hybrid automata
         case pdrh::NPHA:
         {
-
+            std::map<box, capd::interval> probability_map = algorithm::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
+            for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
+            {
+                std::cout << std::scientific << it->first << " | " << it->second << std::endl;
+            }
             break;
         }
         // parameter synthesis

@@ -7,6 +7,7 @@
 #include <tuple>
 #include "measure.h"
 #include "pdrh_config.h"
+#include "box_factory.h"
 
 pdrh::type pdrh::model_type;
 std::map<std::string, std::tuple<std::string, capd::interval, double>> pdrh::rv_map;
@@ -1260,4 +1261,15 @@ std::string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, std::vecto
     s << "(check-sat)" << std::endl;
     s << "(exit)" << std::endl;
     return s.str();
+}
+
+// domain of nondeterministic parameters
+box pdrh::get_nondet_domain()
+{
+    std::map<std::string, std::vector<capd::interval>> m;
+    for(auto it = pdrh::par_map.cbegin(); it != pdrh::par_map.cend(); it++)
+    {
+        m.insert(make_pair(it->first, std::vector<capd::interval>{it->second}));
+    }
+    return box_factory::cartesian_product(m).front();
 }

@@ -79,6 +79,8 @@ namespace pdrh
     void push_syn_pair(std::string, capd::interval);
     void push_time_bounds(capd::interval);
 
+    box get_nondet_domain();
+
     bool var_exists(std::string);
     pdrh::mode* get_mode(int);
 

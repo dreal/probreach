@@ -6,7 +6,7 @@ model: npha;
 [0, 15]     t; // local time
 [0, 15]     time; // local time (required)
 [0.7854]    alpha; // angle to horizon
-[0, 10]     Sx_start; // initial position
+[0, 0.01]     Sx_start; // initial position
 
 // dicrete random parameters
 //dist_discrete(20:5e-1, 30:4.9e-1, 50:1e-2)  v0; // initial velocity

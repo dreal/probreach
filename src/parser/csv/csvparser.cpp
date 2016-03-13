@@ -45,9 +45,9 @@ std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string 
             std::string var_name = col;
             // checking if noise value is specified
             unsigned long col_pos = col.find_last_of(":");
-            if(pos != std::string::npos)
+            if(col_pos != std::string::npos)
             {
-                var_name = col.substr(0, col_pos - 1);
+                var_name = col.substr(0, col_pos);
                 std::istringstream is(col.substr(col_pos + 1, col.length() - 1));
                 is >> noise;
                 if(noise <= 0)

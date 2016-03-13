@@ -12,7 +12,7 @@ namespace box_factory
 {
     std::vector<box> cartesian_product(std::map<std::string, std::vector<capd::interval>>);
     std::vector<box> bisect(box);
-    std::vector<box> bisect(box, std::map<std::string, double>);
+    std::vector<box> bisect(box, std::map<std::string, capd::interval>);
 }
 
 #endif //PROBREACH_BOX_FACTORY_H

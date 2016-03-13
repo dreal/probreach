@@ -494,7 +494,80 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     return res_map;
 }
 
-
+std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::evaluate_psy(std::map<std::string, std::vector<capd::interval>> time_series)
+{
+    // getting the synthesis domain
+    box psy_domain = pdrh::get_psy_domain();
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining domain of synthesized parameters: " << psy_domain;
+    // partition of parameter synthesis domain
+    std::vector<box> psy_partition { psy_domain };
+    // converting time series to a set of goal boxes
+    std::vector<std::tuple<int, box>> goals = pdrh::series_to_boxes(time_series);
+    // getting parameter synthesis path
+    std::vector<pdrh::mode*> path = pdrh::get_psy_path(time_series);
+    // defining the boxes
+    std::vector<box> sat_boxes, undet_boxes, unsat_boxes;
+    // iterating through the goals
+    for(std::tuple<int, box> goal : goals)
+    {
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating goal: @" << std::get<0>(goal) << " " << std::get<1>(goal);
+        // defining a goal here
+        pdrh::push_psy_goal(std::get<0>(goal), std::get<1>(goal));
+        // iterating through boxes in psy partition
+        while(!psy_partition.empty())
+        {
+            box b = psy_partition.front();
+            psy_partition.erase(psy_partition.cbegin());
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "psy_box: " << b;
+            switch(decision_procedure::evaluate(pdrh::init.front(), pdrh::goal.front(), path, std::vector<box>{ b }))
+            {
+                case decision_procedure::SAT:
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                    sat_boxes.push_back(b);
+                    break;
+                }
+                case decision_procedure::UNSAT:
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                    unsat_boxes.push_back(b);
+                    break;
+                }
+                case decision_procedure::UNDET:
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+                    std::vector<box> tmp_vector = box_factory::bisect(b, pdrh::syn_map);
+                    if(tmp_vector.size() == 1)
+                    {
+                        undet_boxes.push_back(b);
+                    }
+                    else
+                    {
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisected";
+                        psy_partition.insert(psy_partition.cend(), tmp_vector.cbegin(), tmp_vector.cend());
+                    }
+                    break;
+                }
+                case decision_procedure::SOLVER_TIMEOUT:
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
+                    break;
+                }
+                case decision_procedure::ERROR:
+                {
+                    LOG(ERROR) << "ERROR";
+                    break;
+                }
+            }
+        }
+        // putting the boxes satisfying the current goal back to the psy partition
+        psy_partition = sat_boxes;
+        sat_boxes.clear();
+        // removing the goal
+        pdrh::goal.clear();
+    }
+    return std::make_tuple(sat_boxes, undet_boxes, unsat_boxes);
+}
 
 
 

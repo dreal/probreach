@@ -76,10 +76,13 @@ namespace pdrh
     void push_reset(pdrh::mode&, pdrh::mode::jump&, std::string, pdrh::node*);
     void push_init(std::vector<pdrh::state>);
     void push_goal(std::vector<pdrh::state>);
+    void push_psy_goal(int, box);
     void push_syn_pair(std::string, capd::interval);
     void push_time_bounds(capd::interval);
 
     box get_nondet_domain();
+    box get_psy_domain();
+    std::vector<pdrh::mode*> get_psy_path(std::map<std::string, std::vector<capd::interval>>);
 
     bool var_exists(std::string);
     pdrh::mode* get_mode(int);
@@ -92,6 +95,8 @@ namespace pdrh
     std::vector<std::vector<pdrh::mode*>> get_all_paths(int);
     // returns <first_map_keys> \ <second_map_keys>
     std::vector<std::string> get_keys_diff(std::map<std::string, capd::interval>, std::map<std::string, capd::interval>);
+
+    std::vector<std::tuple<int, box>> series_to_boxes(std::map<std::string, std::vector<capd::interval>>);
 
     // here only one initial mode and one goal mode
     std::string reach_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);

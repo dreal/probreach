@@ -44,11 +44,11 @@ std::vector<box> box_factory::cartesian_product(std::map<std::string, std::vecto
  */
 std::vector<box> box_factory::bisect(box b)
 {
-    std::map<std::string, double> e;
+    std::map<std::string, capd::interval> e;
     std::map<std::string, capd::interval> m = b.get_map();
     for(auto it = m.cbegin(); it != m.cend(); it++)
     {
-        e.insert(make_pair(it->first, 0));
+        e.insert(make_pair(it->first, capd::interval(0)));
     }
 
     return box_factory::bisect(b,e);
@@ -58,13 +58,13 @@ std::vector<box> box_factory::bisect(box b)
  * Dividing the box in all n dimensions producing 2^n boxes of the same size
  * according to the precision vector e
  */
-std::vector<box> box_factory::bisect(box b, std::map<std::string, double> e)
+std::vector<box> box_factory::bisect(box b, std::map<std::string, capd::interval> e)
 {
     std::map<std::string, std::vector<capd::interval>> tmp_m;
     std::map<std::string, capd::interval> m = b.get_map();
     for(auto it = m.cbegin(); it != m.cend(); it++)
     {
-        if(capd::intervals::width(it->second) > e[it->first])
+        if(capd::intervals::width(it->second) > e[it->first].leftBound())
         {
             std::vector<capd::interval> tmp_v;
             tmp_v.push_back(capd::interval((it->second).leftBound(), (it->second).mid().rightBound()));

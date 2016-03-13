@@ -144,7 +144,7 @@ int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector
         if((std::remove(smt_filename.c_str()) == 0) &&
            (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
         {
-            LOG(DEBUG) << "Removed auxiliary files";
+            //LOG(DEBUG) << "Removed auxiliary files";
             return decision_procedure::UNSAT;
         }
         else
@@ -177,7 +177,7 @@ int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector
                (std::remove(smt_filename.c_str()) == 0) &&
                (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
             {
-                LOG(DEBUG) << "Removed auxiliary files";
+                //LOG(DEBUG) << "Removed auxiliary files";
                 return decision_procedure::SAT;
             }
             else
@@ -193,7 +193,7 @@ int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector
                (std::remove(smt_filename.c_str()) == 0) &&
                (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
             {
-                LOG(DEBUG) << "Removed auxiliary files";
+                //LOG(DEBUG) << "Removed auxiliary files";
                 return decision_procedure::UNDET;
             }
             else

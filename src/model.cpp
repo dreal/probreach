@@ -5,6 +5,7 @@
 #include "model.h"
 #include <map>
 #include <tuple>
+#include <string.h>
 #include "measure.h"
 #include "pdrh_config.h"
 #include "box_factory.h"
@@ -1266,10 +1267,92 @@ std::string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, std::vecto
 // domain of nondeterministic parameters
 box pdrh::get_nondet_domain()
 {
-    std::map<std::string, std::vector<capd::interval>> m;
+    std::map<std::string, capd::interval> m;
     for(auto it = pdrh::par_map.cbegin(); it != pdrh::par_map.cend(); it++)
     {
-        m.insert(make_pair(it->first, std::vector<capd::interval>{it->second}));
+        m.insert(make_pair(it->first, it->second));
     }
-    return box_factory::cartesian_product(m).front();
+    return box(m);
+}
+
+box pdrh::get_psy_domain()
+{
+    std::map<std::string, capd::interval> m;
+    for(auto it = pdrh::syn_map.cbegin(); it != pdrh::syn_map.cend(); it++)
+    {
+        m.insert(make_pair(it->first, pdrh::var_map[it->first]));
+    }
+    return box(m);
+}
+
+void pdrh::push_psy_goal(int mode_id, box b)
+{
+    pdrh::state st;
+    st.id = mode_id;
+    std::map<std::string, capd::interval> m = b.get_map();
+    std::vector<node*> operands;
+    for(auto it = m.cbegin(); it != m.cend(); it++)
+    {
+        pdrh::node* var = pdrh::push_terminal_node(it->first);
+        std::stringstream s;
+        s << it->second.leftBound();
+        pdrh::node* left_bound = pdrh::push_terminal_node(s.str());
+        s.str("");
+        s << it->second.rightBound();
+        pdrh::node* right_bound = pdrh::push_terminal_node(s.str());
+        s.str("");
+        std::vector<node*> tmp;
+        tmp.push_back(var);
+        tmp.push_back(left_bound);
+        pdrh::node* left_constraint = push_operation_node(">=", tmp);
+        operands.push_back(left_constraint);
+        tmp.clear();
+        tmp.push_back(var);
+        tmp.push_back(right_bound);
+        pdrh::node* right_constraint = push_operation_node("<=", tmp);
+        operands.push_back(right_constraint);
+        tmp.clear();
+    }
+    st.prop = pdrh::push_operation_node("and", operands);
+    pdrh::goal = std::vector<pdrh::state>{ st };
+}
+
+// mode, step, box
+std::vector<std::tuple<int, box>> pdrh::series_to_boxes(std::map<std::string, std::vector<capd::interval>> time_series)
+{
+    std::vector<std::tuple<int, box>> res;
+    for(int i = 0; i < time_series.cbegin()->second.size(); i++)
+    {
+        std::map<std::string, capd::interval> m;
+        for(auto it = time_series.cbegin(); it != time_series.cend(); it++)
+        {
+            if((strcmp(it->first.c_str(), "Mode") != 0) && (strcmp(it->first.c_str(), "Step") != 0))
+            {
+                if(strcmp(it->first.c_str(), "Time") == 0)
+                {
+                    m.insert(std::make_pair("tau", it->second.at(i)));
+                }
+                else
+                {
+                    m.insert(std::make_pair(it->first, it->second.at(i)));
+                }
+            }
+        }
+        res.push_back(std::make_tuple((int) time_series["Mode"].at(i).leftBound(), box(m)));
+    }
+    return res;
+}
+
+std::vector<pdrh::mode*> pdrh::get_psy_path(std::map<std::string, std::vector<capd::interval>> time_series)
+{
+    std::vector<pdrh::mode*> path;
+    path.push_back(pdrh::get_mode(pdrh::init.front().id));
+    for(int i = 1; i < time_series.cbegin()->second.size(); i++)
+    {
+        if(time_series["Mode"].at(i).leftBound() != time_series["Mode"].at(i - 1).leftBound())
+        {
+            path.push_back(pdrh::get_mode((int) time_series["Mode"].at(i).leftBound()));
+        }
+    }
+    return path;
 }

@@ -102,19 +102,22 @@ std::vector<box> box_factory::merge(std::vector<box> boxes)
 
 box box_factory::merge(box lhs, box rhs)
 {
-    if(lhs.get_vars() != rhs.get_vars())
-    {
-        std::stringstream s;
-        s << "Variables of the compared boxes are not the same";
-        throw std::invalid_argument(s.str());
-    }
-
-    int neq_counter = 0;
-    std::string neq_dim = 0;
     std::map<std::string, capd::interval> m = lhs.get_map();
+    for(auto it = m.cbegin(); it != m.cend(); it++)
+    {
+        if(rhs.get_map().find(it->first) == rhs.get_map().cend())
+        {
+            std::stringstream s;
+            s << "Variables of the compared boxes are not the same";
+            throw std::invalid_argument(s.str());
+        }
+    }
+    int neq_counter = 0;
+    std::string neq_dim;
 
     for(auto it = m.cbegin(); it != m.cend(); it++)
     {
+        //std::cout << it->first << " " << it->second << std::endl;
         if(it->second != rhs.get_map()[it->first])
         {
             neq_counter++;
@@ -136,7 +139,7 @@ box box_factory::merge(box lhs, box rhs)
     {
         if(m[neq_dim].leftBound() == rhs.get_map()[neq_dim].rightBound())
         {
-            m[neq_dim] = capd::interval(m[neq_dim].rightBound(), rhs.get_map()[neq_dim].leftBound());
+            m[neq_dim] = capd::interval(rhs.get_map()[neq_dim].leftBound(), m[neq_dim].rightBound());
             return box(m);
         }
         else

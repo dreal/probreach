@@ -523,12 +523,14 @@ std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::eval
                 {
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                     sat_boxes.push_back(b);
+                    //sat_boxes = box_factory::merge(sat_boxes);
                     break;
                 }
                 case decision_procedure::UNSAT:
                 {
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
                     unsat_boxes.push_back(b);
+                    //unsat_boxes = box_factory::merge(unsat_boxes);
                     break;
                 }
                 case decision_procedure::UNDET:
@@ -538,6 +540,7 @@ std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::eval
                     if(tmp_vector.size() == 1)
                     {
                         undet_boxes.push_back(b);
+                        //undet_boxes = box_factory::merge(undet_boxes);
                     }
                     else
                     {
@@ -559,7 +562,10 @@ std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::eval
             }
         }
         // putting the boxes satisfying the current goal back to the psy partition
-        psy_partition = sat_boxes;
+        psy_partition = box_factory::merge(sat_boxes);
+        undet_boxes = box_factory::merge(undet_boxes);
+        unsat_boxes = box_factory::merge(unsat_boxes);
+        //psy_partition = sat_boxes;
         sat_boxes.clear();
     }
     return std::make_tuple(psy_partition, undet_boxes, unsat_boxes);

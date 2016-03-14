@@ -13,6 +13,8 @@ namespace decision_procedure
     int evaluate(std::vector<pdrh::mode*>, std::vector<box>);
     int evaluate(std::vector<pdrh::mode*>, rv_box*, dd_box*, nd_box*);
     int evaluate(pdrh::state, pdrh::state, std::vector<pdrh::mode*>, std::vector<box>);
+
+    int synthesize(pdrh::state, std::vector<pdrh::mode*>, box, int, box);
 }
 
 #endif //PROBREACH_DECISION_PROCEDURE_H

@@ -77,6 +77,7 @@ namespace pdrh
     void push_init(std::vector<pdrh::state>);
     void push_goal(std::vector<pdrh::state>);
     void push_psy_goal(int, box);
+    void push_psy_c_goal(int, box);
     void push_syn_pair(std::string, capd::interval);
     void push_time_bounds(capd::interval);
 

@@ -30,8 +30,8 @@ MODEL_TYPE(PSY;M_25:1e-1)
 //ketone bodies
 [0,100]K;
 
-[0,100]time;
-[0,100]tau;
+[0,25]time;
+[0,25]tau;
 
 {
 mode1;

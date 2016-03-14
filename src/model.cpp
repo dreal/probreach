@@ -1290,7 +1290,7 @@ void pdrh::push_psy_goal(int mode_id, box b)
     pdrh::state st;
     st.id = mode_id;
     std::map<std::string, capd::interval> m = b.get_map();
-    std::vector<node*> operands;
+    std::vector<pdrh::node*> operands;
     for(auto it = m.cbegin(); it != m.cend(); it++)
     {
         pdrh::node* var = pdrh::push_terminal_node(it->first);
@@ -1301,20 +1301,71 @@ void pdrh::push_psy_goal(int mode_id, box b)
         s << it->second.rightBound();
         pdrh::node* right_bound = pdrh::push_terminal_node(s.str());
         s.str("");
-        std::vector<node*> tmp;
+        std::vector<pdrh::node*> tmp;
         tmp.push_back(var);
         tmp.push_back(left_bound);
-        pdrh::node* left_constraint = push_operation_node(">=", tmp);
+        pdrh::node* left_constraint = pdrh::push_operation_node(">=", tmp);
         operands.push_back(left_constraint);
         tmp.clear();
         tmp.push_back(var);
         tmp.push_back(right_bound);
-        pdrh::node* right_constraint = push_operation_node("<=", tmp);
+        pdrh::node* right_constraint = pdrh::push_operation_node("<=", tmp);
         operands.push_back(right_constraint);
         tmp.clear();
     }
     st.prop = pdrh::push_operation_node("and", operands);
     pdrh::goal = std::vector<pdrh::state>{ st };
+    // updating time bounds
+    pdrh::var_map["tau"] = capd::interval(0, m["tau"].leftBound());
+    pdrh::push_time_bounds(capd::interval(0, m["tau"].leftBound()));
+}
+
+void pdrh::push_psy_c_goal(int mode_id, box b)
+{
+    pdrh::state st;
+    st.id = mode_id;
+    std::map<std::string, capd::interval> m = b.get_map();
+    std::vector<pdrh::node*> operands;
+    for(auto it = m.cbegin(); it != m.cend(); it++)
+    {
+        // using everything except for time tau
+        if(strcmp(it->first.c_str(), "tau") != 0)
+        {
+            pdrh::node *var = pdrh::push_terminal_node(it->first);
+            std::stringstream s;
+            s << it->second.leftBound();
+            pdrh::node *left_bound = pdrh::push_terminal_node(s.str());
+            s.str("");
+            s << it->second.rightBound();
+            pdrh::node *right_bound = pdrh::push_terminal_node(s.str());
+            s.str("");
+            std::vector<pdrh::node *> tmp;
+            tmp.push_back(var);
+            tmp.push_back(left_bound);
+            pdrh::node *left_constraint = pdrh::push_operation_node("<", tmp);
+            operands.push_back(left_constraint);
+            tmp.clear();
+            tmp.push_back(var);
+            tmp.push_back(right_bound);
+            pdrh::node *right_constraint = pdrh::push_operation_node(">", tmp);
+            operands.push_back(right_constraint);
+            tmp.clear();
+        }
+    }
+    pdrh::node* or_node = pdrh::push_operation_node("or", operands);
+    // adding time as a constraint
+    std::stringstream s;
+    s << m["tau"].leftBound();
+    pdrh::node *left_time_bound = pdrh::push_operation_node("=", std::vector<pdrh::node*>{ pdrh::push_terminal_node("tau"), pdrh::push_terminal_node(s.str())});
+    s.str("");
+    //s << m["tau"].rightBound();
+    //pdrh::node *right_time_bound = pdrh::push_operation_node("<=", std::vector<pdrh::node*>{ pdrh::push_terminal_node("tau"), pdrh::push_terminal_node(s.str())});
+    //st.prop = pdrh::push_operation_node("and", std::vector<pdrh::node*>{left_time_bound, right_time_bound, or_node});
+    st.prop = pdrh::push_operation_node("and", std::vector<pdrh::node*>{left_time_bound, or_node});
+    pdrh::goal = std::vector<pdrh::state>{ st };
+    // updating time bounds
+    pdrh::var_map["tau"] = capd::interval(0, m["tau"].leftBound());
+    pdrh::push_time_bounds(capd::interval(0, m["tau"].leftBound()));
 }
 
 // mode, step, box

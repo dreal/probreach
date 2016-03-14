@@ -511,15 +511,13 @@ std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::eval
     for(std::tuple<int, box> goal : goals)
     {
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating goal: @" << std::get<0>(goal) << " " << std::get<1>(goal);
-        // defining a goal here
-        pdrh::push_psy_goal(std::get<0>(goal), std::get<1>(goal));
         // iterating through boxes in psy partition
         while(!psy_partition.empty())
         {
             box b = psy_partition.front();
             psy_partition.erase(psy_partition.cbegin());
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "psy_box: " << b;
-            switch(decision_procedure::evaluate(pdrh::init.front(), pdrh::goal.front(), path, std::vector<box>{ b }))
+            switch(decision_procedure::synthesize(pdrh::init.front(), path, b, std::get<0>(goal), std::get<1>(goal)))
             {
                 case decision_procedure::SAT:
                 {
@@ -563,10 +561,8 @@ std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::eval
         // putting the boxes satisfying the current goal back to the psy partition
         psy_partition = sat_boxes;
         sat_boxes.clear();
-        // removing the goal
-        pdrh::goal.clear();
     }
-    return std::make_tuple(sat_boxes, undet_boxes, unsat_boxes);
+    return std::make_tuple(psy_partition, undet_boxes, unsat_boxes);
 }
 
 

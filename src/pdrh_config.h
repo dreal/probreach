@@ -37,6 +37,10 @@ struct pdrh_config
     // parallelization options
     int max_num_threads = 1;
     int num_threads = max_num_threads;
+    // sampling options
+    long int sample_size = 1;
+    bool sample_flag = false;
+
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

@@ -33,6 +33,8 @@ namespace pdrh
     extern type model_type;
     extern capd::interval time;
     extern std::map<std::string, std::tuple<std::string, capd::interval, double>> rv_map;
+    extern std::map<std::string, std::string> rv_type_map;
+    //extern std::map<std::string, auto> rv_dist_map;
     extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
     extern std::map<std::string, capd::interval> var_map;
     extern std::map<std::string, capd::interval> par_map;
@@ -66,6 +68,7 @@ namespace pdrh
     void push_var(std::string, capd::interval);
     void push_dd(std::string, std::map<capd::interval, capd::interval>);
     void push_rv(std::string, std::string, capd::interval, double);
+    void push_rv_type(std::string, std::string);
 
     void push_mode(pdrh::mode);
     void push_invt(pdrh::mode&, pdrh::node*);

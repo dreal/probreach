@@ -571,7 +571,10 @@ std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::eval
     return std::make_tuple(psy_partition, undet_boxes, unsat_boxes);
 }
 
-
+capd::interval algorithm::evaluate_pha_sample(int min_depth, int max_depth, long int sample_size)
+{
+    
+}
 
 
 

@@ -144,6 +144,12 @@ dist_declaration:
                                                                                     {
                                                                                         pdrh::push_var(strdup($11), capd::interval($5, $7));
                                                                                         pdrh::push_rv(strdup($11), pdrh::node_to_string_infix($3), capd::interval($5, $7), $9);
+                                                                                        if(global_config.sample_flag)
+                                                                                        {
+                                                                                            std::stringstream s;
+                                                                                            s << "user-defined distribution for \"" << $11 << "\" is not supported in sampling mode";
+                                                                                            yyerror(s.str().c_str());
+                                                                                        }
                                                                                     }
                                                                                     else
                                                                                     {
@@ -157,6 +163,7 @@ dist_declaration:
                                                                                     {
                                                                                         pdrh::push_var(strdup($7), capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                             std::numeric_limits<double>::infinity()));
+                                                                                        pdrh::push_rv_type(strdup($7), "gamma");
                                                                                     }
                                                                                     else
                                                                                     {
@@ -173,6 +180,7 @@ dist_declaration:
                                                                                         pdrh::push_rv(strdup($7), measure::distribution::gaussian(strdup($7), $3, $5),
                                                                                                         capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                           std::numeric_limits<double>::infinity()), $3);
+                                                                                        pdrh::push_rv_type(strdup($7), "normal");
                                                                                     }
                                                                                     else
                                                                                     {
@@ -188,6 +196,7 @@ dist_declaration:
                                                                                                                              std::numeric_limits<double>::infinity()));
                                                                                         pdrh::push_rv(strdup($7), measure::distribution::uniform($3, $5),
                                                                                                          capd::interval($3, $5), $3);
+                                                                                        pdrh::push_rv_type(strdup($7), "uniform");
                                                                                     }
                                                                                     else
                                                                                     {
@@ -203,6 +212,7 @@ dist_declaration:
                                                                                                                              std::numeric_limits<double>::infinity()));
                                                                                         pdrh::push_rv(strdup($5), measure::distribution::exp(strdup($5), $3),
                                                                                                                   capd::interval(0, std::numeric_limits<double>::infinity()), 0);
+                                                                                        pdrh::push_rv_type(strdup($5), "exp");
                                                                                     }
                                                                                     else
                                                                                     {

@@ -100,7 +100,15 @@ int main(int argc, char* argv[])
                 std::cout << "error" << std::endl;
                 return EXIT_FAILURE;
             }
-            capd::interval probability = algorithm::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
+            capd::interval probability;
+            if(global_config.sample_flag)
+            {
+                probability = algorithm::evaluate_pha_sample(global_config.reach_depth_min, global_config.reach_depth_max, global_config.sample_size);
+            }
+            else
+            {
+                probability = algorithm::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
+            }
             std::cout << probability << std::endl;
             break;
         }

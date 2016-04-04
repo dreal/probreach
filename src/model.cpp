@@ -12,6 +12,8 @@
 
 pdrh::type pdrh::model_type;
 std::map<std::string, std::tuple<std::string, capd::interval, double>> pdrh::rv_map;
+std::map<std::string, std::string> pdrh::rv_type_map;
+//std::map<std::string, auto> pdrh::rv_dist_map;
 std::map<std::string, std::map<capd::interval, capd::interval>> pdrh::dd_map;
 std::map<std::string, capd::interval> pdrh::var_map;
 std::map<std::string, capd::interval> pdrh::par_map;
@@ -140,6 +142,11 @@ void pdrh::push_syn_pair(std::string var, capd::interval e)
 void pdrh::push_rv(std::string var, std::string pdf, capd::interval domain, double start)
 {
     pdrh::rv_map.insert(make_pair(var, std::make_tuple(pdf, domain, start)));
+}
+
+void pdrh::push_rv_type(std::string var, std::string type)
+{
+    pdrh::rv_type_map.insert(make_pair(var, type));
 }
 
 void pdrh::push_dd(std::string var, std::map<capd::interval, capd::interval> m)

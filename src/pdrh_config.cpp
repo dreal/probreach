@@ -165,6 +165,19 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             global_config.verbose = true;
         }
+        // statistical flag
+        else if(strcmp(argv[i], "--sample") == 0)
+        {
+            global_config.sample_flag = true;
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.sample_size;
+            if(global_config.sample_size <= 0)
+            {
+                CLOG(ERROR, "config") << "--sample should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
         // merge flag
         else if(strcmp(argv[i], "--merge-boxes") == 0)
         {

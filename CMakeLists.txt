@@ -24,6 +24,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
 set(DREAL_DIR "/home/fedor/dreal3")
+# GSL
+find_package(GSL REQUIRED)
 # header files
 include_directories("${DREAL_DIR}/build/release/include/ibex")
 include_directories("${DREAL_DIR}/build/release/include")
@@ -33,6 +35,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src/solver")
 include_directories("${PROJECT_SOURCE_DIR}/src/parser/csv")
 include_directories("${PROJECT_SOURCE_DIR}/src/xml")
 include_directories("${PROJECT_SOURCE_DIR}/build/release/")
+include_directories("${GSL_INCLUDE_DIRS}")
 # BISON
 find_package(BISON REQUIRED)
 if(BISON_FOUND)
@@ -44,6 +47,7 @@ if(FLEX_FOUND)
     FLEX_TARGET(pdrh_lexer ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhlexer.l  ${PROJECT_SOURCE_DIR}/build/release/pdrhlexer.c)
     ADD_FLEX_BISON_DEPENDENCY(pdrh_lexer pdrh_parser)
 endif(FLEX_FOUND)
+
 # Boost
 #find_package(Boost)
 #if(Boost_FOUND)
@@ -76,5 +80,6 @@ target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libcapd.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libibex.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libprim.a)
 target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libdreal.a)
+target_link_libraries(ProbReach ${GSL_LIBRARIES})
 # flag for FLEX
 target_link_libraries(ProbReach -lfl)

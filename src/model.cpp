@@ -23,6 +23,11 @@ std::vector<pdrh::mode> pdrh::modes;
 std::vector<pdrh::state> pdrh::init;
 std::vector<pdrh::state> pdrh::goal;
 
+std::map<std::string, std::pair<double, double>> pdrh::distribution::uniform;
+std::map<std::string, std::pair<double, double>> pdrh::distribution::normal;
+std::map<std::string, std::pair<double, double>> pdrh::distribution::gamma;
+std::map<std::string, double> pdrh::distribution::exp;
+
 // adding a variable
 void pdrh::push_var(std::string var, capd::interval domain)
 {
@@ -1413,4 +1418,24 @@ std::vector<pdrh::mode*> pdrh::get_psy_path(std::map<std::string, std::vector<ca
         }
     }
     return path;
+}
+
+void pdrh::distribution::push_uniform(std::string var, double a, double b)
+{
+    pdrh::distribution::uniform.insert(make_pair(var, std::make_pair(a, b)));
+}
+
+void pdrh::distribution::push_normal(std::string var, double mu, double sigma)
+{
+    pdrh::distribution::normal.insert(make_pair(var, std::make_pair(mu, sigma)));
+}
+
+void pdrh::distribution::push_gamma(std::string var, double a, double b)
+{
+    pdrh::distribution::gamma.insert(std::make_pair(var, std::make_pair(a, b)));
+}
+
+void pdrh::distribution::push_exp(std::string var, double lambda)
+{
+    pdrh::distribution::exp.insert(std::make_pair(var, lambda));
 }

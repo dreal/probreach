@@ -178,6 +178,33 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
+        // chernoff bound accuracy
+        else if(strcmp(argv[i], "--chernoff-acc") == 0)
+        {
+            global_config.chernoff_flag = true;
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.chernoff_acc;
+            if (global_config.chernoff_acc <= 0)
+            {
+                CLOG(ERROR, "config") << "accuracy of Chernoff bound should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // chernoff bound confidence
+        else if(strcmp(argv[i], "--chernoff-conf") == 0)
+        {
+            global_config.chernoff_flag = true;
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.chernoff_conf;
+            if ((global_config.chernoff_conf < 0) ||
+                    (global_config.chernoff_conf >= 1))
+            {
+                CLOG(ERROR, "config") << "confidence of Chernoff bound should be within [0, 1)";
+                exit(EXIT_FAILURE);
+            }
+        }
         // merge flag
         else if(strcmp(argv[i], "--merge-boxes") == 0)
         {

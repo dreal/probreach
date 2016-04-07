@@ -40,7 +40,9 @@ struct pdrh_config
     // sampling options
     long int sample_size = 1;
     bool sample_flag = false;
-
+    double chernoff_acc = 1e-2;
+    double chernoff_conf = 0.99;
+    bool chernoff_flag = false;
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

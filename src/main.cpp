@@ -9,6 +9,8 @@
 #include "model.h"
 #include "algorithm.h"
 #include "easylogging++.h"
+#include "rnd.h"
+
 extern "C"
 {
     #include "pdrhparser.h"
@@ -27,6 +29,7 @@ int main(int argc, char* argv[])
     el::Logger* solver_logger = el::Loggers::getLogger("solver");
     el::Logger* series_parser_logger = el::Loggers::getLogger("series-parser");
     el::Logger* config_parser_logger = el::Loggers::getLogger("config");
+    el::Logger* rng_logger = el::Loggers::getLogger("ran_gen");
 
     // parse command line
     parse_pdrh_config(argc, argv);
@@ -101,9 +104,9 @@ int main(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
             capd::interval probability;
-            if(global_config.sample_flag)
+            if(global_config.chernoff_flag)
             {
-                probability = algorithm::evaluate_pha_sample(global_config.reach_depth_min, global_config.reach_depth_max, global_config.sample_size);
+                probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
             }
             else
             {

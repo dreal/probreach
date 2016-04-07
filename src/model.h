@@ -34,7 +34,6 @@ namespace pdrh
     extern capd::interval time;
     extern std::map<std::string, std::tuple<std::string, capd::interval, double>> rv_map;
     extern std::map<std::string, std::string> rv_type_map;
-    //extern std::map<std::string, auto> rv_dist_map;
     extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
     extern std::map<std::string, capd::interval> var_map;
     extern std::map<std::string, capd::interval> par_map;
@@ -115,6 +114,20 @@ namespace pdrh
 
     std::string model_to_string();
     std::string print_jump(pdrh::mode::jump);
+
+    // defined distributions
+    namespace distribution
+    {
+        extern std::map<std::string, std::pair<double, double>> uniform;
+        extern std::map<std::string, std::pair<double, double>> normal;
+        extern std::map<std::string, double> exp;
+        extern std::map<std::string, std::pair<double, double>> gamma;
+
+        void push_uniform(std::string, double, double);
+        void push_normal(std::string, double, double);
+        void push_exp(std::string, double);
+        void push_gamma(std::string, double, double);
+    }
 }
 
 

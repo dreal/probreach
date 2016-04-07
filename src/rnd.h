@@ -6,11 +6,11 @@
 #define PROBREACH_RANDOM_H
 
 #include<box.h>
+#include <gsl/gsl_rng.h>
 
 namespace rnd
 {
-    box get_sample();
-    double get_ran_gaussian(double, double);
+    box get_sample(gsl_rng*);
 }
 
 #endif //PROBREACH_RANDOM_H

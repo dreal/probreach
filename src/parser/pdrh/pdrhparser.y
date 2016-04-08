@@ -29,7 +29,7 @@ void yyerror(const char *s);
 	char*                       sval;
     pdrh::node*                 nval;
     std::vector<pdrh::node*>*   nval_list;
-    capd::interval              interval;
+    capd::interval*             interval;
 }
 
 // terminals

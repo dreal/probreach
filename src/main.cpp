@@ -158,11 +158,10 @@ int main(int argc, char* argv[])
         }
     }
     std::cout.precision(16);
-    std::cout << std::scientific << std::setprecision(16) << capd::interval(4.9e-1) << std::endl;
-    double a = 4.9e-1;
-    std::cout << std::scientific << std::setprecision(16) << capd::interval(a) << std::endl;
-    double b = atof(std::string("4.9e-1").c_str());
-    std::cout << std::scientific << std::setprecision(16) << capd::interval(b) << std::endl;
-    std::cout << std::scientific << std::setprecision(16) << capd::interval("4.9e-1", "4.9e-1") << std::endl;
+    capd::interval* a = new capd::interval("4.9e-1", "4.9e-1");
+    capd::interval* b = new capd::interval("1e-2", "1e-2");
+    std::cout << std::scientific << std::setprecision(16) << *a << std::endl;
+    std::cout << std::scientific << std::setprecision(16) << *b << std::endl;
+    std::cout << std::scientific << std::setprecision(16) << (*a + *b) << std::endl;
     return EXIT_SUCCESS;
 }

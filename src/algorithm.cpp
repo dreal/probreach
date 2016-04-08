@@ -9,6 +9,7 @@
 #include "measure.h"
 #include "box_factory.h"
 #include<chrono>
+#include <iomanip>
 #include "rnd.h"
 
 decision_procedure::result algorithm::evaluate_ha(int depth)
@@ -183,7 +184,6 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                         if(p_box.leftBound() > 0)
                         {
                             probability = capd::interval(probability.leftBound() + p_box.leftBound(), probability.rightBound());
-                            std::cout << probability << std::endl;
                         }
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;

@@ -42,9 +42,9 @@ namespace measure
 
     namespace distribution
     {
-        std::string gaussian(std::string, double, double);
-        std::string uniform(double, double);
-        std::string exp(std::string, double);
+        std::string gaussian(std::string, capd::interval, capd::interval);
+        std::string uniform(capd::interval, capd::interval);
+        std::string exp(std::string, capd::interval);
 
         //pdrh::node* gaussian(std::string, double, double);
         //pdrh::node* uniform(double, double);

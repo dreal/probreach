@@ -667,10 +667,94 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
         {
             unsat++;
         }
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(((double) sat / (double) sample_size) - acc, ((double) (sample_size - unsat) / (double) sample_size) + acc);
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Progress: " << (double) ctr / (double) sample_size;
     }
     gsl_rng_free(r);
-    return capd::interval(((double) sat / (double) sample_size) - acc / 2, ((double) (sample_size - unsat) / (double) sample_size) + acc / 2);
+    return capd::interval(((double) sat / (double) sample_size) - acc, ((double) (sample_size - unsat) / (double) sample_size) + acc);
+}
+
+capd::interval algorithm::evaluate_pha_chernoff_delta_sat(int min_depth, int max_depth, double acc, double conf)
+{
+    const gsl_rng_type * T;
+    gsl_rng * r;
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+    // creating random generator
+    r = gsl_rng_alloc(T);
+    // setting the seed
+    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() /
+                   std::chrono::milliseconds(1));
+    // getting sample size with recalculated confidence
+    long int sample_size = algorithm::get_cernoff_bound(acc, std::sqrt(conf));
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample size: " << sample_size;
+    long int sat = 0;
+    long int unsat = 0;
+    for(long int ctr = 0; ctr < sample_size; ctr++)
+    {
+        std::vector<std::vector<pdrh::mode*>> paths;
+        // getting all paths
+        for(pdrh::state i : pdrh::init)
+        {
+            for(pdrh::state g : pdrh::goal)
+            {
+                for(int j = min_depth; j <= max_depth; j++)
+                {
+                    std::vector<std::vector<pdrh::mode*>> paths_j = pdrh::get_paths(pdrh::get_mode(i.id), pdrh::get_mode(g.id), j);
+                    paths.insert(paths.cend(), paths_j.cbegin(), paths_j.cend());
+                }
+            }
+        }
+        // getting a sample
+        box b = rnd::get_sample(r);
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample: " << b;
+        std::vector<box> boxes = { b };
+        int undet_counter = 0;
+        int timeout_counter = 0;
+        bool sat_flag = false;
+        // evaluating all paths
+        for(std::vector<pdrh::mode*> path : paths)
+        {
+            std::stringstream p_stream;
+            for(pdrh::mode* m : path)
+            {
+                p_stream << m->id << " ";
+            }
+            // removing trailing whitespace
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
+            int res = decision_procedure::evaluate(path, boxes);
+            if(res == decision_procedure::SAT)
+            {
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "DELTA-SAT";
+                sat++;
+                sat_flag = true;
+                break;
+            }
+            else if(res == decision_procedure::UNSAT)
+            {
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+            }
+            else if(res == decision_procedure::ERROR)
+            {
+                CLOG(ERROR, "algorithm") << "Error occured while calling a solver";
+                exit(EXIT_FAILURE);
+            }
+            else if(res == decision_procedure::SOLVER_TIMEOUT)
+            {
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
+                timeout_counter++;
+            }
+        }
+        // updating unsat counter
+        if((timeout_counter == 0) && (!sat_flag))
+        {
+            unsat++;
+        }
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(((double) sat / (double) sample_size) - acc, ((double) (sample_size - unsat) / (double) sample_size) + acc);
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Progress: " << (double) ctr / (double) sample_size;
+    }
+    gsl_rng_free(r);
+    return capd::interval(((double) sat / (double) sample_size) - acc, ((double) (sample_size - unsat) / (double) sample_size) + acc);
 }
 
 long int algorithm::get_cernoff_bound(double acc, double conf)
@@ -679,7 +763,7 @@ long int algorithm::get_cernoff_bound(double acc, double conf)
     {
         CLOG(ERROR, "algorithm") << "accuracy must be greater than 0 and confidence must be inside [0, 1) interval";
     }
-    return (long int) std::ceil((1/(2 * acc * acc)) * std::log(1/(1 - conf)));
+    return (long int) std::ceil((1/(2 * acc * acc)) * std::log(2/(1 - conf)));
 }
 
 

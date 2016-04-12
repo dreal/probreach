@@ -293,26 +293,26 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::bounds::pdf(std:
     }
 }
 
-std::string measure::distribution::gaussian(std::string var, double mu, double sigma)
+std::string measure::distribution::gaussian(std::string var, capd::interval mu, capd::interval sigma)
 {
     std::stringstream s;
-    s 	<< "(1 / (" << sigma << " * sqrt(2 * 3.14159265359)) * exp(- (( " << var << " - " << mu
-    <<	") * (" << var << " - " << mu << ")) / (2 * " << sigma << " * " << sigma << ")))";
+    s 	<< "(1 / (" << sigma.leftBound() << " * sqrt(2 * 3.14159265359)) * exp(- (( " << var << " - " << mu.leftBound()
+    <<	") * (" << var << " - " << mu.leftBound() << ")) / (2 * " << sigma.leftBound() << " * " << sigma.leftBound() << ")))";
     return s.str();
 }
 
 // check whether implemented correctly
-std::string measure::distribution::exp(std::string var, double lambda)
+std::string measure::distribution::exp(std::string var, capd::interval lambda)
 {
     std::stringstream s;
-    s << lambda << " * exp(" << "-" << lambda << " * " << var << ")";
+    s << lambda.leftBound() << " * exp(" << "-" << lambda.leftBound() << " * " << var << ")";
     return s.str();
 }
 
-std::string measure::distribution::uniform(double a, double b)
+std::string measure::distribution::uniform(capd::interval a, capd::interval b)
 {
     std::stringstream s;
-    s << "1 / (" << b << " - " << a << ")";
+    s << "1 / (" << b.leftBound() << " - " << a.leftBound() << ")";
     return s.str();
 }
 

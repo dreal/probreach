@@ -31,6 +31,7 @@ namespace pdrh
     std::string node_fix_index(node*, int, std::string);
     enum type {HA, PHA, NHA, NPHA, PSY};
     extern type model_type;
+
     extern capd::interval time;
     extern std::map<std::string, std::tuple<std::string, capd::interval, double>> rv_map;
     extern std::map<std::string, std::string> rv_type_map;
@@ -118,15 +119,15 @@ namespace pdrh
     // defined distributions
     namespace distribution
     {
-        extern std::map<std::string, std::pair<double, double>> uniform;
-        extern std::map<std::string, std::pair<double, double>> normal;
-        extern std::map<std::string, double> exp;
-        extern std::map<std::string, std::pair<double, double>> gamma;
+        extern std::map<std::string, std::pair<capd::interval, capd::interval>> uniform;
+        extern std::map<std::string, std::pair<capd::interval, capd::interval>> normal;
+        extern std::map<std::string, capd::interval> exp;
+        extern std::map<std::string, std::pair<capd::interval, capd::interval>> gamma;
 
-        void push_uniform(std::string, double, double);
-        void push_normal(std::string, double, double);
-        void push_exp(std::string, double);
-        void push_gamma(std::string, double, double);
+        void push_uniform(std::string, capd::interval, capd::interval);
+        void push_normal(std::string, capd::interval, capd::interval);
+        void push_exp(std::string, capd::interval);
+        void push_gamma(std::string, capd::interval, capd::interval);
     }
 }
 

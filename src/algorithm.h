@@ -20,6 +20,8 @@ namespace algorithm
     capd::interval evaluate_pha(int, int);
     // evaluating reachability in probabilitic hybrid automata by sampling (arg1: min depth, arg2: max depth, arg3: sample size)
     capd::interval evaluate_pha_chernoff(int, int, double, double);
+    // evaluating reachability in probabilitic hybrid automata by sampling (arg1: min depth, arg2: max depth, arg3: sample size)
+    capd::interval evaluate_pha_chernoff_delta_sat(int, int, double, double);
     // evaluating reachability in nondeterministic probabilistic hybrid automata (arg: depth)
     std::map<box, capd::interval> evaluate_npha(int);
     // evaluating reachability in nondeterministic probabilistic hybrid automata (arg1: min depth, arg2: max depth)

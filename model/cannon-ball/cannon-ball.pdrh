@@ -8,9 +8,9 @@ model: pha;
 [0.7854]    alpha; // angle to horizon
 
 // dicrete random parameters
-dist_discrete(20:5e-1, 30:4.9e-1, 50:1e-2)  v0; // initial velocity
-//dist_normal(20,3) v0;
-//dist_discrete(0.7854:9.9e-1, 0.0:1e-2)      alpha; // angle to horizon
+//dist_discrete(20:5e-1, 30:4.9e-1, 50:1e-2)  v0; // initial velocity
+dist_normal(20,3) v0;
+//dist_discrete(0.7854:9.9e-1, 0.0:1e-2)    alpha; // angle to horizon
 //dist_normal(0.7854, 0.1) alpha;
 
 {

@@ -25,16 +25,16 @@ box rnd::get_sample(gsl_rng* r)
         else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())
         {
             edges.insert(std::make_pair(it->first, pdrh::distribution::normal[it->first].first +
-                                            gsl_ran_gaussian_ziggurat(r, pdrh::distribution::normal[it->first].second)));
+                                            gsl_ran_gaussian_ziggurat(r, pdrh::distribution::normal[it->first].second.mid().leftBound())));
         }
         else if(pdrh::distribution::exp.find(it->first) != pdrh::distribution::exp.cend())
         {
-            edges.insert(std::make_pair(it->first, gsl_ran_exponential(r, pdrh::distribution::exp[it->first])));
+            edges.insert(std::make_pair(it->first, gsl_ran_exponential(r, pdrh::distribution::exp[it->first].mid().leftBound())));
         }
         else if(pdrh::distribution::gamma.find(it->first) != pdrh::distribution::gamma.cend())
         {
-            edges.insert(std::make_pair(it->first, gsl_ran_gamma(r, pdrh::distribution::gamma[it->first].first,
-                                                                 pdrh::distribution::gamma[it->first].second)));
+            edges.insert(std::make_pair(it->first, gsl_ran_gamma(r, pdrh::distribution::gamma[it->first].first.mid().leftBound(),
+                                                                 pdrh::distribution::gamma[it->first].second.mid().leftBound())));
         }
         else
         {

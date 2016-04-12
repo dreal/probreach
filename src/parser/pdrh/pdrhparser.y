@@ -48,6 +48,7 @@ void yyerror(const char *s);
 
 %token <sval> model_type
 %token <sval> identifier
+%token <sval> number
 %token <fval> n_float
 %token <ival> n_int
 
@@ -58,9 +59,9 @@ void yyerror(const char *s);
 %right POWER
 
 %type<sval> reset_var
-%type<fval> number arthm_expr pdf_bound
 %type<nval_list> props
 %type<nval> pdf_expr prop expr
+%type<interval> arthm_expr pdf_bound
 
 // to compile
 //bison -d -o pdrhparser.c pdrhparser.y && flex -o pdrhlexer.c pdrhlexer.l && g++ -O2 -std=c++11 `/home/fedor/dreal3/build/release/bin/capd-config --cflags` pdrhparser.h pdrhparser.c pdrhlexer.c ../../model.cpp -lfl `/home/fedor/dreal3/build/release/bin/capd-config --libs` -o pdrh && ./pdrh ../../test/parser/test1.pdrh
@@ -115,7 +116,7 @@ var_declaration:
 	'[' arthm_expr ',' arthm_expr ']' identifier ';'    {
 	                                                        if(!pdrh::var_exists($6))
                                                             {
-                                                                pdrh::push_var($6, capd::interval($2, $4));
+                                                                pdrh::push_var($6, capd::interval($2->leftBound(), $4->rightBound()));
                                                             }
                                                             else
                                                             {
@@ -127,7 +128,7 @@ var_declaration:
 	| '[' arthm_expr ']' identifier ';'	                {
                                                             if(!pdrh::var_exists($4))
                                                             {
-                                                               pdrh::push_var($4, capd::interval($2, $2));
+                                                               pdrh::push_var($4, *($2));
                                                             }
                                                             else
                                                             {
@@ -136,15 +137,15 @@ var_declaration:
                                                                yyerror(s.str().c_str());
                                                             }
                                                         }
-	| '[' arthm_expr ',' arthm_expr ']' TIME ';'        { pdrh::push_time_bounds(capd::interval($2, $4)); }
+	| '[' arthm_expr ',' arthm_expr ']' TIME ';'        { pdrh::push_time_bounds(capd::interval($2->leftBound(), $4->rightBound())); }
 
 dist_declaration:
     PDF '(' pdf_expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')' identifier ';'
                                                                                 {
                                                                                     if(!pdrh::var_exists($11))
                                                                                     {
-                                                                                        pdrh::push_var(strdup($11), capd::interval($5, $7));
-                                                                                        pdrh::push_rv(strdup($11), pdrh::node_to_string_infix($3), capd::interval($5, $7), $9);
+                                                                                        pdrh::push_var(strdup($11), capd::interval($5->leftBound(), $7->rightBound()));
+                                                                                        pdrh::push_rv(strdup($11), pdrh::node_to_string_infix($3), capd::interval($5->leftBound(), $7->rightBound()), $9->leftBound());
                                                                                         if(global_config.sample_flag)
                                                                                         {
                                                                                             std::stringstream s;
@@ -164,7 +165,7 @@ dist_declaration:
                                                                                     {
                                                                                         pdrh::push_var(strdup($7), capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                             std::numeric_limits<double>::infinity()));
-                                                                                        pdrh::distribution::push_gamma(strdup($7), $3, $5);
+                                                                                        pdrh::distribution::push_gamma(strdup($7), (*$3), (*$5));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -178,10 +179,10 @@ dist_declaration:
                                                                                     {
                                                                                         pdrh::push_var(strdup($7), capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
-                                                                                        pdrh::push_rv(strdup($7), measure::distribution::gaussian(strdup($7), $3, $5),
+                                                                                        pdrh::push_rv(strdup($7), measure::distribution::gaussian(strdup($7), (*$3), (*$5)),
                                                                                                         capd::interval(-std::numeric_limits<double>::infinity(),
-                                                                                                          std::numeric_limits<double>::infinity()), $3);
-                                                                                        pdrh::distribution::push_normal(strdup($7), $3, $5);
+                                                                                                          std::numeric_limits<double>::infinity()), $3->leftBound());
+                                                                                        pdrh::distribution::push_normal(strdup($7), (*$3), (*$5));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -195,9 +196,9 @@ dist_declaration:
                                                                                     {
                                                                                         pdrh::push_var($7, capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
-                                                                                        pdrh::push_rv(strdup($7), measure::distribution::uniform($3, $5),
-                                                                                                         capd::interval($3, $5), $3);
-                                                                                        pdrh::distribution::push_uniform(strdup($7), $3, $5);
+                                                                                        pdrh::push_rv(strdup($7), measure::distribution::uniform((*$3), (*$5)),
+                                                                                                         capd::interval($3->leftBound(), $5->rightBound()), $3->leftBound());
+                                                                                        pdrh::distribution::push_uniform(strdup($7), (*$3), (*$5));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -211,9 +212,9 @@ dist_declaration:
                                                                                     {
                                                                                         pdrh::push_var($5, capd::interval(-std::numeric_limits<double>::infinity(),
                                                                                                                              std::numeric_limits<double>::infinity()));
-                                                                                        pdrh::push_rv(strdup($5), measure::distribution::exp(strdup($5), $3),
+                                                                                        pdrh::push_rv(strdup($5), measure::distribution::exp(strdup($5), $3->leftBound()),
                                                                                                                   capd::interval(0, std::numeric_limits<double>::infinity()), 0);
-                                                                                        pdrh::distribution::push_exp(strdup($5), $3);
+                                                                                        pdrh::distribution::push_exp(strdup($5), (*$3));
                                                                                     }
                                                                                     else
                                                                                     {
@@ -240,17 +241,15 @@ dist_declaration:
 
 pdf_bound:
     arthm_expr 		{ $$ = $1; }
-    | INFTY 		{ $$ = +std::numeric_limits<double>::infinity(); }
-    | MINUS INFTY 	{ $$ = -std::numeric_limits<double>::infinity(); }
+    | INFTY 		{ $$ = new capd::interval(+std::numeric_limits<double>::infinity()); }
+    | MINUS INFTY 	{ $$ = new capd::interval(-std::numeric_limits<double>::infinity()); }
 
 pdf_expr:
     identifier                      {
                                         $$ = pdrh::push_terminal_node($1);
                                     }
     | number                        {
-                                        std::stringstream s;
-                                        s << $1;
-                                        $$ = pdrh::push_terminal_node(strdup(s.str().c_str()));
+                                        $$ = pdrh::push_terminal_node($1);
                                     }
     | MINUS pdf_expr %prec UMINUS   {
                                         std::vector<pdrh::node*> operands;
@@ -353,7 +352,8 @@ dd_pairs:
 
 dd_pair:
     arthm_expr ':' arthm_expr   {
-                                    cur_dd.insert(std::make_pair(capd::interval($1), capd::interval($3)));
+                                    cur_dd.insert(std::make_pair((*$1), (*$3)));
+                                    delete($1); delete($3);
                                 }
 
 modes:
@@ -361,11 +361,11 @@ modes:
 	| mode      { ; }
 
 mode:
-	'{' MODE n_int ';' invt flow jumps_section '}'              {
-	                                                                if(pdrh::get_mode($3) == NULL)
+	'{' MODE number ';' invt flow jumps_section '}'              {
+	                                                                if(pdrh::get_mode(atoi($3)) == NULL)
 	                                                                {
                                                                         cur_dd.clear();
-                                                                        cur_mode->id = $3;
+                                                                        cur_mode->id = atoi($3);
                                                                         pdrh::push_mode(*cur_mode);
                                                                         delete cur_mode;
                                                                         cur_mode = new pdrh::mode;
@@ -377,11 +377,11 @@ mode:
                                                                         yyerror(s.str().c_str());
                                                                     }
                                                                 }
-	| '{' MODE n_int ';' flow jumps_section '}'                 {
-	                                                                if(pdrh::get_mode($3) == NULL)
+	| '{' MODE number ';' flow jumps_section '}'                {
+	                                                                if(pdrh::get_mode(atoi($3)) == NULL)
                                                                     {
                                                                         cur_dd.clear();
-                                                                        cur_mode->id = $3;
+                                                                        cur_mode->id = atoi($3);
                                                                         pdrh::push_mode(*cur_mode);
                                                                         delete cur_mode;
                                                                         cur_mode = new pdrh::mode;
@@ -393,11 +393,11 @@ mode:
                                                                         yyerror(s.str().c_str());
                                                                     }
                                                                 }
-	| '{' MODE n_int ';' timeprec flow jumps_section '}'        {
-	                                                                if(pdrh::get_mode($3) == NULL)
+	| '{' MODE number ';' timeprec flow jumps_section '}'       {
+	                                                                if(pdrh::get_mode(atoi($3)) == NULL)
                                                                     {
                                                                         cur_dd.clear();
-                                                                        cur_mode->id = $3;
+                                                                        cur_mode->id = atoi($3);
                                                                         pdrh::push_mode(*cur_mode);
                                                                         delete cur_mode;
                                                                         cur_mode = new pdrh::mode;
@@ -409,11 +409,11 @@ mode:
                                                                         yyerror(s.str().c_str());
                                                                     }
                                                                 }
-	| '{' MODE n_int ';' timeprec invt flow jumps_section '}'   {
-	                                                                if(pdrh::get_mode($3) == NULL)
+	| '{' MODE number ';' timeprec invt flow jumps_section '}'  {
+	                                                                if(pdrh::get_mode(atoi($3)) == NULL)
                                                                     {
                                                                         cur_dd.clear();
-                                                                        cur_mode->id = $3;
+                                                                        cur_mode->id = atoi($3);
                                                                         pdrh::push_mode(*cur_mode);
                                                                         delete cur_mode;
                                                                         cur_mode = new pdrh::mode;
@@ -543,9 +543,7 @@ expr:
                                     }
                                 }
     | number                    {
-                                    std::stringstream s;
-                                    s << $1;
-                                    $$ = pdrh::push_terminal_node(strdup(s.str().c_str()));
+                                    $$ = pdrh::push_terminal_node($1);
                                 }
     | MINUS expr %prec UMINUS   {
                                     std::vector<pdrh::node*> operands;
@@ -642,26 +640,80 @@ expr:
     ;
 
 arthm_expr:
-	number 							{ $$ = $1; }
-	| MINUS arthm_expr %prec UMINUS { $$ = -$2; }
-	| PLUS arthm_expr %prec UPLUS 	{ $$ = $2; }
-	| arthm_expr PLUS arthm_expr 	{ $$ = $1 + $3; }
-	| arthm_expr MINUS arthm_expr 	{ $$ = $1 - $3; }
-	| arthm_expr TIMES arthm_expr 	{ $$ = $1 * $3; }
-	| arthm_expr DIVIDE arthm_expr 	{ $$ = $1 / $3; }
-	| arthm_expr POWER arthm_expr 	{ $$ = std::pow($1, $3); }
-	| ABS '(' arthm_expr ')' 		{ $$ = std::abs($3); }
-	| SQRT '(' arthm_expr ')' 		{ $$ = std::sqrt($3); }
-	| EXP '(' arthm_expr ')' 		{ $$ = std::exp($3); }
-	| LOG '(' arthm_expr ')' 		{ $$ = std::log($3); }
-	| SIN '(' arthm_expr ')' 		{ $$ = std::sin($3); }
-	| COS '(' arthm_expr ')' 		{ $$ = std::cos($3); }
-	| TAN '(' arthm_expr ')' 		{ $$ = std::tan($3); }
-	| ASIN '(' arthm_expr ')' 		{ $$ = std::asin($3); }
-	| ACOS '(' arthm_expr ')' 		{ $$ = std::acos($3); }
-	| ATAN '(' arthm_expr ')' 		{ $$ = std::atan($3); }
-	| '(' arthm_expr ')' 			{ $$ = $2; }
-	;
+        number                          {
+                                            $$ = new capd::interval($1, $1);
+                                        }
+        | MINUS arthm_expr %prec UMINUS {
+                                            $$ = new capd::interval(capd::interval(-1) * (*$2));
+                                            delete($2);
+                                        }
+        | PLUS arthm_expr %prec UPLUS   {
+                                            $$ = $2;
+                                        }
+        | arthm_expr MINUS arthm_expr   {
+                                            $$ = new capd::interval((*$1) - (*$3));
+                                            delete($1); delete($3);
+                                        }
+        | arthm_expr PLUS arthm_expr    {
+                                            $$ = new capd::interval((*$1) + (*$3));
+                                            delete($1); delete($3);
+                                        }
+        | arthm_expr TIMES arthm_expr   {
+                                            $$ = new capd::interval((*$1) * (*$3));
+                                            delete($1); delete($3);
+                                        }
+        | arthm_expr DIVIDE arthm_expr  {
+                                            $$ = new capd::interval((*$1) / (*$3));
+                                            delete($1); delete($3);
+                                        }
+        | arthm_expr POWER arthm_expr   {
+                                            $$ = new capd::interval(capd::intervals::power((*$1), (*$3)));
+                                            delete($1); delete($3);
+                                        }
+        | ABS '(' arthm_expr ')'    {
+                                        $$ = new capd::interval(capd::abs((*$3)));
+                                        delete($3);
+                                    }
+        | SQRT '(' arthm_expr ')'   {
+                                        $$ = new capd::interval(capd::intervals::sqrt((*$3)));
+                                        delete($3);
+                                    }
+        | EXP '(' arthm_expr ')'    {
+                                        $$ = new capd::interval(capd::intervals::exp((*$3)));
+                                        delete($3);
+                                    }
+        | LOG '(' arthm_expr ')'    {
+                                        $$ = new capd::interval(capd::intervals::log((*$3)));
+                                        delete($3);
+                                    }
+        | SIN '(' arthm_expr ')'    {
+                                        $$ = new capd::interval(capd::intervals::sin((*$3)));
+                                        delete($3);
+                                    }
+        | COS '(' arthm_expr ')'    {
+                                        $$ = new capd::interval(capd::intervals::cos((*$3)));
+                                        delete($3);
+                                    }
+        | TAN '(' arthm_expr ')'    {
+                                        $$ = new capd::interval(capd::intervals::tan((*$3)));
+                                        delete($3);
+                                    }
+        | ASIN '(' arthm_expr ')'   {
+                                        $$ = new capd::interval(capd::intervals::asin((*$3)));
+                                        delete($3);
+                                    }
+        | ACOS '(' arthm_expr ')'   {
+                                        $$ = new capd::interval(capd::intervals::acos((*$3)));
+                                        delete($3);
+                                    }
+        | ATAN '(' arthm_expr ')'   {
+                                        $$ = new capd::interval(capd::intervals::atan((*$3)));
+                                        delete($3);
+                                    }
+        | '(' arthm_expr ')'        {
+                                        $$ = $2;
+                                    }
+        ;
 
 reset_props:
 	reset_props reset_prop { ; }
@@ -690,8 +742,8 @@ reset_var:
 	;
 
 reset_state:
-	'@' n_int reset_prop ';'    {
-	 	                            cur_jump->next_id = $2;
+	'@' number reset_prop ';'   {
+	 	                            cur_jump->next_id = atoi($2);
 	 	                        }
 
 jumps_section:
@@ -725,11 +777,11 @@ goal:
                         }
 
 state:
-	'@' n_int prop ';'  {
-	                        if(pdrh::get_mode($2) != NULL)
+	'@' number prop ';' {
+	                        if(pdrh::get_mode(atoi($2)) != NULL)
                             {
                                 pdrh::state *s = new pdrh::state;
-                                s->id = $2;
+                                s->id = atoi($2);
                                 s->prop = $3;
                                 cur_states.push_back(*s);
                                 delete s;
@@ -758,7 +810,7 @@ syn_pair:
     identifier ':' number   {
                                 if(pdrh::var_exists($1))
                                 {
-                                    pdrh::push_syn_pair(strdup($1), capd::interval($3));
+                                    pdrh::push_syn_pair(strdup($1), capd::interval($3, $3));
                                 }
                                 else
                                 {
@@ -767,10 +819,6 @@ syn_pair:
                                    yyerror(s.str().c_str());
                                 }
                             }
-
-number:
-	n_float 			{ $$ = $1; }
-	| n_int 			{ $$ = $1; }
 
 %%
 

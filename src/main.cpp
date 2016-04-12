@@ -98,16 +98,25 @@ int main(int argc, char* argv[])
         case pdrh::PHA:
         {
             // move this check to parser
+            /*
             if(pdrh::par_map.size() > 0)
             {
                 CLOG(ERROR, "algorithm") << "Found " << pdrh::par_map.size() << " nondeterministic parameters. Please specify correct model type";
                 std::cout << "error" << std::endl;
                 return EXIT_FAILURE;
             }
+            */
             capd::interval probability;
             if(global_config.chernoff_flag)
             {
-                probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
+                if(global_config.delta_sat)
+                {
+                    probability = algorithm::evaluate_pha_chernoff_delta_sat(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
+                }
+                else
+                {
+                    probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
+                }
             }
             else
             {
@@ -157,11 +166,13 @@ int main(int argc, char* argv[])
             break;
         }
     }
+    /*
     std::cout.precision(16);
     capd::interval* a = new capd::interval("4.9e-1", "4.9e-1");
     capd::interval* b = new capd::interval("1e-2", "1e-2");
     std::cout << std::scientific << std::setprecision(16) << *a << std::endl;
     std::cout << std::scientific << std::setprecision(16) << *b << std::endl;
     std::cout << std::scientific << std::setprecision(16) << (*a + *b) << std::endl;
+    */
     return EXIT_SUCCESS;
 }

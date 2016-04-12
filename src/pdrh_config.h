@@ -43,6 +43,7 @@ struct pdrh_config
     double chernoff_acc = 1e-2;
     double chernoff_conf = 0.99;
     bool chernoff_flag = false;
+    bool delta_sat = false;
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

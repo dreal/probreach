@@ -4,19 +4,25 @@
 
 #include <unistd.h>
 #include <logging/easylogging++.h>
+#include <omp.h>
 #include "decision_procedure.h"
 #include "solver/dreal_wrapper.h"
 #include "pdrh_config.h"
 
 int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {
+    // default value for the thread number
+    int thread_num = 0;
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
     // getting raw filename here
     std::string filename = std::string(global_config.model_filename);
     size_t ext_index = filename.find_last_of('.');
     std::string raw_filename = filename.substr(0, ext_index);
     // creating a name for the smt2 file
     std::stringstream f_stream;
-    f_stream << raw_filename << "_" << path.size() - 1 << "_0.smt2";
+    f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".smt2";
     std::string smt_filename = f_stream.str();
     // writing to the file
     std::ofstream smt_file;
@@ -48,7 +54,7 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
     {
         // the complement formula
         f_stream.str("");
-        f_stream << raw_filename << "_" << path.size() - 1 << "_0.c.smt2";
+        f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".c.smt2";
         std::string smt_c_filename = f_stream.str();
         // writing to the file
         std::ofstream smt_c_file;
@@ -119,13 +125,18 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, rv_box* b1, dd_
 
 int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {
+    // default value for the thread number
+    int thread_num = 0;
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
     // getting raw filename here
     std::string filename = std::string(global_config.model_filename);
     size_t ext_index = filename.find_last_of('.');
     std::string raw_filename = filename.substr(0, ext_index);
     // creating a name for the smt2 file
     std::stringstream f_stream;
-    f_stream << raw_filename << "_" << path.size() - 1 << "_0.smt2";
+    f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".smt2";
     std::string smt_filename = f_stream.str();
     // writing to the file
     std::ofstream smt_file;
@@ -157,7 +168,7 @@ int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector
     {
         // the complement formula
         f_stream.str("");
-        f_stream << raw_filename << "_" << path.size() - 1 << "_0.c.smt2";
+        f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".c.smt2";
         std::string smt_c_filename = f_stream.str();
         // writing to the file
         std::ofstream smt_c_file;
@@ -207,13 +218,18 @@ int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector
 
 int decision_procedure::evaluate_delta_sat(pdrh::state init, pdrh::state goal, std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {
+    // default value for the thread number
+    int thread_num = 0;
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
     // getting raw filename here
     std::string filename = std::string(global_config.model_filename);
     size_t ext_index = filename.find_last_of('.');
     std::string raw_filename = filename.substr(0, ext_index);
     // creating a name for the smt2 file
     std::stringstream f_stream;
-    f_stream << raw_filename << "_" << path.size() - 1 << "_0.smt2";
+    f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".smt2";
     std::string smt_filename = f_stream.str();
     // writing to the file
     std::ofstream smt_file;
@@ -259,13 +275,18 @@ int decision_procedure::evaluate_delta_sat(pdrh::state init, pdrh::state goal, s
 
 int decision_procedure::synthesize(pdrh::state init, std::vector<pdrh::mode *> path, box psy_box, int mode_id, box goal_box)
 {
+    // default value for the thread number
+    int thread_num = 0;
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
     // getting raw filename here
     std::string filename = std::string(global_config.model_filename);
     size_t ext_index = filename.find_last_of('.');
     std::string raw_filename = filename.substr(0, ext_index);
     // creating a name for the smt2 file
     std::stringstream f_stream;
-    f_stream << raw_filename << "_" << path.size() - 1 << "_0.smt2";
+    f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".smt2";
     std::string smt_filename = f_stream.str();
     // writing to the file
     std::ofstream smt_file;
@@ -302,7 +323,7 @@ int decision_procedure::synthesize(pdrh::state init, std::vector<pdrh::mode *> p
     {
         // the complement formula
         f_stream.str("");
-        f_stream << raw_filename << "_" << path.size() - 1 << "_0.c.smt2";
+        f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".c.smt2";
         std::string smt_c_filename = f_stream.str();
         // writing to the file
         std::ofstream smt_c_file;

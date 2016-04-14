@@ -602,6 +602,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample size: " << sample_size;
     long int sat = 0;
     long int unsat = 0;
+    #pragma omp parallel for
     for(long int ctr = 0; ctr < sample_size; ctr++)
     {
         std::vector<std::vector<pdrh::mode*>> paths;
@@ -690,6 +691,7 @@ capd::interval algorithm::evaluate_pha_chernoff_delta_sat(int min_depth, int max
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample size: " << sample_size;
     long int sat = 0;
     long int unsat = 0;
+    #pragma omp parallel for
     for(long int ctr = 0; ctr < sample_size; ctr++)
     {
         std::vector<std::vector<pdrh::mode*>> paths;
@@ -709,7 +711,6 @@ capd::interval algorithm::evaluate_pha_chernoff_delta_sat(int min_depth, int max
         box b = rnd::get_sample(r);
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample: " << b;
         std::vector<box> boxes = { b };
-        int undet_counter = 0;
         int timeout_counter = 0;
         bool sat_flag = false;
         // evaluating all paths

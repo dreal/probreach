@@ -122,7 +122,16 @@ int main(int argc, char* argv[])
             {
                 probability = algorithm::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
             }
-            std::cout << probability << std::endl;
+            // modifying the interval if outside (0,1)
+            if(probability.leftBound() < 0)
+            {
+                probability.setLeftBound(0);
+            }
+            if(probability.rightBound() > 1)
+            {
+                probability.setRightBound(1);
+            }
+            std::cout << probability << " | " << capd::intervals::width(probability) << std::endl;
             break;
         }
         // nondeterministic probabilistic hybrid automata

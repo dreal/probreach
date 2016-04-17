@@ -115,7 +115,17 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                    probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
+                    probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
+                }
+            }
+            else if(global_config.bayesian_flag)
+            {
+                if(global_config.delta_sat)
+                {
+                    probability = algorithm::evaluate_pha_bayesian_delta_sat(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
+                }
+                else
+                {
                 }
             }
             else

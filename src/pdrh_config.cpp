@@ -205,10 +205,37 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
+        // bayesian accuracy
+        else if(strcmp(argv[i], "--bayesian-acc") == 0)
+        {
+            global_config.bayesian_flag = true;
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.bayesian_acc;
+            if (global_config.bayesian_acc <= 0)
+            {
+                CLOG(ERROR, "config") << "accuracy for Bayesian simulations should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // bayesian confidence
+        else if(strcmp(argv[i], "--bayesian-conf") == 0)
+        {
+            global_config.bayesian_flag = true;
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.bayesian_conf;
+            if ((global_config.bayesian_conf < 0) ||
+                (global_config.bayesian_conf >= 1))
+            {
+                CLOG(ERROR, "config") << "confidence for Bayesian simulations should be within [0, 1)";
+                exit(EXIT_FAILURE);
+            }
+        }
         // merge flag
         else if(strcmp(argv[i], "--delta-sat") == 0)
         {
-            if(!global_config.chernoff_flag)
+            if((!global_config.chernoff_flag) && (!global_config.bayesian_flag))
             {
                 CLOG(ERROR, "config") << "flag --delta-sat can only be used with statistical model checking";
                 exit(EXIT_FAILURE);

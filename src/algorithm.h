@@ -32,6 +32,7 @@ namespace algorithm
     std::map<box, decision_procedure::result> evaluate_nha(int, int);
     // performing parameter synthesis (arg: time series data). return: vectors of sat, undet and unsat boxes
     std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> evaluate_psy(std::map<std::string, std::vector<capd::interval>>);
+    capd::interval evaluate_pha_bayesian_delta_sat(int, int, double, double);
     long int get_cernoff_bound(double, double);
 }
 

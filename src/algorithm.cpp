@@ -31,7 +31,17 @@ decision_procedure::result algorithm::evaluate_ha(int depth)
                 // removing trailing whitespace
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
                 std::vector<box> boxes;
-                int res = decision_procedure::evaluate(i, g, path, boxes);
+                int res;
+                // checking here if the delta-sat flag is enabled
+                if(global_config.delta_sat)
+                {
+                    res = decision_procedure::evaluate_delta_sat(i, g, path, boxes);
+                }
+                else
+                {
+                    res = decision_procedure::evaluate(i, g, path, boxes);
+                }
+                // checking the returned value
                 if(res == decision_procedure::SAT)
                 {
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
@@ -41,6 +51,7 @@ decision_procedure::result algorithm::evaluate_ha(int depth)
                 {
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
                 }
+                // never happens when --delta-sat is enabled
                 else if(res == decision_procedure::UNDET)
                 {
                     undet_counter++;
@@ -58,6 +69,7 @@ decision_procedure::result algorithm::evaluate_ha(int depth)
         }
     }
     // checking if either of the paths was UNDET
+    // never is returned when --delta-sat is enabled
     if(undet_counter > 0)
     {
         return decision_procedure::UNDET;
@@ -75,6 +87,7 @@ decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth)
         {
             return res;
         }
+        // never happens when --delta-sat is enabled
         else if(res == decision_procedure::UNDET)
         {
             undet_counter++;
@@ -85,6 +98,7 @@ decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth)
         }
     }
     // checking if either of the paths was UNDET
+    // never returned when --delta-sat is enabled
     if(undet_counter > 0)
     {
         return decision_procedure::UNDET;

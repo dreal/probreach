@@ -235,11 +235,13 @@ void parse_pdrh_config(int argc, char* argv[])
         // merge flag
         else if(strcmp(argv[i], "--delta-sat") == 0)
         {
+            /*
             if((!global_config.chernoff_flag) && (!global_config.bayesian_flag))
             {
                 CLOG(ERROR, "config") << "flag --delta-sat can only be used with statistical model checking";
                 exit(EXIT_FAILURE);
             }
+            */
             global_config.delta_sat = true;
         }
         // merge flag

@@ -19,7 +19,7 @@ box rnd::get_sample(gsl_rng* r)
         if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
         {
             edges.insert(std::make_pair(it->first,
-                                        pdrh::distribution::uniform[it->first].first + gsl_rng_uniform(r) /
+                                        pdrh::distribution::uniform[it->first].first + gsl_rng_uniform(r) *
                                             (pdrh::distribution::uniform[it->first].second - pdrh::distribution::uniform[it->first].first)));
         }
         else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())

@@ -650,7 +650,15 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
             }
             // removing trailing whitespace
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
-            int res = decision_procedure::evaluate(path, boxes);
+            int res;
+            if(global_config.delta_sat)
+            {
+                res = decision_procedure::evaluate_delta_sat(pdrh::init.front(), pdrh::goal.front(), path, boxes);
+            }
+            else
+            {
+                res = decision_procedure::evaluate(path, boxes);
+            }
             #pragma omp critical
             {
                 if (res == decision_procedure::SAT)
@@ -687,7 +695,8 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
         // updating unsat counter
         #pragma omp critical
         {
-            if ((undet_counter == 0) && (timeout_counter == 0) && (!sat_flag)) {
+            if ((undet_counter == 0) && (timeout_counter == 0) && (!sat_flag))
+            {
                 unsat++;
             }
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(
@@ -888,6 +897,150 @@ capd::interval algorithm::evaluate_pha_bayesian_delta_sat(int min_depth, int max
     }
     gsl_rng_free(r);
     return capd::interval(post_mean - acc, post_mean + acc);
+}
+
+capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, double conf)
+{
+    const gsl_rng_type * T;
+    gsl_rng * r;
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+    // creating random generator
+    r = gsl_rng_alloc(T);
+    // setting the seed
+    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() /
+                   std::chrono::milliseconds(1));
+    // getting sample size with recalculated confidence
+    long int sample_size = 0;
+    long int sat = 0;
+    long int unsat = 0;
+    // parameters of the beta distribution
+    double alpha = 1;
+    double beta = 1;
+    // initializing posterior mean
+    double post_mean_sat = ((double) sat + alpha) / ((double) sample_size + alpha + beta);
+    double post_mean_unsat = ((double) sample_size - unsat + alpha) / ((double) sample_size + alpha + beta);
+    double post_prob = 0;
+    #pragma omp parallel
+    while(post_prob < conf)
+    {
+        std::vector<std::vector<pdrh::mode*>> paths;
+        // getting all paths
+        for(pdrh::state i : pdrh::init)
+        {
+            for(pdrh::state g : pdrh::goal)
+            {
+                for(int j = min_depth; j <= max_depth; j++)
+                {
+                    std::vector<std::vector<pdrh::mode*>> paths_j = pdrh::get_paths(pdrh::get_mode(i.id), pdrh::get_mode(g.id), j);
+                    paths.insert(paths.cend(), paths_j.cbegin(), paths_j.cend());
+                }
+            }
+        }
+        // getting a sample
+        box b = rnd::get_sample(r);
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample: " << b;
+        std::vector<box> boxes = { b };
+        int undet_counter = 0;
+        int timeout_counter = 0;
+        bool sat_flag = false;
+        // evaluating all paths
+        for(std::vector<pdrh::mode*> path : paths)
+        {
+            std::stringstream p_stream;
+            for(pdrh::mode* m : path)
+            {
+                p_stream << m->id << " ";
+            }
+            // removing trailing whitespace
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
+            int res;
+            if(global_config.delta_sat)
+            {
+                res = decision_procedure::evaluate_delta_sat(pdrh::init.front(), pdrh::goal.front(), path, boxes);
+            }
+            else
+            {
+                res = decision_procedure::evaluate(path, boxes);
+            }
+            #pragma omp critical
+            {
+                if (res == decision_procedure::SAT)
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                    sat++;
+                    sat_flag = true;
+                }
+                else if (res == decision_procedure::UNSAT)
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                }
+                else if (res == decision_procedure::UNDET)
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+                    undet_counter++;
+                }
+                else if (res == decision_procedure::ERROR)
+                {
+                    CLOG(ERROR, "algorithm") << "Error occured while calling a solver";
+                    exit(EXIT_FAILURE);
+                }
+                else if (res == decision_procedure::SOLVER_TIMEOUT)
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
+                    timeout_counter++;
+                }
+            }
+            if(sat_flag)
+            {
+                break;
+            }
+        }
+        // updating unsat counter
+        #pragma omp critical
+        {
+            if ((undet_counter == 0) && (timeout_counter == 0) && (!sat_flag))
+            {
+                unsat++;
+            }
+            // increasing the sample size
+            sample_size++;
+            post_mean_sat = ((double) sat + alpha) / ((double) sample_size + alpha + beta);
+            post_mean_unsat = ((double) sample_size - unsat + alpha) / ((double) sample_size + alpha + beta);
+            if(global_config.delta_sat)
+            {
+                post_prob = gsl_cdf_beta_P(post_mean_sat + acc, sat + alpha, sample_size - sat + beta)
+                            - gsl_cdf_beta_P(post_mean_sat - acc, sat + alpha, sample_size - sat + beta);
+            }
+            else
+            {
+                post_prob = gsl_cdf_beta_P(post_mean_unsat + acc, sample_size - unsat + alpha, unsat + beta)
+                            - gsl_cdf_beta_P(post_mean_sat - acc, sat + alpha, sample_size - sat + beta);
+            }
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(post_mean_sat - acc, post_mean_unsat + acc);
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(SAT) mean: " << post_mean_sat;
+            if(!global_config.delta_sat)
+            {
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(UNSAT) mean: " << post_mean_unsat;
+            }
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample size: " << sample_size;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P prob: " << post_prob;
+        }
+    }
+    gsl_rng_free(r);
+    std::cout << "P(SAT) = " << post_mean_sat << std::endl;
+    std::cout << "P(UNSAT) = " << post_mean_unsat << std::endl;
+    std::cout << "sat " << sat << std::endl;
+    std::cout << "unsat " << unsat << std::endl;
+    std::cout << "sample size = " << sample_size << std::endl;
+    if(global_config.delta_sat)
+    {
+        return capd::interval(post_mean_sat - acc, post_mean_sat + acc);
+    }
+    else
+    {
+        return capd::interval(post_mean_sat - acc, post_mean_unsat + acc);
+    }
 }
 
 long int algorithm::get_cernoff_bound(double acc, double conf)

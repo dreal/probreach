@@ -60,6 +60,8 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
         std::ofstream smt_c_file;
         smt_c_file.open(smt_c_filename.c_str());
         smt_c_file << pdrh::reach_c_to_smt2(path, boxes);
+        //std::cout << pdrh::reach_c_to_smt2(path, boxes) << std::endl;
+        //exit(EXIT_SUCCESS);
         smt_c_file.close();
         //char dummy;
         //std::cin >> dummy;

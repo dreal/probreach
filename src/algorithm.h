@@ -33,6 +33,7 @@ namespace algorithm
     // performing parameter synthesis (arg: time series data). return: vectors of sat, undet and unsat boxes
     std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> evaluate_psy(std::map<std::string, std::vector<capd::interval>>);
     capd::interval evaluate_pha_bayesian_delta_sat(int, int, double, double);
+    capd::interval evaluate_pha_bayesian(int, int, double, double);
     long int get_cernoff_bound(double, double);
 }
 

@@ -11,6 +11,7 @@
 #include "algorithm.h"
 #include "easylogging++.h"
 #include "rnd.h"
+//#include "dreal.hh"
 
 extern "C"
 {
@@ -109,24 +110,11 @@ int main(int argc, char* argv[])
             capd::interval probability;
             if(global_config.chernoff_flag)
             {
-                if(global_config.delta_sat)
-                {
-                    probability = algorithm::evaluate_pha_chernoff_delta_sat(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
-                }
-                else
-                {
-                    probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
-                }
+                probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
             }
             else if(global_config.bayesian_flag)
             {
-                if(global_config.delta_sat)
-                {
-                    probability = algorithm::evaluate_pha_bayesian_delta_sat(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
-                }
-                else
-                {
-                }
+                probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
             }
             else
             {
@@ -185,13 +173,6 @@ int main(int argc, char* argv[])
             break;
         }
     }
-    /*
-    std::cout.precision(16);
-    capd::interval* a = new capd::interval("4.9e-1", "4.9e-1");
-    capd::interval* b = new capd::interval("1e-2", "1e-2");
-    std::cout << std::scientific << std::setprecision(16) << *a << std::endl;
-    std::cout << std::scientific << std::setprecision(16) << *b << std::endl;
-    std::cout << std::scientific << std::setprecision(16) << (*a + *b) << std::endl;
-    */
+    //dreal::solver dreal_solver;
     return EXIT_SUCCESS;
 }

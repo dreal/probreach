@@ -3,48 +3,43 @@
 //
 
 #include "model.h"
-#include <map>
-#include <tuple>
 #include <string.h>
 #include <logging/easylogging++.h>
-#include "measure.h"
-#include "pdrh_config.h"
-#include "box_factory.h"
 
 using namespace std;
-using namespace capd;
 
 pdrh::type pdrh::model_type;
-std::map<std::string, std::tuple<std::string, capd::interval, double>> pdrh::rv_map;
-std::map<std::string, std::string> pdrh::rv_type_map;
-std::map<std::string, std::map<capd::interval, capd::interval>> pdrh::dd_map;
-std::map<std::string, capd::interval> pdrh::var_map;
-std::map<std::string, capd::interval> pdrh::par_map;
-std::map<std::string, capd::interval> pdrh::syn_map;
-capd::interval pdrh::time;
-std::vector<pdrh::mode> pdrh::modes;
-std::vector<pdrh::state> pdrh::init;
-std::vector<pdrh::state> pdrh::goal;
+pair<pdrh::node*, pdrh::node*> pdrh::time;
+map<string, tuple<pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*>> pdrh::rv_map;
+map<string, string> pdrh::rv_type_map;
+map<string, map<pdrh::node*, pdrh::node*>> pdrh::dd_map;
+map<string, pair<pdrh::node*, pdrh::node*>> pdrh::var_map;
+map<string, pair<pdrh::node*, pdrh::node*>> pdrh::par_map;
+map<string, pair<pdrh::node*, pdrh::node*>> pdrh::syn_map;
+vector<pdrh::mode> pdrh::modes;
+vector<pdrh::state> pdrh::init;
+vector<pdrh::state> pdrh::goal;
 
-std::map<std::string, std::pair<capd::interval, capd::interval>> pdrh::distribution::uniform;
-std::map<std::string, std::pair<capd::interval, capd::interval>> pdrh::distribution::normal;
-std::map<std::string, std::pair<capd::interval, capd::interval>> pdrh::distribution::gamma;
-std::map<std::string, capd::interval> pdrh::distribution::exp;
+map<string, pair<pdrh::node*, pdrh::node*>> pdrh::distribution::uniform;
+map<string, pair<pdrh::node*, pdrh::node*>> pdrh::distribution::normal;
+map<string, pdrh::node*> pdrh::distribution::exp;
+map<string, pair<pdrh::node*, pdrh::node*>> pdrh::distribution::gamma;
 
 // adding a variable
-void pdrh::push_var(std::string var, capd::interval domain)
+void pdrh::push_var(string var, pdrh::node* left, pdrh::node* right)
 {
+    capd::interval domain(pdrh::node_to_interval(left).leftBound(), pdrh::node_to_interval(right).rightBound());
     if(capd::intervals::width(domain) < 0)
     {
-        std::ostringstream s;
+        stringstream s;
         s << "invalid domain " << domain << " for variable \"" << var << "\"";
-        throw std::invalid_argument(s.str());
+        throw invalid_argument(s.str());
     }
     if(pdrh::var_map.find(var) != pdrh::var_map.cend())
     {
-        std::stringstream s;
+        stringstream s;
         s << "multiple declaration of \"" << var << "\"";
-        throw std::invalid_argument(s.str());
+        throw invalid_argument(s.str());
     }
     else
     {
@@ -53,15 +48,16 @@ void pdrh::push_var(std::string var, capd::interval domain)
 }
 
 // adding time bounds
-void pdrh::push_time_bounds(capd::interval domain)
+void pdrh::push_time_bounds(pdrh::node* left, pdrh::node* right)
 {
+    capd::interval domain(pdrh::node_to_interval(left).leftBound(), pdrh::node_to_interval(right).rightBound());
     if(capd::intervals::width(domain) < 0)
     {
-        std::ostringstream s;
+        stringstream s;
         s << "invalid time domain " << domain;
-        throw std::invalid_argument(s.str());
+        throw invalid_argument(s.str());
     }
-    pdrh::time = domain;
+    pdrh::time = make_pair(left, right);
 }
 
 // adding invariant
@@ -73,18 +69,23 @@ void pdrh::push_invt(pdrh::mode& m, pdrh::node* invt)
 // adding mode
 void pdrh::push_mode(pdrh::mode m)
 {
-    std::vector<std::string> extra_vars = pdrh::get_keys_diff(pdrh::var_map, m.flow_map);
-    for(std::string var : extra_vars)
+    vector<string> extra_vars = pdrh::get_keys_diff(pdrh::var_map, m.flow_map);
+    for(string var : extra_vars)
     {
         m.flow_map.insert(make_pair(var, pdrh::var_map[var]));
         m.odes.insert(make_pair(var, pdrh::push_terminal_node("0")));
         // adding this variable to the list of parameters if it is not there yet,
         // if it is not a continuous or discrete random variable and
-        // if its domain is an interval of length greater than 0
+        // if its domain is an interval of length greater than 0.
+        // There might be a problem as the length of the interval
+        // is always greater than 0 due to overapproximation of
+        // the interval arithmetics
         if(pdrh::par_map.find(var) == pdrh::par_map.cend() &&
                 pdrh::rv_map.find(var) == pdrh::rv_map.cend() &&
                     pdrh::dd_map.find(var) == pdrh::dd_map.cend() &&
-                        capd::intervals::width(pdrh::var_map[var]) > 0)
+                        capd::intervals::width(capd::interval(
+                                node_to_interval(pdrh::var_map[var].first).leftBound(),
+                                    node_to_interval(pdrh::var_map[var].second).rightBound())) > 0)
         {
             pdrh::par_map.insert(make_pair(var, pdrh::var_map[var]));
         }
@@ -92,7 +93,8 @@ void pdrh::push_mode(pdrh::mode m)
     pdrh::modes.push_back(m);
 }
 
-void pdrh::push_ode(pdrh::mode& m, std::string var, pdrh::node* ode)
+// adding ode to the mode
+void pdrh::push_ode(pdrh::mode& m, string var, pdrh::node* ode)
 {
     if(pdrh::var_map.find(var) != pdrh::var_map.cend())
     {
@@ -108,65 +110,75 @@ void pdrh::push_ode(pdrh::mode& m, std::string var, pdrh::node* ode)
         }
         else
         {
-            std::stringstream s;
+            stringstream s;
             s << "ode for the variable \"" << var << "\" was already declared above";
-            throw std::invalid_argument(s.str());
+            throw invalid_argument(s.str());
         }
     }
     else
     {
-        std::stringstream s;
+        stringstream s;
         s << "variable \"" << var << "\" appears in the flow but it was not declared";
-        throw std::invalid_argument(s.str());
+        throw invalid_argument(s.str());
     }
 }
 
-void pdrh::push_reset(pdrh::mode& m, pdrh::mode::jump& j, std::string var, pdrh::node* expr)
+// adding a reset
+void pdrh::push_reset(pdrh::mode& m, pdrh::mode::jump& j, string var, pdrh::node* expr)
 {
     // implement error check
     j.reset.insert(make_pair(var, expr));
 }
 
+// adding a jump
 void pdrh::push_jump(pdrh::mode& m, mode::jump j)
 {
     m.jumps.push_back(j);
 }
 
-void pdrh::push_init(std::vector<pdrh::state> s)
+// adding init
+void pdrh::push_init(vector<pdrh::state> s)
 {
     pdrh::init = s;
 }
 
-void pdrh::push_goal(std::vector<pdrh::state> s)
+// adding goal
+void pdrh::push_goal(vector<pdrh::state> s)
 {
     pdrh::goal = s;
 }
 
-void pdrh::push_syn_pair(std::string var, capd::interval e)
+// adding a parameter to synthesize
+void pdrh::push_syn_pair(string var, pdrh::node* left, pdrh::node* right)
 {
-    pdrh::syn_map.insert(make_pair(var, e));
+    pdrh::syn_map.insert(make_pair(var, make_pair(left, right)));
 }
 
-void pdrh::push_rv(std::string var, std::string pdf, capd::interval domain, double start)
+// adding continuous random variable
+void pdrh::push_rv(string var, pdrh::node* pdf, pdrh::node* left, pdrh::node* right, pdrh::node* start)
 {
-    pdrh::rv_map.insert(make_pair(var, std::make_tuple(pdf, domain, start)));
+    pdrh::rv_map.insert(make_pair(var, make_tuple(pdf, left, right, start)));
 }
 
-void pdrh::push_rv_type(std::string var, std::string type)
+// adding continuous random variable with its type
+void pdrh::push_rv_type(string var, string type)
 {
     pdrh::rv_type_map.insert(make_pair(var, type));
 }
 
-void pdrh::push_dd(std::string var, std::map<capd::interval, capd::interval> m)
+// adding discrete random variable
+void pdrh::push_dd(string var, map<node*, node*> m)
 {
     pdrh::dd_map.insert(make_pair(var, m));
 }
 
-bool pdrh::var_exists(std::string var)
+// checking if the variable exists
+bool pdrh::var_exists(string var)
 {
     return (pdrh::var_map.find(var) != pdrh::var_map.cend());
 }
 
+// getting pointer to the mode by id
 pdrh::mode* pdrh::get_mode(int id)
 {
     for(int i = 0; i < pdrh::modes.size(); i++)
@@ -179,11 +191,12 @@ pdrh::mode* pdrh::get_mode(int id)
     return NULL;
 }
 
-std::vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* end)
+// getting the shortest path between two modes
+vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* end)
 {
     // initializing the set of paths
-    std::vector<std::vector<pdrh::mode*>> paths;
-    std::vector<pdrh::mode*> path;
+    vector<std::vector<pdrh::mode*>> paths;
+    vector<pdrh::mode*> path;
     // checking if the initial state is the end state
     if(begin == end)
     {
@@ -204,7 +217,7 @@ std::vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* 
             paths.erase(paths.cbegin());
             // getting the mode in the path
             pdrh::mode* cur_mode = path.back();
-            std::vector<pdrh::mode*> successors = pdrh::get_successors(cur_mode);
+            vector<pdrh::mode*> successors = pdrh::get_successors(cur_mode);
             // proceeding if the current mode has successors
             if(!successors.empty())
             {
@@ -221,9 +234,9 @@ std::vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* 
                     for (pdrh::mode *suc_mode : successors)
                     {
                         // checking if a successor does not appear in the current path
-                        if (std::find(path.cbegin(), path.cend(), suc_mode) == path.cend())
+                        if (find(path.cbegin(), path.cend(), suc_mode) == path.cend())
                         {
-                            std::vector<pdrh::mode*> tmp_path = path;
+                            vector<pdrh::mode*> tmp_path = path;
                             tmp_path.push_back(suc_mode);
                             paths.push_back(tmp_path);
                         }
@@ -236,14 +249,15 @@ std::vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* 
     return path;
 }
 
-std::vector<std::vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::mode* end, int path_length)
+// getting all paths of length path_length between begin and end modes
+vector<vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::mode* end, int path_length)
 {
     // initializing the set of paths
-    std::vector<std::vector<pdrh::mode*>> paths;
-    std::vector<pdrh::mode*> path;
+    vector<std::vector<pdrh::mode*>> paths;
+    vector<pdrh::mode*> path;
     path.push_back(begin);
     // initializing the stack
-    std::vector<std::vector<pdrh::mode*>> stack;
+    vector<vector<pdrh::mode*>> stack;
     stack.push_back(path);
     while(!stack.empty())
     {
@@ -261,11 +275,11 @@ std::vector<std::vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::m
             // getting the last mode in the path
             pdrh::mode* cur_mode = path.back();
             // getting the successors of the mode
-            std::vector<pdrh::mode*> successors = pdrh::get_successors(cur_mode);
+            vector<pdrh::mode*> successors = pdrh::get_successors(cur_mode);
             for(pdrh::mode* suc_mode : successors)
             {
                 // appending the successor the current paths
-                std::vector<pdrh::mode*> new_path = path;
+                vector<pdrh::mode*> new_path = path;
                 new_path.push_back(suc_mode);
                 // pushing the new path to the set of the paths
                 stack.push_back(new_path);
@@ -275,23 +289,25 @@ std::vector<std::vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::m
     return paths;
 }
 
-std::vector<std::vector<pdrh::mode*>> pdrh::get_all_paths(int path_length)
+// getting all paths of length path_length for all combinations of init and goal modes
+vector<vector<pdrh::mode*>> pdrh::get_all_paths(int path_length)
 {
-    std::vector<std::vector<pdrh::mode*>> res;
+    vector<vector<pdrh::mode*>> res;
     for(pdrh::state i : pdrh::init)
     {
         for(pdrh::state g : pdrh::goal)
         {
-            std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_paths(pdrh::get_mode(i.id), pdrh::get_mode(g.id), path_length);
+            vector<vector<pdrh::mode*>> paths = pdrh::get_paths(pdrh::get_mode(i.id), pdrh::get_mode(g.id), path_length);
             res.insert(res.end(), paths.begin(), paths.end());
         }
     }
     return res;
 }
 
-std::vector<pdrh::mode*> pdrh::get_successors(pdrh::mode* m)
+// getting successors of the mode m
+vector<pdrh::mode*> pdrh::get_successors(pdrh::mode* m)
 {
-    std::vector<pdrh::mode*> res;
+    vector<pdrh::mode*> res;
     for(pdrh::mode::jump j : m->jumps)
     {
         pdrh::mode *tmp = pdrh::get_mode(j.next_id);
@@ -301,17 +317,18 @@ std::vector<pdrh::mode*> pdrh::get_successors(pdrh::mode* m)
         }
         else
         {
-            std::ostringstream s;
-            s << "mode \"" << j.next_id << "\" is not defined but appears in the jump: " << pdrh::print_jump(j) << std::endl;
-            throw std::invalid_argument(s.str());
+            stringstream s;
+            s << "mode \"" << j.next_id << "\" is not defined but appears in the jump: " << pdrh::print_jump(j);
+            throw invalid_argument(s.str());
         }
     }
     return res;
 }
 
-std::vector<pdrh::mode*> pdrh::get_init_modes()
+// getting initial modes
+vector<pdrh::mode*> pdrh::get_init_modes()
 {
-    std::vector<pdrh::mode*> res;
+    vector<pdrh::mode*> res;
     for(pdrh::state st : pdrh::init)
     {
         pdrh::mode *tmp = pdrh::get_mode(st.id);
@@ -321,17 +338,18 @@ std::vector<pdrh::mode*> pdrh::get_init_modes()
         }
         else
         {
-            std::ostringstream s;
-            s << "mode \"" << st.id << "\" is not defined but appears in the init" << std::endl;
-            throw std::invalid_argument(s.str());
+            stringstream s;
+            s << "mode \"" << st.id << "\" is not defined but appears in the init";
+            throw invalid_argument(s.str());
         }
     }
     return res;
 }
 
-std::vector<pdrh::mode*> pdrh::get_goal_modes()
+// getting goal modes
+vector<pdrh::mode*> pdrh::get_goal_modes()
 {
-    std::vector<pdrh::mode*> res;
+    vector<pdrh::mode*> res;
     for(pdrh::state st : pdrh::goal)
     {
         pdrh::mode *tmp = pdrh::get_mode(st.id);
@@ -341,17 +359,18 @@ std::vector<pdrh::mode*> pdrh::get_goal_modes()
         }
         else
         {
-            std::ostringstream s;
-            s << "mode \"" << st.id << "\" is not defined but appears in the goal" << std::endl;
-            throw std::invalid_argument(s.str());
+            stringstream s;
+            s << "mode \"" << st.id << "\" is not defined but appears in the goal";
+            throw invalid_argument(s.str());
         }
     }
     return res;
 }
 
-std::vector<std::string> pdrh::get_keys_diff(std::map<std::string, capd::interval> left, std::map<std::string, capd::interval> right)
+// getting a difference of the key sets of two maps
+vector<string> pdrh::get_keys_diff(map<string, pair<pdrh::node*, pdrh::node*>> left, map<string, pair<pdrh::node*, pdrh::node*>> right)
 {
-    std::vector<std::string> res;
+    vector<string> res;
     for(auto it = left.cbegin(); it != left.cend(); it++)
     {
         if(right.find(it->first) == right.cend())
@@ -362,98 +381,106 @@ std::vector<std::string> pdrh::get_keys_diff(std::map<std::string, capd::interva
     return res;
 }
 
-std::string pdrh::model_to_string()
+// getting string representation of the model
+string pdrh::model_to_string()
 {
-    std::stringstream out;
-    out << "MODEL TYPE: " << pdrh::model_type << std::endl;
-    out << "VARIABLES:" << std::endl;
+    stringstream out;
+    out << "MODEL TYPE: " << pdrh::model_type << endl;
+    out << "VARIABLES:" << endl;
     for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
     {
-        out << "|   " << it->first << " " << it->second << std::endl;
+        out << "|   " << it->first << " " << capd::interval(pdrh::node_to_interval(it->second.first).leftBound(),
+                                                               pdrh::node_to_interval(it->second.first).rightBound()) << endl;
     }
-    out << "CONTINUOUS RANDOM VARIABLES:" << std::endl;
+    out << "CONTINUOUS RANDOM VARIABLES:" << endl;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
-        out << "|   pdf(" << it->first << ") = " << std::get<0>(it->second) << "  | " << std::get<1>(it->second) << " |   " << std::get<2>(it->second) << std::endl;
+        out << "|   pdf(" << it->first << ") = " << pdrh::node_to_string_infix(get<0>(it->second)) << "  | "
+                                                    << pdrh::node_to_interval(get<1>(it->second)) << " |   "
+                                                        << pdrh::node_to_interval(get<2>(it->second)) << "    |   "
+                                                            << pdrh::node_to_interval(get<3>(it->second)) << endl;
     }
-    out << "DISCRETE RANDOM VARIABLES:" << std::endl;
+    out << "DISCRETE RANDOM VARIABLES:" << endl;
     for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)
     {
         out << "|   dd(" << it->first << ") = (";
         for(auto it2 = it->second.cbegin(); it2 != it->second.cend(); it2++)
         {
-            out << it2->first << " : " << it2->second << ", ";
+            out << pdrh::node_to_interval(it2->first) << " : " << pdrh::node_to_interval(it2->second) << ", ";
         }
-        out << ")" << std::endl;
+        out << ")" << endl;
     }
-    out << "TIME DOMAIN:" << std::endl;
-    out << "|   " << pdrh::time << std::endl;
-    out << "MODES:" << std::endl;
+    out << "TIME DOMAIN:" << endl;
+    out << "|   [" << pdrh::node_to_interval(pdrh::time.first) << ", " << pdrh::node_to_interval(pdrh::time.second) << "]" << endl;
+    out << "MODES:" << endl;
     for(pdrh::mode m : pdrh::modes)
     {
-        out << "|   MODE: " << m.id << ";" << std::endl;
-        out << "|   INVARIANTS:" << std::endl;
+        out << "|   MODE: " << m.id << ";" << endl;
+        out << "|   INVARIANTS:" << endl;
         for(pdrh::node* n : m.invts)
         {
-            out << "|   |   " << pdrh::node_to_string_prefix(n) << std::endl;
+            out << "|   |   " << pdrh::node_to_string_prefix(n) << endl;
         }
-        out << "|   FLOW_MAP:" << std::endl;
+        out << "|   FLOW_MAP:" << endl;
         for(auto it = m.flow_map.cbegin(); it != m.flow_map.cend(); it++)
         {
-            out << "|   |   " << it->first << " " << it->second << std::endl;
+            out << "|   " << it->first << " " << capd::interval(pdrh::node_to_interval(it->second.first).leftBound(),
+                                                                  pdrh::node_to_interval(it->second.first).rightBound()) << endl;
         }
-        out << "|   ODES:" << std::endl;
+        out << "|   ODES:" << endl;
         for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++)
         {
-            out << "|   |   d[" << it->first << "]/dt = " << pdrh::node_to_string_prefix(it->second) << std::endl;
+            out << "|   |   d[" << it->first << "]/dt = " << pdrh::node_to_string_prefix(it->second) << endl;
         }
-        out << "|   JUMPS:" << std::endl;
+        out << "|   JUMPS:" << endl;
         for(pdrh::mode::jump j : m.jumps)
         {
-            out << "|   |   GUARD: " << pdrh::node_to_string_prefix(j.guard) << std::endl;
-            out << "|   |   SUCCESSOR: " << j.next_id << std::endl;
-            out << "|   |   RESETS:" << std::endl;
+            out << "|   |   GUARD: " << pdrh::node_to_string_prefix(j.guard) << endl;
+            out << "|   |   SUCCESSOR: " << j.next_id << endl;
+            out << "|   |   RESETS:" << endl;
             for(auto it = j.reset.cbegin(); it != j.reset.cend(); it++)
             {
-                out << "|   |   |   " << it->first << " := " << pdrh::node_to_string_prefix(it->second) << std::endl;
+                out << "|   |   |   " << it->first << " := " << pdrh::node_to_string_prefix(it->second) << endl;
             }
         }
     }
-    out << "INIT:" << std::endl;
+    out << "INIT:" << endl;
     for(pdrh::state s : pdrh::init)
     {
-        out << "|   MODE: " << s.id << std::endl;
-        out << "|   PROPOSITION: " << pdrh::node_to_string_prefix(s.prop) << std::endl;
+        out << "|   MODE: " << s.id << endl;
+        out << "|   PROPOSITION: " << pdrh::node_to_string_prefix(s.prop) << endl;
     }
     if(pdrh::goal.size() > 0)
     {
-        out << "GOAL:" << std::endl;
+        out << "GOAL:" << endl;
         for(pdrh::state s : pdrh::goal)
         {
-            out << "|   MODE: " << s.id << std::endl;
-            out << "|   PROPOSITION: " << pdrh::node_to_string_prefix(s.prop) << std::endl;
+            out << "|   MODE: " << s.id << endl;
+            out << "|   PROPOSITION: " << pdrh::node_to_string_prefix(s.prop) << endl;
         }
     }
     else
     {
-        out << "SYNTHESIZE:" << std::endl;
+        out << "SYNTHESIZE:" << endl;
         for(auto it = pdrh::syn_map.cbegin(); it != pdrh::syn_map.cend(); it++)
         {
-            out << "|   " << it->first << " : " << it->second << std::endl;
+            out << "|   " << it->first << " " << capd::interval(pdrh::node_to_interval(it->second.first).leftBound(),
+                                                                     pdrh::node_to_interval(it->second.first).rightBound()) << endl;
         }
     }
-
     return out.str();
 }
 
-std::string pdrh::print_jump(mode::jump j)
+// getting string representation of the jump
+string pdrh::print_jump(mode::jump j)
 {
-    std::stringstream out;
-    out << j.guard << " ==>  @" << j.next_id << std::endl;
+    stringstream out;
+    out << j.guard << " ==>  @" << j.next_id << endl;
     return out.str();
 }
 
-pdrh::node* pdrh::push_terminal_node(std::string value)
+// creating a terminal node
+pdrh::node* pdrh::push_terminal_node(string value)
 {
     pdrh::node* n;
     n = new pdrh::node;
@@ -461,7 +488,8 @@ pdrh::node* pdrh::push_terminal_node(std::string value)
     return n;
 }
 
-pdrh::node* pdrh::push_operation_node(std::string value, std::vector<pdrh::node*> operands)
+// creating an operation node
+pdrh::node* pdrh::push_operation_node(string value, vector<pdrh::node*> operands)
 {
     pdrh::node* n;
     n = new pdrh::node;
@@ -470,9 +498,10 @@ pdrh::node* pdrh::push_operation_node(std::string value, std::vector<pdrh::node*
     return n;
 }
 
-std::string pdrh::node_to_string_prefix(pdrh::node* n)
+// getting a string representation of the node in prefix notation
+string pdrh::node_to_string_prefix(pdrh::node* n)
 {
-    std::stringstream s;
+    stringstream s;
     // checking whether n is an operation node
     if(n->operands.size() > 0)
     {
@@ -490,9 +519,10 @@ std::string pdrh::node_to_string_prefix(pdrh::node* n)
     return s.str();
 }
 
-std::string pdrh::node_fix_index(pdrh::node* n, int step, std::string index)
+// getting a string representation of the node in prefix notation with the fixed index
+string pdrh::node_fix_index(pdrh::node* n, int step, string index)
 {
-    std::stringstream s;
+    stringstream s;
     // checking whether n is an operation node
     if(n->operands.size() > 0)
     {
@@ -514,10 +544,10 @@ std::string pdrh::node_fix_index(pdrh::node* n, int step, std::string index)
     return s.str();
 }
 
-// NEED TO FIX
-std::string pdrh::node_to_string_infix(pdrh::node* n)
+// getting a string representation of the node in infix notation
+string pdrh::node_to_string_infix(pdrh::node* n)
 {
-    std::stringstream s;
+    stringstream s;
     // checking whether n is an operation node
     if(n->operands.size() > 1)
     {
@@ -540,6 +570,7 @@ std::string pdrh::node_to_string_infix(pdrh::node* n)
     return s.str();
 }
 
+// START HERE
 std::string pdrh::reach_to_smt2(std::vector<pdrh::mode*> path, std::vector<box> boxes)
 {
     std::stringstream s;
@@ -1428,7 +1459,7 @@ std::vector<pdrh::mode*> pdrh::get_psy_path(std::map<std::string, std::vector<ca
 }
 
 // throws exception in case if one of the terminal modes is not a number
-interval pdrh::evaluate_node_value(node *expr)
+interval pdrh::node_to_interval(node *expr)
 {
     if(expr->operands.size() == 0)
     {

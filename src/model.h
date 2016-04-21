@@ -13,7 +13,6 @@
 #include <tuple>
 #include <box.h>
 
-using namespace capd;
 using namespace std;
 
 namespace pdrh
@@ -22,119 +21,115 @@ namespace pdrh
     struct node
     {
         // either a name of operation or a value of the operand (const or identifier)
-        std::string value;
+        string value;
         // vector is empty if the node is terminal and non-empty if the node is operation node
-        std::vector<node*> operands;
+        vector<node*> operands;
     };
-    node* push_terminal_node(std::string);
-    node* push_operation_node(std::string, std::vector<node*>);
-    std::string node_to_string_prefix(node*);
-    std::string node_to_string_infix(node*);
-    // the second argument is a step
-    std::string node_fix_index(node*, int, std::string);
+    node* push_terminal_node(string);
+    node* push_operation_node(string, vector<node*>);
+    string node_to_string_prefix(node*);
+    string node_to_string_infix(node*);
+    capd::interval node_to_interval(node*);
+    string node_fix_index(node*, int, string);
+
     enum type {HA, PHA, NHA, NPHA, PSY};
     extern type model_type;
-
-    extern capd::interval time;
-    extern std::map<std::string, std::tuple<std::string, capd::interval, double>> rv_map;
-    extern std::map<std::string, std::string> rv_type_map;
-    extern std::map<std::string, std::map<capd::interval, capd::interval>> dd_map;
-    extern std::map<std::string, capd::interval> var_map;
-    extern std::map<std::string, capd::interval> par_map;
-    extern std::map<std::string, capd::interval> syn_map;
+    extern pair<node*, node*> time;
+    extern map<string, tuple<node*, node*, node*, node*>> rv_map;
+    extern map<string, string> rv_type_map;
+    extern map<string, map<node*, node*>> dd_map;
+    extern map<string, pair<node*, node*>> var_map;
+    extern map<string, pair<node*, node*>> par_map;
+    extern map<string, pair<node*, node*>> syn_map;
     // mode struct
     struct mode
     {
         int id;
-        std::vector<pdrh::node*> invts;
+        vector<node*> invts;
         // jump struct
         struct jump
         {
-            pdrh::node* guard;
+            node* guard;
             int next_id;
-            std::map<std::string, pdrh::node*> reset;
+            map<string, node*> reset;
         };
-        std::vector<jump> jumps;
-        std::map<std::string, capd::interval> flow_map;
-        std::map<std::string, pdrh::node*> odes;
+        vector<jump> jumps;
+        map<string, pair<node*, node*>> flow_map;
+        map<string, node*> odes;
     };
-    extern std::vector<mode> modes;
+    extern vector<mode> modes;
+
     // state struct
     struct state
     {
         int id;
-        pdrh::node* prop;
+        node* prop;
     };
-    extern std::vector<state> init;
-    extern std::vector<state> goal;
-
-    void push_var(std::string, capd::interval);
-    void push_dd(std::string, std::map<capd::interval, capd::interval>);
-    void push_rv(std::string, std::string, capd::interval, double);
-    void push_rv_type(std::string, std::string);
-
-    void push_mode(pdrh::mode);
-    void push_invt(pdrh::mode&, pdrh::node*);
+    extern vector<state> init;
+    extern vector<state> goal;
+    // methods for updating the model
+    void push_var(string, node*, node*);
+    void push_dd(string, map<node*, node*>);
+    void push_rv(string, node*, node*, node*, node*);
+    void push_rv_type(string, string);
+    void push_mode(mode);
+    void push_invt(mode&, node*);
     // first argument is the address of the mode, second argument is the variable name, third argument is the ode
-    void push_ode(pdrh::mode&, std::string, pdrh::node*);
-    void push_jump(pdrh::mode&, pdrh::mode::jump);
+    void push_ode(mode&, string, node*);
+    void push_jump(mode&, mode::jump);
     // first argument is the address of the jump, second argument is the variable name, third argument is the reset expression
-    void push_reset(pdrh::mode&, pdrh::mode::jump&, std::string, pdrh::node*);
-    void push_init(std::vector<pdrh::state>);
-    void push_goal(std::vector<pdrh::state>);
+    void push_reset(mode&, mode::jump&, string, node*);
+    void push_init(vector<state>);
+    void push_goal(vector<state>);
     void push_psy_goal(int, box);
     void push_psy_c_goal(int, box);
-    void push_syn_pair(std::string, capd::interval);
-    void push_time_bounds(capd::interval);
+    void push_syn_pair(string, node*, node*);
+    void push_time_bounds(node*, node*);
 
     box get_nondet_domain();
     box get_psy_domain();
-    std::vector<pdrh::mode*> get_psy_path(std::map<std::string, std::vector<capd::interval>>);
+    vector<mode*> get_psy_path(map<string, vector<capd::interval>>);
 
-    bool var_exists(std::string);
-    pdrh::mode* get_mode(int);
+    bool var_exists(string);
+    mode* get_mode(int);
 
-    std::vector<pdrh::mode*> get_init_modes();
-    std::vector<pdrh::mode*> get_goal_modes();
-    std::vector<pdrh::mode*> get_successors(pdrh::mode*);
-    std::vector<pdrh::mode*> get_shortest_path(pdrh::mode*, pdrh::mode*);
-    std::vector<std::vector<pdrh::mode*>> get_paths(pdrh::mode*, pdrh::mode*, int);
-    std::vector<std::vector<pdrh::mode*>> get_all_paths(int);
+    vector<mode*> get_init_modes();
+    vector<mode*> get_goal_modes();
+    vector<mode*> get_successors(mode*);
+    vector<mode*> get_shortest_path(mode*, mode*);
+    vector<vector<mode*>> get_paths(mode*, mode*, int);
+    vector<vector<mode*>> get_all_paths(int);
     // returns <first_map_keys> \ <second_map_keys>
-    std::vector<std::string> get_keys_diff(std::map<std::string, capd::interval>, std::map<std::string, capd::interval>);
+    vector<string> get_keys_diff(map<string, pair<node*, node*>>, map<string, pair<node*, node*>>);
 
-    std::vector<std::tuple<int, box>> series_to_boxes(std::map<std::string, std::vector<capd::interval>>);
-
-    // here only one initial mode and one goal mode
-    std::string reach_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
-    std::string reach_c_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
-
-    std::string reach_to_smt2(pdrh::state, pdrh::state, std::vector<pdrh::mode*>, std::vector<box>);
-    std::string reach_c_to_smt2(pdrh::state, pdrh::state, std::vector<pdrh::mode*>, std::vector<box>);
+    vector<tuple<int, box>> series_to_boxes(map<string, vector<capd::interval>>);
 
     // here only one initial mode and one goal mode
-    std::string reach_to_smt2(std::vector<pdrh::mode*>, rv_box*, dd_box*, nd_box*);
-    std::string reach_c_to_smt2(std::vector<pdrh::mode*>, rv_box*, dd_box*, nd_box*);
+    string reach_to_smt2(vector<mode*>, vector<box>);
+    string reach_c_to_smt2(vector<mode*>, vector<box>);
 
-    std::string model_to_string();
-    std::string print_jump(pdrh::mode::jump);
+    string reach_to_smt2(state, state, vector<mode*>, vector<box>);
+    string reach_c_to_smt2(state, state, vector<mode*>, vector<box>);
 
-    interval evaluate_node_value(node*);
+    // here only one initial mode and one goal mode
+    string reach_to_smt2(vector<mode*>, rv_box*, dd_box*, nd_box*);
+    string reach_c_to_smt2(vector<mode*>, rv_box*, dd_box*, nd_box*);
 
-    // defined distributions
+    string model_to_string();
+    string print_jump(mode::jump);
+
     namespace distribution
     {
-        extern std::map<std::string, std::pair<capd::interval, capd::interval>> uniform;
-        extern std::map<std::string, std::pair<capd::interval, capd::interval>> normal;
-        extern std::map<std::string, capd::interval> exp;
-        extern std::map<std::string, std::pair<capd::interval, capd::interval>> gamma;
+        extern map<string, pair<node*, node*>> uniform;
+        extern map<string, pair<node*, node*>> normal;
+        extern map<string, node*> exp;
+        extern map<string, pair<node*, node*>> gamma;
 
-        void push_uniform(std::string, capd::interval, capd::interval);
-        void push_normal(std::string, capd::interval, capd::interval);
-        void push_exp(std::string, capd::interval);
-        void push_gamma(std::string, capd::interval, capd::interval);
+        void push_uniform(string, node*, node*);
+        void push_normal(string, node*, node*);
+        void push_exp(string, node*);
+        void push_gamma(string, node*, node*);
     }
 }
-
 
 #endif //PROBREACH_MODEL_H

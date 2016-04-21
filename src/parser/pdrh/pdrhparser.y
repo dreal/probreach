@@ -89,16 +89,20 @@ model:
 	                                if(strcmp(strdup($3), "ha") == 0)
 	                                {
 	                                    pdrh::model_type = pdrh::HA;
-	                                } else if(strcmp(strdup($3), "pha") == 0)
+	                                }
+	                                else if(strcmp(strdup($3), "pha") == 0)
 	                                {
 	                                    pdrh::model_type = pdrh::PHA;
-	                                } else if(strcmp(strdup($3), "nha") == 0)
+	                                }
+	                                else if(strcmp(strdup($3), "nha") == 0)
                                     {
                                         pdrh::model_type = pdrh::NHA;
-                                    }else if(strcmp(strdup($3), "npha") == 0)
+                                    }
+                                    else if(strcmp(strdup($3), "npha") == 0)
                                     {
                                         pdrh::model_type = pdrh::NPHA;
-                                    }else if(strcmp(strdup($3), "psy") == 0)
+                                    }
+                                    else if(strcmp(strdup($3), "psy") == 0)
                                     {
                                         pdrh::model_type = pdrh::PSY;
                                     }

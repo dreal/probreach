@@ -6,9 +6,13 @@
 #include <map>
 #include <tuple>
 #include <string.h>
+#include <logging/easylogging++.h>
 #include "measure.h"
 #include "pdrh_config.h"
 #include "box_factory.h"
+
+using namespace std;
+using namespace capd;
 
 pdrh::type pdrh::model_type;
 std::map<std::string, std::tuple<std::string, capd::interval, double>> pdrh::rv_map;
@@ -510,6 +514,7 @@ std::string pdrh::node_fix_index(pdrh::node* n, int step, std::string index)
     return s.str();
 }
 
+// NEED TO FIX
 std::string pdrh::node_to_string_infix(pdrh::node* n)
 {
     std::stringstream s;
@@ -1417,6 +1422,102 @@ std::vector<pdrh::mode*> pdrh::get_psy_path(std::map<std::string, std::vector<ca
         }
     }
     return path;
+}
+
+// throws exception in case if one of the terminal modes is not a number
+interval pdrh::evaluate_node_value(node *expr)
+{
+    if(expr->operands.size() == 0)
+    {
+        return interval(expr->value, expr->value);
+    }
+    else if(expr->operands.size() > 2)
+    {
+        CLOG(ERROR, "model") << "The number of operands can't be greater than 2";
+        exit(EXIT_FAILURE);
+    }
+    else
+    {
+        if(strcmp(expr->value.c_str(), "+") == 0)
+        {
+            if(expr->operands.size() == 1)
+            {
+                return evaluate_node_value(expr->operands.front());
+            }
+            else if(expr->operands.size() == 2)
+            {
+                return evaluate_node_value(expr->operands.front()) + evaluate_node_value(expr->operands.back());
+            }
+        }
+        else if(strcmp(expr->value.c_str(), "-") == 0)
+        {
+            if(expr->operands.size() == 1)
+            {
+                return interval(-1.0) * evaluate_node_value(expr->operands.front());
+            }
+            else if(expr->operands.size() == 2)
+            {
+                return evaluate_node_value(expr->operands.front()) - evaluate_node_value(expr->operands.back());
+            }
+        }
+        else if(strcmp(expr->value.c_str(), "*") == 0)
+        {
+            return evaluate_node_value(expr->operands.front()) * evaluate_node_value(expr->operands.back());
+        }
+        else if(strcmp(expr->value.c_str(), "/") == 0)
+        {
+            return evaluate_node_value(expr->operands.front()) / evaluate_node_value(expr->operands.back());
+        }
+        else if(strcmp(expr->value.c_str(), "^") == 0)
+        {
+            return intervals::power(evaluate_node_value(expr->operands.front()), evaluate_node_value(expr->operands.back()));
+        }
+        else if(strcmp(expr->value.c_str(), "sqrt") == 0)
+        {
+            return intervals::sqrt(evaluate_node_value(expr->operands.front()));
+        }
+        else if(strcmp(expr->value.c_str(), "abs") == 0)
+        {
+            return intervals::iabs(evaluate_node_value(expr->operands.front()));
+        }
+        else if(strcmp(expr->value.c_str(), "exp") == 0)
+        {
+            return intervals::exp(evaluate_node_value(expr->operands.front()));
+        }
+        else if(strcmp(expr->value.c_str(), "log") == 0)
+        {
+            return intervals::log(evaluate_node_value(expr->operands.front()));
+        }
+        else if(strcmp(expr->value.c_str(), "sin") == 0)
+        {
+            return intervals::sin(evaluate_node_value(expr->operands.front()));
+        }
+        else if(strcmp(expr->value.c_str(), "cos") == 0)
+        {
+            return intervals::cos(evaluate_node_value(expr->operands.front()));
+        }
+        else if(strcmp(expr->value.c_str(), "tan") == 0)
+        {
+            return intervals::tan(evaluate_node_value(expr->operands.front()));
+        }
+        else if(strcmp(expr->value.c_str(), "asin") == 0)
+        {
+            return intervals::asin(evaluate_node_value(expr->operands.front()));
+        }
+        else if(strcmp(expr->value.c_str(), "acos") == 0)
+        {
+            return intervals::acos(evaluate_node_value(expr->operands.front()));
+        }
+        else if(strcmp(expr->value.c_str(), "atan") == 0)
+        {
+            return intervals::atan(evaluate_node_value(expr->operands.front()));
+        }
+        else
+        {
+            CLOG(ERROR, "model") << "Unknown function \"" << expr->value << "\"";
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
 void pdrh::distribution::push_uniform(std::string var, capd::interval a, capd::interval b)

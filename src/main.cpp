@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
     el::Logger* series_parser_logger = el::Loggers::getLogger("series-parser");
     el::Logger* config_parser_logger = el::Loggers::getLogger("config");
     el::Logger* rng_logger = el::Loggers::getLogger("ran_gen");
+    el::Logger* model_logger = el::Loggers::getLogger("model");
 
     // parse command line
     parse_pdrh_config(argc, argv);
@@ -69,6 +70,13 @@ int main(int argc, char* argv[])
     std::remove(pdrhnameprep.str().c_str());
     CLOG_IF(global_config.verbose, INFO, "parser") << "OK";
     //CLOG_IF(global_config.verbose, INFO, "parser") << pdrh::model_to_string();
+    std::vector<pdrh::node*> operands = {pdrh::push_terminal_node("3")};
+    pdrh::node* plus_node = pdrh::push_operation_node("-", operands);
+    std::cout << pdrh::node_to_string_infix(plus_node) << std::endl;
+    std::cout << pdrh::node_to_string_prefix(plus_node) << std::endl;
+    capd::IFunction fun("var:;fun:" + pdrh::node_to_string_infix(plus_node) + ";");
+    std::cout << fun(0) << std::endl;
+    std::cout << pdrh::evaluate_node_value(plus_node) << std::endl;
 
     switch(pdrh::model_type)
     {

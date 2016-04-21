@@ -13,6 +13,9 @@
 #include <tuple>
 #include <box.h>
 
+using namespace capd;
+using namespace std;
+
 namespace pdrh
 {
     // node of the tree of mathematical expression
@@ -115,6 +118,8 @@ namespace pdrh
 
     std::string model_to_string();
     std::string print_jump(pdrh::mode::jump);
+
+    interval evaluate_node_value(node*);
 
     // defined distributions
     namespace distribution

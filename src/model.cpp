@@ -519,7 +519,7 @@ std::string pdrh::node_to_string_infix(pdrh::node* n)
 {
     std::stringstream s;
     // checking whether n is an operation node
-    if(n->operands.size() > 0)
+    if(n->operands.size() > 1)
     {
         s << "(";
         for(int i = 0; i < n->operands.size() - 1; i++)
@@ -527,8 +527,11 @@ std::string pdrh::node_to_string_infix(pdrh::node* n)
             s << pdrh::node_to_string_infix(n->operands.at(i));
             s << n->value;
         }
-        s << pdrh::node_to_string_infix(n->operands.at(n->operands.size() - 1));
-        s << ")";
+        s << pdrh::node_to_string_infix(n->operands.at(n->operands.size() - 1)) << ")";
+    }
+    else if(n->operands.size() == 1)
+    {
+        s << n->value << "(" << pdrh::node_to_string_infix(n->operands.front()) << ")";
     }
     else
     {

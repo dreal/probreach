@@ -164,6 +164,7 @@ int main(int argc, char* argv[])
         // parameter synthesis
         case pdrh::PSY:
         {
+            /*
             if(global_config.series_filename.empty())
             {
                 CLOG(ERROR, "series-parser") << "Time series file is not specified";
@@ -189,9 +190,9 @@ int main(int argc, char* argv[])
             {
                 std::cout << b << std::endl;
             }
+            */
             break;
         }
     }
-    //dreal::solver dreal_solver;
     return EXIT_SUCCESS;
 }

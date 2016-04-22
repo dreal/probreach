@@ -523,7 +523,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     }
     return res_map;
 }
-
+/*
 std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::evaluate_psy(std::map<std::string, std::vector<capd::interval>> time_series)
 {
     // getting the synthesis domain
@@ -600,7 +600,7 @@ std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::eval
     }
     return std::make_tuple(psy_partition, undet_boxes, unsat_boxes);
 }
-
+*/
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf)
 {
     const gsl_rng_type * T;

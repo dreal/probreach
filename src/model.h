@@ -40,7 +40,7 @@ namespace pdrh
     extern map<string, map<node*, node*>> dd_map;
     extern map<string, pair<node*, node*>> var_map;
     extern map<string, pair<node*, node*>> par_map;
-    extern map<string, pair<node*, node*>> syn_map;
+    extern map<string, node*> syn_map;
     // mode struct
     struct mode
     {
@@ -83,7 +83,7 @@ namespace pdrh
     void push_goal(vector<state>);
     void push_psy_goal(int, box);
     void push_psy_c_goal(int, box);
-    void push_syn_pair(string, node*, node*);
+    void push_syn_pair(string, node*);
     void push_time_bounds(node*, node*);
 
     box get_nondet_domain();
@@ -111,10 +111,6 @@ namespace pdrh
     string reach_to_smt2(state, state, vector<mode*>, vector<box>);
     string reach_c_to_smt2(state, state, vector<mode*>, vector<box>);
 
-    // here only one initial mode and one goal mode
-    string reach_to_smt2(vector<mode*>, rv_box*, dd_box*, nd_box*);
-    string reach_c_to_smt2(vector<mode*>, rv_box*, dd_box*, nd_box*);
-
     string model_to_string();
     string print_jump(mode::jump);
 
@@ -129,6 +125,11 @@ namespace pdrh
         void push_normal(string, node*, node*);
         void push_exp(string, node*);
         void push_gamma(string, node*, node*);
+
+        node* uniform_to_node(node*, node*);
+        node* normal_to_node(string, node*, node*);
+        node* exp_to_node(string, node*);
+        node* gamma_to_node(string, node*, node*);
     }
 }
 

@@ -9,6 +9,8 @@
 #include "model.h"
 #include "pdrh_config.h"
 
+using namespace std;
+
 std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::string var, std::string fun, capd::interval it, double e)
 {
     std::vector<capd::interval> stack,partition;
@@ -95,7 +97,10 @@ std::vector<rv_box> measure::partition(rv_box b, double e)
     {
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, std::get<0>(pdrh::rv_map[it->first]), std::get<1>(pdrh::rv_map[it->first]), measure::precision(e, edges.size()));
+            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])),
+                                                                                              capd::interval(pdrh::node_to_interval(std::get<1>(pdrh::rv_map[it->first])).leftBound(),
+                                                                                                             pdrh::node_to_interval(std::get<2>(pdrh::rv_map[it->first])).rightBound()),
+                                                                                                              measure::precision(e, edges.size()));
             //std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size()));
             m.insert(make_pair(it->first, itg.second));
         }
@@ -119,7 +124,7 @@ capd::interval measure::p_measure(rv_box b, double e)
     {
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            res *= measure::integral(it->first, std::get<0>(pdrh::rv_map[it->first]), it->second, measure::precision(e, edges.size())).first;
+            res *= measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])), it->second, measure::precision(e, edges.size())).first;
             //res *= measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size())).first;
         }
         else
@@ -140,7 +145,7 @@ capd::interval measure::p_measure(box b, double e)
     {
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            res *= measure::integral(it->first, std::get<0>(pdrh::rv_map[it->first]), it->second, measure::precision(e, edges.size())).first;
+            res *= measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])), it->second, measure::precision(e, edges.size())).first;
             //res *= measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size())).first;
         }
         else if(pdrh::dd_map.find(it->first) != pdrh::dd_map.cend())

@@ -139,7 +139,7 @@ capd::interval measure::p_measure(rv_box b, double e)
 
 capd::interval measure::p_measure(box b, double e)
 {
-    std::map<std::string, capd::interval> edges = b.get_map();
+    map<std::string, capd::interval> edges = b.get_map();
     capd::interval res(1.0);
     for(auto it = edges.cbegin(); it != edges.cend(); it++)
     {
@@ -150,11 +150,18 @@ capd::interval measure::p_measure(box b, double e)
         }
         else if(pdrh::dd_map.find(it->first) != pdrh::dd_map.cend())
         {
-            if(pdrh::dd_map.at(it->first).find(it->second) != pdrh::dd_map.at(it->first).cend())
+            bool measure_exists = false;
+            map<pdrh::node*, pdrh::node*> tmp_map = pdrh::dd_map[it->first];
+            for(auto it2 = tmp_map.cbegin(); it2 != tmp_map.cend(); it2++)
             {
-                res *= pdrh::dd_map.at(it->first).at(it->second);
+                if(it->second == pdrh::node_to_interval(it2->first))
+                {
+                    res *= pdrh::node_to_interval(it2->second);
+                    measure_exists = true;
+                    break;
+                }
             }
-            else
+            if(!measure_exists)
             {
                 std::stringstream s;
                 s << "Measure for " << it->first << " = " << it->second << " is undefined";
@@ -184,7 +191,10 @@ std::vector<box> measure::partition(box b, double e)
     {
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, std::get<0>(pdrh::rv_map[it->first]), std::get<1>(pdrh::rv_map[it->first]), measure::precision(e, edges.size()));
+            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])),
+                                                                                              capd::interval(pdrh::node_to_interval(std::get<1>(pdrh::rv_map[it->first])).leftBound(),
+                                                                                                             pdrh::node_to_interval(std::get<2>(pdrh::rv_map[it->first])).rightBound()),
+                                                                                                                 measure::precision(e, edges.size()));
             m.insert(make_pair(it->first, itg.second));
         }
         else
@@ -210,11 +220,18 @@ capd::interval measure::p_measure(dd_box b)
     {
         if(pdrh::dd_map.find(it->first) != pdrh::dd_map.cend())
         {
-            if(pdrh::dd_map.at(it->first).find(it->second) != pdrh::dd_map.at(it->first).cend())
+            bool measure_exists = false;
+            map<pdrh::node*, pdrh::node*> tmp_map = pdrh::dd_map[it->first];
+            for(auto it2 = tmp_map.cbegin(); it2 != tmp_map.cend(); it2++)
             {
-                res *= pdrh::dd_map.at(it->first).at(it->second);
+                if(it->second == pdrh::node_to_interval(it2->first))
+                {
+                    res *= pdrh::node_to_interval(it2->second);
+                    measure_exists = true;
+                    break;
+                }
             }
-            else
+            if(!measure_exists)
             {
                 std::stringstream s;
                 s << "Measure for " << it->first << " = " << it->second << " is undefined";
@@ -327,11 +344,14 @@ std::vector<box> measure::get_rv_partition()
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
         std::pair<capd::interval, std::vector<capd::interval>> bound = measure::bounds::pdf(it->first,
-                                                                        std::get<0>(it->second), std::get<1>(it->second), std::get<2>(it->second),
-                                                                                 measure::precision(global_config.precision_prob, pdrh::rv_map.size()));
-
-        std::tuple<std::string, capd::interval, double> new_tuple = std::make_tuple(std::get<0>(it->second), bound.first, std::get<2>(it->second));
-        pdrh::rv_map[it->first] = new_tuple;
+                                                                           pdrh::node_to_string_infix(std::get<0>(it->second)),
+                                                                                capd::interval(pdrh::node_to_interval(std::get<1>(it->second)).leftBound(),
+                                                                                               pdrh::node_to_interval(std::get<2>(it->second)).rightBound()),
+                                                                                    pdrh::node_to_interval(std::get<3>(it->second)).mid().leftBound(),
+                                                                                         measure::precision(global_config.precision_prob, pdrh::rv_map.size()));
+        // DOUBLE CHECK IF I NEED THOSE
+        //std::tuple<std::string, capd::interval, double> new_tuple = std::make_tuple(std::get<0>(it->second), bound.first, std::get<2>(it->second));
+        //pdrh::rv_map[it->first] = new_tuple;
         // updating partition map
         partition_map.insert(std::make_pair(it->first, bound.second));
     }
@@ -346,7 +366,7 @@ std::vector<box> measure::get_dd_partition()
         std::vector<capd::interval> args;
         for(auto it2 = it->second.cbegin(); it2 != it->second.cend(); it2++)
         {
-            args.push_back(it2->first);
+            args.push_back(pdrh::node_to_interval(it2->first));
         }
         m.insert(make_pair(it->first, args));
     }
@@ -359,7 +379,7 @@ box measure::bounds::get_rv_domain()
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
         std::vector<capd::interval> tmp;
-        tmp.push_back(std::get<1>(it->second));
+        tmp.push_back(pdrh::node_to_interval(std::get<1>(it->second)));
         domain_map.insert(std::make_pair(it->first, tmp));
     }
     std::vector<box> domain = box_factory::cartesian_product(domain_map);

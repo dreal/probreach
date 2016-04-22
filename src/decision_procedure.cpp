@@ -275,6 +275,7 @@ int decision_procedure::evaluate_delta_sat(pdrh::state init, pdrh::state goal, s
     }
 }
 
+/*
 int decision_procedure::synthesize(pdrh::state init, std::vector<pdrh::mode *> path, box psy_box, int mode_id, box goal_box)
 {
     // default value for the thread number
@@ -377,3 +378,4 @@ int decision_procedure::synthesize(pdrh::state init, std::vector<pdrh::mode *> p
         }
     }
 }
+*/

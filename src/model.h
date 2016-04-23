@@ -27,6 +27,10 @@ namespace pdrh
     };
     node* push_terminal_node(string);
     node* push_operation_node(string, vector<node*>);
+
+    node* push_terminal_node(double);
+    node* push_operation_node(double, vector<node*>);
+
     string node_to_string_prefix(node*);
     string node_to_string_infix(node*);
     capd::interval node_to_interval(node*);

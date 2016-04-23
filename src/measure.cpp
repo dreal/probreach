@@ -299,6 +299,7 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::bounds::pdf(std:
             res = capd::interval(res.leftBound(), domain.rightBound());
         }
         // calculating integral
+        //cout << "BEFORE INTEGRAL" << endl;
         std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(var, pdf, res, e);
         // checking if the value of the integral satisfies the condition
         if(1 - itg.first.leftBound() < e * global_config.integral_inf_coeff)
@@ -343,17 +344,28 @@ std::vector<box> measure::get_rv_partition()
     std::map<std::string, std::vector<capd::interval>> partition_map;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
+        // setting initial rv bounds
+        capd::interval init_domain(-numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
+        if(strcmp(get<1>(it->second)->value.c_str(), "-infty") != 0)
+        {
+            init_domain.setLeftBound(pdrh::node_to_interval(std::get<1>(it->second)).leftBound());
+        }
+        if(strcmp(get<2>(it->second)->value.c_str(), "infty") != 0)
+        {
+            init_domain.setRightBound(pdrh::node_to_interval(std::get<2>(it->second)).rightBound());
+        }
+        // getting rv bounds
         std::pair<capd::interval, std::vector<capd::interval>> bound = measure::bounds::pdf(it->first,
-                                                                           pdrh::node_to_string_infix(std::get<0>(it->second)),
-                                                                                capd::interval(pdrh::node_to_interval(std::get<1>(it->second)).leftBound(),
-                                                                                               pdrh::node_to_interval(std::get<2>(it->second)).rightBound()),
-                                                                                    pdrh::node_to_interval(std::get<3>(it->second)).mid().leftBound(),
+                                                                           pdrh::node_to_string_infix(get<0>(it->second)), init_domain,
+                                                                                    pdrh::node_to_interval(get<3>(it->second)).mid().leftBound(),
                                                                                          measure::precision(global_config.precision_prob, pdrh::rv_map.size()));
-        // DOUBLE CHECK IF I NEED THOSE
-        //std::tuple<std::string, capd::interval, double> new_tuple = std::make_tuple(std::get<0>(it->second), bound.first, std::get<2>(it->second));
-        //pdrh::rv_map[it->first] = new_tuple;
+        // updating rv bounds
+        pdrh::rv_map[it->first] = make_tuple(std::get<0>(it->second), pdrh::push_terminal_node(bound.first.leftBound()),
+                                                         pdrh::push_terminal_node(bound.first.rightBound()), get<3>(it->second));
+        // updating var bounds
+        pdrh::var_map[it->first] = make_pair(pdrh::push_terminal_node(bound.first.leftBound()), pdrh::push_terminal_node(bound.first.rightBound()));
         // updating partition map
-        partition_map.insert(std::make_pair(it->first, bound.second));
+        partition_map.insert(make_pair(it->first, bound.second));
     }
     return box_factory::cartesian_product(partition_map);
 }
@@ -375,11 +387,12 @@ std::vector<box> measure::get_dd_partition()
 
 box measure::bounds::get_rv_domain()
 {
-    std::map<std::string, std::vector<capd::interval>> domain_map;
+    map<std::string, vector<capd::interval>> domain_map;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
-        std::vector<capd::interval> tmp;
-        tmp.push_back(pdrh::node_to_interval(std::get<1>(it->second)));
+        vector<capd::interval> tmp;
+        tmp.push_back(capd::interval(pdrh::node_to_interval(get<1>(it->second)).leftBound(),
+                                        pdrh::node_to_interval(get<2>(it->second)).rightBound()));
         domain_map.insert(std::make_pair(it->first, tmp));
     }
     std::vector<box> domain = box_factory::cartesian_product(domain_map);

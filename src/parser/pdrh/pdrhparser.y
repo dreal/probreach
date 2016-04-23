@@ -29,7 +29,6 @@ void yyerror(const char *s);
 	char*                       sval;
     pdrh::node*                 nval;
     std::vector<pdrh::node*>*   nval_list;
-    capd::interval*             interval;
 }
 
 // terminals
@@ -351,7 +350,7 @@ dd_pairs:
 dd_pair:
     arthm_expr ':' arthm_expr   {
                                     cur_dd.insert(std::make_pair($1, $3));
-                                    delete($1); delete($3);
+                                    //delete($1); delete($3);
                                 }
 
 modes:
@@ -536,7 +535,7 @@ expr:
                                     else
                                     {
                                         std::stringstream s;
-                                        s << "undefined variable \"" << $1 << "\"";
+                                        s << "undefined variable F\"" << $1 << "\"";
                                         yyerror(s.str().c_str());
                                     }
                                 }
@@ -740,7 +739,7 @@ reset_props:
 	| reset_prop { ; }
 
 reset_prop:
-    reset_var EQ expr { pdrh::push_reset(*cur_mode, *cur_jump, strdup($1), $3); }
+    reset_var EQ expr { pdrh::push_reset(*cur_mode, *cur_jump, $1, $3); }
     | TRUE { ; }
     | FALSE { ; }
     | '(' reset_prop ')' { ; }

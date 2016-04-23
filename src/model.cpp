@@ -28,7 +28,17 @@ map<string, pair<pdrh::node*, pdrh::node*>> pdrh::distribution::gamma;
 // adding a variable
 void pdrh::push_var(string var, pdrh::node* left, pdrh::node* right)
 {
-    capd::interval domain(pdrh::node_to_interval(left).leftBound(), pdrh::node_to_interval(right).rightBound());
+    // setting initial domain to (-infty, infty)
+    capd::interval domain(-numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
+    if(strcmp(left->value.c_str(), "-infty") != 0)
+    {
+        domain.setLeftBound(pdrh::node_to_interval(left).leftBound());
+    }
+    if(strcmp(right->value.c_str(), "infty") != 0)
+    {
+        domain.setRightBound(pdrh::node_to_interval(right).rightBound());
+    }
+    // checking the width of the domain
     if(capd::intervals::width(domain) < 0)
     {
         stringstream s;
@@ -389,16 +399,16 @@ string pdrh::model_to_string()
     out << "VARIABLES:" << endl;
     for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
     {
-        out << "|   " << it->first << " " << capd::interval(pdrh::node_to_interval(it->second.first).leftBound(),
-                                                               pdrh::node_to_interval(it->second.first).rightBound()) << endl;
+        out << "|   " << it->first << " [" << pdrh::node_to_string_prefix(it->second.first) << ", " <<
+                                                    pdrh::node_to_string_prefix(it->second.second) << "]" << endl;
     }
     out << "CONTINUOUS RANDOM VARIABLES:" << endl;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
         out << "|   pdf(" << it->first << ") = " << pdrh::node_to_string_infix(get<0>(it->second)) << "  | "
-                                                    << pdrh::node_to_interval(get<1>(it->second)) << " |   "
-                                                        << pdrh::node_to_interval(get<2>(it->second)) << "    |   "
-                                                            << pdrh::node_to_interval(get<3>(it->second)) << endl;
+                                                    << pdrh::node_to_string_prefix(get<1>(it->second)) << " |   "
+                                                        << pdrh::node_to_string_prefix(get<2>(it->second)) << "    |   "
+                                                            << pdrh::node_to_string_prefix(get<3>(it->second)) << endl;
     }
     out << "DISCRETE RANDOM VARIABLES:" << endl;
     for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)
@@ -406,12 +416,13 @@ string pdrh::model_to_string()
         out << "|   dd(" << it->first << ") = (";
         for(auto it2 = it->second.cbegin(); it2 != it->second.cend(); it2++)
         {
-            out << pdrh::node_to_interval(it2->first) << " : " << pdrh::node_to_interval(it2->second) << ", ";
+            cout << pdrh::node_to_string_prefix(it2->first) << " : " << pdrh::node_to_string_prefix(it2->second) << endl;
+            out << pdrh::node_to_string_prefix(it2->first) << " : " << pdrh::node_to_string_prefix(it2->second) << ", ";
         }
         out << ")" << endl;
     }
     out << "TIME DOMAIN:" << endl;
-    out << "|   [" << pdrh::node_to_interval(pdrh::time.first) << ", " << pdrh::node_to_interval(pdrh::time.second) << "]" << endl;
+    out << "|   [" << pdrh::node_to_string_prefix(pdrh::time.first) << ", " << pdrh::node_to_string_prefix(pdrh::time.second) << "]" << endl;
     out << "MODES:" << endl;
     for(pdrh::mode m : pdrh::modes)
     {
@@ -424,8 +435,8 @@ string pdrh::model_to_string()
         out << "|   FLOW_MAP:" << endl;
         for(auto it = m.flow_map.cbegin(); it != m.flow_map.cend(); it++)
         {
-            out << "|   " << it->first << " " << capd::interval(pdrh::node_to_interval(it->second.first).leftBound(),
-                                                                  pdrh::node_to_interval(it->second.first).rightBound()) << endl;
+            out << "|   " << it->first << " " << " [" << pdrh::node_to_string_prefix(it->second.first) << ", " <<
+                                                            pdrh::node_to_string_prefix(it->second.second) << "]" << endl;
         }
         out << "|   ODES:" << endl;
         for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++)
@@ -464,7 +475,7 @@ string pdrh::model_to_string()
         out << "SYNTHESIZE:" << endl;
         for(auto it = pdrh::syn_map.cbegin(); it != pdrh::syn_map.cend(); it++)
         {
-            out << "|   " << it->first << " " << capd::interval(pdrh::node_to_interval(it->second)) << endl;
+            out << "|   " << it->first << " " << pdrh::node_to_string_prefix(it->second) << endl;
         }
     }
     return out.str();
@@ -493,6 +504,31 @@ pdrh::node* pdrh::push_operation_node(string value, vector<pdrh::node*> operands
     pdrh::node* n;
     n = new pdrh::node;
     n->value = value;
+    n->operands = operands;
+    return n;
+}
+
+// creating a terminal node
+pdrh::node* pdrh::push_terminal_node(double value)
+{
+    stringstream s;
+    s << value;
+
+    pdrh::node* n;
+    n = new pdrh::node;
+    n->value = s.str();
+    return n;
+}
+
+// creating an operation node
+pdrh::node* pdrh::push_operation_node(double value, vector<pdrh::node*> operands)
+{
+    stringstream s;
+    s << value;
+
+    pdrh::node* n;
+    n = new pdrh::node;
+    n->value = s.str();
     n->operands = operands;
     return n;
 }

@@ -69,6 +69,7 @@ int main(int argc, char* argv[])
     while (!feof(yyin));
     std::remove(pdrhnameprep.str().c_str());
     CLOG_IF(global_config.verbose, INFO, "parser") << "OK";
+    //cout << pdrh::model_to_string() << endl;
     //CLOG_IF(global_config.verbose, INFO, "parser") << pdrh::model_to_string();
     /*
     std::vector<pdrh::node*> operands1 = {pdrh::push_terminal_node("3"), pdrh::push_terminal_node("1")};

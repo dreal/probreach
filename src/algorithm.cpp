@@ -1028,11 +1028,11 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         }
     }
     gsl_rng_free(r);
-    std::cout << "P(SAT) = " << post_mean_sat << std::endl;
-    std::cout << "P(UNSAT) = " << post_mean_unsat << std::endl;
-    std::cout << "sat " << sat << std::endl;
-    std::cout << "unsat " << unsat << std::endl;
-    std::cout << "sample size = " << sample_size << std::endl;
+    //std::cout << "P(SAT) = " << post_mean_sat << std::endl;
+    //std::cout << "P(UNSAT) = " << post_mean_unsat << std::endl;
+    //std::cout << "sat " << sat << std::endl;
+    //std::cout << "unsat " << unsat << std::endl;
+    //std::cout << "sample size = " << sample_size << std::endl;
     if(global_config.delta_sat)
     {
         return capd::interval(post_mean_sat - acc, post_mean_sat + acc);

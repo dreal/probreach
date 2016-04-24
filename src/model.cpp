@@ -605,7 +605,7 @@ string pdrh::node_to_string_infix(pdrh::node* n)
     return s.str();
 }
 
-// getting a string representation of reachability formula in smt2 format
+// getting a string representation of reachability formula in smt2 format for all combinations of initial and goal modes
 string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
 {
     stringstream s;
@@ -657,10 +657,7 @@ string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     s << "(or ";
     for(pdrh::state st : pdrh::init)
     {
-        if(path.front()->id == st.id)
-        {
-            s << pdrh::node_fix_index(st.prop, 0, "0");
-        }
+        s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")";
     }
     s << ")" << endl;
     // defining boxes bounds
@@ -714,10 +711,7 @@ string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     s << "(or ";
     for(pdrh::state st : pdrh::goal)
     {
-        if(path.back()->id == st.id)
-        {
-            s << pdrh::node_fix_index(st.prop, path.size() - 1, "t");
-        }
+        s << "(" << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << ")";
     }
     s << ")))" << endl;
     // final statements
@@ -777,10 +771,7 @@ string pdrh::reach_c_to_smt2(vector<mode*> path, vector<box> boxes)
     s << "(or ";
     for(pdrh::state st : pdrh::init)
     {
-        if(path.front()->id == st.id)
-        {
-            s << pdrh::node_fix_index(st.prop, 0, "0");
-        }
+        s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")";
     }
     s << ")" << endl;
     // defining boxes bounds
@@ -838,10 +829,7 @@ string pdrh::reach_c_to_smt2(vector<mode*> path, vector<box> boxes)
     s << "(and ";
     for(pdrh::state st : pdrh::goal)
     {
-        if(path.back()->id == st.id)
-        {
-            s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << "))";
-        }
+        s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << "))";
     }
     s << ")))" << endl;
     // final statements
@@ -850,6 +838,7 @@ string pdrh::reach_c_to_smt2(vector<mode*> path, vector<box> boxes)
     return s.str();
 }
 
+// getting a string representation of reachability formula in smt2 format
 string pdrh::reach_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mode *> path, vector<box> boxes)
 {
     stringstream s;
@@ -1081,7 +1070,8 @@ box pdrh::get_psy_domain()
     map<std::string, capd::interval> m;
     for(auto it = pdrh::syn_map.cbegin(); it != pdrh::syn_map.cend(); it++)
     {
-        m.insert(make_pair(it->first, pdrh::node_to_interval(it->second)));
+        m.insert(make_pair(it->first, capd::interval(pdrh::node_to_interval(pdrh::var_map[it->first].first).leftBound(),
+                                                         pdrh::node_to_interval(pdrh::var_map[it->first].second).rightBound())));
     }
     return box(m);
 }

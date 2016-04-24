@@ -8,26 +8,28 @@
 #include <pdrh_config.h>
 #include "csvparser.h"
 
-std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string filename)
+using namespace std;
+
+map<string, vector<pair<pdrh::node*, pdrh::node*>>> csvparser::parse(string filename)
 {
-    std::ifstream file;
-    std::map<std::string, std::vector<capd::interval> > result;
-    std::map<std::string, std::vector<double> > noise_vector;
+    ifstream file;
+    map<string, vector<pair<pdrh::node*, pdrh::node*>>> result;
+    map<string, vector<pdrh::node*>> noise_vector;
     file.open(filename.c_str());
     if(file.is_open())
     {
         CLOG_IF(global_config.verbose, INFO, "series-parser") << "Time series file: " << filename;
-        std::string line;
+        string line;
         getline(file, line);
 
         //stripping the string
         line.erase(remove(line.begin(), line.end(), ' '), line.end());
 
         // fetching column names
-        std::vector<std::string> cols, vars;
-        std::string delimiter = ",";
+        vector<string> cols, vars;
+        string delimiter = ",";
         size_t pos = 0;
-        while ((pos = line.find(delimiter)) != std::string::npos)
+        while ((pos = line.find(delimiter)) != string::npos)
         {
             cols.push_back(line.substr(0, pos));
             line.erase(0, pos + delimiter.length());
@@ -38,29 +40,28 @@ std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string 
         for(int i = 0; i < cols.size(); i++)
         {
             // var name
-            std::string col = cols.at(i);
+            string col = cols.at(i);
             // default noise value
-            double noise = 0.1;
+            pdrh::node* noise = pdrh::push_terminal_node(0.1);
             // default variable name
-            std::string var_name = col;
+            string var_name = col;
             // checking if noise value is specified
             unsigned long col_pos = col.find_last_of(":");
-            if(col_pos != std::string::npos)
+            if(col_pos != string::npos)
             {
                 var_name = col.substr(0, col_pos);
-                std::istringstream is(col.substr(col_pos + 1, col.length() - 1));
-                is >> noise;
-                if(noise <= 0)
+                noise = pdrh::push_terminal_node(col.substr(col_pos + 1, col.length() - 1));
+                if(pdrh::node_to_interval(noise).leftBound() <= 0)
                 {
                     CLOG(ERROR, "series-parser") << "Noise value for " << var_name << " should be positive";
                     exit(EXIT_FAILURE);
                 }
             }
             if((strcmp(var_name.c_str(), "Mode") == 0) ||
-               (strcmp(var_name.c_str(), "Step") == 0) ||
-               (strcmp(var_name.c_str(), "Time") == 0))
+                    (strcmp(var_name.c_str(), "Step") == 0) ||
+                        (strcmp(var_name.c_str(), "Time") == 0))
             {
-                noise = 0;
+                noise = pdrh::push_terminal_node(0);
             }
             noise_vector[var_name].push_back(noise);
             vars.push_back(var_name);
@@ -71,38 +72,38 @@ std::map<std::string, std::vector<capd::interval>> csvparser::parse(std::string 
             for(int i = 0; i < vars.size() - 1; i++)
             {
                 pos = line.find(delimiter);
-                std::istringstream is(line.substr(0, pos));
-                double value = std::numeric_limits<double>::quiet_NaN();
-                if(!is.str().empty())
-                {
-                    is >> value;
-                }
-                capd::interval interval(value);
+                pdrh::node* value_node = pdrh::push_terminal_node(line.substr(0, pos));
+                pair<pdrh::node*, pdrh::node*> interval_node;
                 if((strcmp(vars.at(i).c_str(), "Time") != 0) &&
-                   (strcmp(vars.at(i).c_str(), "Mode") != 0) &&
-                   (strcmp(vars.at(i).c_str(), "Step") != 0))
+                          (strcmp(vars.at(i).c_str(), "Mode") != 0) &&
+                               (strcmp(vars.at(i).c_str(), "Step") != 0) && (!value_node->value.empty()))
                 {
-                    interval = capd::interval(value - noise_vector[vars.at(i)].at(0), value + noise_vector[vars.at(i)].at(0));
+                    interval_node = make_pair(pdrh::push_operation_node("-", vector<pdrh::node*>{value_node, noise_vector[vars.at(i)].at(0)}),
+                                                  pdrh::push_operation_node("+", vector<pdrh::node*>{value_node, noise_vector[vars.at(i)].at(0)}));
                 }
-                result[vars.at(i)].push_back(interval);
+                else
+                {
+                    interval_node = make_pair(value_node, value_node);
+                }
+                result[vars.at(i)].push_back(interval_node);
 
                 line.erase(0, pos + delimiter.length());
             }
             // last value in data
-            std::istringstream is(line.substr(0, line.length() - 1));
-            double value = std::numeric_limits<double>::quiet_NaN();
-            if(!is.str().empty())
-            {
-                is >> value;
-            }
-            capd::interval interval(value);
+            pdrh::node* value_node = pdrh::push_terminal_node(line.substr(0, pos));
+            pair<pdrh::node*, pdrh::node*> interval_node;
             if((strcmp(vars.at(vars.size() - 1).c_str(), "Time") != 0) &&
-               (strcmp(vars.at(vars.size() - 1).c_str(), "Mode") != 0) &&
-               (strcmp(vars.at(vars.size() - 1).c_str(), "Step") != 0))
+                  (strcmp(vars.at(vars.size() - 1).c_str(), "Mode") != 0) &&
+                       (strcmp(vars.at(vars.size() - 1).c_str(), "Step") != 0) && (!value_node->value.empty()))
             {
-                interval = capd::interval(value - noise_vector[vars.at(vars.size() - 1)].at(0), value + noise_vector[vars.at(vars.size() - 1)].at(0));
+                interval_node = make_pair(pdrh::push_operation_node("-", vector<pdrh::node*>{value_node, noise_vector[vars.at(vars.size() - 1)].at(0)}),
+                                              pdrh::push_operation_node("+", vector<pdrh::node*>{value_node, noise_vector[vars.at(vars.size() - 1)].at(0)}));
             }
-            result[vars.at(vars.size() - 1)].push_back(interval);
+            else
+            {
+                interval_node = make_pair(value_node, value_node);
+            }
+            result[vars.at(vars.size() - 1)].push_back(interval_node);
         }
     }
     else

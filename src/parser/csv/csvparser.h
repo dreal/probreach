@@ -7,16 +7,13 @@
 
 #include <capd/intervals/lib.h>
 #include <map>
+#include "model.h"
+
+using namespace std;
 
 namespace csvparser
 {
-    std::map<std::string, std::vector<capd::interval>> parse(std::string);
-
-    /*
-    void display(std::map<string, vector<double> >, string);
-
-    void display(std::map<string, vector<DInterval> >, string);
-    */
+    map<string, vector<pair<pdrh::node*, pdrh::node*>>> parse(string);
 }
 
 #endif //PROBREACH_CSVPARSER_H

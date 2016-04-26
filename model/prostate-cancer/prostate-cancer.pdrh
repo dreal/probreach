@@ -1,4 +1,4 @@
-MODEL_TYPE(PHA)
+model: pha;
 #define	alphax	0.0197
 #define	betax	0.0175
 #define	betay	0.0168
@@ -23,7 +23,8 @@ MODEL_TYPE(PHA)
 #define scale	1.0
 #define T	100.0
 
-N(0.05,0.01)alphay;
+//N(0.05,0.01)alphay;
+dist_normal(0.05, 0.01) alphay;
 
 [0,T]time;
 [0,T]tau;
@@ -33,7 +34,7 @@ N(0.05,0.01)alphay;
 [0.0,100.0]z;
 //[0.0197,0.0204]alphax;
 {
-mode1;
+mode 1;
 invt:
 (y <= 1);
 flow:
@@ -42,11 +43,11 @@ d/dt[y]=scale * (Mxy * x + Gy * y);
 d/dt[z]=scale * (-z * gamma + c3);
 d/dt[tau]=scale * 1.0;
 jump:
-((x+y)=r0)==>@2(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+((x+y)<=r0)==>@2(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 {
-mode2;
+mode 2;
 invt:
 (y <= 1);
 flow:
@@ -55,14 +56,11 @@ d/dt[y]=scale * (Mxy * x + Gy * y);
 d/dt[z]=scale * ((z0 - z) * gamma + c3);
 d/dt[tau]=scale * 1.0;
 jump:
-((x+y)=r1)==>@1(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+((x+y)>=r1)==>@1(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 init:
 @1(and (x = 19) (y = 0.1) (z = 12.5) (tau = 0));
 
 goal:
-@2(and(tau = T)(y <= 1));
-
-goal_c:
-@2(and(y > 1.0)(tau <= T));
+@2(and(y >= 1));

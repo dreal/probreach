@@ -35,11 +35,11 @@ decision_procedure::result algorithm::evaluate_ha(int depth)
                 // checking here if the delta-sat flag is enabled
                 if(global_config.delta_sat)
                 {
-                    res = decision_procedure::evaluate_delta_sat(i, g, path, boxes);
+                    res = decision_procedure::evaluate_delta_sat(path, boxes);
                 }
                 else
                 {
-                    res = decision_procedure::evaluate(i, g, path, boxes);
+                    res = decision_procedure::evaluate(path, boxes);
                 }
                 // checking the returned value
                 if(res == decision_procedure::SAT)
@@ -653,7 +653,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
             int res;
             if(global_config.delta_sat)
             {
-                res = decision_procedure::evaluate_delta_sat(pdrh::init.front(), pdrh::goal.front(), path, boxes);
+                res = decision_procedure::evaluate_delta_sat(path, boxes);
             }
             else
             {
@@ -756,7 +756,7 @@ capd::interval algorithm::evaluate_pha_chernoff_delta_sat(int min_depth, int max
             }
             // removing trailing whitespace
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
-            int res = decision_procedure::evaluate_delta_sat(pdrh::init.front(), pdrh::goal.front(), path, boxes);
+            int res = decision_procedure::evaluate_delta_sat(path, boxes);
             #pragma omp critical
             {
                 if (res == decision_procedure::SAT)
@@ -853,7 +853,7 @@ capd::interval algorithm::evaluate_pha_bayesian_delta_sat(int min_depth, int max
             }
             // removing trailing whitespace
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
-            int res = decision_procedure::evaluate_delta_sat(pdrh::init.front(), pdrh::goal.front(), path, boxes);
+            int res = decision_procedure::evaluate_delta_sat(path, boxes);
             #pragma omp critical
             {
                 if (res == decision_procedure::SAT)
@@ -957,7 +957,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
             int res;
             if(global_config.delta_sat)
             {
-                res = decision_procedure::evaluate_delta_sat(pdrh::init.front(), pdrh::goal.front(), path, boxes);
+                res = decision_procedure::evaluate_delta_sat(path, boxes);
             }
             else
             {

@@ -111,6 +111,7 @@ namespace pdrh
     // here only one initial mode and one goal mode
     string reach_to_smt2(vector<mode*>, vector<box>);
     string reach_c_to_smt2(vector<mode*>, vector<box>);
+    string reach_c_to_smt2(int, vector<mode*>, vector<box>);
 
     string reach_to_smt2(state, state, vector<mode*>, vector<box>);
     string reach_c_to_smt2(state, state, vector<mode*>, vector<box>);

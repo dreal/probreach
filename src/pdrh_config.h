@@ -6,14 +6,16 @@
 #define PROBREACH_PDRH_CONTEXT_H
 #include "pugixml.hpp"
 
+using namespace std;
+
 struct pdrh_config
 {
     // verified integration options
     double integral_inf_coeff = 1e-01;
     double integral_pdf_step = 1e-01;
     // solver options
-    std::string solver_bin = "dReal";
-    std::string solver_opt = "";
+    string solver_bin = "dReal";
+    string solver_opt = "";
     // algorithm options
     double precision_prob = 1e-03;
     double precision_prob_single = 1e-03;
@@ -29,8 +31,8 @@ struct pdrh_config
     bool boxes_prepartition = false;
     bool boxes_merge = false;
     // model options
-    std::string model_filename;
-    std::string series_filename;
+    string model_filename;
+    string series_filename;
     // output options
     bool verbose = false;
     bool xml_output = false;
@@ -47,6 +49,7 @@ struct pdrh_config
     double bayesian_conf = 0.99;
     bool bayesian_flag = false;
     bool delta_sat = false;
+    string time_var = "tau";
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

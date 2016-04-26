@@ -52,61 +52,62 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
     }
     else
     {
-        // the complement formula
-        f_stream.str("");
-        f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".c.smt2";
-        std::string smt_c_filename = f_stream.str();
-        // writing to the file
-        std::ofstream smt_c_file;
-        smt_c_file.open(smt_c_filename.c_str());
-        smt_c_file << pdrh::reach_c_to_smt2(path, boxes);
-        //std::cout << pdrh::reach_c_to_smt2(path, boxes) << std::endl;
-        //exit(EXIT_SUCCESS);
-        smt_c_file.close();
-        //char dummy;
-        //std::cin >> dummy;
-        // calling dreal here
-        int second_res = dreal::execute(global_config.solver_bin, smt_c_filename, global_config.solver_opt);
-
-        if(second_res == -1)
+        // going through the formulas psi_i_pi
+        for(int i = 0; i < path.size(); i++)
         {
-            return decision_procedure::ERROR;
-        }
-        else if(second_res == 1)
-        {
-            if((std::remove(smt_c_filename.c_str()) == 0) &&
-                (std::remove(std::string(smt_c_filename + ".output").c_str()) == 0) &&
-                    (std::remove(smt_filename.c_str()) == 0) &&
-                        (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
+            // the complement formula
+            f_stream.str("");
+            f_stream << raw_filename << "_" << i << "_" << path.size() - 1 << "_0_" << thread_num << ".c.smt2";
+            std::string smt_c_filename = f_stream.str();
+            // writing to the file
+            std::ofstream smt_c_file;
+            smt_c_file.open(smt_c_filename.c_str());
+            smt_c_file << pdrh::reach_c_to_smt2(i, path, boxes);
+            smt_c_file.close();
+            // calling dreal here
+            int second_res = dreal::execute(global_config.solver_bin, smt_c_filename, global_config.solver_opt);
+            if(second_res == -1)
             {
-                //LOG(DEBUG) << "Removed auxiliary files";
-                return decision_procedure::SAT;
+                return decision_procedure::ERROR;
+            }
+            else if(second_res == 1)
+            {
+                if((std::remove(smt_c_filename.c_str()) == 0) &&
+                   (std::remove(std::string(smt_c_filename + ".output").c_str()) == 0) &&
+                   (std::remove(smt_filename.c_str()) == 0) &&
+                   (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
+                {
+                    //LOG(DEBUG) << "Removed auxiliary files";
+                    //return decision_procedure::SAT;
+                }
+                else
+                {
+                    CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (SAT)";
+                    return decision_procedure::ERROR;
+                }
             }
             else
             {
-                CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (SAT)";
-                return decision_procedure::ERROR;
+                if((std::remove(smt_c_filename.c_str()) == 0) &&
+                   (std::remove(std::string(smt_c_filename + ".output").c_str()) == 0) &&
+                   (std::remove(smt_filename.c_str()) == 0) &&
+                   (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
+                {
+                    //LOG(DEBUG) << "Removed auxiliary files";
+                    return decision_procedure::UNDET;
+                }
+                else
+                {
+                    CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNDET)";
+                    return decision_procedure::ERROR;
+                }
             }
         }
-        else
-        {
-            if((std::remove(smt_c_filename.c_str()) == 0) &&
-                (std::remove(std::string(smt_c_filename + ".output").c_str()) == 0) &&
-                    (std::remove(smt_filename.c_str()) == 0) &&
-                        (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
-            {
-                //LOG(DEBUG) << "Removed auxiliary files";
-                return decision_procedure::UNDET;
-            }
-            else
-            {
-                CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNDET)";
-                return decision_procedure::ERROR;
-            }
-        }
+        return decision_procedure::SAT;
     }
 }
 
+/*
 int decision_procedure::evaluate(std::vector<pdrh::mode *> path, rv_box* b1, dd_box* b2, nd_box* b3)
 {
     std::vector<box> boxes;
@@ -124,7 +125,9 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, rv_box* b1, dd_
     }
     return decision_procedure::evaluate(path, boxes);
 }
+*/
 
+/*
 int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {
     // default value for the thread number
@@ -168,57 +171,62 @@ int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector
     }
     else
     {
-        // the complement formula
-        f_stream.str("");
-        f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".c.smt2";
-        std::string smt_c_filename = f_stream.str();
-        // writing to the file
-        std::ofstream smt_c_file;
-        smt_c_file.open(smt_c_filename.c_str());
-        smt_c_file << pdrh::reach_c_to_smt2(init, goal, path, boxes);
-        smt_c_file.close();
-        int second_res = dreal::execute(global_config.solver_bin, smt_c_filename, global_config.solver_opt);
-
-        if(second_res == -1)
+        for(int i = 0; i < path.size(); i++)
         {
-            return decision_procedure::ERROR;
-        }
-        else if(second_res == 1)
-        {
-            if((std::remove(smt_c_filename.c_str()) == 0) &&
-               (std::remove(std::string(smt_c_filename + ".output").c_str()) == 0) &&
-               (std::remove(smt_filename.c_str()) == 0) &&
-               (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
+            // the complement formula
+            f_stream.str("");
+            f_stream << raw_filename << "_" << i << "_" << path.size() - 1 << "_0_" << thread_num << ".c.smt2";
+            std::string smt_c_filename = f_stream.str();
+            // writing to the file
+            std::ofstream smt_c_file;
+            smt_c_file.open(smt_c_filename.c_str());
+            smt_c_file << pdrh::reach_c_to_smt2(i, path, boxes);
+            smt_c_file.close();
+            // calling dreal here
+            int second_res = dreal::execute(global_config.solver_bin, smt_c_filename, global_config.solver_opt);
+            if(second_res == -1)
             {
-                //LOG(DEBUG) << "Removed auxiliary files";
-                return decision_procedure::SAT;
+                return decision_procedure::ERROR;
+            }
+            else if(second_res == 1)
+            {
+                if((std::remove(smt_c_filename.c_str()) == 0) &&
+                   (std::remove(std::string(smt_c_filename + ".output").c_str()) == 0) &&
+                   (std::remove(smt_filename.c_str()) == 0) &&
+                   (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
+                {
+                    //LOG(DEBUG) << "Removed auxiliary files";
+                    //return decision_procedure::SAT;
+                }
+                else
+                {
+                    CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (SAT)";
+                    return decision_procedure::ERROR;
+                }
             }
             else
             {
-                CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (SAT)";
-                return decision_procedure::ERROR;
+                if((std::remove(smt_c_filename.c_str()) == 0) &&
+                   (std::remove(std::string(smt_c_filename + ".output").c_str()) == 0) &&
+                   (std::remove(smt_filename.c_str()) == 0) &&
+                   (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
+                {
+                    //LOG(DEBUG) << "Removed auxiliary files";
+                    return decision_procedure::UNDET;
+                }
+                else
+                {
+                    CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNDET)";
+                    return decision_procedure::ERROR;
+                }
             }
         }
-        else
-        {
-            if((std::remove(smt_c_filename.c_str()) == 0) &&
-               (std::remove(std::string(smt_c_filename + ".output").c_str()) == 0) &&
-               (std::remove(smt_filename.c_str()) == 0) &&
-               (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
-            {
-                //LOG(DEBUG) << "Removed auxiliary files";
-                return decision_procedure::UNDET;
-            }
-            else
-            {
-                CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNDET)";
-                return decision_procedure::ERROR;
-            }
-        }
+        return decision_procedure::SAT;
     }
 }
+*/
 
-int decision_procedure::evaluate_delta_sat(pdrh::state init, pdrh::state goal, std::vector<pdrh::mode *> path, std::vector<box> boxes)
+int decision_procedure::evaluate_delta_sat(std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {
     // default value for the thread number
     int thread_num = 0;
@@ -236,7 +244,7 @@ int decision_procedure::evaluate_delta_sat(pdrh::state init, pdrh::state goal, s
     // writing to the file
     std::ofstream smt_file;
     smt_file.open(smt_filename.c_str());
-    smt_file << pdrh::reach_to_smt2(init, goal, path, boxes);
+    smt_file << pdrh::reach_to_smt2(path, boxes);
     smt_file.close();
     // calling dreal here
     int first_res = dreal::execute(global_config.solver_bin, smt_filename, global_config.solver_opt);

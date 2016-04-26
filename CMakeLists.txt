@@ -78,10 +78,10 @@ file(GLOB SOURCES   ${PROJECT_SOURCE_DIR}/src/*.cpp
 # setting executable
 add_executable(ProbReach ${SOURCES} src/parser/csv/csvparser.h src/parser/csv/csvparser.cpp src/rnd.h src/rnd.cpp)
 # linking libraries
-target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libcapd.a)
-target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libibex.a)
-target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libprim.a)
-target_link_libraries(ProbReach /home/fedor/dreal3/build/release/lib/libdreal.a)
+target_link_libraries(ProbReach ${DREAL_DIR}/build/release/lib/libcapd.a)
+target_link_libraries(ProbReach ${DREAL_DIR}/build/release/lib/libibex.a)
+target_link_libraries(ProbReach ${DREAL_DIR}/build/release/lib/libprim.a)
+target_link_libraries(ProbReach ${DREAL_DIR}/build/release/lib/libdreal.a)
 target_link_libraries(ProbReach ${GSL_LIBRARIES})
 # flag for FLEX
 target_link_libraries(ProbReach -lfl)

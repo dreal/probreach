@@ -161,10 +161,10 @@ void parse_pdrh_config(int argc, char* argv[])
             global_config.solver_bin = string(argv[i]);
         }
         // time variable name
-        else if(strcmp(argv[i], "--time-var") == 0)
+        else if(strcmp(argv[i], "--time-var-name") == 0)
         {
             i++;
-            global_config.time_var = string(argv[i]);
+            global_config.time_var_name = string(argv[i]);
         }
         // verbose
         else if(strcmp(argv[i], "--verbose") == 0)

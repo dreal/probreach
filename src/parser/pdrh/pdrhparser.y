@@ -8,10 +8,10 @@
 #include <limits>
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
-#include "../../src/model.h"
-#include "../../src/measure.h"
-#include "../../src/pdrh_config.h"
-#include "../../src/logging/easylogging++.h"
+#include "model.h"
+#include "measure.h"
+#include "pdrh_config.h"
+#include "logging/easylogging++.h"
 
 // stuff from flex that bison needs to know about:
 extern "C" int yylex();

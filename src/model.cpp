@@ -3,6 +3,7 @@
 //
 
 #include "model.h"
+#include "pdrh_config.h"
 #include <string.h>
 #include <logging/easylogging++.h>
 
@@ -1344,6 +1345,34 @@ std::vector<pdrh::mode*> pdrh::get_psy_path(std::map<std::string, std::vector<ca
     return path;
 }
 */
+
+pdrh::node* pdrh::get_first_time_node(pdrh::node * root)
+{
+    if(root->operands.size() == 0)
+    {
+        return NULL;
+    }
+    else
+    {
+        if(strcmp(root->value.c_str(), "=") == 0)
+        {
+            for(pdrh::node* child : root->operands)
+            {
+                if(strcmp(child->value.c_str(), global_config.time_var_name.c_str()) == 0)
+                {
+                    return root;
+                }
+            }
+        }
+        else
+        {
+            for(pdrh::node* child : root->operands)
+            {
+                pdrh::node* n = pdrh::get_first_time_node(child);
+            }
+        }
+    }
+}
 
 // throws exception in case if one of the terminal modes is not a number
 // evaluates the value of arithmetic expression

@@ -49,7 +49,7 @@ struct pdrh_config
     double bayesian_conf = 0.99;
     bool bayesian_flag = false;
     bool delta_sat = false;
-    string time_var = "tau";
+    string time_var_name = "tau";
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

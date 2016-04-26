@@ -69,27 +69,6 @@ int main(int argc, char* argv[])
     while (!feof(yyin));
     std::remove(pdrhnameprep.str().c_str());
     CLOG_IF(global_config.verbose, INFO, "parser") << "OK";
-    //cout << pdrh::model_to_string() << endl;
-    //CLOG_IF(global_config.verbose, INFO, "parser") << pdrh::model_to_string();
-    /*
-    std::vector<pdrh::node*> operands1 = {pdrh::push_terminal_node("3"), pdrh::push_terminal_node("1")};
-    pdrh::node* plus_node = pdrh::push_operation_node("*", operands1);
-
-    std::vector<pdrh::node*> operands2 = {pdrh::push_terminal_node("1.57")};
-    pdrh::node* cos_node = pdrh::push_operation_node("cos", operands2);
-
-    std::vector<pdrh::node*> operands3 = {plus_node, cos_node};
-    pdrh::node* big_node = pdrh::push_operation_node("+", operands3);
-
-    std::vector<pdrh::node*> operands4 = {big_node};
-    pdrh::node* final_node = pdrh::push_operation_node("atan", operands4);
-
-    std::cout << pdrh::node_to_string_infix(final_node) << std::endl;
-    std::cout << pdrh::node_to_string_prefix(final_node) << std::endl;
-    capd::IFunction fun("var:;fun:" + pdrh::node_to_string_infix(final_node) + ";");
-    std::cout << fun(0) << std::endl;
-    std::cout << pdrh::evaluate_node_value(final_node) << std::endl;
-    */
     switch(pdrh::model_type)
     {
         // hybrid automata

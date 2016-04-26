@@ -36,6 +36,8 @@ namespace pdrh
     capd::interval node_to_interval(node*);
     string node_fix_index(node*, int, string);
 
+    node* get_first_time_node(node*);
+
     enum type {HA, PHA, NHA, NPHA, PSY};
     extern type model_type;
     extern pair<node*, node*> time;
@@ -103,6 +105,7 @@ namespace pdrh
     vector<mode*> get_shortest_path(mode*, mode*);
     vector<vector<mode*>> get_paths(mode*, mode*, int);
     vector<vector<mode*>> get_all_paths(int);
+
     // returns <first_map_keys> \ <second_map_keys>
     vector<string> get_keys_diff(map<string, pair<node*, node*>>, map<string, pair<node*, node*>>);
 

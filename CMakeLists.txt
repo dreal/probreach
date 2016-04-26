@@ -1,48 +1,25 @@
 cmake_minimum_required (VERSION 2.6)
-# BISON
-#add_custom_command(
-#   SOURCE ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhparser.y
-#   COMMAND ${BISON_EXECUTABLE}
-#   ARGS -d ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhparser.y
-#        -o ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhparser.c
-#   TARGET ProbReach
-#   DEPENDS ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhlexer.c
-#   OUTPUTS ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhparser.c)
-
-# FLEX
-#add_custom_command(
-#   SOURCE ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhlexer.l
-#   COMMAND ${FLEX_EXECUTABLE}
-#   ARGS -o ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhlexer.c
-#        ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhlexer.l
-#   TARGET ProbReach
-#   OUTPUTS ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhlexer.c)
+# project name
 project (ProbReach)
 # setting some variables
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare --std=c++11 -fopenmp -frounding-math")
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
 set(DREAL_DIR "/home/fedor/dreal3")
 set(DREAL_REL_DIR "/home/fedor/dreal3/build/release")
 set(GSL_INCLUDE_DIRS "/usr/local/include")
-set(GSL_LIBRARIES "/usr/local/lib/libgsl.so" "/usr/local/lib/libgslcblas.so")
-# GSL
-#find_package(GSL REQUIRED)
-#message(WARNING ${GSL_INCLUDE_DIRS})
-#message(WARNING ${GSL_LIBRARIES})
-
-# header files
-include_directories("${DREAL_REL_DIR}/include/ibex")
-include_directories("${DREAL_REL_DIR}/include")
-include_directories("${DREAL_DIR}/src/api")
-include_directories("${PROJECT_SOURCE_DIR}/src")
-include_directories("${PROJECT_SOURCE_DIR}/src/logging")
-include_directories("${PROJECT_SOURCE_DIR}/src/solver")
-include_directories("${PROJECT_SOURCE_DIR}/src/parser/csv")
-include_directories("${PROJECT_SOURCE_DIR}/src/xml")
-include_directories("${PROJECT_SOURCE_DIR}/build/release/")
-include_directories("${GSL_INCLUDE_DIRS}")
+set(GSL_LIBRARIES "/usr/local/lib/libgsl.a" "/usr/local/lib/libgslcblas.a")
+# setting ProbReach version
+set (PROBREACH_VERSION_MAJOR 1)
+set (PROBREACH_VERSION_MINOR 2)
+set (PROBREACH_VERSION_PATCH 2)
+set (PROBREACH_VERSION ${PROBREACH_VERSION_MAJOR}.${PROBREACH_VERSION_MINOR}.${PROBREACH_VERSION_PATCH})
+configure_file (
+  "${PROJECT_SOURCE_DIR}/src/version.h.in"
+  "${PROJECT_SOURCE_DIR}/src/version.h"
+  )
 # BISON
 find_package(BISON REQUIRED)
 if(BISON_FOUND)
@@ -54,26 +31,19 @@ if(FLEX_FOUND)
     FLEX_TARGET(pdrh_lexer ${PROJECT_SOURCE_DIR}/src/parser/pdrh/pdrhlexer.l  ${PROJECT_SOURCE_DIR}/build/release/pdrhlexer.c)
     ADD_FLEX_BISON_DEPENDENCY(pdrh_lexer pdrh_parser)
 endif(FLEX_FOUND)
-
-# Boost
-#find_package(Boost)
-#if(Boost_FOUND)
-#    include_directories(${Boost_INCLUDE_DIRS})
-#    message(WARNING ${Boost_INCLUDE_DIRS})
-#    target_link_libraries(ProbReach ${Boost_LIBRARIES})
-#endif(Boost_FOUND)
-# setting propeties for the fgenerated lexer and parser files
+# setting propeties for the generated lexer and parser files
 set_source_files_properties(${PROJECT_SOURCE_DIR}/build/release/pdrhparser.c GENERATED PROPERTIES LANGUAGE CXX)
 set_source_files_properties(${PROJECT_SOURCE_DIR}/build/release/pdrhlexer.c GENERATED PROPERTIES LANGUAGE CXX)
-# setting ProbReach version
-set (PROBREACH_VERSION_MAJOR 1)
-set (PROBREACH_VERSION_MINOR 2)
-set (PROBREACH_VERSION_PATCH 2)
-set (PROBREACH_VERSION ${PROBREACH_VERSION_MAJOR}.${PROBREACH_VERSION_MINOR}.${PROBREACH_VERSION_PATCH})
-configure_file (
-  "${PROJECT_SOURCE_DIR}/src/version.h.in"
-  "${PROJECT_SOURCE_DIR}/src/version.h"
-  )
+# header files
+include_directories("${DREAL_REL_DIR}/include/ibex")
+include_directories("${DREAL_REL_DIR}/include")
+include_directories("${PROJECT_SOURCE_DIR}/src")
+include_directories("${PROJECT_SOURCE_DIR}/src/logging")
+include_directories("${PROJECT_SOURCE_DIR}/src/solver")
+include_directories("${PROJECT_SOURCE_DIR}/src/parser/csv")
+include_directories("${PROJECT_SOURCE_DIR}/src/xml")
+include_directories("${PROJECT_SOURCE_DIR}/build/release")
+include_directories("${GSL_INCLUDE_DIRS}")
 # putting all source files together
 file(GLOB SOURCES   ${PROJECT_SOURCE_DIR}/src/*.cpp
                     ${PROJECT_SOURCE_DIR}/src/xml/*.cpp
@@ -81,12 +51,11 @@ file(GLOB SOURCES   ${PROJECT_SOURCE_DIR}/src/*.cpp
                     ${PROJECT_SOURCE_DIR}/src/solver/*.cpp
                     ${PROJECT_SOURCE_DIR}/build/release/*.c)
 # setting executable
-add_executable(ProbReach ${SOURCES} src/parser/csv/csvparser.h src/parser/csv/csvparser.cpp src/rnd.h src/rnd.cpp)
+add_executable(ProbReach ${SOURCES})
 # linking libraries
 target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libcapd.a)
 target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libibex.a)
 target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libprim.a)
-target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libdreal.a)
 target_link_libraries(ProbReach ${GSL_LIBRARIES})
 # flag for FLEX
 target_link_libraries(ProbReach -lfl)

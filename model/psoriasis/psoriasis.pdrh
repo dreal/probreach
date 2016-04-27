@@ -8,7 +8,7 @@
 //   All rights reserved.
 //   ----------------------------------------------------------------
 // Cell population change is represented by ordinary differential equations
-MODEL_TYPE(PSY;InA:2000)
+model:ha;
 //-----------parameters
 #define gamma1 0.0033 // stem cell proliferation rate is represented by a logistic equation (self-renewal)
 #define k1as 0.0131   //rate constant of one stem cell divid into one stem cell and on transit amplifying cell
@@ -53,6 +53,7 @@ MODEL_TYPE(PSY;InA:2000)
 #define n 3
 #define kp 0.3
 #define ka 19
+#define InA 60000
 
 //#define InA 60000
 
@@ -64,7 +65,7 @@ MODEL_TYPE(PSY;InA:2000)
 [0,10000] SC_d; // abnormal stem cell
 [0,10000] TA_d; // abnormal transit amplifying cell
 [0,10000] GA_d; // abnormal growth arrested cell
-[50000,70000] InA;
+//[50000,70000] InA;
 
 {
 mode 1;
@@ -77,7 +78,7 @@ d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*
 d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
 d/dt[tau] = 1;
 jump:
-(and (tau = 2)) ==> @2(and (SC'=SC)(TA'=TA)(GA'=GA)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(tau' = tau));
+(and (tau = 2)) ==> @2(and (SC'=SC)(TA'=TA)(GA'=GA)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(tau' = 0));
 }
 
 {
@@ -91,35 +92,7 @@ d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d
 d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
 d/dt[tau] = 1;
 jump:
-(and (tau = 56/24)) ==> @3(and (SC'=SC)(TA'=TA)(GA'=GA)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(tau' = tau));
-}
-
-{
-mode 3;
-flow:
-d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*InA*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
-d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*InA*TA-k2s*TA-k_1*TA;
-d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
-d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*InA*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
-d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*TA_d-k_1d*TA_d;
-d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
-d/dt[tau] = 1;
-jump:
-(and (tau = 104/24)) ==> @4(and (SC'=SC)(TA'=TA)(GA'=GA)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(tau' = tau));
-}
-
-{
-mode 4;
-flow:
-d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
-d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*TA-k2s*TA-k_1*TA;
-d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
-d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
-d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d-k_1d*TA_d;
-d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
-d/dt[tau] = 1;
-jump:
-
+(and (tau = 8/24)) ==> @1(and (SC'=SC)(TA'=TA)(GA'=GA)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(tau' = 0));
 }
 
 // initial values are medians of the intervals derived by evaluating the goal (tau = 2000)
@@ -134,3 +107,7 @@ init:
 		(TA_d = 1559.97864362)
 		(GA_d = 998.034827674)
 	);
+
+goal:
+//@1(and(SC <= 19)(SC_d <= 226));
+@1(and(SC <= 19));

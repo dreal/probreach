@@ -37,6 +37,7 @@ namespace pdrh
     string node_fix_index(node*, int, string);
 
     node* get_first_time_node(node*);
+    node* get_time_node_neg(node*);
 
     enum type {HA, PHA, NHA, NPHA, PSY};
     extern type model_type;
@@ -115,9 +116,6 @@ namespace pdrh
     string reach_to_smt2(vector<mode*>, vector<box>);
     string reach_c_to_smt2(vector<mode*>, vector<box>);
     string reach_c_to_smt2(int, vector<mode*>, vector<box>);
-
-    string reach_to_smt2(state, state, vector<mode*>, vector<box>);
-    string reach_c_to_smt2(state, state, vector<mode*>, vector<box>);
 
     string model_to_string();
     string print_jump(mode::jump);

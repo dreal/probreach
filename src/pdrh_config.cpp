@@ -124,14 +124,14 @@ void parse_pdrh_config(int argc, char* argv[])
             }
         }
         // nondeterministic precision
-        else if(strcmp(argv[i], "--max_nondet") == 0)
+        else if(strcmp(argv[i], "--max-nondet") == 0)
         {
             i++;
             istringstream is(argv[i]);
             is >> global_config.precision_nondet;
             if(global_config.precision_nondet <= 0)
             {
-                CLOG(ERROR, "config") << "--max_nondet should be positive";
+                CLOG(ERROR, "config") << "--max-nondet should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -171,23 +171,11 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             global_config.verbose = true;
         }
-        // statistical flag
-        else if(strcmp(argv[i], "--sample") == 0)
-        {
-            global_config.sample_flag = true;
-            i++;
-            istringstream is(argv[i]);
-            is >> global_config.sample_size;
-            if(global_config.sample_size <= 0)
-            {
-                CLOG(ERROR, "config") << "--sample should be positive";
-                exit(EXIT_FAILURE);
-            }
-        }
         // chernoff bound accuracy
         else if(strcmp(argv[i], "--chernoff-acc") == 0)
         {
             global_config.chernoff_flag = true;
+            global_config.stat_flag = true;
             i++;
             istringstream is(argv[i]);
             is >> global_config.chernoff_acc;
@@ -201,6 +189,7 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--chernoff-conf") == 0)
         {
             global_config.chernoff_flag = true;
+            global_config.stat_flag = true;
             i++;
             istringstream is(argv[i]);
             is >> global_config.chernoff_conf;
@@ -215,6 +204,7 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--bayesian-acc") == 0)
         {
             global_config.bayesian_flag = true;
+            global_config.stat_flag = true;
             i++;
             istringstream is(argv[i]);
             is >> global_config.bayesian_acc;
@@ -228,6 +218,7 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--bayesian-conf") == 0)
         {
             global_config.bayesian_flag = true;
+            global_config.stat_flag = true;
             i++;
             istringstream is(argv[i]);
             is >> global_config.bayesian_conf;
@@ -241,13 +232,6 @@ void parse_pdrh_config(int argc, char* argv[])
         // merge flag
         else if(strcmp(argv[i], "--delta-sat") == 0)
         {
-            /*
-            if((!global_config.chernoff_flag) && (!global_config.bayesian_flag))
-            {
-                CLOG(ERROR, "config") << "flag --delta-sat can only be used with statistical model checking";
-                exit(EXIT_FAILURE);
-            }
-            */
             global_config.delta_sat = true;
         }
         // merge flag
@@ -341,13 +325,20 @@ void print_usage()
     cout << endl;
     cout << "Usage:" << endl;
     cout << endl;
-    cout << "	Run ./ProbReach <options> <file.pdrh/file.drh> <solver-options>" << endl;
+    cout << "	ProbReach <options> <file.pdrh/file.drh> <solver-options>" << endl;
     cout << endl;
     cout << "options:" << endl;
     cout << "	-e <double> - length of probability interval (default " << global_config.precision_prob << ")" << endl;
-    cout << "	-l/--solver </path/to/solver> - full path to the solver (default " << global_config.solver_bin << ")" << endl;
     cout << "	-t <int> - number of CPU cores (default " << global_config.max_num_threads << ") (max " << global_config.max_num_threads << ")" << endl;
     cout << "	-h/--help - help message" << endl;
+    cout << "	--solver </path/to/solver> - full path to the solver (default " << global_config.solver_bin << ")" << endl;
+    cout << "	--chernoff-acc <double> - half-length of the confidence interval in Chernoff-Hoeffding method (default " << global_config.chernoff_acc << ")" << endl;
+    cout << "	--chernoff-conf <double> - confidence value in Chernoff-Hoeffding method (default " << global_config.chernoff_conf << ")" << endl;
+    cout << "	--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default " << global_config.bayesian_acc << ")" << endl;
+    cout << "   --bayesian-conf <double> - confidence value in Bayesian estimations (default " << global_config.bayesian_conf << ")" << endl;
+    cout << "   --integral-inf-coeff <double> - ratio for the continuous random variables with unbounded support (default " << global_config.integral_inf_coeff << ")" << endl;
+    cout << "   --integral-pdf-step <double> - step value used for bounding domains of continuous random variables with user-defined distributions (default " << global_config.integral_pdf_step << ")" << endl;
+    cout << "   --integral-inf-coeff <double> - ratio for the continuous random variables with unbounded support (default " << global_config.integral_inf_coeff << ")" << endl;
     cout << "	--version - version of the tool" << endl;
     cout << "	--verbose - output computation details" << endl;
     cout << endl;

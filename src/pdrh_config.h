@@ -10,6 +10,7 @@ using namespace std;
 
 struct pdrh_config
 {
+    bool stat_flag = false;
     // verified integration options
     double integral_inf_coeff = 1e-01;
     double integral_pdf_step = 1e-01;
@@ -40,8 +41,6 @@ struct pdrh_config
     int max_num_threads = 1;
     int num_threads = max_num_threads;
     // sampling options
-    long int sample_size = 1;
-    bool sample_flag = false;
     double chernoff_acc = 1e-2;
     double chernoff_conf = 0.99;
     bool chernoff_flag = false;

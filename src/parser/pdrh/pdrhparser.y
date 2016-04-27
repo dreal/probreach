@@ -148,7 +148,7 @@ dist_declaration:
                                                                                     {
                                                                                         pdrh::push_var($11, $5, $7);
                                                                                         pdrh::push_rv($11, $3, $5, $7, $9);
-                                                                                        if(global_config.sample_flag)
+                                                                                        if(global_config.stat_flag)
                                                                                         {
                                                                                             std::stringstream s;
                                                                                             s << "user-defined distribution for \"" << $11 << "\" is not supported in sampling mode";

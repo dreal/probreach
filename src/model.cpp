@@ -978,8 +978,13 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
         s << "(and ";
         for(pdrh::mode::jump j : path.back()->jumps)
         {
+            cout << "Jump before" << endl;
+            cout << pdrh::node_to_string_prefix(j.guard) << endl;
+            cout << "Time node" << endl;
             pdrh::node* time_node_neg = pdrh::get_time_node_neg(j.guard);
-            //cout << pdrh::node_to_string_prefix(time_node_neg) << endl;
+            cout << pdrh::node_to_string_prefix(time_node_neg) << endl;
+            cout << "Jump after" << endl;
+            cout << pdrh::node_to_string_prefix(j.guard) << endl;
             if(time_node_neg == NULL)
             {
                 s << "(forall_t " << path.back()->id << " [0 time_" << depth << "] (not " << pdrh::node_fix_index(j.guard, depth, "t") << "))";

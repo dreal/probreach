@@ -48,7 +48,7 @@ box rnd::get_sample(gsl_rng* r)
     for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)
     {
         map<pdrh::node*, pdrh::node*> mass_map = pdrh::dd_map[it->first];
-        double* p_mass = new double(mass_map.size());
+        double* p_mass = new double[mass_map.size()];
         pdrh::node** p_value = new pdrh::node*[mass_map.size()];
         size_t i = 0;
         // getting values and their probabilities
@@ -64,10 +64,9 @@ box rnd::get_sample(gsl_rng* r)
         size_t index = gsl_ran_discrete(r, g);
         edges.insert(std::make_pair(it->first, pdrh::node_to_interval(p_value[index])));
         // releasing memory
-        free(p_value);
-        free(p_mass);
+        delete p_value;
+        delete p_mass;
         gsl_ran_discrete_free(g);
     }
-
     return box(edges);
 }

@@ -721,7 +721,7 @@ string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     return s.str();
 }
 
-string pdrh::reach_c_to_smt2(vector<mode*> path, vector<box> boxes)
+string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
 {
     stringstream s;
     // setting logic
@@ -836,7 +836,6 @@ string pdrh::reach_c_to_smt2(vector<mode*> path, vector<box> boxes)
         if(path.back()->id == st.id)
         {
             pdrh::node* time_node_neg = pdrh::get_time_node_neg(st.prop);
-            cout << pdrh::node_to_string_prefix(time_node_neg) << endl;
             if(time_node_neg == NULL)
             {
                 s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << "))";
@@ -978,13 +977,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
         s << "(and ";
         for(pdrh::mode::jump j : path.back()->jumps)
         {
-            cout << "Jump before" << endl;
-            cout << pdrh::node_to_string_prefix(j.guard) << endl;
-            cout << "Time node" << endl;
             pdrh::node* time_node_neg = pdrh::get_time_node_neg(j.guard);
-            cout << pdrh::node_to_string_prefix(time_node_neg) << endl;
-            cout << "Jump after" << endl;
-            cout << pdrh::node_to_string_prefix(j.guard) << endl;
             if(time_node_neg == NULL)
             {
                 s << "(forall_t " << path.back()->id << " [0 time_" << depth << "] (not " << pdrh::node_fix_index(j.guard, depth, "t") << "))";
@@ -1160,17 +1153,50 @@ std::vector<pdrh::mode*> pdrh::get_psy_path(std::map<std::string, std::vector<ca
 pdrh::node* pdrh::get_first_time_node(pdrh::node * root)
 {
     //cout << pdrh::node_to_string_prefix(root) << endl;
+    if(root->operands.size() > 0)
+    {
+        if(strcmp(root->value.c_str(), "=") == 0)
+        {
+            for(pdrh::node* child : root->operands)
+            {
+                if(strcmp(child->value.c_str(), global_config.time_var_name.c_str()) == 0)
+                {
+                    return root;
+                }
+                else
+                {
+                    return pdrh::get_first_time_node(child);
+                }
+            }
+        }
+        else
+        {
+            for(pdrh::node* child : root->operands)
+            {
+                return pdrh::get_first_time_node(child);
+            }
+        }
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void pdrh::get_first_time_node(node* root, node* time_node)
+{
+    //cout << pdrh::node_to_string_prefix(root) << endl;
     if(strcmp(root->value.c_str(), "=") == 0)
     {
         for(pdrh::node* child : root->operands)
         {
             if(strcmp(child->value.c_str(), global_config.time_var_name.c_str()) == 0)
             {
-                return root;
+                *time_node = *root;
             }
             else
             {
-                pdrh::get_first_time_node(child);
+                pdrh::get_first_time_node(child, time_node);
             }
         }
     }
@@ -1178,34 +1204,33 @@ pdrh::node* pdrh::get_first_time_node(pdrh::node * root)
     {
         for(pdrh::node* child : root->operands)
         {
-            pdrh::get_first_time_node(child);
+            pdrh::get_first_time_node(child, time_node);
         }
     }
-    //cout << "Terminal node" << endl;
-    //return NULL;
 }
 
-pdrh::node* pdrh::get_time_node_neg(node* root)
+bool pdrh::is_node_empty(node* n)
+{
+    return n->value.empty() && n->operands.empty();
+}
+
+pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
 {
     // copying root node
     pdrh::node* root_copy = new pdrh::node;
-    *root_copy = *root;
-    // getting time node
-    pdrh::node* time_node = pdrh::get_first_time_node(root_copy);
-    if(time_node == NULL)
+    root_copy->value = root->value;
+    root_copy->operands = root->operands;
+    // getting a copy time node
+    pdrh::node* time_node = new pdrh::node;
+    pdrh::get_first_time_node(root_copy, time_node);
+    if(pdrh::is_node_empty(time_node))
     {
         return NULL;
     }
-    // copying time node
-    pdrh::node* time_node_copy = new pdrh::node;
-    *time_node_copy = *time_node;
-    // mutingtime node
-    time_node->value = "true";
-    time_node->operands.clear();
     // creating a negation node
     pdrh::node* not_node = pdrh::push_operation_node("not", vector<pdrh::node*>{root_copy});
     // creating a resulting node
-    pdrh::node* res_node = pdrh::push_operation_node("and", vector<pdrh::node*>{time_node_copy, not_node});
+    pdrh::node* res_node = pdrh::push_operation_node("and", vector<pdrh::node*>{time_node, not_node});
     return res_node;
 }
 

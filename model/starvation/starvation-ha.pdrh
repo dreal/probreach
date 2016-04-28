@@ -6,7 +6,8 @@
  * "Verified Solution and Propagation of Uncertainty in Physiological Models"
  * Joshua A. Enszer and Mark A. Stadtherr
  */
-MODEL_TYPE(PHA)
+
+model: ha;
 
 #define a 0.013
 #define C 772.3
@@ -15,29 +16,26 @@ MODEL_TYPE(PHA)
 #define lambdaM 1400
 #define V 0.9
 #define M0 43.6
+#define b 0.05
+#define k 10.96
 
 //fat
-[1,100]F;
+[0.01,100]F;
 //muscle mass
-[1,100]M;
+[0.01,100]M;
 //ketone bodies
 [0,100]K;
-
-//effect of body mass on metabolic rate
-N(10.96,1)k;
-DD(0.05:0.1,0.06:0.2,0.07:0.3,0.075:0.4)b;
 
 [0,100]time;
 [0,100]tau;
 
 {
 mode 1;
-
 flow:
-d/dt[F]=F * (- a / (1 + K) - (1 / lambdaF) * ((C + k * L0) / (F + M) + k));
-d/dt[M]=(- M / lambdaM) * ((C + k * L0) / (F + M) + k);
-d/dt[K]=(V * a * F) / (1 + K) - b;
-d/dt[tau]=1;
+    d/dt[F]=F * (- a / (1 + K) - (1 / lambdaF) * ((C + k * L0) / (F + M) + k));
+    d/dt[M]=(- M / lambdaM) * ((C + k * L0) / (F + M) + k);
+    d/dt[K]=(V * a * F) / (1 + K) - b;
+    d/dt[tau]=1;
 jump: 
 
 }
@@ -47,6 +45,3 @@ init:
 
 goal:
 @1(and (tau = 25) (M <= 0.6 * M0));
-
-goal_c:
-@1(and (tau = 25));

@@ -35,8 +35,10 @@ namespace pdrh
     string node_to_string_infix(node*);
     capd::interval node_to_interval(node*);
     string node_fix_index(node*, int, string);
+    bool is_node_empty(pdrh::node*);
 
     node* get_first_time_node(node*);
+    void get_first_time_node(node*, node*);
     node* get_time_node_neg(node*);
 
     enum type {HA, PHA, NHA, NPHA, PSY};

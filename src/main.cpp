@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
     while (!feof(yyin));
     std::remove(pdrhnameprep.str().c_str());
     CLOG_IF(global_config.verbose, INFO, "parser") << "OK";
-
+    //cout << pdrh::model_to_string() << endl;
     switch(pdrh::model_type)
     {
         // hybrid automata

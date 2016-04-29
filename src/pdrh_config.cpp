@@ -332,6 +332,7 @@ void print_usage()
     cout << "	-t <int> - number of CPU cores (default " << global_config.max_num_threads << ") (max " << global_config.max_num_threads << ")" << endl;
     cout << "	-h/--help - help message" << endl;
     cout << "	--solver </path/to/solver> - full path to the solver (default " << global_config.solver_bin << ")" << endl;
+    cout << "   --solver-precision-ratio <double> - solver precision ratio defined as (solver-precision = min-box-dimension * solver-precision-ratio) (default " << global_config.solver_precision_ratio << ")" << endl;
     cout << "	--chernoff-acc <double> - half-length of the confidence interval in Chernoff-Hoeffding method (default " << global_config.chernoff_acc << ")" << endl;
     cout << "	--chernoff-conf <double> - confidence value in Chernoff-Hoeffding method (default " << global_config.chernoff_conf << ")" << endl;
     cout << "	--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default " << global_config.bayesian_acc << ")" << endl;

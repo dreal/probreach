@@ -934,7 +934,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
             }
         }
         // defining trajectory
-        for(int i = 0; i < depth; i++)
+        for(int i = 0; i <= depth; i++)
         {
             pdrh::mode* m = path.at(i);
             // defining integrals
@@ -955,22 +955,22 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
                 s << "(forall_t " << m->id << " [0.0 time_" << i << "] " << pdrh::node_fix_index(invt, i, "t") << ")" << endl;
             }
             // checking the current depth
-            //if(step < path.size() - 1)
-            //{
-            // defining jumps
-            for (pdrh::mode::jump j : m->jumps)
+            if(i < depth)
             {
-                s << pdrh::node_fix_index(j.guard, i, "t") << endl;
-                if(i < path.size() - 1)
+                // defining jumps
+                for (pdrh::mode::jump j : m->jumps)
                 {
-                    for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
+                    s << pdrh::node_fix_index(j.guard, i, "t") << endl;
+                    if(i < path.size() - 1)
                     {
-                        s << "(= " << reset_it->first << "_" << i + 1 << "_0 " <<
-                        pdrh::node_fix_index(reset_it->second, i, "t") << ")";
+                        for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
+                        {
+                            s << "(= " << reset_it->first << "_" << i + 1 << "_0 " <<
+                            pdrh::node_fix_index(reset_it->second, i, "t") << ")";
+                        }
                     }
                 }
             }
-            //}
         }
         s << ")" << endl;
         // defining the last jump
@@ -980,7 +980,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
             pdrh::node* time_node_neg = pdrh::get_time_node_neg(j.guard);
             if(time_node_neg == NULL)
             {
-                s << "(forall_t " << path.back()->id << " [0 time_" << depth << "] (not " << pdrh::node_fix_index(j.guard, depth, "t") << "))";
+                s << "(forall_t " << depth + 1 << " [0 time_" << depth << "] (not " << pdrh::node_fix_index(j.guard, depth, "t") << "))";
             }
             else
             {
@@ -989,6 +989,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
             }
         }
         s << ")))" << endl;
+        // asserting the time point for the last mode
         // final statements
         s << "(check-sat)" << endl;
         s << "(exit)" << endl;
@@ -1193,6 +1194,8 @@ void pdrh::get_first_time_node(node* root, node* time_node)
             if(strcmp(child->value.c_str(), global_config.time_var_name.c_str()) == 0)
             {
                 *time_node = *root;
+                root->value.clear();
+                root->operands.clear();
             }
             else
             {
@@ -1223,6 +1226,8 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
     // getting a copy time node
     pdrh::node* time_node = new pdrh::node;
     pdrh::get_first_time_node(root_copy, time_node);
+    cout << "ROOT" << endl;
+    cout << pdrh::node_to_string_prefix(root) << endl;
     if(pdrh::is_node_empty(time_node))
     {
         return NULL;
@@ -1231,6 +1236,12 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
     pdrh::node* not_node = pdrh::push_operation_node("not", vector<pdrh::node*>{root_copy});
     // creating a resulting node
     pdrh::node* res_node = pdrh::push_operation_node("and", vector<pdrh::node*>{time_node, not_node});
+    cout << "TIME NODE" << endl;
+    cout << pdrh::node_to_string_prefix(time_node) << endl;
+    //time_node->value.clear();
+    //time_node->operands.clear();
+    cout << "RES NODE" << endl;
+    cout << pdrh::node_to_string_prefix(res_node) << endl;
     return res_node;
 }
 

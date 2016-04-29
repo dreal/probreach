@@ -73,11 +73,12 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
             ofstream smt_c_file;
             smt_c_file.open(smt_c_filename.c_str());
             smt_c_file << pdrh::reach_c_to_smt2(i, path, boxes);
-            //cout << "SECOND FORMULA(" << i << "):" << endl;
-            //cout << pdrh::reach_c_to_smt2(i, path, boxes) << endl;
+            cout << "SECOND FORMULA(" << i << "):" << endl;
+            cout << pdrh::reach_c_to_smt2(i, path, boxes) << endl;
             smt_c_file.close();
             // calling dreal here
             int second_res = dreal::execute(global_config.solver_bin, smt_c_filename, global_config.solver_opt);
+            //cout << "RESULT: " << second_res << endl;
             if(second_res == -1)
             {
                 return decision_procedure::ERROR;
@@ -98,6 +99,10 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
                 {
                     CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNDET)";
                     return decision_procedure::ERROR;
+                }
+                else
+                {
+                    return decision_procedure::UNDET;
                 }
             }
         }

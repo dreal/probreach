@@ -20,6 +20,19 @@ namespace pdrh
     // node of the tree of mathematical expression
     struct node
     {
+        inline node(const node &rhs)
+            : value(rhs.value), operands(rhs.operands)
+        {
+        }
+
+        inline node &operator =(const node &rhs)
+        {
+            value = rhs.value;
+            operands = rhs.operands;
+
+            return *this;
+        }
+
         // either a name of operation or a value of the operand (const or identifier)
         string value;
         // vector is empty if the node is terminal and non-empty if the node is operation node

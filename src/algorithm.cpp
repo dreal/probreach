@@ -110,14 +110,14 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
 {
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of domain of continuous random parameters";
     // getting partition of domain of continuous random variables
-    std::vector<box> rv_partition = measure::get_rv_partition();
+    std::vector<box> init_rv_partition = measure::get_rv_partition();
     // getting domain of continuous random variables
     box rv_domain = measure::bounds::get_rv_domain();
     // here we start with entire domain instead of partition
     if(!global_config.partition_prob)
     {
-        rv_partition.clear();
-        rv_partition.push_back(rv_domain);
+        init_rv_partition.clear();
+        init_rv_partition.push_back(rv_domain);
     }
     // getting partition of domain of discrete random variables
     std::vector<box> dd_partition = measure::get_dd_partition();
@@ -128,10 +128,6 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
     }
     capd::interval probability(0,1);
     // checking if there are any continuous random variables
-    if(pdrh::rv_map.size() > 0)
-    {
-        probability = capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound());
-    }
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
     // generating all paths of lengths [min_depth, max_depth]
     std::vector<std::vector<pdrh::mode*>> paths;
@@ -140,9 +136,16 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
         std::vector<std::vector<pdrh::mode*>> paths_i = pdrh::get_paths(pdrh::get_mode(pdrh::init.front().id), pdrh::get_mode(pdrh::goal.front().id), i);
         paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
     }
+    //resulting probability
+    capd::interval res_prob(0.0);
     // evaluating boxes
     for(box dd : dd_partition)
     {
+        if(pdrh::rv_map.size() > 0)
+        {
+            probability = capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound());
+        }
+        vector<box> rv_partition = init_rv_partition;
         std::vector<box> rv_stack;
         while(capd::intervals::width(probability) > global_config.precision_prob)
         {
@@ -150,11 +153,11 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
             {
                 // calculating probability measure of the box
                 // initially p_box = [1.0, 1.0]
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "====================" << dd;
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "====================";
                 capd::interval p_box(1);
                 if (!dd.empty())
                 {
-                    p_box *= measure::p_measure(dd);
+                    //p_box *= measure::p_dd_measure(dd);
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "dd_box: " << dd;
                 }
                 if (!rv.empty())
@@ -164,9 +167,7 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                 }
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "p_box: " << p_box;
                 // evaluating boxes
-                std::vector<box> boxes;
-                boxes.push_back(dd);
-                boxes.push_back(rv);
+                std::vector<box> boxes{dd, rv};
                 // undetermined answers counter
                 int undet_counter = 0;
                 // solver timeout counter
@@ -194,40 +195,46 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                     // setting old precision
                     global_config.solver_opt = solver_opt;
 
-                    if(res == decision_procedure::SAT)
+                    switch(res)
                     {
-                        if(p_box.leftBound() > 0)
-                        {
-                            probability = capd::interval(probability.leftBound() + p_box.leftBound(), probability.rightBound());
-                        }
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
-                        if(capd::intervals::width(probability) <= global_config.precision_prob)
-                        {
-                            return probability;
-                        }
-                        sat_flag = true;
+                        case decision_procedure::SAT:
+                            if(p_box.leftBound() > 0)
+                            {
+                                probability = capd::interval(probability.leftBound() + p_box.leftBound(), probability.rightBound());
+                            }
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
+                            /*
+                            if(capd::intervals::width(probability) <= global_config.precision_prob)
+                            {
+                                return probability;
+                            }
+                            */
+                            sat_flag = true;
+                            break;
+
+                        case decision_procedure::UNSAT:
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                            unsat_counter++;
+                            break;
+                        case decision_procedure::UNDET:
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDEC";
+                            undet_counter++;
+                            break;
+                        case decision_procedure::ERROR:
+                            CLOG(ERROR, "algorithm") << "Error occurred while calling the solver";
+                            exit(EXIT_FAILURE);
+                            break;
+                        case decision_procedure::SOLVER_TIMEOUT:
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
+                            timeout_counter++;
+                            break;
+                        default:break;
+                    }
+                    // breaking out of the loop if a sat path was found
+                    if(sat_flag)
+                    {
                         break;
-                    }
-                    else if(res == decision_procedure::UNSAT)
-                    {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                        unsat_counter++;
-                    }
-                    else if(res == decision_procedure::UNDET)
-                    {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDEC";
-                        undet_counter++;
-                    }
-                    else if(res == decision_procedure::ERROR)
-                    {
-                        CLOG(ERROR, "algorithm") << "Error occurred while calling the solver";
-                        return EXIT_FAILURE;
-                    }
-                    else if(res == decision_procedure::SOLVER_TIMEOUT)
-                    {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                        timeout_counter++;
                     }
                 }
                 // checking if there are no sat answers
@@ -249,10 +256,12 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                                                          probability.rightBound() - p_box.leftBound());
                         }
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
+                        /*
                         if (capd::intervals::width(probability) <= global_config.precision_prob)
                         {
                             return probability;
                         }
+                        */
                     }
                 }
             }
@@ -266,8 +275,19 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                 break;
             }
         }
+        if (!dd.empty())
+        {
+            capd::interval dd_measure = measure::p_dd_measure(dd);
+            res_prob += probability * dd_measure;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(" << dd << ") = " << probability * dd_measure;
+        }
+        else
+        {
+            res_prob = probability;
+        }
+
     }
-    return probability;
+    return res_prob;
 }
 
 capd::interval algorithm::evaluate_pha(int depth)
@@ -355,7 +375,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                     }
                     if(!dd.empty())
                     {
-                        p_box *= measure::p_measure(dd);
+                        p_box *= measure::p_dd_measure(dd);
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "dd_box: " << dd;
                     }
                     if(!rv.empty())

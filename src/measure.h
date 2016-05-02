@@ -23,6 +23,7 @@ namespace measure
     capd::interval p_measure(rv_box, double);
     capd::interval p_measure(rv_box);
     capd::interval p_measure(dd_box);
+    capd::interval p_dd_measure(box);
 
     // obtain the partition of the parameter space
     std::vector<box> get_rv_partition();

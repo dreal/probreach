@@ -212,6 +212,42 @@ capd::interval measure::p_measure(rv_box b)
     return measure::p_measure(b, global_config.precision_prob);
 }
 
+capd::interval measure::p_dd_measure(box b)
+{
+    std::map<std::string, capd::interval> edges = b.get_map();
+    capd::interval res(1.0);
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        if(pdrh::dd_map.find(it->first) != pdrh::dd_map.cend())
+        {
+            bool measure_exists = false;
+            map<pdrh::node*, pdrh::node*> tmp_map = pdrh::dd_map[it->first];
+            for(auto it2 = tmp_map.cbegin(); it2 != tmp_map.cend(); it2++)
+            {
+                if(it->second == pdrh::node_to_interval(it2->first))
+                {
+                    res *= pdrh::node_to_interval(it2->second);
+                    measure_exists = true;
+                    break;
+                }
+            }
+            if(!measure_exists)
+            {
+                std::stringstream s;
+                s << "Measure for " << it->first << " = " << it->second << " is undefined";
+                throw std::invalid_argument(s.str());
+            }
+        }
+        else
+        {
+            std::stringstream s;
+            s << "Measure for " << it->first << " is undefined";
+            throw std::invalid_argument(s.str());
+        }
+    }
+    return res;
+}
+
 capd::interval measure::p_measure(dd_box b)
 {
     std::map<std::string, capd::interval> edges = b.get_map();
@@ -245,6 +281,7 @@ capd::interval measure::p_measure(dd_box b)
             throw std::invalid_argument(s.str());
         }
     }
+    cout << "RETURNING DD MEASURE: " << res << endl;
     return res;
 }
 

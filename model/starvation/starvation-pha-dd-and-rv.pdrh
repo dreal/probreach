@@ -17,11 +17,11 @@ model: pha;
 #define M0 43.6
 //#define b 0.075
 
-[1,100] F; //fat
-[1,100] M; //muscle mass
+[0,100] F; //fat
+[0,100] M; //muscle mass
 [0,100] K; //ketone bodies
-[0,100] time;
-[0,100] tau;
+[0,25] time;
+[0,25] tau;
 
 dist_normal(10.96, 1) k; //effect of body mass on metabolic rate
 dist_discrete(0.05:0.1, 0.06:0.2, 0.07:0.3, 0.075:0.4) b;

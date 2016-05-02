@@ -842,7 +842,7 @@ syn_pair:
 %%
 
 void yyerror(const char *s) {
-	CLOG_IF(global_config.verbose, ERROR, "parser") << "line " << line_num << ": " << s;
+	CLOG(ERROR, "parser") << "line " << line_num << ": " << s;
 	// might as well halt now:
 	exit(-1);
 }

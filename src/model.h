@@ -20,8 +20,27 @@ namespace pdrh
     // node of the tree of mathematical expression
     struct node
     {
+        // either a name of operation or a value of the operand (const or identifier)
+        string value;
+        // vector is empty if the node is terminal and non-empty if the node is operation node
+        vector<node*> operands;
+
         inline node(const node &rhs)
-            : value(rhs.value), operands(rhs.operands)
+                : value(rhs.value), operands(rhs.operands)
+        {
+        }
+
+        inline node(const string value, const vector<node*> operands)
+                : value(value), operands(operands)
+        {
+        }
+
+        inline node(const string value)
+                : value(value)
+        {
+        }
+
+        inline node()
         {
         }
 
@@ -33,13 +52,11 @@ namespace pdrh
             return *this;
         }
 
-        // either a name of operation or a value of the operand (const or identifier)
-        string value;
-        // vector is empty if the node is terminal and non-empty if the node is operation node
-        vector<node*> operands;
     };
     node* push_terminal_node(string);
     node* push_operation_node(string, vector<node*>);
+    node* copy_node(node*);
+    void copy_tree(node*&, node*);
 
     node* push_terminal_node(double);
     node* push_operation_node(double, vector<node*>);
@@ -48,7 +65,7 @@ namespace pdrh
     string node_to_string_infix(node*);
     capd::interval node_to_interval(node*);
     string node_fix_index(node*, int, string);
-    bool is_node_empty(pdrh::node*);
+    bool is_node_empty(node*);
 
     node* get_first_time_node(node*);
     void get_first_time_node(node*, node*);

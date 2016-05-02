@@ -1256,7 +1256,7 @@ void pdrh::get_first_time_node(node* root, node* time_node)
             if(strcmp(child->value.c_str(), global_config.time_var_name.c_str()) == 0)
             {
                 *time_node = *root;
-                root->value.clear();
+                root->value = "true";
                 root->operands.clear();
             }
             else
@@ -1292,17 +1292,10 @@ bool pdrh::is_node_empty(node* n)
 
 pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
 {
-    //cout << "ROOT BEFORE: " << pdrh::node_to_string_prefix(root) << " " << &root << endl;
-    // copying root node
     pdrh::node *root_copy = new pdrh::node();
     pdrh::copy_tree(root_copy, root);
-    //cout << "ROOT COPY BEFORE: " << pdrh::node_to_string_prefix(root_copy) << " " << &root_copy << endl;
-    // getting a copy time node
     pdrh::node* time_node = new pdrh::node;
     pdrh::get_first_time_node(root_copy, time_node);
-    //cout << "TIME NODE: " << pdrh::node_to_string_prefix(time_node) << endl;
-    //cout << "ROOT AFTER: " << pdrh::node_to_string_prefix(root) << " " << &root << endl;
-    //cout << "ROOT COPY AFTER: " << pdrh::node_to_string_prefix(root_copy) << " " << &root_copy << endl;
     if(pdrh::is_node_empty(time_node))
     {
         return NULL;
@@ -1311,7 +1304,6 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
     pdrh::node* not_node = pdrh::push_operation_node("not", vector<pdrh::node*>{root_copy});
     // creating a resulting node
     pdrh::node* res_node = pdrh::push_operation_node("and", vector<pdrh::node*>{time_node, not_node});
-    //cout << "RES NODE: " << pdrh::node_to_string_prefix(res_node) << endl;
     return res_node;
 }
 

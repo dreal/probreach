@@ -147,6 +147,18 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
+        // integral pdf step
+        else if(strcmp(argv[i], "--integral-pdf-step") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.integral_pdf_step;
+            if(global_config.integral_pdf_step <= 0)
+            {
+                CLOG(ERROR, "config") << "--integral-pdf-step should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
         // time series filename
         else if(strcmp(argv[i], "--series") == 0)
         {

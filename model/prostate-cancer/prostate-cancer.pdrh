@@ -1,7 +1,8 @@
 model: pha;
-#define	alphax	0.0197
-#define	betax	0.0175
-#define	betay	0.0168
+//#define	alphax	0.0197
+//#define	alphay	0.0242
+//#define	betax	0.0175
+//#define	betay	0.0168
 #define	k1	10.0
 #define	k2	1.0
 #define	k3	10.0
@@ -9,41 +10,45 @@ model: pha;
 #define	m1	0.00005
 #define	z0	12.0
 #define gamma   0.08
-#define	r1	10.0
-#define	r0	4.0
+#define	r1	10.7
+#define	r0	4.6
 #define	d0	1.0
 #define c1	0.01
 #define c2	0.03
 #define c3	0.02
-
 #define	Gx	((alphax/(1+exp((k1-z)*k2)))-(betax/(1+exp((z-k3)*k4))))
 #define Gy	((alphay * (1 - (d0 * (z / z0)))) - betay)
 #define Mxy	(m1 * (1 - (z / z0)))
 
-#define scale	1.0
-#define T	100.0
+dist_normal(0.0197, 0.01) alphax; // proliferation rate of androgen-dependent cells
+dist_normal(0.0242, 0.01) alphay; // proliferation rate of androgen-independent cells
+dist_normal(0.0175, 0.01) betax; // apoptosis rate of androgen-dependent cells
+dist_normal(0.0168, 0.01) betay; // apoptosis rate of androgen-independent cells
 
-//N(0.05,0.01)alphay;
-dist_normal(0.05, 0.01) alphay;
-
-[0,T]time;
-[0,T]tau;
-
+[0,365]time;
+[0,365]tau;
 [0,100.0]x;
 [0,10.0]y;
 [0.0,100.0]z;
-//[0.0197,0.0204]alphax;
+
 {
 mode 1;
 invt:
 (x+y>=r0);
 flow:
-d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
-d/dt[y]=scale * (Mxy * x + Gy * y);
-d/dt[z]=scale * (-z * gamma + c3);
-d/dt[tau]=scale * 1.0;
+d/dt[x]= ((Gx - Mxy - c1) * x + c2);
+d/dt[y]= (Mxy * x + Gy * y);
+d/dt[z]= (-z * gamma + c3);
+d/dt[tau]=1.0;
 jump:
-(x+y<=r0)==>@2(and(tau'=tau)(x'=x)(y'=y)(z'=z)(alphay'=alphay));
+(x+y<=r0)==>@2(and	(tau'=0)
+			(x'=x)
+			(y'=y)
+			(z'=z)
+			(alphax'=alphax)
+			(alphay'=alphay)
+			(betax'=betax)
+			(betay'=betay));
 }
 
 {
@@ -51,12 +56,19 @@ mode 2;
 invt:
 (x+y<=r1);
 flow:
-d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
-d/dt[y]=scale * (Mxy * x + Gy * y);
-d/dt[z]=scale * ((z0 - z) * gamma + c3);
-d/dt[tau]=scale * 1.0;
+d/dt[x]= ((Gx - Mxy - c1) * x + c2);
+d/dt[y]= (Mxy * x + Gy * y);
+d/dt[z]= ((z0 - z) * gamma + c3);
+d/dt[tau]= 1.0;
 jump:
-(x+y>=r1)==>@1(and(tau'=tau)(x'=x)(y'=y)(z'=z)(alphay'=alphay));
+(x+y>=r1)==>@1(and	(tau'=0)
+			(x'=x)
+			(y'=y)
+			(z'=z)
+			(alphax'=alphax)
+			(alphay'=alphay)
+			(betax'=betax)
+			(betay'=betay));
 }
 
 init:

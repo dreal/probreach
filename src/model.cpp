@@ -733,13 +733,18 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
         }
     }
     // declaring local time and bounds
-    if(!timed_node_neg)
+    if (!timed_node_neg)
     {
-        s << "(declare-fun _local_time () Real)" << endl;
-        s << "(declare-fun _local_time_" << path.size() - 1 << "_0 () Real)" << endl;
-        s << "(declare-fun _local_time_" << path.size() - 1 << "_t () Real)" << endl;
-        s << "(assert (= _local_time_" << path.size() - 1 << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) << "))" << endl;
-        s << "(assert (= _local_time_" << path.size() - 1 << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) << "))" << endl;
+        for(int i = 0; i <= path.size(); i++)
+        {
+            s << "(declare-fun _local_time () Real)" << endl;
+            s << "(declare-fun _local_time_" << i << "_0 () Real)" << endl;
+            s << "(declare-fun _local_time_" << i << "_t () Real)" << endl;
+            s << "(assert (= _local_time_" << i << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) <<
+            "))" << endl;
+            s << "(assert (= _local_time_" << i << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) <<
+            "))" << endl;
+        }
     }
     // declaring variables and defining bounds
     for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
@@ -905,13 +910,18 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
             }
         }
         // declaring local time and bounds
-        if(!timed_node_neg)
+        if (!timed_node_neg)
         {
-            s << "(declare-fun _local_time () Real)" << endl;
-            s << "(declare-fun _local_time_" << depth << "_0 () Real)" << endl;
-            s << "(declare-fun _local_time_" << depth << "_t () Real)" << endl;
-            s << "(assert (= _local_time_" << depth << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) << "))" << endl;
-            s << "(assert (= _local_time_" << depth << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) << "))" << endl;
+            for(int i = 0; i <= depth; i++)
+            {
+                s << "(declare-fun _local_time () Real)" << endl;
+                s << "(declare-fun _local_time_" << i << "_0 () Real)" << endl;
+                s << "(declare-fun _local_time_" << i << "_t () Real)" << endl;
+                s << "(assert (= _local_time_" << i << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) <<
+                "))" << endl;
+                s << "(assert (= _local_time_" << i << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) <<
+                "))" << endl;
+            }
         }
         // declaring variables and defining bounds
         for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
@@ -952,7 +962,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
                     s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
                 }
                 // introducing local time if defined
-                if((step == depth) && (!timed_node_neg))
+                if((!timed_node_neg))
                 {
                     s << "(= d/dt[_local_time] 1.0)";
                 }
@@ -997,7 +1007,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
                 s << ode_it->first << "_" << i << "_t ";
             }
             // defining local time if enabled
-            if((i == depth) && (!timed_node_neg))
+            if(!timed_node_neg)
             {
                 s << "_local_time_" << i << "_t";
             }
@@ -1007,7 +1017,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
                 s << ode_it->first << "_" << i << "_0 ";
             }
             // defining local time if enabled
-            if((i == depth) && (!timed_node_neg))
+            if(!timed_node_neg)
             {
                 s << "_local_time_" << i << "_0";
             }

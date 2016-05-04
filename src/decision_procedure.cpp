@@ -32,6 +32,7 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
     smt_file << pdrh::reach_to_smt2(path, boxes);
     //cout << "FIRST FORMULA" << endl;
     //cout << pdrh::reach_to_smt2(path, boxes) << endl;
+    //exit(EXIT_SUCCESS);
     smt_file.close();
     // calling dreal here
     int first_res = dreal::execute(global_config.solver_bin, smt_filename, global_config.solver_opt);

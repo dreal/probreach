@@ -10,10 +10,10 @@ model: pha;
 #define	m1	0.00005
 #define	z0	12.0
 #define gamma   0.08
-#define	r0	4.6
-#define	r1	10.7
-//#define	r0	1.9
-//#define	r1	8.0
+//#define	r0	4.6
+//#define	r1	10.7
+#define	r0	1.9
+#define	r1	8.0
 //#define	r0	6.0
 //#define	r1	12.0
 #define	d0	1.0

@@ -55,8 +55,8 @@ model:pha;
 #define ka 19
 //#define InA 60000
 
-[0,365] time;
-[0,365] tau;
+[0,2000] time;
+[0,2000] tau;
 [0,10000] SC; // normal stem cell
 [0,10000] TA; // normal transit amplifying cell
 [0,10000] GA; // normal growth arrested cell

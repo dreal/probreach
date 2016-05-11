@@ -27,6 +27,7 @@ struct pdrh_config
     unsigned int solver_timeout = 10; // seconds
     int reach_depth_min = 0;
     int reach_depth_max = 0;
+    bool verbose_result = false;
     bool witness_guided = false;
     // boxes options
     bool boxes_prepartition = false;

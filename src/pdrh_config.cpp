@@ -178,11 +178,6 @@ void parse_pdrh_config(int argc, char* argv[])
             i++;
             global_config.time_var_name = string(argv[i]);
         }
-        // verbose
-        else if(strcmp(argv[i], "--verbose") == 0)
-        {
-            global_config.verbose = true;
-        }
         // chernoff bound accuracy
         else if(strcmp(argv[i], "--chernoff-acc") == 0)
         {
@@ -275,6 +270,17 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--partition") == 0)
         {
             global_config.boxes_prepartition = true;
+        }
+        // verbose
+        else if(strcmp(argv[i], "--verbose") == 0)
+        {
+            global_config.verbose = true;
+            global_config.verbose_result = true;
+        }
+        // sample size display
+        else if(strcmp(argv[i], "--verbose-result") == 0)
+        {
+            global_config.verbose_result = true;
         }
         // version
         else if(strcmp(argv[i], "--version") == 0)

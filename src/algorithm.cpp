@@ -728,6 +728,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
         }
     }
     gsl_rng_free(r);
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Chernoff-Hoeffding algorithm finished";
     return capd::interval(((double) sat / (double) sample_size) - acc, ((double) (sample_size - unsat) / (double) sample_size) + acc);
 }
 
@@ -753,7 +754,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     double post_mean_sat = ((double) sat + alpha) / ((double) sample_size + alpha + beta);
     double post_mean_unsat = ((double) sample_size - unsat + alpha) / ((double) sample_size + alpha + beta);
     double post_prob = 0;
-    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimation algorithm started";
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm started";
     #pragma omp parallel
     while(post_prob < conf)
     {
@@ -863,6 +864,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     gsl_rng_free(r);
     // displaying sample size if enabled
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << sample_size;
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm finished";
     if(global_config.delta_sat)
     {
         return capd::interval(post_mean_sat - acc, post_mean_sat + acc);

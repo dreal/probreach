@@ -9,14 +9,13 @@
 #include "pdrh_config.h"
 #include "model.h"
 #include "algorithm.h"
-#include "easylogging++.h"
 #include "rnd.h"
-//#include "dreal.hh"
-
 extern "C"
 {
     #include "pdrhparser.h"
 }
+
+#include "easylogging++.h"
 
 extern "C" int yyparse();
 extern "C" FILE *yyin;
@@ -50,14 +49,20 @@ int main(int argc, char* argv[])
     std::stringstream s, pdrhnameprep;
     pdrhnameprep << global_config.model_filename << ".preprocessed";
     s << "cpp -w -P " << global_config.model_filename << " > " << pdrhnameprep.str().c_str();
-    system(s.str().c_str());
+    int res = system(s.str().c_str());
+    // cheking the result of system call
+    if(res != 0)
+    {
+        CLOG(ERROR, "parser") << "Problem occured while preprocessing " << global_config.model_filename;
+        exit(EXIT_FAILURE);
+    }
     // parsing the preprocessed file
     FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
     // make sure it's valid:
     if (!pdrhfileprep)
     {
         CLOG(ERROR, "parser") << "Couldn't open " << pdrhnameprep;
-        return -1;
+        exit(EXIT_FAILURE);
     }
     // set lex to read from it instead of defaulting to STDIN:
     yyin = pdrhfileprep;
@@ -145,6 +150,8 @@ int main(int argc, char* argv[])
         // parameter synthesis
         case pdrh::PSY:
         {
+            CLOG(ERROR, "algorithm") << "Parameter synthesis is currently not supported";
+            exit(EXIT_FAILURE);
             /*
             if(global_config.series_filename.empty())
             {
@@ -171,9 +178,23 @@ int main(int argc, char* argv[])
             {
                 std::cout << b << std::endl;
             }
-            */
             break;
+            */
+        }
+        case pdrh::NHA:
+        {
+            CLOG(ERROR, "algorithm") << "Nondeterministic hybrid automata is currently not supported";
+            exit(EXIT_FAILURE);
+            //break;
         }
     }
+    // unregister the loggers
+    el::Loggers::unregisterLogger("parser");
+    el::Loggers::unregisterLogger("algorithm");
+    el::Loggers::unregisterLogger("solver");
+    el::Loggers::unregisterLogger("series-parser");
+    el::Loggers::unregisterLogger("config");
+    el::Loggers::unregisterLogger("ran_gen");
+    el::Loggers::unregisterLogger("model");
     return EXIT_SUCCESS;
 }

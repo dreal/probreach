@@ -37,11 +37,11 @@ false                   { return FALSE; }
 
 timeprecision           { return TIME_PREC; }
 model                   { return MODEL; }
-ha                      { yylval.sval = strdup(yytext); return model_type; }
-pha                     { yylval.sval = strdup(yytext); return model_type; }
-nha                     { yylval.sval = strdup(yytext); return model_type; }
-npha                    { yylval.sval = strdup(yytext); return model_type; }
-psy                     { yylval.sval = strdup(yytext); return model_type; }
+ha                      { yylval.sval = strdup(yytext); return m_type; }
+pha                     { yylval.sval = strdup(yytext); return m_type; }
+nha                     { yylval.sval = strdup(yytext); return m_type; }
+npha                    { yylval.sval = strdup(yytext); return m_type; }
+psy                     { yylval.sval = strdup(yytext); return m_type; }
 
 time                    { return TIME; }
 

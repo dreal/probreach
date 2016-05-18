@@ -11,7 +11,6 @@
 #include "model.h"
 #include "measure.h"
 #include "pdrh_config.h"
-#include "logging/easylogging++.h"
 
 // stuff from flex that bison needs to know about:
 extern "C" int yylex();
@@ -45,7 +44,7 @@ void yyerror(const char *s);
 %token EQ GT LT GE LE NE
 %token TRUE FALSE
 
-%token <sval> model_type
+%token <sval> m_type
 %token <sval> identifier
 %token <sval> number
 %token <fval> n_float
@@ -83,7 +82,7 @@ pdrh:
 	| model declarations modes init goal { ; }
 
 model:
-	MODEL ':' model_type ';'    {
+	MODEL ':' m_type ';'    {
 	                                if(strcmp(strdup($3), "ha") == 0)
 	                                {
 	                                    pdrh::model_type = pdrh::HA;
@@ -842,7 +841,6 @@ syn_pair:
 %%
 
 void yyerror(const char *s) {
-	CLOG(ERROR, "parser") << "line " << line_num << ": " << s;
-	// might as well halt now:
-	exit(-1);
+	std::cerr << "line " << line_num << ": " << s << std::endl;
+	exit(EXIT_FAILURE);
 }

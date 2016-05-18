@@ -20,7 +20,16 @@ if(NOT DEFINED DREAL_DIR)
     message(WARNING "The variable DREAL_DIR is not defined. The default value \"/usr/local/src/dreal\" will be set")
     set(DREAL_DIR /usr/local/src/dreal)
 endif(NOT DEFINED DREAL_DIR)
-set(DREAL_REL_DIR ${DREAL_DIR}/build/release)
+
+if(NOT DEFINED DREAL_REL_DIR)
+    if(EXISTS ${DREAL_DIR}/build/release)
+        set(DREAL_REL_DIR ${DREAL_DIR}/build/release)
+    elseif(EXISTS ${DREAL_DIR}/build/minsizerel)
+        set(DREAL_REL_DIR ${DREAL_DIR}/build/minsizerel)
+    else(EXISTS ${DREAL_DIR}/build/release)
+        message(FATAL_ERROR "dReal build not was not found at ${DREAL_DIR}/build/release or ${DREAL_DIR}/build/minsizerel. Please set the variable DREAL_REL_DIR with the full path to dReal build")
+    endif(EXISTS ${DREAL_DIR}/build/release)
+endif(NOT DEFINED DREAL_REL_DIR)
 
 # setting ProbReach version
 set(PROBREACH_VERSION_MAJOR 1)

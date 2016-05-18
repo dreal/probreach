@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     // make sure it's valid:
     if (!pdrhfileprep)
     {
-        CLOG(ERROR, "parser") << "Couldn't open " << pdrhnameprep;
+        CLOG(ERROR, "parser") << "Couldn't open " << pdrhnameprep.str();
         exit(EXIT_FAILURE);
     }
     // set lex to read from it instead of defaulting to STDIN:

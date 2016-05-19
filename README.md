@@ -2,9 +2,9 @@
         <img style="align:center" src="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach/img/banner-alt.gif" alt="ProbReach banner"/>
 </a>
 
-ProbReach - software for calculating bounded probabilistic reachability in hybrid systems with uncertainty in initial parameters.
+ProbReach - software for calculating bounded probabilistic reachability and performing parameter set synthesis in hybrid systems with uncertainty in initial parameters. ProbReach supports formal verification (computing rigorous enclosures) and statistical model checking (Chernoff-Hoeffding bound and Bayesian estimations).
 
-*The parameter synthesis in hybrid systems is not currently supported.*
+*The parameter set synthesis in hybrid systems is not currently supported.*
 
 Install
 ====================
@@ -29,7 +29,7 @@ cd build/release
 cmake ../../
 make
 ```
-If your ```dReal``` location is different from ```/usr/local/src/dreal``` run
+If your dReal location is different from ```/usr/local/src/dreal``` run
 ```
 cmake -DDREAL_DIR=/path/to/dreal/directory ../../
 ```

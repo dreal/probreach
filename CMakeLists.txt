@@ -103,6 +103,12 @@ set(SOURCES ${SOURCES} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c ${PROBRE
 # adding executable
 add_executable(ProbReach ${SOURCES})
 
+# creating a bin folder and copying ProbReach binary there
+add_custom_command(TARGET ProbReach POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROBREACH_SOURCE_DIR}/../bin
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROBREACH_BINARY_DIR}/ProbReach ${PROBREACH_SOURCE_DIR}/../bin
+    COMMENT "Copying ${PROBREACH_BINARY_DIR}/ProbReach to ${PROBREACH_SOURCE_DIR}/../bin")
+
 # linking libraries
 target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libcapd.a)
 target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libibex.a)
@@ -110,8 +116,3 @@ target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libprim.a)
 # flag for FLEX and GSL
 target_link_libraries(ProbReach -lfl -lgsl)
 
-# creating a bin folder and copying ProbReach binary there
-add_custom_target(TARGET ProbReach POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROBREACH_SOURCE_DIR}/../bin
-    COMMAND ${CMAKE_COMMAND} -E copy ${PROBREACH_BINARY_DIR}/parser/pdrh/ProbReach ${PROBREACH_SOURCE_DIR}/../bin
-    COMMENT "Copying ${PROBREACH_BINARY_DIR}/parser/pdrh/ProbReach to ${PROBREACH_SOURCE_DIR}/../bin")

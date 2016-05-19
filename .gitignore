@@ -11,5 +11,4 @@ CMakeFiles/
 Makefile
 ProbReach
 CMakeCache.txt
-src/version.h
-src/config.h
+

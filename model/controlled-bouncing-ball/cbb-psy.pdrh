@@ -1,0 +1,155 @@
+MODEL_TYPE(PSY;R:1e-2;C:1e-5)
+//#define R 5.0
+//#define C 0.0025
+#define m 7.0
+#define g 9.8
+
+[-100, 100]x;
+[-100, 100]v;
+[0, 100]time;
+[0, 100]tau;
+[4.9, 5.1] R;
+[0.0024, 0.0026] C;
+
+{
+mode1;
+invt:
+(x >= 0);
+invt_c:
+(x >= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g;
+d/dt[tau] = 1;
+jump:
+(x <= 0)==>@2(and (x' = x) (v' = v) (tau' = tau));
+}
+
+{
+mode2;
+invt:
+(x <= 0);
+invt_c:
+(x <= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g - (R * v + x / C) / m;
+d/dt[tau] = 1;
+jump:
+(x >= 0)==>@3(and (x' = x) (v' = v) (tau' = tau));
+}
+
+{
+mode3;
+invt:
+(x >= 0);
+invt_c:
+(x >= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g;
+d/dt[tau] = 1;
+jump:
+(x <= 0)==>@4(and (x' = x) (v' = v) (tau' = tau));
+}
+
+{
+mode4;
+invt:
+(x <= 0);
+invt_c:
+(x <= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g - (R * v + x / C) / m;
+d/dt[tau] = 1;
+jump:
+(x >= 0)==>@5(and (x' = x) (v' = v) (tau' = tau));
+}
+
+{
+mode5;
+invt:
+(x >= 0);
+invt_c:
+(x >= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g;
+d/dt[tau] = 1;
+jump:
+(x <= 0)==>@6(and (x' = x) (v' = v) (tau' = tau));
+}
+
+{
+mode6;
+invt:
+(x <= 0);
+invt_c:
+(x <= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g - (R * v + x / C) / m;
+d/dt[tau] = 1;
+jump:
+(x >= 0)==>@7(and (x' = x) (v' = v) (tau' = tau));
+}
+
+{
+mode7;
+invt:
+(x >= 0);
+invt_c:
+(x >= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g;
+d/dt[tau] = 1;
+jump:
+(x <= 0)==>@8(and (x' = x) (v' = v) (tau' = tau));
+}
+
+{
+mode8;
+invt:
+(x <= 0);
+invt_c:
+(x <= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g - (R * v + x / C) / m;
+d/dt[tau] = 1;
+jump:
+(x >= 0)==>@9(and (x' = x) (v' = v) (tau' = tau));
+}
+
+{
+mode9;
+invt:
+(x >= 0);
+invt_c:
+(x >= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g;
+d/dt[tau] = 1;
+jump:
+(x <= 0)==>@10(and (x' = x) (v' = v) (tau' = tau));
+}
+
+{
+mode10;
+invt:
+(x <= 0);
+invt_c:
+(x <= 0);
+flow:
+d/dt[x]= v;
+d/dt[v]= - g - (R * v + x / C) / m;
+d/dt[tau] = 1;
+jump:
+
+}
+
+init:
+@1(and (v = 0) (x = 9) (tau = 0));

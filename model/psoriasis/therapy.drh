@@ -1,0 +1,378 @@
+//   -----------------------------------------------------------------
+//   Date: 2012/12/24
+//   ----------------------------------------------------------------- 
+//  Author: Hong Zhang @ PICB, SIBS, CAS
+//   E-mail: hongzhang2016@gmail.com
+//   -----------------------------------------------------------------
+//   Produced at Signal Transduction and Biosystems Group.
+//   All rights reserved.
+//   ----------------------------------------------------------------
+// Cell population change is represented by ordinary differential equations
+
+//-----------parameters
+#define gamma1 0.0033 // stem cell proliferation rate is represented by a logistic equation (self-renewal)
+#define k1as 0.0131   //rate constant of one stem cell divid into one stem cell and on transit amplifying cell
+#define k1s 0.00164    //rate constant of stem cell to TA cell (symmetric dividation)
+#define beta1 1.97e-06  //stem cell apoptosis rate constant 
+#define k_1 1e-06    //rate constant of TA turn back to stem cell
+#define gamma2 0.014 //TA proliferation rate constant (self-renewal)
+#define k2s 0.01729     //rate constant of TA symmetric division into two GA cell
+#define k2as 0.1383     //rate constant of TA asymmetric division into one GA and one TA cell
+#define beta2 2.08e-05  //TA apoptosis rate constant 
+#define k_2 1e-06    //rate constant of GA turn back to TA
+#define k3 0.2161    //rate constant of GA differentiate into SpC 
+#define k4 0.0556    //rate constant of SpC differentiat into GC
+#define k5 0.1112    //rate constant of GC differentiat into CC 
+#define alpha 0.0714285714285714 //desquamation rate constant of CC
+#define beta3 0.00026 // GA apoptosis rate constant
+#define beta4 6.68e-05 // SpC apoptosis rate constant
+#define beta5 0.000133 // GC apoptosis rate constant
+
+//------psoriastic cell kinetic parameters
+#define gamma1d 0.0132 // stem cell proliferation rate is represented by a logistic equation (self-renewal)
+#define k1asd 0.0524   //rate constant of one stem cell divid into one stem cell and on transit amplifying cell
+#define k1sd 0.00656    //rate constant of stem cell to TA cell (symmetric dividation)
+#define beta1d 2.296e-06  //stem cell apoptosis rate constant 
+#define k_1d 1e-06    //rate constant of TA turn back to stem cell
+#define gamma2d 0.056 //TA proliferation rate constant (self-renewal)
+#define k2sd 0.06916     //rate constant of TA symmetric division into two GA cell
+#define k2asd 0.5532     //rate constant of TA asymmetric division into one GA and one TA cell
+#define beta2d 2.42e-05  //TA apoptosis rate constant 
+#define k_2d 1e-06    //rate constant of GA turn back to TA
+#define k3d 1.0805    //rate constant of GA differentiate into SpC 
+#define k4d 0.278    //rate constant of SpC differentiat into GC
+#define alphad 0.285714285714286 //desquamation rate constant of CC
+#define beta3d 0.0003785 // GA apoptosis rate constant
+#define beta4d 9.75e-05 // SpC apoptosis rate constant
+
+#define lambda 0.285714285714286
+#define SCmax 225 
+#define SCmaxt 787.5
+#define omega 100
+#define Pta_h 560.93100861522
+#define n 3
+#define kp 0.3
+#define ka 19
+
+//#define InA 60000
+
+[0,365] time;
+[0,365] tau;
+[0,10000] SC; // normal stem cell
+[0,10000] TA; // normal transit amplifying cell
+[0,10000] GA; // normal growth arrested cell
+[0,10000] SP; // normal spinous cell
+[0,10000] GC; // normal granular cell
+[0,10000] CC; // normal corneocyte
+[0,10000] SC_d; // abnormal stem cell
+[0,10000] TA_d; // abnormal transit amplifying cell
+[0,10000] GA_d; // abnormal growth arrested cell
+[0,10000] SP_d; // abnormal spinous cell
+[0,10000] CC_d; // abnormal corneocyte
+[0,100000] InA;
+
+{
+mode 1;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*InA*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*InA*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*InA*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 2)) ==> @2(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 2;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 8/24)) ==> @3(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 3;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*InA*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*InA*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*InA*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 2)) ==> @4(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 4;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 8/24)) ==> @5(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 5;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*InA*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*InA*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*InA*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 2)) ==> @6(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 6;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 8/24)) ==> @7(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 7;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*InA*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*InA*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*InA*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 2)) ==> @8(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 8;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 8/24)) ==> @9(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 9;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*InA*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*InA*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*InA*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 2)) ==> @10(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 10;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 8/24)) ==> @11(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 11;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*InA*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*InA*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*InA*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 2)) ==> @12(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 12;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 8/24)) ==> @13(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 13;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*InA*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*InA*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*InA*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+(and (tau = 2)) ==> @14(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0)(InA' = InA));
+}
+
+{
+mode 14;
+flow:
+d/dt[SC] = gamma1*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*(1-(SC+lambda*SC_d)/SCmax)*SC-beta1*SC-k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+k_1*TA;
+d/dt[TA] = k1as*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+2*k1s*omega/(1+(omega-1)*((TA+TA_d)/Pta_h)^n)*SC+gamma2*TA+k_2*GA-beta2*TA-k2s*TA-k_1*TA;
+d/dt[GA] = (k2as+2*k2s)*TA-k_2*GA-k3*GA-beta3*GA;
+d/dt[SP] = k3*GA-k4*SP-beta4*SP;
+d/dt[GC] = k4*SP-k5*GC-beta5*GC;
+d/dt[CC] = k5*GC-alpha*CC;
+d/dt[SC_d] = gamma1d*(1-(SC+SC_d)/SCmaxt)*SC_d-beta1d*SC_d-k1sd*SC_d-kp*SC_d^2/(ka^2+SC_d^2)+k_1d*TA_d;
+d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d-k_1d*TA_d;
+d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
+d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
+d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
+d/dt[tau] = 1;
+d/dt[InA] = 0;
+jump:
+
+}
+
+// initial values are medians of the intervals derived by evaluating the goal (tau = 2000)
+// in mode 1 by dReal-2.14.08 with precision 1e-3
+init:
+@1(and
+		(tau = 0)
+		(SC = 25.5284676372)
+		(TA = 6.15050058761)
+		(GA = 4.91809371079)
+		(SP = 19.1502241137)
+		(GC = 9.578620275)
+		(CC = 14.9499775242)
+		(SC_d = 313.933927525)
+		(TA_d = 1559.97864362)
+		(GA_d = 998.034827674)
+		(SP_d = 3877.68484309)
+		(CC_d = 3772.97697905)
+		(InA >= 60000)
+		(InA <= 60000)
+	);
+
+goal:
+// full therapy with the goal below, -l 12, -k 12, --precision 1e-1 and dReal-2.14.08 in about 3 min and checks out with MATLAB results
+//@1(and (tau = 2));
+//@13(and ( tau = 2));
+@14(and (tau = 365));

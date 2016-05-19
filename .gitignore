@@ -1,5 +1,15 @@
 bin/
+build/
 .o
 .o.d
 .obj/
 .idea/
+src/.obj
+src/logs/
+cmake_install.cmake
+CMakeFiles/
+Makefile
+ProbReach
+CMakeCache.txt
+src/version.h
+src/config.h

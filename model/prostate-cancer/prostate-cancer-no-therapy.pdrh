@@ -1,0 +1,49 @@
+model: pha;
+//#define	alphax	0.0197
+//#define	alphay	0.0242
+//#define	betax	0.0175
+//#define	betay	0.0168
+#define	k1	10.0
+#define	k2	1.0
+#define	k3	10.0
+#define	k4	2
+#define	m1	0.00005
+#define	z0	12.0
+#define gamma   0.08
+#define	r1	10.8
+#define	r0	5.2
+#define	d0	1.0
+#define c1	0.01
+#define c2	0.03
+#define c3	0.02
+#define	Gx	((alphax/(1+exp((k1-z)*k2)))-(betax/(1+exp((z-k3)*k4))))
+#define Gy	((alphay * (1 - (d0 * (z / z0)))) - betay)
+#define Mxy	(m1 * (1 - (z / z0)))
+
+dist_normal(0.0197, 0.01) alphax; // proliferation rate of androgen-dependent cells
+dist_normal(0.0242, 0.01) alphay; // proliferation rate of androgen-independent cells
+dist_normal(0.0175, 0.01) betax; // apoptosis rate of androgen-dependent cells
+dist_normal(0.0168, 0.01) betay; // apoptosis rate of androgen-independent cells
+
+[0,365]time;
+[0,365]tau;
+[0,100.0]x;
+[0,10.0]y;
+[0.0,100.0]z;
+
+{
+mode 1;
+flow:
+d/dt[x]= ((Gx - Mxy - c1) * x + c2);
+d/dt[y]= (Mxy * x + Gy * y);
+d/dt[z]= ((z0 - z) * gamma + c3);
+d/dt[tau]= 1.0;
+jump:
+
+}
+
+init:
+@1(and (x = 19) (y = 0.1) (z = 12.5) (tau = 0));
+
+goal:
+@1(and(y >= 1)(tau = 365));

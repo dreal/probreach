@@ -1,0 +1,155 @@
+MODEL_TYPE(PSY;alphax:0.005;alphay:0.005;betax:0.005;betay:0.005)
+//#define	alphax	0.0197
+//#define alphay	0.0242
+//#define	betax	0.0175
+//#define	betay	0.0168
+#define	k1	10.0
+#define	k2	1.0
+#define	k3	10.0
+#define	k4	2
+#define	m1	0.00005
+#define	z0	12.0
+#define gamma   0.08
+#define	d0	1.0
+#define c1	0.01
+#define c2	0.03
+#define c3	0.02
+#define	Gx	((alphax/(1+exp((k1-z)*k2)))-(betax/(1+exp((z-k3)*k4))))
+#define Gy	((alphay * (1 - (d0 * (z / z0)))) - betay)
+#define Mxy	(m1 * (1 - (z / z0)))
+#define scale	1.0
+#define T	2200.0
+
+// therapy plan
+#define	r0	1.6
+#define	r1	10.7
+
+[0,T]time;
+[0,T]tau;
+
+[0.0,0.05]alphax;
+[0.0,0.05]alphay;
+[0.0,0.05]betax;
+[0.0,0.05]betay;
+
+[0.0,100.0]x;
+[0.0,100.0]y;
+[0.0,100.0]z;
+[0.0,100.0]v;
+//[1.3,1.8]r0;
+//[11.5,12.5]r1;
+
+{
+mode 1;
+flow:
+d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
+d/dt[y]=scale * (Mxy * x + Gy * y);
+d/dt[z]=scale * (-z * gamma + c3);
+d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
+d/dt[tau]=scale * 1.0;
+jump:
+(v=r0)==>@2(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+
+{
+mode 2;
+flow:
+d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
+d/dt[y]=scale * (Mxy * x + Gy * y);
+d/dt[z]=scale * ((z0 - z) * gamma + c3);
+d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
+d/dt[tau]=scale * 1.0;
+jump:
+(v=r1)==>@3(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+
+{
+mode 3;
+flow:
+d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
+d/dt[y]=scale * (Mxy * x + Gy * y);
+d/dt[z]=scale * (-z * gamma + c3);
+d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
+d/dt[tau]=scale * 1.0;
+jump:
+(v=r0)==>@4(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+
+{
+mode 4;
+flow:
+d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
+d/dt[y]=scale * (Mxy * x + Gy * y);
+d/dt[z]=scale * ((z0 - z) * gamma + c3);
+d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
+d/dt[tau]=scale * 1.0;
+jump:
+(v=r1)==>@5(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+
+{
+mode 5;
+flow:
+d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
+d/dt[y]=scale * (Mxy * x + Gy * y);
+d/dt[z]=scale * (-z * gamma + c3);
+d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
+d/dt[tau]=scale * 1.0;
+jump:
+(v=r0)==>@6(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+
+{
+mode 6;
+flow:
+d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
+d/dt[y]=scale * (Mxy * x + Gy * y);
+d/dt[z]=scale * ((z0 - z) * gamma + c3);
+d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
+d/dt[tau]=scale * 1.0;
+jump:
+(v=r1)==>@7(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+
+{
+mode 7;
+flow:
+d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
+d/dt[y]=scale * (Mxy * x + Gy * y);
+d/dt[z]=scale * (-z * gamma + c3);
+d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
+d/dt[tau]=scale * 1.0;
+jump:
+(v=r0)==>@8(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+
+{
+mode 8;
+flow:
+d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
+d/dt[y]=scale * (Mxy * x + Gy * y);
+d/dt[z]=scale * ((z0 - z) * gamma + c3);
+d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
+d/dt[tau]=scale * 1.0;
+jump:
+(v=r1)==>@9(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+}
+
+{
+mode 9;
+flow:
+d/dt[x]=scale * ((Gx - Mxy - c1) * x + c2);
+d/dt[y]=scale * (Mxy * x + Gy * y);
+d/dt[z]=scale * (-z * gamma + c3);
+d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
+d/dt[tau]=scale * 1.0;
+jump:
+
+}
+
+init:
+@1(and(v=19.1)(x=19)(y=0.1)(z=12.5)(tau=0));
+
+//goal:
+//@1(and(x+y=r0));
+//@2(and(x+y=r1));

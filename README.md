@@ -2,53 +2,34 @@
         <img style="align:center" src="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach/img/banner-alt.gif" alt="ProbReach banner"/>
 </a>
 
-ProbReach - software for calculating bounded probabilistic reachability in hybrid systems with uncertainty in initial parameters. The first version of the tool supporting **multiple** continuous and discrete random variables and continuous **nondeterministic** parameters is now released.
+ProbReach - software for calculating bounded probabilistic reachability in hybrid systems with uncertainty in initial parameters.
 
-Download
+*The parameter synthesis in hybrid systems is not currently supported.*
+
+Install
 ====================
 Latest version of static binary for Linux can be downloaded from ProbReach [releases page](https://github.com/dreal/probreach/releases)
 
 How to Build
 ====================
-
 1. Required packages
 --------------------
-- [gcc-4.9](https://gcc.gnu.org/gcc-4.9/)
-- [dReal/dReach](https://github.com/dreal/dreal)
-- [capd-4.0](http://capd.ii.uj.edu.pl/)
-- [ibex](http://www.ibex-lib.org/)
-2. Compilation (with gcc-4.9 or later)
+In order to build ProbReach you will need to install the following packages
+- [>=gcc-4.9](https://gcc.gnu.org/gcc-4.9/)
+- [dReal](https://github.com/dreal/dreal3)
+- [GSL](http://www.gnu.org/software/gsl/)
+
+2. Build ProbReach
 --------------------
-
-###2.1. Standard compilation
 ```
-cd probreach/src
-make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/
-make install
+git clone https://github.com/dreal/probreach.git probreach
+cd probreach
+mkdir -p build/release
+cd build/release
+cmake ../../
+make
 ```
-###2.2. Compiling with [OpenMP](http://www.openmp.org/)
+If your ```dReal``` location is different from ```/usr/local/src/dreal``` run
 ```
-cd probreach/src
-make CXX=g++-4.9 CC=gcc-4.9 CAPDBINDIR=/path/to/capd-4/bin/ WITHOMP=yes
-make install
+cmake -DDREAL_DIR=/path/to/dreal/directory ../../
 ```
-The executable can be accessed at `probreach/bin`
-
-3. Usage
---------------------
-Run ```./ProbReach <options> <model-file.pdrh> --dreach <dReach-options> --dreal <dReal-options>```
-
-```
-options:
-        -e <double> - length of probability interval or maximum length of the box (default 0.001)
-        -l <string> - full path to dReach binary (default dReach)
-        -t <int> - number of CPU cores (default max cores available)
-        -h/--help - help message
-        --version - version of the tool
-        --verbose - output computation details
-        --visualize <string> - produces <model-file.json> containing Borel set for parameter <string> and probability value with respect to time
-        --dreach - delimits dReach options (e.g. reachability depth)
-        --dreal - delimits dReal options (e.g. precision, ode step)
-```
-
-Current version of ```ProbReach``` computes exactly ```-k``` step probability reachability. Using ```dReach``` version supporting up to ```-k``` steps reachability (with```-l``` and ```-u``` flags) ```-l``` must be specified and be equal to ```-k```.

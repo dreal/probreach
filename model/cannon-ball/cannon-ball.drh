@@ -1,0 +1,28 @@
+[9.8067]    g; // taken from wikipedia
+[0.7854]    alpha; // angle to horizon
+[0, 100]    Sy; // vertical distance
+[-10, 1000] Sx; // horizontal distance
+[0, 15]     t; // local time
+[0, 15]     time; // local time (required)
+[0, 50]     v0; // initial velocity
+
+{
+mode 1;
+invt:
+    (Sx >= 0.0);
+    (Sy >= 0.0);
+    (t >= 0);
+    (v0 >= 0);
+flow:
+    d/dt[Sx]    = v0 * cos(alpha);
+    d/dt[Sy]    = v0 * sin(alpha) - g * t;
+    d/dt[t]     = 1.0;
+jump:
+    (and (t > 1e-6) (Sy = 0)) ==> @1(and (Sx' = Sx) (Sy' = 0) (t' = 0) (v0' = 0.9 * v0));
+}
+
+init:
+@1(and (Sx = 0) (Sy = 0) (t = 0) (v0 = 31.31));
+
+goal:
+@1(and (Sx >= 100.0));

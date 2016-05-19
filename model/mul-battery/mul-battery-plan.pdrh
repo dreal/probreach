@@ -1,0 +1,148 @@
+MODEL_TYPE(NPHA)
+/*
+ * This model describes dynamics for 2 batteries battery.
+ *
+ * Condition for the battery to be dead is gamma1<=(1-c1)*delta1
+ *
+ * 
+ */
+
+//#define kprime 0.122
+// initial charge of the battery can be randomized ([5.0,6.0] works)
+#define gamma_l 5.0
+#define gamma_u 5.0
+#define c 0.166
+
+[-100,100] delta1;
+[-100,100] gamma1;
+[-100,100] delta2;
+[-100,100] gamma2;
+[0,10] i;
+[0,10] t;
+[0,10] time;
+// nondet parameter ([0.5,1.5] works)
+[0.5,1.5] t_jump1; // works
+[0.5,1.5] t_jump2; // works
+[0.5,1.5] t_jump3; // works, about 20 seconds
+[0.5,1.5] t_jump4; // works, about 1-2 minutes
+// kprime ([0.3,0.4] works)
+[0.122,0.122] kprime;
+
+// battery 1 used
+// battery 2 full
+{
+mode 1;
+invt:
+(t<=t_jump1);
+(gamma1>(1-c)*delta1);
+(gamma2>(1-c)*delta2);
+invt_c:
+(t<=t_jump1);
+flow:
+d/dt[delta1]=i/c;
+d/dt[gamma1]=-i;
+d/dt[delta2]=0;
+d/dt[gamma2]=0;
+//d/dt[i]=-0.1*exp(-t/4);
+d/dt[i]=i;
+d/dt[t]=1;
+d/dt[kprime]=0;
+jump:
+(and(t=t_jump1))==>@2(and(t'=0)(i'=0.15)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
+}
+
+// battery 1 recovering
+// battery 2 used
+{
+mode 2;
+invt:
+(t<=t_jump2);
+(gamma1>(1-c)*delta1);
+(gamma2>(1-c)*delta2);
+invt_c:
+(t<=t_jump2);
+flow:
+d/dt[delta1]= - delta1 * kprime;
+d/dt[gamma1]=0;
+d/dt[delta2]=i/c;
+d/dt[gamma2]=-i;
+//d/dt[i]=-0.1*exp(-t/4);
+d/dt[i]=i;
+d/dt[t]=1;
+d/dt[kprime]=0;
+jump:
+(and(t=t_jump2))==>@3(and(t'=0)(i'=0.15)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
+}
+
+// battery 1 used
+// battery 2 recovering
+{
+mode 3;
+invt:
+(t<=t_jump3);
+(gamma1>(1-c)*delta1);
+(gamma2>(1-c)*delta2);
+invt_c:
+(t<=t_jump3);
+flow:
+d/dt[delta1]=i/c;
+d/dt[gamma1]=-i;
+d/dt[delta2]= - delta2 * kprime;
+d/dt[gamma2]=0;
+//d/dt[i]=-0.1*exp(-t/4);
+d/dt[i]=i;
+d/dt[t]=1;
+d/dt[kprime]=0;
+jump:
+(and(t=t_jump3))==>@4(and(t'=0)(i'=0.15)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
+}
+
+// battery 1 recovering
+// battery 2 used
+{
+mode 4;
+invt:
+(t<=t_jump4);
+(gamma1>(1-c)*delta1);
+(gamma2>(1-c)*delta2);
+invt_c:
+(t<=t_jump4);
+flow:
+d/dt[delta1]= - delta1 * kprime;
+d/dt[gamma1]=0;
+d/dt[delta2]=i/c;
+d/dt[gamma2]=-i;
+//d/dt[i]=-0.1*exp(-t/4);
+d/dt[i]=i;
+d/dt[t]=1;
+d/dt[kprime]=0;
+jump:
+(and(t=t_jump4))==>@5(and(t'=0)(i'=0.15)(delta1'=delta1)(gamma1'=gamma1)(delta2'=delta2)(gamma2'=gamma2)(kprime'=kprime)(t_jump1'=t_jump1)(t_jump2'=t_jump2)(t_jump3'=t_jump3)(t_jump4'=t_jump4));
+}
+
+// battery 1 used
+// battery 2 recovering
+{
+mode 5;
+invt:
+(gamma1>(1-c)*delta1);
+(gamma2>(1-c)*delta2);
+flow:
+d/dt[delta1]=i/c;
+d/dt[gamma1]=-i;
+d/dt[delta2]= - delta2 * kprime;
+d/dt[gamma2]=0;
+//d/dt[i]=-0.1*exp(-t/4);
+d/dt[i]=i;
+d/dt[t]=1;
+d/dt[kprime]=0;
+jump:
+
+}
+
+init:
+@1(and(t=0)(i=0.15)(delta1=0)(gamma1>=gamma_l)(gamma1<=gamma_u)(delta2=0)(gamma2>=gamma_l)(gamma2<=gamma_u));
+goal:
+@5(and(t_jump1+t_jump2+t_jump3+t_jump4+t>=5));
+goal_c:
+@5(and(t_jump1+t_jump2+t_jump3+t_jump4+t<5)(or(gamma1<=(1-c)*delta1)(gamma2<=(1-c)*delta2)));

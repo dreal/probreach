@@ -1,0 +1,63 @@
+/*
+ * the model is accurate for 0-100 km/h period
+ */
+#define v_max 55.56 // [200 km/h] maximum speed of a car (m/s)
+#define v_100 27.78 // m/s
+#define drag 3.028e-4 // some average value (1/m)
+#define a_dec 5.25
+
+[0,1000] s; // distance m
+[0,60] v; // velocity m/s (16.67 m/s = 60 km/h)
+[0,120] t; // time in seconds
+[0,120] time;
+[0.8,1.5] tau; // reaction time (s) (nondet)
+[0.5,1.5] mu; // decceleration multiplier modelling road conditions (random)
+
+// accelerating
+{
+mode 1;
+
+flow:
+d/dt[s]= v;
+d/dt[v]= 0.05776*exp(-0.05776*t+4.01746) - drag * v^2;
+d/dt[t]= 1.0;
+d/dt[tau]= 0.0;
+d/dt[mu]= 0.0;
+jump:
+(and (v = v_100))==>@2(and (s' = s) (v' = v) (t' = 0));
+}
+
+// reacting
+{
+mode 2;
+
+flow:
+d/dt[s]= v;
+d/dt[v]= - drag * v^2;
+d/dt[t]= 1.0;
+d/dt[tau] = 0.0;
+d/dt[mu]= 0.0;
+jump:
+(and (t = tau))==>@3(and (s' = s) (v' = v) (t' = 0));
+}
+
+// braking
+{
+mode 3;
+
+flow:
+d/dt[s]= v;
+d/dt[v]= - mu * a_dec - drag*v;
+d/dt[t]= 1.0;
+d/dt[tau]= 0.0;
+d/dt[mu]= 0.0;
+jump:
+
+}
+
+init:
+@1(and (s = 0) (v = 0) (t = 0));
+
+goal:
+@3(and(s>=300)(s<=310)(v=0));
+//@3(and(v=0));

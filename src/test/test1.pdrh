@@ -1,0 +1,112 @@
+model:
+
+    npha;
+
+/*
+ * The variable declaration goes here
+ */
+dist_pdf(x - 1/5, -infty, infty, 0)r2_r3;
+dist_pdf(x - 1/5, -infty, infty, 0)r2_r13;
+
+[0.1, 0.2] a; // variable 1
+[-1e-7 + 67 + sin(-3),  1e-7+1e9]b; // variable 2
+[1.0956e5*(-2.235e-7)*exp(-14)] c; // constant 1
+[16552] mode1; // constant 2
+[0,1000] time; // time declaration
+
+dist_pdf(x - 1/5, -5, 5, 0)x;
+dist_pdf(x - 1/5, -infty, 5, 0)r;
+dist_normal(0,1)y;
+dist_uniform(-1,1)z;
+dist_exp(1e-4) p;
+dist_discrete(0.1:0.5,-1:0.49,1.04e-3:1e-2) q;
+
+{
+    mode 1;
+        invt:
+            (5>=3+4);
+            (-a>=b);
+            (a/b<=c);
+            (a+b-c<=r2_r3);
+            (((r2_r13/10)-(r2_r3/10000)*a-(b/10000)*c)<=0);
+        flow:
+            d/dt[a]=5 - a * b*c + c;
+            d/dt[b]= a * c;
+        jump:
+            (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@2(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@3(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@4(and(a'=b*c)(b'=a*c));
+}
+
+{
+    mode 2;
+        invt:
+            (a<b);
+            (a/b>c);
+        flow:
+            d/dt[a]=a-b*c;
+            d/dt[b]=a/c;
+        jump:
+            (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@2(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@3(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@4(and(a'=b*c)(b'=a*c));
+}
+
+{
+    mode 3;
+        invt:
+            (a<b);
+            (a/b>c);
+        flow:
+            d/dt[a]=a-b*c;
+            d/dt[b]=a/c;
+        jump:
+            (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@2(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@3(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@4(and(a'=b*c)(b'=a*c));
+}
+
+{
+    mode 4;
+        invt:
+            (a<b);
+            (a/b>c);
+        flow:
+            d/dt[a]=a-b*c;
+            d/dt[b]=a/c;
+        jump:
+            (or(a>=c)(c*b<c))==>@1(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@2(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@3(and(a'=b*c)(b'=a*c));
+            (or(a>=c)(c*b<c))==>@4(and(a'=b*c)(b'=a*c));
+}
+
+{
+    mode 5;
+        invt:
+            (a<b);
+            (a/b>c);
+        flow:
+            d/dt[a]=a-b*c;
+            d/dt[b]=a/c;
+        jump:
+
+}
+
+init:
+
+    @1(and(a=0)(b=0));
+    @2(and(a>=b)(true));
+    @3(and(a>=b)(true));
+    @4(and(a>=b)(true));
+    @5(and(a>=b)(true));
+
+goal:
+    @1(and(a>=b)(true));
+    @2(and(a>=b)(true));
+    @3(and(a>=b)(true));
+    @5(and(a>=b)(true));
+    @4(and(a>=b)(true));

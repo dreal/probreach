@@ -16,7 +16,7 @@ struct pdrh_config
     double integral_inf_coeff = 1e-01;
     double integral_pdf_step = 1e-01;
     // solver options
-    string solver_bin = "dReal";
+    string solver_bin = SOLVER_BIN;
     string solver_opt = "";
     // algorithm options
     double precision_prob = 1e-03;
@@ -24,6 +24,7 @@ struct pdrh_config
     double precision_nondet = 1e-03;
     bool partition_prob = false;
     bool partition_nondet = false;
+    bool partition_psy = false;
     double solver_precision_ratio = 1e-03;
     unsigned int solver_timeout = 10; // seconds
     int reach_depth_min = 0;

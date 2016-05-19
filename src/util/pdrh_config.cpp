@@ -6,11 +6,12 @@
 #include<iostream>
 #include<sstream>
 #include<string.h>
+
 #ifdef _OPENMP
     #include<omp.h>
-#include <logging/easylogging++.h>
-
 #endif
+#include <easylogging++.h>
+
 #include "version.h"
 
 using namespace std;
@@ -65,7 +66,7 @@ void parse_pdrh_config(int argc, char* argv[])
             exit(EXIT_SUCCESS);
         }
         // probability precision
-        else if(strcmp(argv[i], "-e") == 0)
+        else if((strcmp(argv[i], "-e") == 0) || (strcmp(argv[i], "--precision-prob") == 0))
         {
             i++;
             istringstream is(argv[i]);
@@ -124,7 +125,7 @@ void parse_pdrh_config(int argc, char* argv[])
             }
         }
         // nondeterministic precision
-        else if(strcmp(argv[i], "--max-nondet") == 0)
+        else if(strcmp(argv[i], "--precision-nondet") == 0)
         {
             i++;
             istringstream is(argv[i]);
@@ -256,7 +257,12 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             global_config.partition_nondet = true;
         }
-        //xml_output
+        // partition the synthesized parameters
+        else if(strcmp(argv[i], "--partition-psy") == 0)
+        {
+            global_config.partition_psy = true;
+        }
+        // xml_output
         else if(strcmp(argv[i], "--xml-output") == 0)
         {
             global_config.xml_output = true;
@@ -346,20 +352,31 @@ void print_usage()
     cout << "	ProbReach <options> <file.pdrh/file.drh> <solver-options>" << endl;
     cout << endl;
     cout << "options:" << endl;
-    cout << "	-e <double> - length of probability interval (default " << global_config.precision_prob << ")" << endl;
-    cout << "	-t <int> - number of CPU cores (default " << global_config.max_num_threads << ") (max " << global_config.max_num_threads << ")" << endl;
-    cout << "	-h/--help - help message" << endl;
-    cout << "	--solver </path/to/solver> - full path to the solver (default " << global_config.solver_bin << ")" << endl;
-    cout << "   --precision-ratio <double> - solver precision ratio defined as (solver-precision = min-box-dimension * precision-ratio) (default " << global_config.solver_precision_ratio << ")" << endl;
-    cout << "	--chernoff-acc <double> - half-length of the confidence interval in Chernoff-Hoeffding method (default " << global_config.chernoff_acc << ")" << endl;
-    cout << "	--chernoff-conf <double> - confidence value in Chernoff-Hoeffding method (default " << global_config.chernoff_conf << ")" << endl;
-    cout << "	--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default " << global_config.bayesian_acc << ")" << endl;
-    cout << "   --bayesian-conf <double> - confidence value in Bayesian estimations (default " << global_config.bayesian_conf << ")" << endl;
-    cout << "   --integral-inf-coeff <double> - ratio for the continuous random variables with unbounded support (default " << global_config.integral_inf_coeff << ")" << endl;
-    cout << "   --integral-pdf-step <double> - step value used for bounding domains of continuous random variables with user-defined distributions (default " << global_config.integral_pdf_step << ")" << endl;
-    cout << "   --integral-inf-coeff <double> - ratio for the continuous random variables with unbounded support (default " << global_config.integral_inf_coeff << ")" << endl;
-    cout << "	--version - version of the tool" << endl;
-    cout << "	--verbose - output computation details" << endl;
+    cout << "--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default " << global_config.bayesian_acc << ")" << endl;
+    cout << "--bayesian-conf <double> - confidence value in Bayesian estimations (default " << global_config.bayesian_conf << ")" << endl;
+    cout << "--chernoff-acc <double> - half-length of the confidence interval in Chernoff-Hoeffding method (default " << global_config.chernoff_acc << ")" << endl;
+    cout << "--chernoff-conf <double> - confidence value in Chernoff-Hoeffding method (default " << global_config.chernoff_conf << ")" << endl;
+    cout << "--delta-sat - uses the delta-sat answer of the solver only (statistical model checking and habrid automata only; default false)" << endl;
+    cout << "-e/--precision-prob <double> - length of probability interval (default " << global_config.precision_prob << ")" << endl;
+    cout << "-h/--help - help message" << endl;
+    cout << "--integral-inf-coeff <double> - ratio for the continuous random variables with unbounded support (default " << global_config.integral_inf_coeff << ")" << endl;
+    cout << "--integral-pdf-step <double> - step value used for bounding domains of continuous random variables with user-defined distributions (default " << global_config.integral_pdf_step << ")" << endl;
+    cout << "-k <double> - reachability depth bound (default: the shortest path length if exists)" << endl;
+    cout << "-l <double> - lower reachability depth bound (cannot be used without -u; default: the shortest path length if exists)" << endl;
+    cout << "--merge-boxes - merges boxes which were partitioned during parameter synthesis (default false)" << endl;
+    cout << "--partition-nondet - partitions the domain nondeterministic parameters up to the precision --precision-nondet (default false)" << endl;
+    cout << "--partition-prob - obtains a partition of the domain continuous random parameters satisfying -e/--precision-prob (default false)" << endl;
+    cout << "--partition-psy - partitions the domain the synthesized parameters up to the precision defined in the time series data (default false)" << endl;
+    cout << "--precision-nondet - length of the largest dimension of nondeterministic box (default " << global_config.precision_nondet << ")" << endl;
+    cout << "--precision-ratio <double> - solver precision ratio defined as (solver-precision = min-box-dimension * precision-ratio) (default " << global_config.solver_precision_ratio << ")" << endl;
+    cout << "--series </path/to/solver> - full path to the solver (default " << global_config.solver_bin << ")" << endl;
+    cout << "--solver <path> - name of the file containing the time series data" << endl;
+    cout << "-t <int> - number of CPU cores (default " << global_config.max_num_threads << ") (max " << global_config.max_num_threads << ")" << endl;
+    cout << "--time-var-name <string> - the name of the variable representing time in the model (default tau)" << endl;
+    cout << "-u <double> - upper reachability depth bound (cannot be used without -l; default: the shortest path length if exists)" << endl;
+    cout << "--verbose - output computation details (default false)" << endl;
+    cout << "--verbose-result - outputs the runtime and the number of samples (statistical model checking only; default false)" << endl;
+    cout << "--version - version of the tool" << endl;
     cout << endl;
 }
 

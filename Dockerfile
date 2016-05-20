@@ -7,4 +7,4 @@ RUN mkdir -p /build/release
 WORKDIR /usr/local/src/probreach/build/release
 RUN cmake ../../
 RUN make
-RUN ln -s /usr/local/src/probreach/bin/ProbReach /usr/bin/ProbReach
+ENTRYPOINT ["/usr/local/src/probreach/bin/ProbReach"]

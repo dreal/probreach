@@ -11,8 +11,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 # setting some environment variables
-set(PROBREACH_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
-set(PROBREACH_BINARY_DIR ${PROJECT_SOURCE_DIR}/build/release)
+set(PROBREACH_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+set(PROBREACH_BINARY_DIR ${PROJECT_SOURCE_DIR}/../build/release)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROBREACH_BINARY_DIR})
 
 # checking if dReal binary is set

@@ -4,7 +4,9 @@
 
 ProbReach - software for calculating bounded probabilistic reachability and performing parameter set synthesis in hybrid systems with uncertainty in initial parameters. ProbReach supports formal verification (computing rigorous enclosures) and statistical model checking (Chernoff-Hoeffding bound and Bayesian estimations).
 
-*The parameter set synthesis in hybrid systems is not currently supported.*
+* *The parameter set synthesis is not currently supported.*
+
+* **NOW ON [DOCKER](https://docker.com)!!!**
 
 Install
 ====================
@@ -32,4 +34,10 @@ make
 If your dReal location is different from ```/usr/local/src/dreal``` run
 ```
 cmake -DDREAL_DIR=/path/to/dreal/directory ../../
+```
+
+3. Docker
+------------------
+```
+docker pull dreal/probreach
 ```

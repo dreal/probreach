@@ -4,16 +4,20 @@
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include "box.h"
+#include "model.h"
 
 #ifndef PROBREACH_BOX_FACTORY_H
 #define PROBREACH_BOX_FACTORY_H
 
+using namespace std;
+
 namespace box_factory
 {
-    std::vector<box> cartesian_product(std::map<std::string, std::vector<capd::interval>>);
-    std::vector<box> bisect(box);
-    std::vector<box> bisect(box, std::map<std::string, capd::interval>);
-    std::vector<box> merge(std::vector<box>);
+    vector<box> cartesian_product(map<string, vector<capd::interval>>);
+    vector<box> bisect(box);
+    vector<box> bisect(box, map<string, capd::interval>);
+    vector<box> bisect(box, map<string, pdrh::node*>);
+    vector<box> merge(std::vector<box>);
     box merge(box, box);
 }
 

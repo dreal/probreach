@@ -543,31 +543,32 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     }
     return res_map;
 }
-/*
-std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::evaluate_psy(std::map<std::string, std::vector<capd::interval>> time_series)
+
+tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string, vector<pair<pdrh::node*, pdrh::node*>>> time_series)
 {
     // getting the synthesis domain
     box psy_domain = pdrh::get_psy_domain();
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining domain of synthesized parameters: " << psy_domain;
     // partition of parameter synthesis domain
-    std::vector<box> psy_partition { psy_domain };
+    vector<box> psy_partition { psy_domain };
     // converting time series to a set of goal boxes
-    std::vector<std::tuple<int, box>> goals = pdrh::series_to_boxes(time_series);
+    //std::vector<std::tuple<int, box>> goals = pdrh::series_to_boxes(time_series);
+    vector<pdrh::state> goals = pdrh::series_to_goals(time_series);
     // getting parameter synthesis path
-    std::vector<pdrh::mode*> path = pdrh::get_psy_path(time_series);
+    vector<pdrh::mode*> path = pdrh::get_psy_path(time_series);
     // defining the boxes
-    std::vector<box> sat_boxes, undet_boxes, unsat_boxes;
+    vector<box> sat_boxes, undet_boxes, unsat_boxes;
     // iterating through the goals
-    for(std::tuple<int, box> goal : goals)
+    for(pdrh::state goal : goals)
     {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating goal: @" << std::get<0>(goal) << " " << std::get<1>(goal);
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating goal: @" << goal.id << " " << pdrh::node_to_string_prefix(goal.prop);
         // iterating through boxes in psy partition
         while(!psy_partition.empty())
         {
             box b = psy_partition.front();
             psy_partition.erase(psy_partition.cbegin());
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "psy_box: " << b;
-            switch(decision_procedure::synthesize(pdrh::init.front(), path, b, std::get<0>(goal), std::get<1>(goal)))
+            switch(decision_procedure::synthesize(pdrh::init.front(), goal, path, b))
             {
                 case decision_procedure::SAT:
                 {
@@ -620,7 +621,6 @@ std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> algorithm::eval
     }
     return std::make_tuple(psy_partition, undet_boxes, unsat_boxes);
 }
-*/
 
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf)
 {

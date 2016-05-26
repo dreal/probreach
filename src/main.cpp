@@ -150,36 +150,34 @@ int main(int argc, char* argv[])
         // parameter synthesis
         case pdrh::PSY:
         {
-            CLOG(ERROR, "algorithm") << "Parameter synthesis is currently not supported";
-            exit(EXIT_FAILURE);
-            /*
+            //CLOG(ERROR, "algorithm") << "Parameter synthesis is currently not supported";
+            //exit(EXIT_FAILURE);
             if(global_config.series_filename.empty())
             {
                 CLOG(ERROR, "series-parser") << "Time series file is not specified";
                 return EXIT_FAILURE;
             }
-            std::map<std::string, std::vector<capd::interval>> time_series = csvparser::parse(global_config.series_filename);
-            std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> boxes = algorithm::evaluate_psy(time_series);
-            std::vector<box> sat_boxes = std::get<0>(boxes);
-            std::vector<box> undet_boxes = std::get<1>(boxes);
-            std::vector<box> unsat_boxes = std::get<2>(boxes);
-            std::cout << "sat" << std::endl;
+            map<string, vector<pair<pdrh::node*, pdrh::node*>>> time_series = csvparser::parse(global_config.series_filename);
+            tuple<vector<box>, vector<box>, vector<box>> boxes = algorithm::evaluate_psy(time_series);
+            vector<box> sat_boxes = get<0>(boxes);
+            vector<box> undet_boxes = get<1>(boxes);
+            vector<box> unsat_boxes = get<2>(boxes);
+            cout << "sat" << endl;
             for(box b : sat_boxes)
             {
-                std::cout << b << std::endl;
+                cout << b << endl;
             }
-            std::cout << "undet" << std::endl;
+            cout << "undet" << endl;
             for(box b : undet_boxes)
             {
-                std::cout << b << std::endl;
+                cout << b << endl;
             }
-            std::cout << "unsat" << std::endl;
+            cout << "unsat" << endl;
             for(box b : unsat_boxes)
             {
-                std::cout << b << std::endl;
+                cout << b << endl;
             }
             break;
-            */
         }
         case pdrh::NHA:
         {

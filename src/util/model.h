@@ -128,6 +128,10 @@ namespace pdrh
     box get_nondet_domain();
     box get_psy_domain();
     vector<mode*> get_psy_path(map<string, vector<capd::interval>>);
+    vector<mode*> get_psy_path(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);
+
+    vector<tuple<int, box>> series_to_boxes(map<string, vector<capd::interval>>);
+    vector<state> series_to_goals(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);
 
     bool var_exists(string);
     mode* get_mode(int);
@@ -142,12 +146,13 @@ namespace pdrh
     // returns <first_map_keys> \ <second_map_keys>
     vector<string> get_keys_diff(map<string, pair<node*, node*>>, map<string, pair<node*, node*>>);
 
-    vector<tuple<int, box>> series_to_boxes(map<string, vector<capd::interval>>);
-
     // here only one initial mode and one goal mode
     string reach_to_smt2(vector<mode*>, vector<box>);
+    string reach_to_smt2(state, state, vector<mode*>, vector<box>);
     string reach_c_to_smt2(vector<mode*>, vector<box>);
+    string reach_c_to_smt2(state, state, vector<mode*>, vector<box>);
     string reach_c_to_smt2(int, vector<mode*>, vector<box>);
+    string reach_c_to_smt2(int, state, state, vector<mode*>, vector<box>);
 
     string model_to_string();
     string print_jump(mode::jump);

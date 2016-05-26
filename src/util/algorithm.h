@@ -8,6 +8,8 @@
 #include <capd/intervals/lib.h>
 #include "decision_procedure.h"
 
+using namespace std;
+
 namespace algorithm
 {
     // evaluating reachability in hybrid automata (arg: depth)
@@ -23,15 +25,15 @@ namespace algorithm
     // evaluating reachability in probabilitic hybrid automata by sampling (arg1: min depth, arg2: max depth, arg3: sample size)
     capd::interval evaluate_pha_chernoff_delta_sat(int, int, double, double);
     // evaluating reachability in nondeterministic probabilistic hybrid automata (arg: depth)
-    std::map<box, capd::interval> evaluate_npha(int);
+    map<box, capd::interval> evaluate_npha(int);
     // evaluating reachability in nondeterministic probabilistic hybrid automata (arg1: min depth, arg2: max depth)
-    std::map<box, capd::interval> evaluate_npha(int, int);
+    map<box, capd::interval> evaluate_npha(int, int);
     // evaluating reachability in nondeterministic hybrid automata (arg: depth)
-    std::map<box, decision_procedure::result> evaluate_nha(int);
+    map<box, decision_procedure::result> evaluate_nha(int);
     // evaluating reachability in nondeterministic hybrid automata (arg1: min depth, arg2: max depth)
-    std::map<box, decision_procedure::result> evaluate_nha(int, int);
+    map<box, decision_procedure::result> evaluate_nha(int, int);
     // performing parameter synthesis (arg: time series data). return: vectors of sat, undet and unsat boxes
-    std::tuple<std::vector<box>, std::vector<box>, std::vector<box>> evaluate_psy(std::map<std::string, std::vector<capd::interval>>);
+    tuple<vector<box>, vector<box>, vector<box>> evaluate_psy(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);
     capd::interval evaluate_pha_bayesian_delta_sat(int, int, double, double);
     capd::interval evaluate_pha_bayesian(int, int, double, double);
     long int get_cernoff_bound(double, double);

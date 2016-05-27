@@ -551,6 +551,15 @@ tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string,
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining domain of synthesized parameters: " << psy_domain;
     // partition of parameter synthesis domain
     vector<box> psy_partition { psy_domain };
+    // if flag is enabled the domain is partitioned up to precision_nondet
+    /*
+    if(global_config.partition_psy)
+    {
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of parameter synthesis domain";
+        psy_partition.clear();
+        psy_partition = measure::partition(psy_domain, global_config.pre);
+    }
+    */
     // converting time series to a set of goal boxes
     //std::vector<std::tuple<int, box>> goals = pdrh::series_to_boxes(time_series);
     vector<pdrh::state> goals = pdrh::series_to_goals(time_series);
@@ -568,7 +577,7 @@ tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string,
             box b = psy_partition.front();
             psy_partition.erase(psy_partition.cbegin());
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "psy_box: " << b;
-            switch(decision_procedure::synthesize(pdrh::init.front(), goal, path, b))
+            switch(decision_procedure::evaluate(pdrh::init.front(), goal, path, {b}))
             {
                 case decision_procedure::SAT:
                 {
@@ -613,11 +622,15 @@ tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string,
             }
         }
         // putting the boxes satisfying the current goal back to the psy partition
-        psy_partition = box_factory::merge(sat_boxes);
-        undet_boxes = box_factory::merge(undet_boxes);
-        unsat_boxes = box_factory::merge(unsat_boxes);
-        //psy_partition = sat_boxes;
+        //psy_partition = box_factory::merge(sat_boxes);
+        //undet_boxes = box_factory::merge(undet_boxes);
+        //unsat_boxes = box_factory::merge(unsat_boxes);
+        psy_partition = sat_boxes;
         sat_boxes.clear();
+        if(psy_partition.empty())
+        {
+            break;
+        }
     }
     return std::make_tuple(psy_partition, undet_boxes, unsat_boxes);
 }

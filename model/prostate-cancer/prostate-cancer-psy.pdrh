@@ -1,8 +1,7 @@
-MODEL_TYPE(PSY;alphax:0.005;alphay:0.005;betax:0.005;betay:0.005)
-//#define	alphax	0.0197
+#define	alphax	0.0197
 //#define alphay	0.0242
-//#define	betax	0.0175
-//#define	betay	0.0168
+#define	betax	0.0175
+#define	betay	0.0168
 #define	k1	10.0
 #define	k2	1.0
 #define	k3	10.0
@@ -27,10 +26,10 @@ MODEL_TYPE(PSY;alphax:0.005;alphay:0.005;betax:0.005;betay:0.005)
 [0,T]time;
 [0,T]tau;
 
-[0.0,0.05]alphax;
-[0.0,0.05]alphay;
-[0.0,0.05]betax;
-[0.0,0.05]betay;
+//[0.0,0.05]alphax;
+[0.0, 0.05] alphay;
+//[0.0,0.05]betax;
+//[0.0,0.05]betay;
 
 [0.0,100.0]x;
 [0.0,100.0]y;
@@ -48,7 +47,7 @@ d/dt[z]=scale * (-z * gamma + c3);
 d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
 d/dt[tau]=scale * 1.0;
 jump:
-(v=r0)==>@2(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+(v<=r0)==>@2(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 {
@@ -60,7 +59,7 @@ d/dt[z]=scale * ((z0 - z) * gamma + c3);
 d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
 d/dt[tau]=scale * 1.0;
 jump:
-(v=r1)==>@3(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+(v>=r1)==>@3(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 {
@@ -72,7 +71,7 @@ d/dt[z]=scale * (-z * gamma + c3);
 d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
 d/dt[tau]=scale * 1.0;
 jump:
-(v=r0)==>@4(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+(v<=r0)==>@4(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 {
@@ -84,7 +83,7 @@ d/dt[z]=scale * ((z0 - z) * gamma + c3);
 d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
 d/dt[tau]=scale * 1.0;
 jump:
-(v=r1)==>@5(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+(v>=r1)==>@5(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 {
@@ -96,7 +95,7 @@ d/dt[z]=scale * (-z * gamma + c3);
 d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
 d/dt[tau]=scale * 1.0;
 jump:
-(v=r0)==>@6(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+(v<=r0)==>@6(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 {
@@ -108,7 +107,7 @@ d/dt[z]=scale * ((z0 - z) * gamma + c3);
 d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
 d/dt[tau]=scale * 1.0;
 jump:
-(v=r1)==>@7(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+(v>=r1)==>@7(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 {
@@ -120,7 +119,7 @@ d/dt[z]=scale * (-z * gamma + c3);
 d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
 d/dt[tau]=scale * 1.0;
 jump:
-(v=r0)==>@8(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+(v<=r0)==>@8(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 {
@@ -132,7 +131,7 @@ d/dt[z]=scale * ((z0 - z) * gamma + c3);
 d/dt[v]=scale * ((Gx - Mxy - c1) * x + c2 + Mxy * x + Gy * y);
 d/dt[tau]=scale * 1.0;
 jump:
-(v=r1)==>@9(and(tau'=tau)(x'=x)(y'=y)(z'=z));
+(v>=r1)==>@9(and(tau'=tau)(x'=x)(y'=y)(z'=z));
 }
 
 {
@@ -149,6 +148,9 @@ jump:
 
 init:
 @1(and(v=19.1)(x=19)(y=0.1)(z=12.5)(tau=0));
+
+synthesize:
+alphay:1e-3;
 
 //goal:
 //@1(and(x+y=r0));

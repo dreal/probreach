@@ -152,7 +152,7 @@ namespace pdrh
     string reach_c_to_smt2(vector<mode*>, vector<box>);
     string reach_c_to_smt2(state, state, vector<mode*>, vector<box>);
     string reach_c_to_smt2(int, vector<mode*>, vector<box>);
-    string reach_c_to_smt2(int, state, state, vector<mode*>, vector<box>);
+    string reach_c_to_smt2(state, state, int, vector<mode*>, vector<box>);
 
     string model_to_string();
     string print_jump(mode::jump);

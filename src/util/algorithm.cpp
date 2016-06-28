@@ -3,6 +3,7 @@
 //
 
 #include <gsl/gsl_rng.h>
+#include <gsl/gsl_qrng.h>
 #include <gsl/gsl_cdf.h>
 #include "algorithm.h"
 #include "easylogging++.h"
@@ -644,14 +645,13 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
     // creating random generator
     r = gsl_rng_alloc(T);
     // setting the seed
-    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() /
-                   std::chrono::milliseconds(1));
+    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
     // getting sample size with recalculated confidence
     long int sample_size = algorithm::get_cernoff_bound(acc, std::sqrt(conf));
     long int sat = 0;
     long int unsat = 0;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Chernoff-Hoeffding algorithm started";
-    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << sample_size;
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Random sample size: " << sample_size;
     #pragma omp parallel for
     for(long int ctr = 0; ctr < sample_size; ctr++)
     {
@@ -669,8 +669,8 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
             }
         }
         // getting a sample
-        box b = rnd::get_sample(r);
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample: " << b;
+        box b = rnd::get_random_sample(r);
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample: " << b;
         std::vector<box> boxes = { b };
         int undet_counter = 0;
         int timeout_counter = 0;
@@ -754,8 +754,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     // creating random generator
     r = gsl_rng_alloc(T);
     // setting the seed
-    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() /
-                   std::chrono::milliseconds(1));
+    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
     // getting sample size with recalculated confidence
     long int sample_size = 0;
     long int sat = 0;
@@ -785,8 +784,8 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
             }
         }
         // getting a sample
-        box b = rnd::get_sample(r);
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample: " << b;
+        box b = rnd::get_random_sample(r);
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample: " << b;
         std::vector<box> boxes = { b };
         int undet_counter = 0;
         int timeout_counter = 0;
@@ -870,13 +869,13 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
             {
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(UNSAT) mean: " << post_mean_unsat;
             }
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample size: " << sample_size;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample size: " << sample_size;
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P prob: " << post_prob;
         }
     }
     gsl_rng_free(r);
     // displaying sample size if enabled
-    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << sample_size;
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Random sample size: " << sample_size;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm finished";
     if(global_config.delta_sat)
     {
@@ -897,7 +896,18 @@ long int algorithm::get_cernoff_bound(double acc, double conf)
     return (long int) std::ceil((1/(2 * acc * acc)) * std::log(2/(1 - conf)));
 }
 
+capd::interval algorithm::evaluate_npha_bayesian(int min_depth, int max_depth, double acc, double conf, int size)
+{
+    gsl_qrng * q = gsl_qrng_alloc(gsl_qrng_sobol, pdrh::par_map.size());
 
+    for(int i = 0; i < size; i++)
+    {
+        box b = rnd::get_quasi_random_sample(q);
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Quasi-random sample: " << b;
+    }
+    gsl_qrng_free (q);
+    return capd::interval(0,1);
+}
 
 
 

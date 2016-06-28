@@ -12,7 +12,7 @@
 
 using namespace std;
 
-box rnd::get_sample(gsl_rng* r)
+box rnd::get_random_sample(gsl_rng* r)
 {
     map<std::string, capd::interval> edges;
     // continuous distributions
@@ -67,6 +67,24 @@ box rnd::get_sample(gsl_rng* r)
         delete p_value;
         delete p_mass;
         gsl_ran_discrete_free(g);
+    }
+    return box(edges);
+}
+
+box rnd::get_quasi_random_sample(gsl_qrng* q)
+{
+    // drawing a sample
+    double v[pdrh::par_map.size()];
+    gsl_qrng_get (q, v);
+
+    map<std::string, capd::interval> edges;
+    int i = 0;
+    // continuous distributions
+    for(auto it = pdrh::par_map.cbegin(); it != pdrh::par_map.cend(); it++)
+    {
+        capd::interval edge(pdrh::node_to_interval(it->second.first).leftBound(), pdrh::node_to_interval(it->second.second).rightBound());
+        edges.insert(make_pair(it->first, capd::interval(edge.leftBound() + v[i] * capd::intervals::width(edge))));
+        i++;
     }
     return box(edges);
 }

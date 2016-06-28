@@ -140,10 +140,34 @@ int main(int argc, char* argv[])
         // nondeterministic probabilistic hybrid automata
         case pdrh::NPHA:
         {
-            std::map<box, capd::interval> probability_map = algorithm::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
-            for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
+            capd::interval probability;
+            if(global_config.chernoff_flag)
             {
-                std::cout << std::scientific << it->first << " | " << it->second << std::endl;
+                cout << "Not implemented yet" << endl;
+                exit(EXIT_SUCCESS);
+            }
+            else if(global_config.bayesian_flag)
+            {
+                int size = 1000;
+                probability = algorithm::evaluate_npha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf, size);
+                // modifying the interval if outside (0,1)
+                if(probability.leftBound() < 0)
+                {
+                    probability.setLeftBound(0);
+                }
+                if(probability.rightBound() > 1)
+                {
+                    probability.setRightBound(1);
+                }
+                std::cout << probability << " | " << capd::intervals::width(probability) << std::endl;
+            }
+            else
+            {
+                std::map<box, capd::interval> probability_map = algorithm::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
+                for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
+                {
+                    std::cout << std::scientific << it->first << " | " << it->second << std::endl;
+                }
             }
             break;
         }

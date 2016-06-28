@@ -37,6 +37,13 @@ namespace algorithm
     capd::interval evaluate_pha_bayesian_delta_sat(int, int, double, double);
     capd::interval evaluate_pha_bayesian(int, int, double, double);
     long int get_cernoff_bound(double, double);
+
+    // the last argument is the sample size for cross entropy method
+    capd::interval evaluate_npha_bayesian(int, int, double, double, int);
+    capd::interval evaluate_npha_chernoff(int, int, double, double, int);
+
+
+
 }
 
 #endif //PROBREACH_ALGORITHM_H

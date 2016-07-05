@@ -6,12 +6,19 @@
 #include<capd/intervals/lib.h>
 #include "box.h"
 #include "box_factory.h"
+#include "pdrh_config.h"
 
 /**
  * Cartesian product
  */
 std::vector<box> box_factory::cartesian_product(std::map<std::string, std::vector<capd::interval>> m)
 {
+    // checking if the map is empty
+    if(m.empty())
+    {
+        return vector<box>{};
+    }
+
     unsigned long size = 1;
     for(auto it = m.cbegin(); it != m.cend(); it++)
     {
@@ -52,6 +59,36 @@ std::vector<box> box_factory::bisect(box b)
     }
 
     return box_factory::bisect(b,e);
+}
+
+// partitioning a box
+vector<box> box_factory::partition(box b, double e)
+{
+    // setting up a precision map
+    map<string, capd::interval> e_map;
+    map<string, capd::interval> edges = b.get_map();
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        e_map.insert(make_pair(it->first, capd::interval(e)));
+    }
+    // main algorithm
+    vector<box> q = {b};
+    vector<box> res;
+    while(!q.empty())
+    {
+        box tmp_b = q.front();
+        q.erase(q.cbegin());
+        vector<box> tmp_v = bisect(tmp_b, e_map);
+        if(tmp_v.empty())
+        {
+            res.push_back(tmp_b);
+        }
+        else
+        {
+            q.insert(q.cend(), tmp_v.cbegin(), tmp_v.cend());
+        }
+    }
+    return res;
 }
 
 /**
@@ -168,6 +205,30 @@ box box_factory::merge(box lhs, box rhs)
             return box();
         }
     }
+}
+
+box box_factory::get_mean(box b)
+{
+    map<string, capd::interval> edges = b.get_map();
+    map<string, capd::interval> mu_map;
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        mu_map.insert(make_pair(it->first, it->second.mid()));
+    }
+    return box(mu_map);
+}
+
+box box_factory::get_deviation(box b)
+{
+    map<string, capd::interval> edges = b.get_map();
+    map<string, capd::interval> sigma_map;
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        sigma_map.insert(make_pair(it->first, capd::intervals::width(
+                                                     capd::interval(it->second.leftBound(),
+                                                                         it->second.mid().leftBound()))));
+    }
+    return box(sigma_map);
 }
 
 

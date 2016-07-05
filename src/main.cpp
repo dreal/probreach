@@ -140,26 +140,19 @@ int main(int argc, char* argv[])
         // nondeterministic probabilistic hybrid automata
         case pdrh::NPHA:
         {
-            capd::interval probability;
-            if(global_config.chernoff_flag)
+            if(global_config.sobol_flag)
             {
-                cout << "Not implemented yet" << endl;
-                exit(EXIT_SUCCESS);
+                pair<box, capd::interval> probability = algorithm::evaluate_npha_sobol(global_config.reach_depth_min,
+                                                                                       global_config.reach_depth_max,
+                                                                                       global_config.sample_size);
+                std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
             }
-            else if(global_config.bayesian_flag)
+            else if(global_config.cross_entropy_flag)
             {
-                int size = 1000;
-                probability = algorithm::evaluate_npha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf, size);
-                // modifying the interval if outside (0,1)
-                if(probability.leftBound() < 0)
-                {
-                    probability.setLeftBound(0);
-                }
-                if(probability.rightBound() > 1)
-                {
-                    probability.setRightBound(1);
-                }
-                std::cout << probability << " | " << capd::intervals::width(probability) << std::endl;
+                pair<box, capd::interval> probability = algorithm::evaluate_npha_cross_entropy(global_config.reach_depth_min,
+                                                                                               global_config.reach_depth_max,
+                                                                                               global_config.sample_size);
+                std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
             }
             else
             {

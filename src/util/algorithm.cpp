@@ -308,8 +308,16 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     {
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of nondeterministic domain";
         nd_partition.clear();
-        nd_partition = measure::partition(nd_domain, global_config.precision_nondet);
+        //nd_partition = measure::partition(nd_domain, global_config.precision_nondet);
+        nd_partition = box_factory::partition(nd_domain, global_config.precision_nondet);
+        /*
+        for(box nd : nd_partition)
+        {
+            cout << nd << endl;
+        }
+        */
     }
+    //exit(EXIT_SUCCESS);
     // getting partition of domain of continuous random variables
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of domain of continuous random parameters";
     std::vector<box> rv_partition = measure::get_rv_partition();
@@ -323,6 +331,11 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     }
     // getting partition of domain of discrete random variables
     std::vector<box> dd_partition = measure::get_dd_partition();
+    // fix for now
+    if(dd_partition.empty())
+    {
+        dd_partition.push_back(box());
+    }
     // checking if there are multiple initial and goal states
     if((pdrh::init.size() > 1) || (pdrh::goal.size() > 1))
     {
@@ -347,6 +360,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     {
         partition_map.insert(std::make_pair(nd, rv_partition));
     }
+
     std::map<box, capd::interval> res_map;
     // algorithm
     while(p_map.size() > 0)
@@ -500,11 +514,13 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                 {
                     partition_map[nd] = rv_stack;
                 }
+                /*
                 std::cout << "p_map:" << std::endl;
                 for(auto it = p_map.cbegin(); it != p_map.cend(); it++)
                 {
                     std::cout << std::scientific << it->first << " | " << it->second << std::endl;
                 }
+                */
             }
         }
         // updating probability and partition maps
@@ -514,7 +530,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
         {
             // bisecting the nondeterministic box
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << it->first;
-            std::vector<box> tmp_boxes = box_factory::bisect(it->first);
+            std::vector<box> tmp_boxes = box_factory::partition(it->first, global_config.precision_nondet);
             capd::interval tmp_prob_value = p_map[it->first];
             std::vector<box> tmp_rv_partition = partition_map[it->first];
             // removing probability and partition for the bisected box
@@ -636,7 +652,7 @@ tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string,
     return std::make_tuple(psy_partition, undet_boxes, unsat_boxes);
 }
 
-capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf)
+capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes)
 {
     const gsl_rng_type * T;
     gsl_rng * r;
@@ -672,6 +688,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
         box b = rnd::get_random_sample(r);
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample: " << b;
         std::vector<box> boxes = { b };
+        boxes.insert(boxes.end(), nondet_boxes.begin(), nondet_boxes.end());
         int undet_counter = 0;
         int timeout_counter = 0;
         bool sat_flag = false;
@@ -745,7 +762,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
     return capd::interval(((double) sat / (double) sample_size) - acc, ((double) (sample_size - unsat) / (double) sample_size) + acc);
 }
 
-capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, double conf)
+capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes)
 {
     const gsl_rng_type * T;
     gsl_rng * r;
@@ -787,6 +804,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         box b = rnd::get_random_sample(r);
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample: " << b;
         std::vector<box> boxes = { b };
+        boxes.insert(boxes.end(), nondet_boxes.begin(), nondet_boxes.end());
         int undet_counter = 0;
         int timeout_counter = 0;
         bool sat_flag = false;
@@ -887,6 +905,16 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     }
 }
 
+capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf)
+{
+    return evaluate_pha_chernoff(min_depth, max_depth, acc, conf, vector<box>{});
+}
+
+capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, double conf)
+{
+    return evaluate_pha_bayesian(min_depth, max_depth, acc, conf, vector<box>{});
+}
+
 long int algorithm::get_cernoff_bound(double acc, double conf)
 {
     if((acc <= 0) || (conf < 0) || (conf >= 1))
@@ -896,18 +924,139 @@ long int algorithm::get_cernoff_bound(double acc, double conf)
     return (long int) std::ceil((1/(2 * acc * acc)) * std::log(2/(1 - conf)));
 }
 
-capd::interval algorithm::evaluate_npha_bayesian(int min_depth, int max_depth, double acc, double conf, int size)
+pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_depth, int size)
 {
     gsl_qrng * q = gsl_qrng_alloc(gsl_qrng_sobol, pdrh::par_map.size());
 
+    //initializing probability value
+    pair<box, capd::interval> res;
+    if(global_config.max_prob)
+    {
+        res = make_pair(box(), capd::interval(0.0));
+    }
+    else
+    {
+        res = make_pair(box(), capd::interval(1.0));
+    }
+    box nd_dist = pdrh::get_nondet_domain();
     for(int i = 0; i < size; i++)
     {
-        box b = rnd::get_quasi_random_sample(q);
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Quasi-random sample: " << b;
+        box b = rnd::get_sobol_sample(q, nd_dist);
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
+        capd::interval probability;
+        if(global_config.bayesian_flag)
+        {
+            probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc, global_config.bayesian_conf, vector<box>{ b });
+        }
+        else if(global_config.chernoff_flag)
+        {
+            probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc, global_config.chernoff_conf, vector<box>{ b });
+        }
+        else
+        {
+            CLOG(ERROR, "algorithm") << "Unknown setting";
+            exit(EXIT_FAILURE);
+        }
+        // fixing probability value
+        if(probability.leftBound() < 0)
+        {
+            probability.setLeftBound(0);
+        }
+        if(probability.rightBound() > 1)
+        {
+            probability.setRightBound(1);
+        }
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
+        // comparing probability value
+        if(global_config.max_prob)
+        {
+            if(probability.mid() > res.second.mid())
+            {
+                res = make_pair(b, probability);
+            }
+        }
+        else
+        {
+            if(probability.mid() < res.second.mid())
+            {
+                res = make_pair(b, probability);
+            }
+        }
     }
     gsl_qrng_free (q);
-    return capd::interval(0,1);
+    return res;
 }
 
+pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, int max_depth, int size)
+{
+    // random number generator for cross entropy
+    const gsl_rng_type * T;
+    gsl_rng * r;
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+    // creating random generator
+    r = gsl_rng_alloc(T);
+    // setting the seed
+    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
+    //initializing probability value
+    pair<box, capd::interval> res;
+    if(global_config.max_prob)
+    {
+        res = make_pair(box(), capd::interval(0.0));
+    }
+    else
+    {
+        res = make_pair(box(), capd::interval(1.0));
+    }
+    box nd_dist = pdrh::get_nondet_domain();
+    box mean = box_factory::get_mean(nd_dist);
+    box sigma = box_factory::get_deviation(nd_dist);
 
+    for(int i = 0; i < size; i++)
+    {
+        box b = rnd::get_normal_random_sample(r, mean, sigma);
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
+        capd::interval probability;
+        if(global_config.bayesian_flag)
+        {
+            probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc, global_config.bayesian_conf, vector<box>{ b });
+        }
+        else if(global_config.chernoff_flag)
+        {
+            probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc, global_config.chernoff_conf, vector<box>{ b });
+        }
+        else
+        {
+            CLOG(ERROR, "algorithm") << "Unknown setting";
+            exit(EXIT_FAILURE);
+        }
+        // fixing probability value
+        if(probability.leftBound() < 0)
+        {
+            probability.setLeftBound(0);
+        }
+        if(probability.rightBound() > 1)
+        {
+            probability.setRightBound(1);
+        }
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
+        // comparing probability value
+        if(global_config.max_prob)
+        {
+            if(probability.mid() > res.second.mid())
+            {
+                res = make_pair(b, probability);
+            }
+        }
+        else
+        {
+            if(probability.mid() < res.second.mid())
+            {
+                res = make_pair(b, probability);
+            }
+        }
+    }
+    gsl_rng_free(r);
+    return res;
+}
 

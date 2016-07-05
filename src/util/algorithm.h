@@ -38,11 +38,13 @@ namespace algorithm
     capd::interval evaluate_pha_bayesian(int, int, double, double);
     long int get_cernoff_bound(double, double);
 
+    capd::interval evaluate_pha_chernoff(int, int, double, double, vector<box>);
+    capd::interval evaluate_pha_bayesian(int, int, double, double, vector<box>);
+
+
     // the last argument is the sample size for cross entropy method
-    capd::interval evaluate_npha_bayesian(int, int, double, double, int);
-    capd::interval evaluate_npha_chernoff(int, int, double, double, int);
-
-
+    pair<box, capd::interval> evaluate_npha_sobol(int, int, int);
+    pair<box, capd::interval> evaluate_npha_cross_entropy(int, int, int);
 
 }
 

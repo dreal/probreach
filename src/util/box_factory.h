@@ -15,9 +15,12 @@ namespace box_factory
 {
     vector<box> cartesian_product(map<string, vector<capd::interval>>);
     vector<box> bisect(box);
+    vector<box> partition(box, double);
     vector<box> bisect(box, map<string, capd::interval>);
     vector<box> bisect(box, map<string, pdrh::node*>);
     vector<box> merge(std::vector<box>);
+    box get_mean(box);
+    box get_deviation(box);
     box merge(box, box);
 }
 

@@ -71,20 +71,39 @@ box rnd::get_random_sample(gsl_rng* r)
     return box(edges);
 }
 
-box rnd::get_quasi_random_sample(gsl_qrng* q)
+box rnd::get_sobol_sample(gsl_qrng* q, box b)
 {
     // drawing a sample
-    double v[pdrh::par_map.size()];
+    double v[b.get_map().size()];
     gsl_qrng_get (q, v);
 
-    map<std::string, capd::interval> edges;
+    map<std::string, capd::interval> edges, b_edges;
+    b_edges = b.get_map();
     int i = 0;
     // continuous distributions
+    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+    {
+        edges.insert(make_pair(it->first, capd::interval(it->second.leftBound() + v[i] * capd::intervals::width(it->second))));
+        i++;
+    }
+    return box(edges);
+}
+
+box rnd::get_normal_random_sample(gsl_rng* r, box mu, box sigma)
+{
+    map<std::string, capd::interval> edges;
     for(auto it = pdrh::par_map.cbegin(); it != pdrh::par_map.cend(); it++)
     {
-        capd::interval edge(pdrh::node_to_interval(it->second.first).leftBound(), pdrh::node_to_interval(it->second.second).rightBound());
-        edges.insert(make_pair(it->first, capd::interval(edge.leftBound() + v[i] * capd::intervals::width(edge))));
-        i++;
+        if(find(mu.get_vars().cbegin(), mu.get_vars().cend(), it->first) != mu.get_vars().cend() &&
+                find(sigma.get_vars().cbegin(), sigma.get_vars().cend(), it->first) != sigma.get_vars().cend())
+        {
+            edges.insert(make_pair(it->first, mu.get_map()[it->first].mid().leftBound() +
+                                              gsl_ran_gaussian_ziggurat(r, sigma.get_map()[it->first].mid().leftBound())));
+        }
+        else
+        {
+            CLOG(ERROR, "ran_gen") << "Parameter \"" << it->first << "\" is not defined";
+        }
     }
     return box(edges);
 }

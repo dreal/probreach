@@ -12,7 +12,11 @@
 namespace rnd
 {
     box get_random_sample(gsl_rng*);
-    box get_quasi_random_sample(gsl_qrng*);
+    box get_sobol_sample(gsl_qrng*, box);
+    // the first argument is a random number generator,
+    // the second argument is the mean vector
+    // the third argument is the standard deviation vector
+    box get_normal_random_sample(gsl_rng*, box, box);
 }
 
 #endif //PROBREACH_RANDOM_H

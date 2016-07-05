@@ -77,6 +77,48 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
+        // sample size
+        else if(strcmp(argv[i], "--sample-size") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.sample_size;
+            if(global_config.sample_size <= 0)
+            {
+                CLOG(ERROR, "config") << "--sample-size must be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // elite ration
+        else if(strcmp(argv[i], "--elite-ratio") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.elite_ratio;
+            if(global_config.elite_ratio <= 0 || global_config.elite_ratio >= 1)
+            {
+                CLOG(ERROR, "config") << "--elite-ratio must be a number in the interval (0,1)";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // probability optimization bound
+        else if(strcmp(argv[i], "--prob-opt-bound") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.prob_opt_bound;
+            if(global_config.prob_opt_bound <= 0)
+            {
+                CLOG(ERROR, "config") << "--prob-opt-bound must be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // minimum probability flag
+        else if(strcmp(argv[i], "--min-prob") == 0)
+        {
+            global_config.min_prob = true;
+            global_config.max_prob = false;
+        }
         // reachability depth (min = max)
         else if(strcmp(argv[i], "-k") == 0)
         {
@@ -282,6 +324,18 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             global_config.verbose = true;
             global_config.verbose_result = true;
+        }
+        // sobol
+        else if(strcmp(argv[i], "--sobol") == 0)
+        {
+            global_config.sobol_flag = true;
+            global_config.cross_entropy_flag = false;
+        }
+        // cross-entropy
+        else if(strcmp(argv[i], "--cross-entropy") == 0)
+        {
+            global_config.cross_entropy_flag = true;
+            global_config.sobol_flag = false;
         }
         // sample size display
         else if(strcmp(argv[i], "--verbose-result") == 0)

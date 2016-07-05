@@ -52,6 +52,14 @@ struct pdrh_config
     bool bayesian_flag = false;
     bool delta_sat = false;
     string time_var_name = "tau";
+    int sample_size = 10;
+    int elite_ratio = 0.1;
+    int prob_opt_bound = 3;
+    bool max_prob = true;
+    bool min_prob = false;
+    bool sobol_flag = false;
+    bool cross_entropy_flag = true;
+
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

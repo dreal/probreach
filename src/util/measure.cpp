@@ -200,7 +200,7 @@ std::vector<box> measure::partition(box b, double e)
         else
         {
             std::stringstream s;
-            s << "Measure for " << it->first << " is undefined";
+            s << "Variable " << it->first << " is undefined";
             throw std::invalid_argument(s.str());
         }
     }

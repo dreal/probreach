@@ -5,6 +5,10 @@
 #include<capd/intervals/lib.h>
 
 #include "box.h"
+#include "box_factory.h"
+
+using namespace std;
+
 box::box()
 {
 
@@ -14,6 +18,29 @@ box::box()
 bool box::empty()
 {
     return (get_map().size() == 0);
+}
+
+bool box::contains(box b)
+{
+    map<string, capd::interval> edges = get_map();
+    map<string, capd::interval> b_edges = b.get_map();
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        if(b_edges.find(it->first) != b_edges.cend())
+        {
+            if(!it->second.contains(b.get_map()[it->first]))
+            {
+                return false;
+            }
+        }
+        else
+        {
+            ostringstream s;
+            s << "The target box does not contain varibale: \"" << it->first << "\"";
+            throw invalid_argument(s.str());
+        }
+    }
+    return true;
 }
 
 box::box(std::map<std::string, capd::interval> e)
@@ -88,6 +115,82 @@ bool operator==(const box& lhs, const box& rhs)
     return true;
 }
 
+box operator+(const box& lhs, const box& rhs)
+{
+    if(!box_factory::get_keys_diff(lhs, rhs).empty() ||
+            !box_factory::get_keys_diff(rhs, lhs).empty())
+    {
+        ostringstream s;
+        s << "cannot perform \"+\" operation for " << lhs << " and " << rhs << ". The boxes have different sets of variables";
+        throw std::invalid_argument(s.str());
+    }
+    map<string, capd::interval> lhs_map = lhs.get_map();
+    map<string, capd::interval> rhs_map = rhs.get_map();
+    map<string, capd::interval> res;
+    for(auto it = lhs_map.cbegin(); it != lhs_map.cend(); it++)
+    {
+        res.insert(make_pair(it->first, it->second + rhs_map[it->first]));
+    }
+    return box(res);
+}
+
+box operator-(const box& lhs, const box& rhs)
+{
+    if(!box_factory::get_keys_diff(lhs, rhs).empty() ||
+            !box_factory::get_keys_diff(rhs, lhs).empty())
+    {
+        ostringstream s;
+        s << "cannot perform \"+\" operation for " << lhs << " and " << rhs << ". The boxes have different sets of variables";
+        throw std::invalid_argument(s.str());
+    }
+    map<string, capd::interval> lhs_map = lhs.get_map();
+    map<string, capd::interval> rhs_map = rhs.get_map();
+    map<string, capd::interval> res;
+    for(auto it = lhs_map.cbegin(); it != lhs_map.cend(); it++)
+    {
+        res.insert(make_pair(it->first, it->second - rhs_map[it->first]));
+    }
+    return box(res);
+}
+
+box operator*(const box& lhs, const box& rhs)
+{
+    if(!box_factory::get_keys_diff(lhs, rhs).empty() ||
+            !box_factory::get_keys_diff(rhs, lhs).empty())
+    {
+        ostringstream s;
+        s << "cannot perform \"+\" operation for " << lhs << " and " << rhs << ". The boxes have different sets of variables";
+        throw std::invalid_argument(s.str());
+    }
+    map<string, capd::interval> lhs_map = lhs.get_map();
+    map<string, capd::interval> rhs_map = rhs.get_map();
+    map<string, capd::interval> res;
+    for(auto it = lhs_map.cbegin(); it != lhs_map.cend(); it++)
+    {
+        res.insert(make_pair(it->first, it->second * rhs_map[it->first]));
+    }
+    return box(res);
+}
+
+box operator/(const box& lhs, const box& rhs)
+{
+    if(!box_factory::get_keys_diff(lhs, rhs).empty() ||
+            !box_factory::get_keys_diff(rhs, lhs).empty())
+    {
+        ostringstream s;
+        s << "cannot perform \"+\" operation for " << lhs << " and " << rhs << ". The boxes have different sets of variables";
+        throw std::invalid_argument(s.str());
+    }
+    map<string, capd::interval> lhs_map = lhs.get_map();
+    map<string, capd::interval> rhs_map = rhs.get_map();
+    map<string, capd::interval> res;
+    for(auto it = lhs_map.cbegin(); it != lhs_map.cend(); it++)
+    {
+        res.insert(make_pair(it->first, it->second / rhs_map[it->first]));
+    }
+    return box(res);
+}
+
 dd_box::dd_box(std::map<std::string, capd::interval> e)
 {
     for(auto it = e.cbegin(); it != e.cend(); it++)
@@ -151,4 +254,42 @@ std::vector<std::string> box::get_vars() const
         v.push_back(it->first);
     }
     return v;
+}
+
+box box::get_mean()
+{
+    map<string, capd::interval> edges = get_map();
+    map<string, capd::interval> mu_map;
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        mu_map.insert(make_pair(it->first, it->second.mid()));
+    }
+    return box(mu_map);
+}
+
+box box::get_stddev()
+{
+    map<string, capd::interval> edges = get_map();
+    map<string, capd::interval> sigma_map;
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        sigma_map.insert(make_pair(it->first, capd::intervals::width(
+                capd::interval(it->second.leftBound(),
+                               it->second.mid().leftBound()))));
+    }
+    return box(sigma_map);
+}
+
+double box::max()
+{
+    map<string, capd::interval> edges = get_map();
+    double max = edges.cbegin()->second.leftBound();
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        if(it->second.leftBound() > max)
+        {
+            max = it->second.leftBound();
+        }
+    }
+    return max;
 }

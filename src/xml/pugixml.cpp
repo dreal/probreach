@@ -1111,7 +1111,7 @@ PUGI__NS_BEGIN
 					result = Traits::low(result, lead);
 					data += 1;
 				}
-				// surrogate pair lead
+				// surrogate prob_pair lead
 				else if (static_cast<unsigned int>(lead - 0xD800) < 0x400 && data + 1 < end)
 				{
 					uint16_t next = opt_swap::value ? endian_swap(data[1]) : data[1];
@@ -2000,7 +2000,7 @@ PUGI__NS_BEGIN
 		{
 			PUGI__SCANWHILE_UNROLL(!PUGI__IS_CHARTYPE(ss, ct_parse_comment));
 		
-			if (*s == '\r') // Either a single 0x0d or 0x0d 0x0a pair
+			if (*s == '\r') // Either a single 0x0d or 0x0d 0x0a prob_pair
 			{
 				*s++ = '\n'; // replace first one with 0x0a
 				
@@ -2028,7 +2028,7 @@ PUGI__NS_BEGIN
 		{
 			PUGI__SCANWHILE_UNROLL(!PUGI__IS_CHARTYPE(ss, ct_parse_cdata));
 			
-			if (*s == '\r') // Either a single 0x0d or 0x0d 0x0a pair
+			if (*s == '\r') // Either a single 0x0d or 0x0d 0x0a prob_pair
 			{
 				*s++ = '\n'; // replace first one with 0x0a
 				
@@ -2074,7 +2074,7 @@ PUGI__NS_BEGIN
 					
 					return s + 1;
 				}
-				else if (opt_eol::value && *s == '\r') // Either a single 0x0d or 0x0d 0x0a pair
+				else if (opt_eol::value && *s == '\r') // Either a single 0x0d or 0x0d 0x0a prob_pair
 				{
 					*s++ = '\n'; // replace first one with 0x0a
 					
@@ -2967,7 +2967,7 @@ PUGI__NS_BEGIN
 	{
 		if (length < 1) return 0;
 
-		// discard last character if it's the lead of a surrogate pair 
+		// discard last character if it's the lead of a surrogate prob_pair
 		return (sizeof(wchar_t) == 2 && static_cast<unsigned int>(static_cast<uint16_t>(data[length - 1]) - 0xD800) < 0x400) ? length - 1 : length;
 	}
 

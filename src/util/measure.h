@@ -25,6 +25,10 @@ namespace measure
     capd::interval p_measure(dd_box);
     capd::interval p_dd_measure(box);
 
+    bool compare_pairs(const pair<box, capd::interval>&, const pair<box, capd::interval>&);
+
+    //bool compare_pairs(const prob_pair&, const prob_pair&);
+
     // obtain the partition of the parameter space
     std::vector<box> get_rv_partition();
     std::vector<box> get_dd_partition();

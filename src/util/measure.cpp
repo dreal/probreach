@@ -101,7 +101,7 @@ std::vector<rv_box> measure::partition(rv_box b, double e)
                                                                                               capd::interval(pdrh::node_to_interval(std::get<1>(pdrh::rv_map[it->first])).leftBound(),
                                                                                                              pdrh::node_to_interval(std::get<2>(pdrh::rv_map[it->first])).rightBound()),
                                                                                                               measure::precision(e, edges.size()));
-            //std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size()));
+            //std::prob_pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size()));
             m.insert(make_pair(it->first, itg.second));
         }
         else
@@ -436,10 +436,17 @@ box measure::bounds::get_rv_domain()
     return domain.front();
 }
 
-
-
-
-
-
-
-
+// comparing the medians of the intervals
+/*
+bool measure::compare_pairs(const pair<box, capd::interval>& lhs, const pair<box, capd::interval>& rhs)
+{
+    if(box_factory::get_keys_diff(lhs.first, rhs.first).empty() ||
+       box_factory::get_keys_diff(rhs.first, lhs.first).empty())
+    {
+        stringstream s;
+        s << "Boxes " << lhs.first << " and " << rhs.first << " cannot be compared";
+        throw std::invalid_argument(s.str());
+    }
+    return lhs.second.mid() < rhs.second.mid();
+}
+*/

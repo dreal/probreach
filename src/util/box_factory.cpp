@@ -207,29 +207,84 @@ box box_factory::merge(box lhs, box rhs)
     }
 }
 
-box box_factory::get_mean(box b)
+box box_factory::get_mean(vector<box> q)
 {
-    map<string, capd::interval> edges = b.get_map();
-    map<string, capd::interval> mu_map;
-    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    box f_box = q.front();
+    map<string, capd::interval> f_map = f_box.get_map();
+    // setting the initial box
+    map<string, capd::interval> init_map, div_map;
+    for(auto it = f_map.cbegin(); it != f_map.cend(); it++)
     {
-        mu_map.insert(make_pair(it->first, it->second.mid()));
+        init_map.insert(make_pair(it->first, capd::interval(0.0)));
+        div_map.insert(make_pair(it->first, capd::interval(q.size())));
     }
-    return box(mu_map);
+    box res(init_map), div(div_map);
+    for(box b : q)
+    {
+        res = res + b.get_mean();
+    }
+    return res / div;
 }
 
-box box_factory::get_deviation(box b)
+box box_factory::get_stddev(vector<box> q)
 {
-    map<string, capd::interval> edges = b.get_map();
-    map<string, capd::interval> sigma_map;
-    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    box mean = get_mean(q);
+    map<string, capd::interval> f_map = mean.get_map();
+    // setting the initial box
+    map<string, capd::interval> init_map, div_map;
+    for(auto it = f_map.cbegin(); it != f_map.cend(); it++)
     {
-        sigma_map.insert(make_pair(it->first, capd::intervals::width(
-                                                     capd::interval(it->second.leftBound(),
-                                                                         it->second.mid().leftBound()))));
+        init_map.insert(make_pair(it->first, capd::interval(0.0)));
+        div_map.insert(make_pair(it->first, capd::interval(q.size())));
     }
-    return box(sigma_map);
+    box sum(init_map), div(div_map);
+    for(box b : q)
+    {
+        sum = sum + (b.get_mean() - mean) * (b.get_mean() - mean);
+    }
+    return box_factory::sqrt(sum/div);
 }
 
+box box_factory::sqrt(box b)
+{
+    map<string, capd::interval> b_map = b.get_map();
+    map<string, capd::interval> res;
+    for(auto it = b_map.cbegin(); it != b_map.cend(); it++)
+    {
+        res.insert(make_pair(it->first, capd::intervals::sqrt(it->second)));
+    }
+    return box(res);
+}
 
+box box_factory::get_keys_diff(box lhs, box rhs)
+{
+    map<string, capd::interval> res;
+    map<string, capd::interval> lhs_map = lhs.get_map();
+    map<string, capd::interval> rhs_map = rhs.get_map();
+    for(auto it = lhs_map.cbegin(); it != lhs_map.cend(); it++)
+    {
+        if(rhs_map.find(it->first) == rhs_map.cend())
+        {
+            res.insert(make_pair(it->first, it->second));
+        }
+    }
+    return box(res);
+}
+
+vector<pair<box, capd::interval>> box_factory::sort(vector<pair<box, capd::interval>> q)
+{
+    for(int i = 1; i < q.size(); i++)
+    {
+        for(int j = 0; j < q.size() - 1; j++)
+        {
+            if(q.at(j).second.mid().leftBound() > q.at(j+1).second.mid().leftBound())
+            {
+                pair<box, capd::interval> tmp = q.at(j+1);
+                q.at(j+1) = q.at(j);
+                q.at(j) = tmp;
+            }
+        }
+    }
+    return q;
+}
 

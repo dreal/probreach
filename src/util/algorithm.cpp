@@ -802,6 +802,11 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         }
         // getting a sample
         box b = rnd::get_random_sample(r);
+        // increasing the sample size
+        #pragma omp critical
+        {
+            sample_size++;
+        }
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample: " << b;
         std::vector<box> boxes = { b };
         boxes.insert(boxes.end(), nondet_boxes.begin(), nondet_boxes.end());
@@ -867,19 +872,36 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
             {
                 unsat++;
             }
-            // increasing the sample size
-            sample_size++;
             post_mean_sat = ((double) sat + alpha) / ((double) sample_size + alpha + beta);
             post_mean_unsat = ((double) sample_size - unsat + alpha) / ((double) sample_size + alpha + beta);
             if(global_config.delta_sat)
             {
-                post_prob = gsl_cdf_beta_P(post_mean_sat + acc, sat + alpha, sample_size - sat + beta)
-                            - gsl_cdf_beta_P(post_mean_sat - acc, sat + alpha, sample_size - sat + beta);
+                if(post_mean_sat >= acc)
+                {
+                    post_prob = gsl_cdf_beta_P(post_mean_sat + acc, sat + alpha, sample_size - sat + beta)
+                                - gsl_cdf_beta_P(post_mean_sat - acc, sat + alpha, sample_size - sat + beta);
+                }
+                else
+                {
+                    post_prob = gsl_cdf_beta_P(post_mean_sat + acc, sat + alpha, sample_size - sat + beta)
+                                - gsl_cdf_beta_P(0, sat + alpha, sample_size - sat + beta);
+                }
             }
             else
             {
-                post_prob = gsl_cdf_beta_P(post_mean_unsat + acc, sample_size - unsat + alpha, unsat + beta)
-                            - gsl_cdf_beta_P(post_mean_sat - acc, sat + alpha, sample_size - sat + beta);
+                //cout << "Left: x: " << post_mean_unsat + acc << " alpha: " << sample_size - unsat + alpha << " beta: " << unsat + beta << endl;
+                //cout << "Right: x: " << post_mean_sat - acc << " alpha: " << sat + alpha << " beta: " << sample_size - sat + beta << endl;
+                //cout << "sample_size: " << sample_size << " sat: " << sat << " beta value: " << beta << endl;
+                if(post_mean_sat >= acc)
+                {
+                    post_prob = gsl_cdf_beta_P(post_mean_unsat + acc, sample_size - unsat + alpha, unsat + beta)
+                                - gsl_cdf_beta_P(post_mean_sat - acc, sat + alpha, sample_size - sat + beta);
+                }
+                else
+                {
+                    post_prob = gsl_cdf_beta_P(post_mean_unsat + acc, sample_size - unsat + alpha, unsat + beta)
+                                - gsl_cdf_beta_P(0, sat + alpha, sample_size - sat + beta);
+                }
             }
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(post_mean_sat - acc, post_mean_unsat + acc);
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(SAT) mean: " << post_mean_sat;
@@ -939,6 +961,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_
         res = make_pair(box(), capd::interval(1.0));
     }
     box nd_dist = pdrh::get_nondet_domain();
+    vector<pair<box, capd::interval>> samples;
     for(int i = 0; i < size; i++)
     {
         box b = rnd::get_sobol_sample(q, nd_dist);
@@ -967,6 +990,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_
             probability.setRightBound(1);
         }
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
+        samples.push_back(make_pair(b, probability));
         // comparing probability value
         if(global_config.max_prob)
         {
@@ -983,6 +1007,15 @@ pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_
             }
         }
     }
+    samples = box_factory::sort(samples);
+    //sort(samples.cbegin(), samples.cend());
+    /*
+    cout << "Sorted list" << endl;
+    for(pair<box, capd::interval> p : samples)
+    {
+        cout << p.first << " : " << p.second << endl;
+    }
+    */
     gsl_qrng_free (q);
     return res;
 }
@@ -1009,52 +1042,95 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
         res = make_pair(box(), capd::interval(1.0));
     }
     box nd_dist = pdrh::get_nondet_domain();
-    box mean = box_factory::get_mean(nd_dist);
-    box sigma = box_factory::get_deviation(nd_dist);
-
-    for(int i = 0; i < size; i++)
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << nd_dist;
+    box mean = nd_dist.get_mean();
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Initial mean: " << mean;
+    box sigma = nd_dist.get_stddev();
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Initial standard deviation: " << sigma;
+    while(sigma.max() > global_config.cross_entropy_term_arg)
     {
-        box b = rnd::get_normal_random_sample(r, mean, sigma);
-        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
-        capd::interval probability;
-        if(global_config.bayesian_flag)
+        vector<pair<box, capd::interval>> samples;
+        for(int i = 0; i < size; i++)
         {
-            probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc, global_config.bayesian_conf, vector<box>{ b });
-        }
-        else if(global_config.chernoff_flag)
-        {
-            probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc, global_config.chernoff_conf, vector<box>{ b });
-        }
-        else
-        {
-            CLOG(ERROR, "algorithm") << "Unknown setting";
-            exit(EXIT_FAILURE);
-        }
-        // fixing probability value
-        if(probability.leftBound() < 0)
-        {
-            probability.setLeftBound(0);
-        }
-        if(probability.rightBound() > 1)
-        {
-            probability.setRightBound(1);
-        }
-        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
-        // comparing probability value
-        if(global_config.max_prob)
-        {
-            if(probability.mid() > res.second.mid())
+            box b = rnd::get_normal_random_sample(r, mean, sigma);
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
+            capd::interval probability;
+            if(nd_dist.contains(b))
             {
-                res = make_pair(b, probability);
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is inside the domain";
+                if(global_config.bayesian_flag)
+                {
+                    probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc, global_config.bayesian_conf, vector<box>{ b });
+                }
+                else if(global_config.chernoff_flag)
+                {
+                    probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc, global_config.chernoff_conf, vector<box>{ b });
+                }
+                else
+                {
+                    CLOG(ERROR, "algorithm") << "Unknown setting";
+                    exit(EXIT_FAILURE);
+                }
+                // fixing probability value
+                if(probability.leftBound() < 0)
+                {
+                    probability.setLeftBound(0);
+                }
+                if(probability.rightBound() > 1)
+                {
+                    probability.setRightBound(1);
+                }
+            }
+            else
+            {
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is outside the domain";
+                if(global_config.max_prob)
+                {
+                    probability = capd::interval(-numeric_limits<double>::infinity());
+                }
+                else
+                {
+                    probability = capd::interval(numeric_limits<double>::infinity());
+                }
+            }
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
+            samples.push_back(make_pair(b, probability));
+            // comparing probability value
+            if(global_config.max_prob)
+            {
+                if(probability.mid() > res.second.mid())
+                {
+                    res = make_pair(b, probability);
+                }
+            }
+            else
+            {
+                if(probability.mid() < res.second.mid())
+                {
+                    res = make_pair(b, probability);
+                }
             }
         }
-        else
+        samples = box_factory::sort(samples);
+        vector<pair<box, capd::interval>> elite;
+        for(unsigned long i = (unsigned long)floor(samples.size()*(1 - global_config.elite_ratio)); i < samples.size(); i++)
         {
-            if(probability.mid() < res.second.mid())
-            {
-                res = make_pair(b, probability);
-            }
+            elite.push_back(samples.at(i));
         }
+        vector<box> elite_boxes;
+        for(pair<box, capd::interval> p : elite)
+        {
+            elite_boxes.push_back(p.first);
+        }
+        //cout << "Elite samples" << endl;
+        //for(box b : elite_boxes)
+        //{
+        //    cout << b << endl;
+        //}
+        mean = box_factory::get_mean(elite_boxes);
+        sigma = box_factory::get_stddev(elite_boxes);
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Modified mean: " << mean;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Modified standard deviation: " << sigma;
     }
     gsl_rng_free(r);
     return res;

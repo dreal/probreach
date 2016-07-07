@@ -101,15 +101,27 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
-        // probability optimization bound
-        else if(strcmp(argv[i], "--prob-opt-bound") == 0)
+        // sobol sequence optimization bound
+        else if(strcmp(argv[i], "--sobol-term-arg") == 0)
         {
             i++;
             istringstream is(argv[i]);
-            is >> global_config.prob_opt_bound;
-            if(global_config.prob_opt_bound <= 0)
+            is >> global_config.sobol_term_arg;
+            if(global_config.sobol_term_arg <= 0)
             {
-                CLOG(ERROR, "config") << "--prob-opt-bound must be positive";
+                CLOG(ERROR, "config") << "--sobol-term-arg must be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // cross-entropy termination condition
+        else if(strcmp(argv[i], "--cross-entropy-term-arg") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.cross_entropy_term_arg;
+            if(global_config.cross_entropy_term_arg <= 0)
+            {
+                CLOG(ERROR, "config") << "--cross-entropy-term-arg must be positive";
                 exit(EXIT_FAILURE);
             }
         }

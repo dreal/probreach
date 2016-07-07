@@ -28,11 +28,19 @@ public:
     friend std::ostream& operator<<(std::ostream&, const box&);
     friend bool operator<(const box&, const box&);
     friend bool operator==(const box&, const box&);
+    friend box operator+(const box&, const box&);
+    friend box operator-(const box&, const box&);
+    friend box operator*(const box&, const box&);
+    friend box operator/(const box&, const box&);
 
     std::map<std::string, capd::interval> get_map() const;
     std::vector<capd::interval> get_intervals() const;
     std::vector<std::string> get_vars() const;
     bool empty();
+    bool contains(box);
+    box get_mean();
+    box get_stddev();
+    double max();
 };
 
 class dd_box : public box

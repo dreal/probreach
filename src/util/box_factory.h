@@ -19,9 +19,16 @@ namespace box_factory
     vector<box> bisect(box, map<string, capd::interval>);
     vector<box> bisect(box, map<string, pdrh::node*>);
     vector<box> merge(std::vector<box>);
-    box get_mean(box);
-    box get_deviation(box);
     box merge(box, box);
+    box get_mean(vector<box>);
+    box get_stddev(vector<box>);
+    box get_keys_diff(box, box);
+    box sqrt(box);
+
+    // sort a vector of pairs by probability value
+    // first argument -- target unsorted vector
+    // second argument -- order (ascending in true and descending if false)
+    vector<pair<box, capd::interval>> sort(vector<pair<box, capd::interval>>);
 }
 
 #endif //PROBREACH_BOX_FACTORY_H

@@ -157,7 +157,7 @@ void parse_pdrh_config(int argc, char* argv[])
             }
             else if(global_config.reach_depth_min > global_config.reach_depth_max)
             {
-                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be greater than the maximum one";
+                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be descending than the maximum one";
                 exit(EXIT_FAILURE);
             }
         }
@@ -174,7 +174,7 @@ void parse_pdrh_config(int argc, char* argv[])
             }
             else if(global_config.reach_depth_min > global_config.reach_depth_max)
             {
-                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be greater than the maximum one";
+                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be descending than the maximum one";
                 exit(EXIT_FAILURE);
             }
         }

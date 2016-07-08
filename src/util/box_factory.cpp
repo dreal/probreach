@@ -271,6 +271,7 @@ box box_factory::get_keys_diff(box lhs, box rhs)
     return box(res);
 }
 
+/*
 vector<pair<box, capd::interval>> box_factory::sort(vector<pair<box, capd::interval>> q)
 {
     for(int i = 1; i < q.size(); i++)
@@ -287,4 +288,9 @@ vector<pair<box, capd::interval>> box_factory::sort(vector<pair<box, capd::inter
     }
     return q;
 }
+*/
 
+box box_factory::get_cover(vector<box> q)
+{
+    sort(q.begin(), q.end());
+}

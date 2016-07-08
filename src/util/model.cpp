@@ -87,9 +87,9 @@ void pdrh::push_mode(pdrh::mode m)
         m.odes.insert(make_pair(var, pdrh::push_terminal_node("0")));
         // adding this variable to the list of parameters if it is not there yet,
         // if it is not a continuous or discrete random variable and
-        // if its domain is an interval of length greater than 0.
+        // if its domain is an interval of length descending than 0.
         // There might be a problem as the length of the interval
-        // is always greater than 0 due to overapproximation of
+        // is always descending than 0 due to overapproximation of
         // the interval arithmetics
         if(pdrh::par_map.find(var) == pdrh::par_map.cend() &&
                 pdrh::rv_map.find(var) == pdrh::rv_map.cend() &&
@@ -280,7 +280,7 @@ vector<vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::mode* end, 
         {
             paths.push_back(path);
         }
-        // proceeding only if the length of the current path is smaller then the required length
+        // proceeding only if the length of the current path is ascending then the required length
         else if(path.size() < path_length + 1)
         {
             // getting the last mode in the path
@@ -1818,7 +1818,7 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr)
     }
     else if(expr->operands.size() > 2)
     {
-        CLOG(ERROR, "model") << "The number of operands can't be greater than 2";
+        CLOG(ERROR, "model") << "The number of operands can't be descending than 2";
         exit(EXIT_FAILURE);
     }
     else

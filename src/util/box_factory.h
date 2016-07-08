@@ -24,11 +24,12 @@ namespace box_factory
     box get_stddev(vector<box>);
     box get_keys_diff(box, box);
     box sqrt(box);
+    box get_cover(vector<box>);
 
     // sort a vector of pairs by probability value
     // first argument -- target unsorted vector
     // second argument -- order (ascending in true and descending if false)
-    vector<pair<box, capd::interval>> sort(vector<pair<box, capd::interval>>);
+    //vector<pair<box, capd::interval>> sort(vector<pair<box, capd::interval>>);
 }
 
 #endif //PROBREACH_BOX_FACTORY_H

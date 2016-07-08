@@ -941,7 +941,7 @@ long int algorithm::get_cernoff_bound(double acc, double conf)
 {
     if((acc <= 0) || (conf < 0) || (conf >= 1))
     {
-        CLOG(ERROR, "algorithm") << "accuracy must be greater than 0 and confidence must be inside [0, 1) interval";
+        CLOG(ERROR, "algorithm") << "accuracy must be descending than 0 and confidence must be inside [0, 1) interval";
     }
     return (long int) std::ceil((1/(2 * acc * acc)) * std::log(2/(1 - conf)));
 }
@@ -1007,8 +1007,8 @@ pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_
             }
         }
     }
-    samples = box_factory::sort(samples);
-    //sort(samples.cbegin(), samples.cend());
+    //samples = box_factory::sort(samples);
+    sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
     /*
     cout << "Sorted list" << endl;
     for(pair<box, capd::interval> p : samples)
@@ -1047,9 +1047,11 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Initial mean: " << mean;
     box sigma = nd_dist.get_stddev();
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Initial standard deviation: " << sigma;
-    while(sigma.max() > global_config.cross_entropy_term_arg)
+    box new_sigma = sigma;
+    while(new_sigma.max() > global_config.cross_entropy_term_arg)
     {
         vector<pair<box, capd::interval>> samples;
+        new_sigma = sigma;
         for(int i = 0; i < size; i++)
         {
             box b = rnd::get_normal_random_sample(r, mean, sigma);
@@ -1111,9 +1113,16 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
                 }
             }
         }
-        samples = box_factory::sort(samples);
+        if(global_config.max_prob)
+        {
+            sort(samples.begin(), samples.end(), measure::compare_pairs::descending);
+        }
+        else
+        {
+            sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
+        }
         vector<pair<box, capd::interval>> elite;
-        for(unsigned long i = (unsigned long)floor(samples.size()*(1 - global_config.elite_ratio)); i < samples.size(); i++)
+        for(unsigned long i = 0; i < (unsigned long)floor(samples.size() * global_config.elite_ratio); i++)
         {
             elite.push_back(samples.at(i));
         }

@@ -437,11 +437,10 @@ box measure::bounds::get_rv_domain()
 }
 
 // comparing the medians of the intervals
-/*
-bool measure::compare_pairs(const pair<box, capd::interval>& lhs, const pair<box, capd::interval>& rhs)
+bool measure::compare_pairs::ascending(const pair<box, capd::interval> &lhs, const pair<box, capd::interval> &rhs)
 {
-    if(box_factory::get_keys_diff(lhs.first, rhs.first).empty() ||
-       box_factory::get_keys_diff(rhs.first, lhs.first).empty())
+    if(!box_factory::get_keys_diff(lhs.first, rhs.first).empty() ||
+            !box_factory::get_keys_diff(rhs.first, lhs.first).empty())
     {
         stringstream s;
         s << "Boxes " << lhs.first << " and " << rhs.first << " cannot be compared";
@@ -449,4 +448,16 @@ bool measure::compare_pairs(const pair<box, capd::interval>& lhs, const pair<box
     }
     return lhs.second.mid() < rhs.second.mid();
 }
-*/
+
+// comparing the medians of the intervals
+bool measure::compare_pairs::descending(const pair<box, capd::interval> &lhs, const pair<box, capd::interval> &rhs)
+{
+    if(!box_factory::get_keys_diff(lhs.first, rhs.first).empty() ||
+       !box_factory::get_keys_diff(rhs.first, lhs.first).empty())
+    {
+        stringstream s;
+        s << "Boxes " << lhs.first << " and " << rhs.first << " cannot be compared";
+        throw std::invalid_argument(s.str());
+    }
+    return lhs.second.mid() > rhs.second.mid();
+}

@@ -1044,14 +1044,14 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
     box nd_dist = pdrh::get_nondet_domain();
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << nd_dist;
     box mean = nd_dist.get_mean();
-    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Initial mean: " << mean;
     box sigma = nd_dist.get_stddev();
-    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Initial standard deviation: " << sigma;
     box new_sigma = sigma;
+    vector<pair<box, capd::interval>> samples;
     while(new_sigma.max() > global_config.cross_entropy_term_arg)
     {
-        vector<pair<box, capd::interval>> samples;
         new_sigma = sigma;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Mean: " << mean;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Standard deviation: " << sigma;
         for(int i = 0; i < size; i++)
         {
             box b = rnd::get_normal_random_sample(r, mean, sigma);
@@ -1097,21 +1097,6 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
             }
             CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
             samples.push_back(make_pair(b, probability));
-            // comparing probability value
-            if(global_config.max_prob)
-            {
-                if(probability.mid() > res.second.mid())
-                {
-                    res = make_pair(b, probability);
-                }
-            }
-            else
-            {
-                if(probability.mid() < res.second.mid())
-                {
-                    res = make_pair(b, probability);
-                }
-            }
         }
         if(global_config.max_prob)
         {
@@ -1122,24 +1107,16 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
             sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
         }
         vector<pair<box, capd::interval>> elite;
-        for(unsigned long i = 0; i < (unsigned long)floor(samples.size() * global_config.elite_ratio); i++)
-        {
-            elite.push_back(samples.at(i));
-        }
+        copy_n(samples.begin(), ceil(samples.size() * global_config.elite_ratio), back_inserter(elite));
         vector<box> elite_boxes;
         for(pair<box, capd::interval> p : elite)
         {
             elite_boxes.push_back(p.first);
         }
-        //cout << "Elite samples" << endl;
-        //for(box b : elite_boxes)
-        //{
-        //    cout << b << endl;
-        //}
+        res = samples.front();
+        samples.clear();
         mean = box_factory::get_mean(elite_boxes);
         sigma = box_factory::get_stddev(elite_boxes);
-        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Modified mean: " << mean;
-        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Modified standard deviation: " << sigma;
     }
     gsl_rng_free(r);
     return res;

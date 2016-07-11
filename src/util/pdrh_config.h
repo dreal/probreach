@@ -58,7 +58,7 @@ struct pdrh_config
     bool max_prob = true;
     bool min_prob = false;
     bool sobol_flag = false;
-    bool cross_entropy_flag = true;
+    bool cross_entropy_flag = false;
     double cross_entropy_term_arg = 1e-2;
 
 } extern global_config;

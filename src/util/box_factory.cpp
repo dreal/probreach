@@ -293,4 +293,19 @@ vector<pair<box, capd::interval>> box_factory::sort(vector<pair<box, capd::inter
 box box_factory::get_cover(vector<box> q)
 {
     sort(q.begin(), q.end());
+    if(!box_factory::get_keys_diff(q.front(), q.back()).empty() ||
+       !box_factory::get_keys_diff(q.back(), q.front()).empty())
+    {
+        ostringstream s;
+        s << "could not get_cover for " << q.front() << " and " << q.back() << ". The boxes have different sets of variables";
+        throw std::invalid_argument(s.str());
+    }
+    map<string, capd::interval> min = q.front().get_map();
+    map<string, capd::interval> max = q.back().get_map();
+    map<string, capd::interval> res;
+    for(auto it = min.begin(); it != min.end(); it++)
+    {
+        res.insert(make_pair(it->first, capd::interval(it->second.leftBound(), max[it->first].rightBound())));
+    }
+    return box(res);
 }

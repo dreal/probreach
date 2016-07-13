@@ -280,7 +280,7 @@ box box::get_stddev()
     return box(sigma_map);
 }
 
-double box::max()
+double box::max_coordinate_value()
 {
     map<string, capd::interval> edges = get_map();
     double max = edges.cbegin()->second.leftBound();
@@ -289,6 +289,20 @@ double box::max()
         if(it->second.leftBound() > max)
         {
             max = it->second.leftBound();
+        }
+    }
+    return max;
+}
+
+double box::max_side_width()
+{
+    map<string, capd::interval> edges = get_map();
+    double max = capd::intervals::width(edges.cbegin()->second);
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        if(capd::intervals::width(it->second) > max)
+        {
+            max = capd::intervals::width(it->second);
         }
     }
     return max;

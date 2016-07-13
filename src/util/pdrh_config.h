@@ -54,7 +54,7 @@ struct pdrh_config
     string time_var_name = "tau";
     int sample_size = 10;
     double elite_ratio = 0.1;
-    int sobol_term_arg = 3;
+    double sobol_term_arg = 1e-2;
     bool max_prob = true;
     bool min_prob = false;
     bool sobol_flag = false;

@@ -40,7 +40,8 @@ public:
     bool contains(box);
     box get_mean();
     box get_stddev();
-    double max();
+    double max_coordinate_value();
+    double max_side_width();
 };
 
 class dd_box : public box

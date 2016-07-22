@@ -98,7 +98,19 @@ void pdrh::push_mode(pdrh::mode m)
                                 node_to_interval(pdrh::var_map[var].first).leftBound(),
                                     node_to_interval(pdrh::var_map[var].second).rightBound())) > 0)
         {
-            pdrh::par_map.insert(make_pair(var, pdrh::var_map[var]));
+            bool insert_flag = true;
+            for(pdrh::mode md : pdrh::modes)
+            {
+                if(md.flow_map.find(var) != md.flow_map.cend())
+                {
+                    insert_flag = false;
+                    break;
+                }
+            }
+            if(insert_flag)
+            {
+                pdrh::par_map.insert(make_pair(var, pdrh::var_map[var]));
+            }
         }
     }
     pdrh::modes.push_back(m);

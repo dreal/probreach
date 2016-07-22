@@ -2,7 +2,7 @@
  * Insulin action subsystem kinetics.
  * Sources: Sriram, Hovorka 2002, Hovorka 2004
  */
-MODEL_TYPE(PHA)
+model: pha;
 #define w 100 //[kg] weight of the patient
 #define ka1 0.006 //[min^(-1)] deactivation rate constant (Hovorka 2004)
 #define ka2 0.06 //[min^(-1)] deactivation rate constant (Hovorka 2004)
@@ -38,8 +38,8 @@ MODEL_TYPE(PHA)
 //[-1.0,1.0]u;
 [-10,10]x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
 [-10,10]x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
-//[-10,10]x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
-N(0.05,0.005)x3;
+[-10,10]x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
+dist_normal(0.05,0.005) x3_0;
 [-10,10]I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
 [-50,50]S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
 [-50,50]S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
@@ -50,7 +50,7 @@ N(0.05,0.005)x3;
 [0,1000]time;
 
 {
-mode1;
+mode 1;
 
 flow:
 //glucose-subsystem
@@ -67,14 +67,11 @@ d/dt[x3]=- ka3 * x3 + kb3 * I;
 d/dt[tau]=0.5;
 
 jump:
-(G = 10)==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2));
+(G >= 10)==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2));
 }
 
 {
-mode2;
-
-invt_c:
-(G > 10);
+mode 2;
 
 flow:
 //glucose-subsystem
@@ -95,10 +92,10 @@ jump:
 }
 
 init:
-@1(and	(I = 0.03) (x1 = 0.03) (x2 = 0.045) (tau = 0.0) (S1 = 4.2) (S2 = 4.0) (Q1 = 64.0) (Q2 = 40.0)); 
+@1(and	(I = 0.03) (x1 = 0.03) (x2 = 0.045) (x3 = x3_0) (tau = 0.0) (S1 = 4.2) (S2 = 4.0) (Q1 = 64.0) (Q2 = 40.0));
 
 goal:
 @2(and (tau = 60) (G <= 10));
 
-goal_c:
-@2(and (tau = 60) (G > 10));
+//goal_c:
+//@2(and (tau = 60) (G > 10));

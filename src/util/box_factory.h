@@ -25,6 +25,7 @@ namespace box_factory
     box get_keys_diff(box, box);
     box sqrt(box);
     box get_cover(vector<box>);
+    bool compatible(vector<box>);
 
     // sort a vector of pairs by probability value
     // first argument -- target unsorted vector

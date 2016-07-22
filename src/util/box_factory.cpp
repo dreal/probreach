@@ -309,3 +309,18 @@ box box_factory::get_cover(vector<box> q)
     }
     return box(res);
 }
+
+bool box_factory::compatible(vector<box> q)
+{
+    for(box b : q)
+    {
+        for(box c : q)
+        {
+            if(!box_factory::get_keys_diff(b,c).empty())
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}

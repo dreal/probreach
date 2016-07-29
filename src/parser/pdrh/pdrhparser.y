@@ -534,7 +534,7 @@ expr:
                                     else
                                     {
                                         std::stringstream s;
-                                        s << "undefined variable F\"" << $1 << "\"";
+                                        s << "undefined variable \"" << $1 << "\"";
                                         yyerror(s.str().c_str());
                                     }
                                 }

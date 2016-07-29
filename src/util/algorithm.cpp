@@ -122,6 +122,10 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
     }
     // getting partition of domain of discrete random variables
     std::vector<box> dd_partition = measure::get_dd_partition();
+    if(dd_partition.empty())
+    {
+        dd_partition.push_back(box());
+    }
     // checking if there are multiple initial and goal states
     if((pdrh::init.size() > 1) || (pdrh::goal.size() > 1))
     {
@@ -149,11 +153,13 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
         }
         vector<box> rv_partition = init_rv_partition;
         std::vector<box> rv_stack;
-        //#pragma omp parallel
         while(capd::intervals::width(probability) > global_config.precision_prob)
         {
-            for(box rv : rv_partition)
+            //#pragma omp parallel for
+            //for(box rv : rv_partition)
+            for(unsigned long i = 0; i < rv_partition.size(); i++)
             {
+                box rv = rv_partition.at(i);
                 // calculating probability measure of the box
                 // initially p_box = [1.0, 1.0]
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "====================";
@@ -197,43 +203,48 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                     int res = decision_procedure::evaluate(path, boxes);
                     // setting old precision
                     global_config.solver_opt = solver_opt;
+                    //#pragma omp critical
+                    //{
+                        switch (res)
+                        {
+                            case decision_procedure::SAT:
+                                if (p_box.leftBound() > 0)
+                                {
+                                    probability = capd::interval(probability.leftBound() + p_box.leftBound(),
+                                                                 probability.rightBound());
+                                }
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific <<
+                                                                                  probability;
+                                /*
+                                if(capd::intervals::width(probability) <= global_config.precision_prob)
+                                {
+                                    return probability;
+                                }
+                                */
+                                sat_flag = true;
+                                break;
 
-                    switch(res)
-                    {
-                        case decision_procedure::SAT:
-                            if(p_box.leftBound() > 0)
-                            {
-                                probability = capd::interval(probability.leftBound() + p_box.leftBound(), probability.rightBound());
-                            }
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
-                            /*
-                            if(capd::intervals::width(probability) <= global_config.precision_prob)
-                            {
-                                return probability;
-                            }
-                            */
-                            sat_flag = true;
-                            break;
-
-                        case decision_procedure::UNSAT:
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                            unsat_counter++;
-                            break;
-                        case decision_procedure::UNDET:
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDEC";
-                            undet_counter++;
-                            break;
-                        case decision_procedure::ERROR:
-                            CLOG(ERROR, "algorithm") << "Error occurred while calling the solver";
-                            exit(EXIT_FAILURE);
-                            break;
-                        case decision_procedure::SOLVER_TIMEOUT:
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                            timeout_counter++;
-                            break;
-                        default:break;
-                    }
+                            case decision_procedure::UNSAT:
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                                unsat_counter++;
+                                break;
+                            case decision_procedure::UNDET:
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDEC";
+                                undet_counter++;
+                                break;
+                            case decision_procedure::ERROR:
+                                CLOG(ERROR, "algorithm") << "Error occurred while calling the solver";
+                                exit(EXIT_FAILURE);
+                                break;
+                            case decision_procedure::SOLVER_TIMEOUT:
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
+                                timeout_counter++;
+                                break;
+                            default:
+                                break;
+                        }
+                    //}
                     // breaking out of the loop if a sat path was found
                     if(sat_flag)
                     {
@@ -615,9 +626,11 @@ tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string,
                 case decision_procedure::UNDET:
                 {
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+                    // CHECK FOR BUGS IN BISECT
                     std::vector<box> tmp_vector = box_factory::bisect(b, pdrh::syn_map);
-                    if(tmp_vector.size() == 1)
+                    if(tmp_vector.size() == 0)
                     {
+                        //cout << b << ": UNDET box" <<endl;
                         undet_boxes.push_back(b);
                         //undet_boxes = box_factory::merge(undet_boxes);
                     }
@@ -651,7 +664,10 @@ tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string,
             break;
         }
     }
-    return std::make_tuple(psy_partition, undet_boxes, unsat_boxes);
+    sat_boxes = box_factory::merge(psy_partition);
+    undet_boxes = box_factory::merge(undet_boxes);
+    unsat_boxes = box_factory::merge(unsat_boxes);
+    return std::make_tuple(sat_boxes, undet_boxes, unsat_boxes);
 }
 
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes)
@@ -1035,10 +1051,10 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
     gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
     //initializing probability value
     pair<box, capd::interval> res;
-    box nd_dist = pdrh::get_nondet_domain();
-    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << nd_dist;
-    box mean = nd_dist.get_mean();
-    box sigma = nd_dist.get_stddev();
+    box domain = pdrh::get_nondet_domain();
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;
+    box mean = domain.get_mean();
+    box sigma = domain.get_stddev();
     box new_sigma = sigma;
     vector<pair<box, capd::interval>> samples;
     //#pragma omp parallel
@@ -1047,13 +1063,16 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
         new_sigma = sigma;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Mean: " << mean;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Standard deviation: " << sigma;
+        unsigned long new_size = (unsigned long)ceil(size / measure::get_sample_prob(domain, mean, sigma).rightBound());
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << new_size;
+        int outliers = 0;
         //#pragma omp parallel for
-        for(int i = 0; i < size; i++)
+        for(int i = 0; i < new_size; i++)
         {
             box b = rnd::get_normal_random_sample(r, mean, sigma);
             CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
             capd::interval probability;
-            if(nd_dist.contains(b))
+            if(domain.contains(b))
             {
                 CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is inside the domain";
                 if(global_config.bayesian_flag)
@@ -1082,6 +1101,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
             else
             {
                 CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is outside the domain";
+                outliers++;
                 if(global_config.max_prob)
                 {
                     probability = capd::interval(-numeric_limits<double>::infinity());
@@ -1094,6 +1114,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
             CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
             samples.push_back(make_pair(b, probability));
         }
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of outliers: " << outliers << endl;
         if(global_config.max_prob)
         {
             sort(samples.begin(), samples.end(), measure::compare_pairs::descending);

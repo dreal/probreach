@@ -285,6 +285,27 @@ capd::interval measure::p_measure(dd_box b)
     return res;
 }
 
+capd::interval measure::get_sample_prob(box domain, box mean, box sigma)
+{
+    if(!box_factory::compatible({domain, mean, sigma}))
+    {
+        std::stringstream s;
+        s << "Boxes " << domain << " " << mean << " " << sigma << " are not compatible";
+        throw std::invalid_argument(s.str());
+    }
+    map<string, capd::interval> edges = domain.get_map();
+    capd::interval res(1.0);
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        pair<capd::interval, vector<capd::interval>> itg = measure::integral(it->first,
+                                                              measure::distribution::gaussian(it->first,
+                                                                   mean.get_map()[it->first], sigma.get_map()[it->first]),
+                                                                        it->second, 1e-5);
+        res *= itg.first;
+    }
+    return res;
+}
+
 capd::interval measure::bounds::gaussian(double mu, double sigma, double e)
 {
     capd::interval i(mu - 3 * sigma, mu + 3 * sigma);

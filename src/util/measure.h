@@ -24,6 +24,7 @@ namespace measure
     capd::interval p_measure(rv_box);
     capd::interval p_measure(dd_box);
     capd::interval p_dd_measure(box);
+    capd::interval get_sample_prob(box, box, box);
 
     //bool compare_pairs_acs(const pair<box, capd::interval> &, const pair<box, capd::interval> &);
 

@@ -120,14 +120,21 @@ vector<box> box_factory::bisect(box b, map<string, pdrh::node*> e)
 {
     std::map<std::string, std::vector<capd::interval>> tmp_m;
     std::map<std::string, capd::interval> m = b.get_map();
+    //cout << "BISECTING ";
     for(auto it = m.cbegin(); it != m.cend(); it++)
     {
+        //cout << it->first << ":" << it->second;
         if(capd::intervals::width(it->second) > pdrh::node_to_interval(e[it->first]).leftBound())
         {
+            //cout << " yes" << endl;
             std::vector<capd::interval> tmp_v;
             tmp_v.push_back(capd::interval((it->second).leftBound(), (it->second).mid().rightBound()));
             tmp_v.push_back(capd::interval((it->second).mid().leftBound(), (it->second).rightBound()));
             tmp_m.insert(make_pair(it->first, tmp_v));
+        }
+        else
+        {
+            //cout << " no" << endl;
         }
     }
     return box_factory::cartesian_product(tmp_m);
@@ -308,4 +315,19 @@ box box_factory::get_cover(vector<box> q)
         res.insert(make_pair(it->first, capd::interval(it->second.leftBound(), max[it->first].rightBound())));
     }
     return box(res);
+}
+
+bool box_factory::compatible(vector<box> q)
+{
+    for(box b : q)
+    {
+        for(box c : q)
+        {
+            if(!box_factory::get_keys_diff(b,c).empty())
+            {
+                return false;
+            }
+        }
+    }
+    return true;
 }

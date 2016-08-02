@@ -598,65 +598,81 @@ tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string,
     // defining the boxes
     vector<box> sat_boxes, undet_boxes, unsat_boxes;
     // iterating through the goals
+    //cout << "Before parallel" << endl;
     for(pdrh::state goal : goals)
     {
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating goal: @" << goal.id << " " << pdrh::node_to_string_prefix(goal.prop);
         // iterating through boxes in psy partition
         while(!psy_partition.empty())
         {
-            box b = psy_partition.front();
-            psy_partition.erase(psy_partition.cbegin());
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "psy_box: " << b;
-            switch(decision_procedure::evaluate(pdrh::init.front(), goal, path, {b}))
+            vector<box> swap_psy_partition;
+            #pragma omp parallel for
+            for(unsigned long i = 0; i < psy_partition.size(); i++)
             {
-                case decision_procedure::SAT:
+                /*
+                box b = psy_partition.front();
+                psy_partition.erase(psy_partition.cbegin());
+                cout << "In parallel section " << b << endl;
+                */
+                box b = psy_partition.at(i);
+                //cout << "In parallel section " << b << endl;
+                #pragma omp critical
                 {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                    sat_boxes.push_back(b);
-                    //sat_boxes = box_factory::merge(sat_boxes);
-                    break;
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "psy_box: " << b;
                 }
-                case decision_procedure::UNSAT:
+                int res = decision_procedure::evaluate(pdrh::init.front(), goal, path, {b});
+                #pragma omp critical
                 {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                    unsat_boxes.push_back(b);
-                    //unsat_boxes = box_factory::merge(unsat_boxes);
-                    break;
-                }
-                case decision_procedure::UNDET:
-                {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-                    // CHECK FOR BUGS IN BISECT
-                    std::vector<box> tmp_vector = box_factory::bisect(b, pdrh::syn_map);
-                    if(tmp_vector.size() == 0)
+                    switch (res)
                     {
-                        //cout << b << ": UNDET box" <<endl;
-                        undet_boxes.push_back(b);
-                        //undet_boxes = box_factory::merge(undet_boxes);
+                        case decision_procedure::SAT:
+                        {
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                            sat_boxes.push_back(b);
+                            //sat_boxes = box_factory::merge(sat_boxes);
+                            break;
+                        }
+                        case decision_procedure::UNSAT:
+                        {
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                            unsat_boxes.push_back(b);
+                            //unsat_boxes = box_factory::merge(unsat_boxes);
+                            break;
+                        }
+                        case decision_procedure::UNDET:
+                        {
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+                            // CHECK FOR BUGS IN BISECT
+                            std::vector<box> tmp_vector = box_factory::bisect(b, pdrh::syn_map);
+                            if (tmp_vector.size() == 0)
+                            {
+                                //cout << b << ": UNDET box" <<endl;
+                                undet_boxes.push_back(b);
+                                //undet_boxes = box_factory::merge(undet_boxes);
+                            }
+                            else
+                            {
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisected";
+                                swap_psy_partition.insert(swap_psy_partition.cend(), tmp_vector.cbegin(), tmp_vector.cend());
+                            }
+                            break;
+                        }
+                        case decision_procedure::SOLVER_TIMEOUT:
+                        {
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
+                            break;
+                        }
+                        case decision_procedure::ERROR:
+                        {
+                            LOG(ERROR) << "ERROR";
+                            break;
+                        }
                     }
-                    else
-                    {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisected";
-                        psy_partition.insert(psy_partition.cend(), tmp_vector.cbegin(), tmp_vector.cend());
-                    }
-                    break;
-                }
-                case decision_procedure::SOLVER_TIMEOUT:
-                {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                    break;
-                }
-                case decision_procedure::ERROR:
-                {
-                    LOG(ERROR) << "ERROR";
-                    break;
                 }
             }
+            psy_partition.clear();
+            psy_partition.insert(psy_partition.cend(), swap_psy_partition.cbegin(), swap_psy_partition.cend());
         }
-        // putting the boxes satisfying the current goal back to the psy partition
-        //psy_partition = box_factory::merge(sat_boxes);
-        //undet_boxes = box_factory::merge(undet_boxes);
-        //unsat_boxes = box_factory::merge(unsat_boxes);
         psy_partition = sat_boxes;
         sat_boxes.clear();
         if(psy_partition.empty())

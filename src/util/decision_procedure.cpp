@@ -213,7 +213,6 @@ int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector
     }
 }
 
-
 int decision_procedure::evaluate_delta_sat(std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {
     // default value for the thread number

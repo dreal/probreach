@@ -67,24 +67,27 @@ int dreal::execute(std::string bin, std::string input, std::string args)
     }
     */
     std::stringstream s;
-    s << bin << " " << args << " " << input << " > " << input << ".output";
+    #pragma omp critical
+    {
+        s << bin << " " << args << " " << input << " > " << input << ".output";
+    }
     //LOG(DEBUG) << s.str();
     int res = system(s.str().c_str());
-    if(res != 0)
+    #pragma omp critical
     {
-        std::cout << "Problem making system call: " << s.str() << std::endl;
-        res = -1;
-    }
-    // parsing the output
-    try
-    {
-        res = dreal::parse_output(input + ".output");
-    }
-    // unrecognized solver output
-    catch(std::invalid_argument e)
-    {
-        std::cout << e.what() << std::endl;
-        res = -1;
+        if (res != 0) {
+            std::cout << "Problem making system call: " << s.str() << std::endl;
+            res = -1;
+        }
+        // parsing the output
+        try {
+            res = dreal::parse_output(input + ".output");
+        }
+            // unrecognized solver output
+        catch (std::invalid_argument e) {
+            std::cout << e.what() << std::endl;
+            res = -1;
+        }
     }
     return res;
 }

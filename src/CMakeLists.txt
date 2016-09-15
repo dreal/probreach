@@ -82,6 +82,7 @@ set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c GENE
 # header files
 include_directories("${DREAL_REL_DIR}/include/ibex")
 include_directories("${DREAL_REL_DIR}/include")
+#include_directories("${DREAL_REL_DIR}/include/easylogingpp")
 include_directories("${PROBREACH_SOURCE_DIR}")
 include_directories("${PROBREACH_SOURCE_DIR}/util")
 include_directories("${PROBREACH_SOURCE_DIR}/solver")
@@ -90,6 +91,7 @@ include_directories("${PROBREACH_SOURCE_DIR}/parser/pdrh")
 include_directories("${PROBREACH_SOURCE_DIR}/logging")
 include_directories("${PROBREACH_SOURCE_DIR}/xml")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
+include_directories("${DREAL_DIR}/src/api")
 
 # putting all source files together
 file(GLOB SOURCES   ${PROBREACH_SOURCE_DIR}/util/*.cpp
@@ -113,6 +115,7 @@ add_custom_command(TARGET ProbReach POST_BUILD
 target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libcapd.a)
 target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libibex.a)
 target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libprim.a)
+#target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libdreal.a)
 # flag for FLEX and GSL
-target_link_libraries(ProbReach -lfl -lgsl)
+target_link_libraries(ProbReach -lfl -lgsl -lgslcblas)
 

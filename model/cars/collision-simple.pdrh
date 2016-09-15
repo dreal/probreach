@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-model: pha;
-=======
 model: npha;
->>>>>>> 2e6d49c6cbcb64b882f77e6700ae4af77fdee878
 #define v01_init 11.12 //car1 initial speed (m/s)
 #define v02_init 11.12 //car2 initial speed (m/s)
 #define v_max 16.67 //speed limit (m/s)
@@ -27,13 +23,8 @@ dist_normal(-1.35, 0.1) ad2;
 [0,50]v02;
 [0,60]tau;
 [0,60]time;
-<<<<<<< HEAD
-[0.5,0.5]t_react;
-[2,2]t_safe;
-=======
 [1.0,2.0]t_react;
 [1e-1,3]t_safe;
->>>>>>> 2e6d49c6cbcb64b882f77e6700ae4af77fdee878
 
 // car1 started accelerating
 // car2 is moving with a constant speed

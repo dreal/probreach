@@ -15,14 +15,16 @@ model: npha;
 #define lambdaM 1400
 #define V 0.9
 #define M0 43.6
-//#define b 0.075
+#define b 0.075
+//#define t_g 27
 
 [0,100] F; //fat
 [0,100] M; //muscle mass
 [0,100] K; //ketone bodies
 [0,100] time;
 [0,100] tau;
-[0.02, 0.08] b;
+[20,25] t_g;
+//[0.02, 0.08] b;
 //[40, 50] M0;
 
 dist_normal(10.96, 1) 	k; //effect of body mass on metabolic rate
@@ -44,4 +46,4 @@ init:
 @1(and (tau = 0) (F = 25) (M = M0) (K = 0.02));
 
 goal:
-@1(and (tau = 23) (M <= 0.6 * M0));
+@1(and (tau = t_g) (M <= 0.6 * M0));

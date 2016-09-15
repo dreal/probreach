@@ -5,6 +5,7 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_qrng.h>
 #include <gsl/gsl_cdf.h>
+#include <capd/intervals/lib.h>
 #include "algorithm.h"
 #include "easylogging++.h"
 #include "pdrh_config.h"
@@ -12,6 +13,7 @@
 #include "box_factory.h"
 #include <chrono>
 #include <iomanip>
+#include <omp.h>
 #include "rnd.h"
 
 decision_procedure::result algorithm::evaluate_ha(int depth)
@@ -155,8 +157,8 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
         std::vector<box> rv_stack;
         while(capd::intervals::width(probability) > global_config.precision_prob)
         {
-            //#pragma omp parallel for
             //for(box rv : rv_partition)
+            //#pragma omp parallel for
             for(unsigned long i = 0; i < rv_partition.size(); i++)
             {
                 box rv = rv_partition.at(i);
@@ -186,25 +188,27 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                 // sat flag
                 bool sat_flag = false;
                 // evaluating all paths for all dd and rv
+                //cout << "Before evaluate loop " << omp_get_thread_num() << endl;
                 for (std::vector<pdrh::mode *> path : paths)
                 {
+                    std::string solver_opt;
                     std::stringstream p_stream;
-                    for (pdrh::mode *m : path)
-                    {
+                    for (pdrh::mode *m : path) {
                         p_stream << m->id << " ";
                     }
                     // removing trailing whitespace
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
                     // changing solver precision
-                    std::string solver_opt = global_config.solver_opt;
+                    solver_opt = global_config.solver_opt;
                     std::stringstream s;
-                    s << solver_opt << " --precision " << measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
+                    s << solver_opt << " --precision " <<
+                    measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
                     global_config.solver_opt = s.str();
                     int res = decision_procedure::evaluate(path, boxes);
                     // setting old precision
-                    global_config.solver_opt = solver_opt;
-                    //#pragma omp critical
-                    //{
+                    #pragma omp critical
+                    {
+                        global_config.solver_opt = solver_opt;
                         switch (res)
                         {
                             case decision_procedure::SAT:
@@ -214,8 +218,7 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                                                                  probability.rightBound());
                                 }
                                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific <<
-                                                                                  probability;
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
                                 /*
                                 if(capd::intervals::width(probability) <= global_config.precision_prob)
                                 {
@@ -244,7 +247,7 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                             default:
                                 break;
                         }
-                    //}
+                    }
                     // breaking out of the loop if a sat path was found
                     if(sat_flag)
                     {
@@ -278,6 +281,7 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                         */
                     }
                 }
+                //cout << "P = " << probability << endl;
             }
             // copying the bisected boxes from the stack to partition
             rv_partition = rv_stack;
@@ -321,16 +325,9 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     {
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of nondeterministic domain";
         nd_partition.clear();
-        //nd_partition = measure::partition(nd_domain, global_config.precision_nondet);
-        nd_partition = box_factory::partition(nd_domain, global_config.precision_nondet);
-        /*
-        for(box nd : nd_partition)
-        {
-            cout << nd << endl;
-        }
-        */
+        //nd_partition = box_factory::partition(nd_domain, global_config.precision_nondet);
+        nd_partition = box_factory::partition(nd_domain, global_config.partition_nondet_map);
     }
-    //exit(EXIT_SUCCESS);
     // getting partition of domain of continuous random variables
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of domain of continuous random parameters";
     std::vector<box> rv_partition = measure::get_rv_partition();
@@ -342,6 +339,20 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
         rv_partition.clear();
         rv_partition.push_back(rv_domain);
     }
+    // performing extra partition if the probability partition map is defined
+    else
+    {
+        vector<box> tmp_vector;
+        for(box b : rv_partition)
+        {
+            vector<box> extra_partition = box_factory::partition(b, global_config.partition_prob_map);
+            tmp_vector.insert(tmp_vector.cend(), extra_partition.cbegin(), extra_partition.cend());
+        }
+        rv_partition = tmp_vector;
+    }
+    // sorting boxes by probability value
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sorting the partition of domain of continuous random parameters";
+    sort(rv_partition.begin(), rv_partition.end(), measure::compare_boxes_by_p_measure);
     // getting partition of domain of discrete random variables
     std::vector<box> dd_partition = measure::get_dd_partition();
     // fix for now
@@ -367,6 +378,14 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     {
         p_map.insert(std::make_pair(nd, capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound())));
     }
+    // initial p map
+    /*
+    cout << "Initial p_map" << endl;
+    for(auto it = p_map.cbegin(); it != p_map.cend(); it++)
+    {
+        cout << "P(" << it->first << ")=" << it->second << endl;
+    }
+    */
     // initializing partition map
     std::map<box, std::vector<box>> partition_map;
     for(box nd : nd_partition)
@@ -391,8 +410,11 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
             {
                 rv_partition = partition_map[nd];
                 std::vector<box> rv_stack;
-                for (box rv : rv_partition)
+                //#pragma omp parallel for
+                for(int i = 0; i < rv_partition.size(); i++)
                 {
+                    box rv = rv_partition.at(i);
+                    //cout << "rv_box: " << rv << " index: " << i << " by thread number: " << omp_get_thread_num() << endl;
                     // calculating probability measure of the box rv
                     // initally p_box = [1.0, 1.0]
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "====================";
@@ -412,11 +434,6 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "rv_box: " << rv;
                     }
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "p_box: " << p_box;
-                    // setting the box vector to evaluate
-                    std::vector<box> boxes;
-                    boxes.push_back(nd);
-                    boxes.push_back(dd);
-                    boxes.push_back(rv);
                     // undetermined answers counter
                     int undet_counter = 0;
                     // solver timeout counter
@@ -440,10 +457,10 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                         std::stringstream s;
                         s << solver_opt << " --precision " << measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
                         global_config.solver_opt = s.str();
-                        int res = decision_procedure::evaluate(path, boxes);
+                        //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solver options: " << global_config.solver_opt;
+                        int res = decision_procedure::evaluate(path, vector<box>{nd, dd, rv});
                         // setting old precision
                         global_config.solver_opt = solver_opt;
-
                         if(res == decision_procedure::SAT)
                         {
                             capd::interval probability;
@@ -455,7 +472,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
                             if(capd::intervals::width(probability) <= global_config.precision_prob)
                             {
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating resulting probability map";
+                                //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating resulting probability map";
                                 p_map.erase(nd);
                                 partition_map.erase(nd);
                                 res_map.insert(std::make_pair(nd, probability));
@@ -465,7 +482,6 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                                 p_map[nd] = probability;
                             }
                             sat_flag = true;
-                            break;
                         }
                         else if(res == decision_procedure::UNSAT)
                         {
@@ -487,6 +503,10 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
                             timeout_counter++;
                         }
+                        if(sat_flag)
+                        {
+                            break;
+                        }
                     }
                     // checking if there are no sat answers
                     if(!sat_flag)
@@ -504,7 +524,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                             capd::interval probability;
                             if (p_box.rightBound() > 0)
                             {
-                                 probability = capd::interval(p_map[nd].leftBound(), p_map[nd].rightBound() - p_box.leftBound());
+                                probability = capd::interval(p_map[nd].leftBound(), p_map[nd].rightBound() - p_box.leftBound());
                             }
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
                             if(capd::intervals::width(probability) <= global_config.precision_prob)
@@ -512,7 +532,8 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating resulting probability map";
                                 p_map.erase(nd);
                                 partition_map.erase(nd);
-                                res_map.insert(std::make_pair(nd, probability));
+                                res_map.insert(make_pair(nd, probability));
+                                break;
                             }
                             else
                             {
@@ -534,6 +555,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                     std::cout << std::scientific << it->first << " | " << it->second << std::endl;
                 }
                 */
+                //exit(EXIT_SUCCESS);
             }
         }
         // updating probability and partition maps
@@ -561,7 +583,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
             {
                 std::cout << std::scientific << it2->first << " | " << it2->second << std::endl;
             }
-            */
+             */
         }
         /*
         std::cout << "p_map:" << std::endl;
@@ -1054,7 +1076,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_
     return res;
 }
 
-pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, int max_depth, int size)
+pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_depth, int max_depth, int size)
 {
     // random number generator for cross entropy
     const gsl_rng_type * T;
@@ -1071,14 +1093,15 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;
     box mean = domain.get_mean();
     box sigma = domain.get_stddev();
-    box new_sigma = sigma;
+    box var = sigma*sigma;
     vector<pair<box, capd::interval>> samples;
     //#pragma omp parallel
-    while(new_sigma.max_coordinate_value() > global_config.cross_entropy_term_arg)
+    while(var.max_coordinate_value() > global_config.cross_entropy_term_arg)
     {
-        new_sigma = sigma;
+        var = sigma*sigma;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Mean: " << mean;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Standard deviation: " << sigma;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Variance: " << var;
         unsigned long new_size = (unsigned long)ceil(size / measure::get_sample_prob(domain, mean, sigma).rightBound());
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << new_size;
         int outliers = 0;
@@ -1154,4 +1177,128 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy(int min_depth, 
     gsl_rng_free(r);
     return res;
 }
+
+pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_beta(int min_depth, int max_depth, int size)
+{
+    // random number generator for cross entropy
+    const gsl_rng_type * T;
+    gsl_rng * r;
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+    // creating random generator
+    r = gsl_rng_alloc(T);
+    // setting the seed
+    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
+    //initializing probability value
+    pair<box, capd::interval> res;
+    box domain = pdrh::get_nondet_domain();
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;
+    map<string, capd::interval> one_map, two_map, d_map, half_map;
+    d_map = domain.get_map();
+    for(auto it = d_map.cbegin(); it != d_map.cend(); it++)
+    {
+        one_map.insert(make_pair(it->first, capd::interval(1.0)));
+        two_map.insert(make_pair(it->first, capd::interval(2.0)));
+    }
+    box alpha(one_map), beta(one_map), one(one_map), two(two_map);
+    //box mode = box_factory::map_box(two, domain);
+    //box old_mode = mode;
+    box var = (alpha*beta)/((alpha+beta)*(alpha+beta)*(alpha+beta+one));
+    //int term_counter = 0;
+    vector<pair<box, capd::interval>> samples;
+    //#pragma omp parallel
+    while(var.max_coordinate_value() > global_config.cross_entropy_term_arg)
+    {
+        var = (alpha*beta)/((alpha+beta)*(alpha+beta)*(alpha+beta+one));
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Alpha: " << alpha;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Beta: " << beta;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Variance: " << var;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << size;
+        //#pragma omp parallel for
+        for(int i = 0; i < size; i++)
+        {
+            box b = rnd::get_beta_random_sample(r, alpha, beta, domain);
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
+            capd::interval probability;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is inside the domain";
+            if(global_config.bayesian_flag)
+            {
+                probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc, global_config.bayesian_conf, vector<box>{ b });
+            }
+            else if(global_config.chernoff_flag)
+            {
+                probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc, global_config.chernoff_conf, vector<box>{ b });
+            }
+            else
+            {
+                CLOG(ERROR, "algorithm") << "Unknown setting";
+                exit(EXIT_FAILURE);
+            }
+            // fixing probability value
+            if(probability.leftBound() < 0)
+            {
+                probability.setLeftBound(0);
+            }
+            if(probability.rightBound() > 1)
+            {
+                probability.setRightBound(1);
+            }
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
+            samples.push_back(make_pair(b, probability));
+        }
+        if(global_config.max_prob)
+        {
+            sort(samples.begin(), samples.end(), measure::compare_pairs::descending);
+        }
+        else
+        {
+            sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
+        }
+        vector<pair<box, capd::interval>> elite;
+        copy_n(samples.begin(), ceil(samples.size() * global_config.elite_ratio), back_inserter(elite));
+        vector<box> elite_boxes;
+        for(pair<box, capd::interval> p : elite)
+        {
+            elite_boxes.push_back(p.first);
+        }
+        cout << "Number of elite samples: " << elite_boxes.size() << endl;
+        res = samples.front();
+        samples.clear();
+        pair<box, box> beta_params = rnd::update_beta_dist(elite_boxes, domain, alpha, beta);
+        alpha = beta_params.first;
+        beta = beta_params.second;
+    }
+    gsl_rng_free(r);
+    return res;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

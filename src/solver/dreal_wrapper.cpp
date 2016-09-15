@@ -10,8 +10,10 @@
 #include <logging/easylogging++.h>
 #include <pdrh_config.h>
 
-std::vector<std::string> dreal::sat_answers = {"sat", "delta-sat"};
-std::vector<std::string> dreal::unsat_answers = {"unsat"};
+using namespace std;
+
+vector<string> dreal::sat_answers = {"sat", "delta-sat"};
+vector<string> dreal::unsat_answers = {"unsat"};
 
 int dreal::execute(std::string bin, std::string input, std::string args)
 {
@@ -66,52 +68,48 @@ int dreal::execute(std::string bin, std::string input, std::string args)
         //}
     }
     */
-    std::stringstream s;
-    #pragma omp critical
-    {
-        s << bin << " " << args << " " << input << " > " << input << ".output";
-    }
+    stringstream s;
+    s << bin << " " << args << " " << input << " > " << input << ".output";
     //LOG(DEBUG) << s.str();
     int res = system(s.str().c_str());
-    #pragma omp critical
+    if (res != 0)
     {
-        if (res != 0) {
-            std::cout << "Problem making system call: " << s.str() << std::endl;
-            res = -1;
-        }
-        // parsing the output
-        try {
-            res = dreal::parse_output(input + ".output");
-        }
-            // unrecognized solver output
-        catch (std::invalid_argument e) {
-            std::cout << e.what() << std::endl;
-            res = -1;
-        }
+        cout << "Problem making system call: " << s.str() << endl;
+        res = -1;
+    }
+    // parsing the output
+    try
+    {
+        res = dreal::parse_output(input + ".output");
+    }
+        // unrecognized solver output
+    catch (invalid_argument e) {
+        cout << e.what() << endl;
+        res = -1;
     }
     return res;
 }
 
-int dreal::parse_output(std::string output)
+int dreal::parse_output(string output)
 {
-    std::fstream output_file;
+    fstream output_file;
     output_file.open(output.c_str());
     if(!output_file.is_open())
     {
-        std::stringstream s;
+        stringstream s;
         s << "Problem opening the file " << output;
         throw std::invalid_argument(s.str());
     }
     // getting the last line of the file
-    std::string last_line, line;
+    string last_line, line;
     while(getline(output_file, line))
     {
         last_line = line;
     }
     // analyzing the last line of the output
-    std::string res;
+    string res;
     unsigned long pos = last_line.find_first_of(" ");
-    if(pos != std::string::npos)
+    if(pos != string::npos)
     {
         res = last_line.substr(0, pos);
     }
@@ -120,11 +118,11 @@ int dreal::parse_output(std::string output)
         res = last_line;
     }
     // checking if the output line is a sat answer
-    if(std::find(dreal::sat_answers.cbegin(), dreal::sat_answers.cend(), res) != dreal::sat_answers.cend())
+    if(find(dreal::sat_answers.cbegin(), dreal::sat_answers.cend(), res) != dreal::sat_answers.cend())
     {
         return 0;
     }
-    else if(std::find(dreal::unsat_answers.cbegin(), dreal::unsat_answers.cend(), res) != dreal::unsat_answers.cend())
+    else if(find(dreal::unsat_answers.cbegin(), dreal::unsat_answers.cend(), res) != dreal::unsat_answers.cend())
     // checking if the output line is an unsat answer
     {
         return 1;
@@ -132,8 +130,8 @@ int dreal::parse_output(std::string output)
     else
     // unrecognized answer
     {
-        std::stringstream s;
+        stringstream s;
         s << "Unrecognized solver output: " << res;
-        throw std::invalid_argument(s.str());
+        throw invalid_argument(s.str());
     }
 }

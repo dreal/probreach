@@ -13,6 +13,7 @@
 #include <easylogging++.h>
 
 #include "version.h"
+#include "model.h"
 
 using namespace std;
 
@@ -52,8 +53,7 @@ void parse_pdrh_config(int argc, char* argv[])
     for(int i = 1; i < argc; i++)
     {
         //extracting a file name
-        if((strcmp(string(argv[i]).substr(string(argv[i]).find_last_of('.') + 1).c_str(), "pdrh") == 0) ||
-                (strcmp(string(argv[i]).substr(string(argv[i]).find_last_of('.') + 1).c_str(), "drh") == 0))
+        if(is_pdrh(argv[i]) || is_drh(argv[i]))
         {
             global_config.model_filename = argv[i];
             opt_end = i;
@@ -130,6 +130,12 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             global_config.min_prob = true;
             global_config.max_prob = false;
+        }
+        // cross entropy normal flag
+        else if(strcmp(argv[i], "--cross-entropy-beta") == 0)
+        {
+            global_config.cross_entropy_beta = true;
+            global_config.cross_entropy_normal = false;
         }
         // reachability depth (min = max)
         else if(strcmp(argv[i], "-k") == 0)
@@ -305,11 +311,65 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--partition-prob") == 0)
         {
             global_config.partition_prob = true;
+            i++;
+            bool map_end = false;
+            while(!map_end)
+            {
+                if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                {
+                    map_end = true;
+                    i--;
+                }
+                else
+                {
+                    istringstream var_is(argv[i]);
+                    string var = var_is.str();
+                    i++;
+                    if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                    {
+                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
+                        exit(EXIT_FAILURE);
+                    }
+                    else
+                    {
+                        istringstream val_is(argv[i]);
+                        pdrh::push_prob_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
+                        i++;
+                    }
+                }
+            }
         }
         // partition continuous nondeterministic parameter
         else if(strcmp(argv[i], "--partition-nondet") == 0)
         {
             global_config.partition_nondet = true;
+            i++;
+            bool map_end = false;
+            while(!map_end)
+            {
+                if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                {
+                    map_end = true;
+                    i--;
+                }
+                else
+                {
+                    istringstream var_is(argv[i]);
+                    string var = var_is.str();
+                    i++;
+                    if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                    {
+                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
+                        exit(EXIT_FAILURE);
+                    }
+                    else
+                    {
+                        istringstream val_is(argv[i]);
+                        pdrh::push_nondet_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
+                        i++;
+                    }
+                }
+            }
         }
         // partition the synthesized parameters
         else if(strcmp(argv[i], "--partition-psy") == 0)
@@ -449,4 +509,19 @@ void print_usage()
 void print_version()
 {
     cout << "ProbReach " << PROBREACH_VERSION << endl;
+}
+
+bool is_flag(char* str)
+{
+    return (str[0] == '-') && (str[1] == '-');
+}
+
+bool is_pdrh(char* str)
+{
+    return strcmp(string(str).substr(string(str).find_last_of('.') + 1).c_str(), "pdrh") == 0;
+}
+
+bool is_drh(char* str)
+{
+    return strcmp(string(str).substr(string(str).find_last_of('.') + 1).c_str(), "drh") == 0;
 }

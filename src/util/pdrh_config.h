@@ -6,6 +6,7 @@
 #define PROBREACH_PDRH_CONTEXT_H
 #include "pugixml.hpp"
 #include "config.h"
+#include<capd/capdlib.h>
 
 using namespace std;
 
@@ -24,6 +25,8 @@ struct pdrh_config
     double precision_nondet = 1e-03;
     bool partition_prob = false;
     bool partition_nondet = false;
+    map<string, capd::interval> partition_prob_map;
+    map<string, capd::interval> partition_nondet_map;
     bool partition_psy = false;
     double solver_precision_ratio = 1e-03;
     unsigned int solver_timeout = 10; // seconds
@@ -59,11 +62,16 @@ struct pdrh_config
     bool min_prob = false;
     bool sobol_flag = false;
     bool cross_entropy_flag = false;
+    bool cross_entropy_normal = true;
+    bool cross_entropy_beta = false;
     double cross_entropy_term_arg = 1e-2;
 
 } extern global_config;
 
 void parse_pdrh_config(int, char**);
+bool is_flag(char*);
+bool is_pdrh(char*);
+bool is_drh(char*);
 void print_usage();
 void print_version();
 

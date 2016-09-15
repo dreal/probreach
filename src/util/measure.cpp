@@ -482,3 +482,8 @@ bool measure::compare_pairs::descending(const pair<box, capd::interval> &lhs, co
     }
     return lhs.second.mid() > rhs.second.mid();
 }
+
+bool measure::compare_boxes_by_p_measure(const box lhs, const box rhs)
+{
+    return measure::p_measure(lhs).mid().leftBound() > measure::p_measure(rhs).mid().leftBound();
+}

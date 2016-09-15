@@ -71,6 +71,9 @@ namespace pdrh
     void get_first_time_node(node*, node*);
     node* get_time_node_neg(node*);
 
+    void push_prob_partition_prec(string, capd::interval);
+    void push_nondet_partition_prec(string, capd::interval);
+
     enum type {HA, PHA, NHA, NPHA, PSY};
     extern type model_type;
     extern pair<node*, node*> time;

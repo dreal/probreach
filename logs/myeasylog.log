@@ -1,0 +1,1241 @@
+2016-07-14 12:03:53,908 INFO  [algorithm] Domain of nondeterministic parameters: r0:[0.01,6]; r1:[10,16]; 
+2016-07-14 12:03:53,908 INFO  [algorithm] Mean: r0:[3.005,3.005]; r1:[13,13]; 
+2016-07-14 12:03:53,909 INFO  [algorithm] Standard deviation: r0:[2.995,2.995]; r1:[3,3]; 
+2016-07-14 12:03:53,918 INFO  [algorithm] Sample size: 43
+2016-07-14 12:03:53,919 INFO  [algorithm] Quasi-random sample: r0:[3.44105,3.44105]; r1:[16.5217,16.5217]; 
+2016-07-14 12:03:53,919 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:03:53,919 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:03:53,919 INFO  [algorithm] Quasi-random sample: r0:[2.89789,2.89789]; r1:[14.6527,14.6527]; 
+2016-07-14 12:03:53,919 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:03:53,919 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:04:38,060 INFO  [algorithm] Random sample size: 1236
+2016-07-14 12:04:38,060 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:04:38,060 INFO  [algorithm] Probability: [0.00342488,0.0951212]
+
+2016-07-14 12:04:38,061 INFO  [algorithm] Quasi-random sample: r0:[5.13492,5.13492]; r1:[15.6606,15.6606]; 
+2016-07-14 12:04:38,061 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:04:38,061 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:08:07,396 INFO  [algorithm] Random sample size: 1706
+2016-07-14 12:08:07,396 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:08:07,396 INFO  [algorithm] Probability: [0.0174707,0.146464]
+
+2016-07-14 12:08:07,396 INFO  [algorithm] Quasi-random sample: r0:[6.6985,6.6985]; r1:[13.4865,13.4865]; 
+2016-07-14 12:08:07,396 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:08:07,396 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:08:07,396 INFO  [algorithm] Quasi-random sample: r0:[2.90393,2.90393]; r1:[10.0078,10.0078]; 
+2016-07-14 12:08:07,396 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:08:07,396 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:09:02,459 INFO  [algorithm] Random sample size: 1342
+2016-07-14 12:09:02,459 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:09:02,459 INFO  [algorithm] Probability: [0.00678571,0.108542]
+
+2016-07-14 12:09:02,459 INFO  [algorithm] Quasi-random sample: r0:[6.13035,6.13035]; r1:[12.9536,12.9536]; 
+2016-07-14 12:09:02,459 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:09:02,459 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:09:02,459 INFO  [algorithm] Quasi-random sample: r0:[5.37608,5.37608]; r1:[17.5844,17.5844]; 
+2016-07-14 12:09:02,459 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:09:02,459 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:09:02,459 INFO  [algorithm] Quasi-random sample: r0:[6.7654,6.7654]; r1:[13.4193,13.4193]; 
+2016-07-14 12:09:02,459 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:09:02,459 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:09:02,459 INFO  [algorithm] Quasi-random sample: r0:[1.24841,1.24841]; r1:[11.8476,11.8476]; 
+2016-07-14 12:09:02,459 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:09:02,459 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:09:32,826 INFO  [algorithm] Random sample size: 860
+2016-07-14 12:09:32,826 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:09:32,826 INFO  [algorithm] Probability: [0,0.0466821]
+
+2016-07-14 12:09:32,826 INFO  [algorithm] Quasi-random sample: r0:[-0.657301,-0.657301]; r1:[15.6006,15.6006]; 
+2016-07-14 12:09:32,826 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:09:32,826 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:09:32,826 INFO  [algorithm] Quasi-random sample: r0:[1.1035,1.1035]; r1:[11.5867,11.5867]; 
+2016-07-14 12:09:32,826 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:09:32,826 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:09:55,796 INFO  [algorithm] Random sample size: 821
+2016-07-14 12:09:55,796 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:09:55,796 INFO  [algorithm] Probability: [0,0.0430863]
+
+2016-07-14 12:09:55,796 INFO  [algorithm] Quasi-random sample: r0:[0.301985,0.301985]; r1:[9.61265,9.61265]; 
+2016-07-14 12:09:55,796 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:09:55,796 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:09:55,796 INFO  [algorithm] Quasi-random sample: r0:[4.84994,4.84994]; r1:[17.6307,17.6307]; 
+2016-07-14 12:09:55,796 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:09:55,796 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:09:55,796 INFO  [algorithm] Quasi-random sample: r0:[4.77141,4.77141]; r1:[13.8537,13.8537]; 
+2016-07-14 12:09:55,797 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:09:55,797 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:15:42,190 INFO  [algorithm] Random sample size: 1674
+2016-07-14 12:15:42,194 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:15:42,194 INFO  [algorithm] Probability: [0.0241527,0.144105]
+
+2016-07-14 12:15:42,194 INFO  [algorithm] Quasi-random sample: r0:[-1.62182,-1.62182]; r1:[5.79369,5.79369]; 
+2016-07-14 12:15:42,194 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:15:42,194 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:15:42,194 INFO  [algorithm] Quasi-random sample: r0:[8.89641,8.89641]; r1:[8.74867,8.74867]; 
+2016-07-14 12:15:42,194 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:15:42,194 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:15:42,194 INFO  [algorithm] Quasi-random sample: r0:[1.75791,1.75791]; r1:[10.9512,10.9512]; 
+2016-07-14 12:15:42,194 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:15:42,194 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:17:50,307 INFO  [algorithm] Random sample size: 979
+2016-07-14 12:17:50,308 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:17:50,308 INFO  [algorithm] Probability: [0,0.0658716]
+
+2016-07-14 12:17:50,308 INFO  [algorithm] Quasi-random sample: r0:[-0.970655,-0.970655]; r1:[11.0775,11.0775]; 
+2016-07-14 12:17:50,308 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:17:50,308 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:17:50,308 INFO  [algorithm] Quasi-random sample: r0:[12.3725,12.3725]; r1:[6.92877,6.92877]; 
+2016-07-14 12:17:50,308 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:17:50,308 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:17:50,308 INFO  [algorithm] Quasi-random sample: r0:[1.49361,1.49361]; r1:[12.9919,12.9919]; 
+2016-07-14 12:17:50,308 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:17:50,308 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:18:32,142 INFO  [algorithm] Random sample size: 960
+2016-07-14 12:18:32,142 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:18:32,142 INFO  [algorithm] Probability: [0,0.0626195]
+
+2016-07-14 12:18:32,142 INFO  [algorithm] Quasi-random sample: r0:[-5.06368,-5.06368]; r1:[15.9268,15.9268]; 
+2016-07-14 12:18:32,142 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:18:32,142 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:18:32,142 INFO  [algorithm] Quasi-random sample: r0:[5.24196,5.24196]; r1:[11.5471,11.5471]; 
+2016-07-14 12:18:32,142 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:18:32,142 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:48:41,354 INFO  [algorithm] Random sample size: 1902
+2016-07-14 12:48:41,359 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:48:41,359 INFO  [algorithm] Probability: [0.0293697,0.172836]
+
+2016-07-14 12:48:41,359 INFO  [algorithm] Quasi-random sample: r0:[1.3135,1.3135]; r1:[12.2203,12.2203]; 
+2016-07-14 12:48:41,359 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:48:41,360 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:49:06,229 INFO  [algorithm] Random sample size: 939
+2016-07-14 12:49:06,229 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:49:06,229 INFO  [algorithm] Probability: [0,0.0561318]
+
+2016-07-14 12:49:06,229 INFO  [algorithm] Quasi-random sample: r0:[4.24696,4.24696]; r1:[9.42309,9.42309]; 
+2016-07-14 12:49:06,229 INFO  [algorithm] The sample is outside the domain
+2016-07-14 12:49:06,229 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 12:49:06,229 INFO  [algorithm] Quasi-random sample: r0:[1.94301,1.94301]; r1:[15.3954,15.3954]; 
+2016-07-14 12:49:06,229 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:49:06,229 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:51:55,064 INFO  [algorithm] Random sample size: 1011
+2016-07-14 12:51:55,065 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:51:55,065 INFO  [algorithm] Probability: [0,0.067384]
+
+2016-07-14 12:51:55,065 INFO  [algorithm] Quasi-random sample: r0:[1.5874,1.5874]; r1:[14.2041,14.2041]; 
+2016-07-14 12:51:55,065 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:51:55,065 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:52:22,787 INFO  [algorithm] Random sample size: 943
+2016-07-14 12:52:22,788 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:52:22,788 INFO  [algorithm] Probability: [0,0.062328]
+
+2016-07-14 12:52:22,788 INFO  [algorithm] Quasi-random sample: r0:[4.0776,4.0776]; r1:[11.0402,11.0402]; 
+2016-07-14 12:52:22,788 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:52:22,788 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 12:55:03,610 INFO  [algorithm] Random sample size: 1533
+2016-07-14 12:55:03,610 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 12:55:03,610 INFO  [algorithm] Probability: [0.00801303,0.130098]
+
+2016-07-14 12:55:03,610 INFO  [algorithm] Quasi-random sample: r0:[4.12968,4.12968]; r1:[12.6987,12.6987]; 
+2016-07-14 12:55:03,610 INFO  [algorithm] The sample is inside the domain
+2016-07-14 12:55:03,611 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 13:02:45,205 INFO  [algorithm] Random sample size: 1544
+2016-07-14 13:02:45,205 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 13:02:45,205 INFO  [algorithm] Probability: [0.00910737,0.127374]
+
+2016-07-14 13:02:45,205 INFO  [algorithm] Quasi-random sample: r0:[3.11354,3.11354]; r1:[10.5792,10.5792]; 
+2016-07-14 13:02:45,205 INFO  [algorithm] The sample is inside the domain
+2016-07-14 13:02:45,205 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 13:05:18,312 INFO  [algorithm] Random sample size: 1511
+2016-07-14 13:05:18,312 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 13:05:18,312 INFO  [algorithm] Probability: [0.0143688,0.123106]
+
+2016-07-14 13:05:18,312 INFO  [algorithm] Quasi-random sample: r0:[1.08093,1.08093]; r1:[15.6561,15.6561]; 
+2016-07-14 13:05:18,312 INFO  [algorithm] The sample is inside the domain
+2016-07-14 13:05:18,312 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 13:06:03,256 INFO  [algorithm] Random sample size: 883
+2016-07-14 13:06:03,257 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 13:06:03,257 INFO  [algorithm] Probability: [0,0.0482486]
+
+2016-07-14 13:06:03,257 INFO  [algorithm] Quasi-random sample: r0:[5.56763,5.56763]; r1:[15.3849,15.3849]; 
+2016-07-14 13:06:03,257 INFO  [algorithm] The sample is inside the domain
+2016-07-14 13:06:03,257 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 13:11:39,206 INFO  [algorithm] Random sample size: 1852
+2016-07-14 13:11:39,206 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 13:11:39,206 INFO  [algorithm] Probability: [0.0263862,0.165092]
+
+2016-07-14 13:11:39,207 INFO  [algorithm] Quasi-random sample: r0:[-2.5442,-2.5442]; r1:[13.5006,13.5006]; 
+2016-07-14 13:11:39,207 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,207 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,207 INFO  [algorithm] Quasi-random sample: r0:[9.12876,9.12876]; r1:[14.1913,14.1913]; 
+2016-07-14 13:11:39,207 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,207 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,207 INFO  [algorithm] Quasi-random sample: r0:[-5.2393,-5.2393]; r1:[15.654,15.654]; 
+2016-07-14 13:11:39,207 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,207 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,207 INFO  [algorithm] Quasi-random sample: r0:[6.18735,6.18735]; r1:[13.4406,13.4406]; 
+2016-07-14 13:11:39,207 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,207 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,207 INFO  [algorithm] Quasi-random sample: r0:[-1.14805,-1.14805]; r1:[14.3207,14.3207]; 
+2016-07-14 13:11:39,207 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,207 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,207 INFO  [algorithm] Quasi-random sample: r0:[3.01102,3.01102]; r1:[16.4767,16.4767]; 
+2016-07-14 13:11:39,207 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,207 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,208 INFO  [algorithm] Quasi-random sample: r0:[-1.89881,-1.89881]; r1:[12.541,12.541]; 
+2016-07-14 13:11:39,208 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,208 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,208 INFO  [algorithm] Quasi-random sample: r0:[3.49246,3.49246]; r1:[18.0468,18.0468]; 
+2016-07-14 13:11:39,208 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,208 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,208 INFO  [algorithm] Quasi-random sample: r0:[-0.865186,-0.865186]; r1:[14.2667,14.2667]; 
+2016-07-14 13:11:39,208 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,208 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,208 INFO  [algorithm] Quasi-random sample: r0:[3.44253,3.44253]; r1:[9.96902,9.96902]; 
+2016-07-14 13:11:39,208 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,208 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,208 INFO  [algorithm] Quasi-random sample: r0:[-0.872932,-0.872932]; r1:[18.3053,18.3053]; 
+2016-07-14 13:11:39,208 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,208 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,208 INFO  [algorithm] Quasi-random sample: r0:[3.77484,3.77484]; r1:[9.86645,9.86645]; 
+2016-07-14 13:11:39,208 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:11:39,208 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:11:39,208 INFO  [algorithm] Number of outliers: 26
+
+2016-07-14 13:11:39,210 INFO  [algorithm] Mean: r0:[4.9587,4.9587]; r1:[13.4973,13.4973]; 
+2016-07-14 13:11:39,210 INFO  [algorithm] Standard deviation: r0:[0.508626,0.508626]; r1:[1.90844,1.90844]; 
+2016-07-14 13:11:39,247 INFO  [algorithm] Sample size: 24
+2016-07-14 13:11:39,247 INFO  [algorithm] Quasi-random sample: r0:[4.60602,4.60602]; r1:[13.3567,13.3567]; 
+2016-07-14 13:11:39,247 INFO  [algorithm] The sample is inside the domain
+2016-07-14 13:11:39,247 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 13:15:59,642 INFO  [algorithm] Random sample size: 1741
+2016-07-14 13:15:59,642 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 13:15:59,642 INFO  [algorithm] Probability: [0.017292,0.153678]
+
+2016-07-14 13:15:59,642 INFO  [algorithm] Quasi-random sample: r0:[5.41944,5.41944]; r1:[13.7729,13.7729]; 
+2016-07-14 13:15:59,642 INFO  [algorithm] The sample is inside the domain
+2016-07-14 13:15:59,642 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 13:30:53,275 INFO  [algorithm] Random sample size: 1801
+2016-07-14 13:30:53,277 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 13:30:53,277 INFO  [algorithm] Probability: [0.0282529,0.158658]
+
+2016-07-14 13:30:53,277 INFO  [algorithm] Quasi-random sample: r0:[4.09552,4.09552]; r1:[16.8598,16.8598]; 
+2016-07-14 13:30:53,277 INFO  [algorithm] The sample is outside the domain
+2016-07-14 13:30:53,277 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 13:30:53,277 INFO  [algorithm] Quasi-random sample: r0:[4.2733,4.2733]; r1:[13.256,13.256]; 
+2016-07-14 13:30:53,277 INFO  [algorithm] The sample is inside the domain
+2016-07-14 13:30:53,277 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 13:38:06,460 INFO  [algorithm] Random sample size: 1590
+2016-07-14 13:38:06,460 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 13:38:06,460 INFO  [algorithm] Probability: [0.0252261,0.13495]
+
+2016-07-14 13:38:06,460 INFO  [algorithm] Quasi-random sample: r0:[5.00116,5.00116]; r1:[14.3061,14.3061]; 
+2016-07-14 13:38:06,460 INFO  [algorithm] The sample is inside the domain
+2016-07-14 13:38:06,460 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 13:42:06,480 INFO  [algorithm] Random sample size: 1844
+2016-07-14 13:42:06,480 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 13:42:06,480 INFO  [algorithm] Probability: [0.0260455,0.16247]
+
+2016-07-14 13:42:06,480 INFO  [algorithm] Quasi-random sample: r0:[4.22984,4.22984]; r1:[12.7017,12.7017]; 
+2016-07-14 13:42:06,480 INFO  [algorithm] The sample is inside the domain
+2016-07-14 13:42:06,480 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 13:44:48,049 INFO  [algorithm] Random sample size: 1569
+2016-07-14 13:44:48,051 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 13:44:48,051 INFO  [algorithm] Probability: [0.0111903,0.130757]
+
+2016-07-14 13:44:48,051 INFO  [algorithm] Quasi-random sample: r0:[5.71013,5.71013]; r1:[14.6039,14.6039]; 
+2016-07-14 13:44:48,051 INFO  [algorithm] The sample is inside the domain
+2016-07-14 13:44:48,051 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 14:47:00,460 INFO  [algorithm] Random sample size: 1753
+2016-07-14 14:47:00,460 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 14:47:00,460 INFO  [algorithm] Probability: [0.0278632,0.157892]
+
+2016-07-14 14:47:00,460 INFO  [algorithm] Quasi-random sample: r0:[4.08942,4.08942]; r1:[15.8996,15.8996]; 
+2016-07-14 14:47:00,460 INFO  [algorithm] The sample is inside the domain
+2016-07-14 14:47:00,460 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 15:23:32,173 INFO  [algorithm] Random sample size: 1671
+2016-07-14 15:23:32,173 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 15:23:32,174 INFO  [algorithm] Probability: [0.0200478,0.145523]
+
+2016-07-14 15:23:32,174 INFO  [algorithm] Quasi-random sample: r0:[6.38185,6.38185]; r1:[14.5879,14.5879]; 
+2016-07-14 15:23:32,174 INFO  [algorithm] The sample is outside the domain
+2016-07-14 15:23:32,174 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 15:23:32,174 INFO  [algorithm] Quasi-random sample: r0:[5.18536,5.18536]; r1:[11.3072,11.3072]; 
+2016-07-14 15:23:32,174 INFO  [algorithm] The sample is inside the domain
+2016-07-14 15:23:32,174 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 15:55:40,586 INFO  [algorithm] Random sample size: 1771
+2016-07-14 15:55:40,589 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 15:55:40,589 INFO  [algorithm] Probability: [0.0177891,0.155364]
+
+2016-07-14 15:55:40,589 INFO  [algorithm] Quasi-random sample: r0:[5.06357,5.06357]; r1:[14.1194,14.1194]; 
+2016-07-14 15:55:40,589 INFO  [algorithm] The sample is inside the domain
+2016-07-14 15:55:40,589 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 16:04:35,583 INFO  [algorithm] Random sample size: 1687
+2016-07-14 16:04:35,583 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 16:04:35,583 INFO  [algorithm] Probability: [0.0119716,0.144926]
+
+2016-07-14 16:04:35,583 INFO  [algorithm] Quasi-random sample: r0:[4.40794,4.40794]; r1:[17.19,17.19]; 
+2016-07-14 16:04:35,584 INFO  [algorithm] The sample is outside the domain
+2016-07-14 16:04:35,584 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 16:04:35,584 INFO  [algorithm] Quasi-random sample: r0:[5.80994,5.80994]; r1:[10.5667,10.5667]; 
+2016-07-14 16:04:35,584 INFO  [algorithm] The sample is inside the domain
+2016-07-14 16:04:35,584 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 16:38:15,420 INFO  [algorithm] Random sample size: 1912
+2016-07-14 16:38:15,420 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 16:38:15,420 INFO  [algorithm] Probability: [0.0280669,0.171515]
+
+2016-07-14 16:38:15,420 INFO  [algorithm] Quasi-random sample: r0:[5.29258,5.29258]; r1:[14.655,14.655]; 
+2016-07-14 16:38:15,420 INFO  [algorithm] The sample is inside the domain
+2016-07-14 16:38:15,420 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 17:18:24,102 INFO  [algorithm] Random sample size: 1832
+2016-07-14 17:18:24,102 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 17:18:24,102 INFO  [algorithm] Probability: [0.020349,0.161767]
+
+2016-07-14 17:18:24,102 INFO  [algorithm] Quasi-random sample: r0:[4.08335,4.08335]; r1:[15.6896,15.6896]; 
+2016-07-14 17:18:24,102 INFO  [algorithm] The sample is inside the domain
+2016-07-14 17:18:24,102 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 17:43:54,460 INFO  [algorithm] Random sample size: 1601
+2016-07-14 17:43:54,460 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 17:43:54,460 INFO  [algorithm] Probability: [0.0199251,0.136656]
+
+2016-07-14 17:43:54,460 INFO  [algorithm] Quasi-random sample: r0:[4.84124,4.84124]; r1:[12.3686,12.3686]; 
+2016-07-14 17:43:54,460 INFO  [algorithm] The sample is inside the domain
+2016-07-14 17:43:54,460 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 18:25:00,620 INFO  [algorithm] Random sample size: 1597
+2016-07-14 18:25:00,620 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 18:25:00,620 INFO  [algorithm] Probability: [0.020025,0.136323]
+
+2016-07-14 18:25:00,620 INFO  [algorithm] Quasi-random sample: r0:[4.69495,4.69495]; r1:[11.9043,11.9043]; 
+2016-07-14 18:25:00,620 INFO  [algorithm] The sample is inside the domain
+2016-07-14 18:25:00,620 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 18:35:27,888 INFO  [algorithm] Random sample size: 1832
+2016-07-14 18:35:27,888 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 18:35:27,888 INFO  [algorithm] Probability: [0.026892,0.159586]
+
+2016-07-14 18:35:27,888 INFO  [algorithm] Quasi-random sample: r0:[4.98766,4.98766]; r1:[12.7348,12.7348]; 
+2016-07-14 18:35:27,888 INFO  [algorithm] The sample is inside the domain
+2016-07-14 18:35:27,888 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 19:43:56,478 INFO  [algorithm] Random sample size: 1611
+2016-07-14 19:43:56,479 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 19:43:56,479 INFO  [algorithm] Probability: [0.0190577,0.136553]
+
+2016-07-14 19:43:56,479 INFO  [algorithm] Quasi-random sample: r0:[4.39617,4.39617]; r1:[13.5707,13.5707]; 
+2016-07-14 19:43:56,479 INFO  [algorithm] The sample is inside the domain
+2016-07-14 19:43:56,479 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 21:50:23,982 INFO  [algorithm] Random sample size: 1678
+2016-07-14 21:50:23,982 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 21:50:23,982 INFO  [algorithm] Probability: [0.0180952,0.147381]
+
+2016-07-14 21:50:23,982 INFO  [algorithm] Quasi-random sample: r0:[5.08263,5.08263]; r1:[14.5354,14.5354]; 
+2016-07-14 21:50:23,982 INFO  [algorithm] The sample is inside the domain
+2016-07-14 21:50:23,983 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 22:11:33,478 INFO  [algorithm] Random sample size: 1858
+2016-07-14 22:11:33,478 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 22:11:33,478 INFO  [algorithm] Probability: [0.035914,0.167849]
+
+2016-07-14 22:11:33,478 INFO  [algorithm] Quasi-random sample: r0:[5.34826,5.34826]; r1:[16.4131,16.4131]; 
+2016-07-14 22:11:33,478 INFO  [algorithm] The sample is outside the domain
+2016-07-14 22:11:33,478 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 22:11:33,478 INFO  [algorithm] Quasi-random sample: r0:[5.00584,5.00584]; r1:[13.7104,13.7104]; 
+2016-07-14 22:11:33,478 INFO  [algorithm] The sample is inside the domain
+2016-07-14 22:11:33,478 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 22:18:12,711 INFO  [algorithm] Random sample size: 1661
+2016-07-14 22:18:12,711 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 22:18:12,711 INFO  [algorithm] Probability: [0.0154781,0.141467]
+
+2016-07-14 22:18:12,711 INFO  [algorithm] Quasi-random sample: r0:[5.5507,5.5507]; r1:[18.0783,18.0783]; 
+2016-07-14 22:18:12,711 INFO  [algorithm] The sample is outside the domain
+2016-07-14 22:18:12,711 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 22:18:12,711 INFO  [algorithm] Quasi-random sample: r0:[5.35803,5.35803]; r1:[14.448,14.448]; 
+2016-07-14 22:18:12,711 INFO  [algorithm] The sample is inside the domain
+2016-07-14 22:18:12,711 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 22:41:28,526 INFO  [algorithm] Random sample size: 1738
+2016-07-14 22:41:28,526 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 22:41:28,526 INFO  [algorithm] Probability: [0.0271264,0.151609]
+
+2016-07-14 22:41:28,526 INFO  [algorithm] Number of outliers: 5
+
+2016-07-14 22:41:28,526 INFO  [algorithm] Mean: r0:[5.29791,5.29791]; r1:[13.1361,13.1361]; 
+2016-07-14 22:41:28,527 INFO  [algorithm] Standard deviation: r0:[0.363583,0.363583]; r1:[1.81921,1.81921]; 
+2016-07-14 22:41:28,543 INFO  [algorithm] Sample size: 23
+2016-07-14 22:41:28,543 INFO  [algorithm] Quasi-random sample: r0:[5.4025,5.4025]; r1:[17.5749,17.5749]; 
+2016-07-14 22:41:28,543 INFO  [algorithm] The sample is outside the domain
+2016-07-14 22:41:28,543 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-14 22:41:28,544 INFO  [algorithm] Quasi-random sample: r0:[5.50525,5.50525]; r1:[15.2354,15.2354]; 
+2016-07-14 22:41:28,544 INFO  [algorithm] The sample is inside the domain
+2016-07-14 22:41:28,544 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 22:46:44,214 INFO  [algorithm] Random sample size: 1806
+2016-07-14 22:46:44,223 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 22:46:44,223 INFO  [algorithm] Probability: [0.0319912,0.160487]
+
+2016-07-14 22:46:44,223 INFO  [algorithm] Quasi-random sample: r0:[5.38518,5.38518]; r1:[11.5536,11.5536]; 
+2016-07-14 22:46:44,223 INFO  [algorithm] The sample is inside the domain
+2016-07-14 22:46:44,223 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 23:02:09,283 INFO  [algorithm] Random sample size: 1747
+2016-07-14 23:02:09,283 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 23:02:09,283 INFO  [algorithm] Probability: [0.0268839,0.152647]
+
+2016-07-14 23:02:09,283 INFO  [algorithm] Quasi-random sample: r0:[5.59212,5.59212]; r1:[12.6188,12.6188]; 
+2016-07-14 23:02:09,283 INFO  [algorithm] The sample is inside the domain
+2016-07-14 23:02:09,283 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-14 23:13:04,137 INFO  [algorithm] Random sample size: 1815
+2016-07-14 23:13:04,137 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-14 23:13:04,137 INFO  [algorithm] Probability: [0.0273308,0.159791]
+
+2016-07-14 23:13:04,137 INFO  [algorithm] Quasi-random sample: r0:[5.57865,5.57865]; r1:[14.2898,14.2898]; 
+2016-07-14 23:13:04,137 INFO  [algorithm] The sample is inside the domain
+2016-07-14 23:13:04,137 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 00:51:29,342 INFO  [algorithm] Random sample size: 1777
+2016-07-15 00:51:29,342 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 00:51:29,342 INFO  [algorithm] Probability: [0.0215964,0.156594]
+
+2016-07-15 00:51:29,342 INFO  [algorithm] Quasi-random sample: r0:[5.24873,5.24873]; r1:[14.0774,14.0774]; 
+2016-07-15 00:51:29,343 INFO  [algorithm] The sample is inside the domain
+2016-07-15 00:51:29,343 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 01:03:25,010 INFO  [algorithm] Random sample size: 1858
+2016-07-15 01:03:25,010 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 01:03:25,010 INFO  [algorithm] Probability: [0.0321505,0.165161]
+
+2016-07-15 01:03:25,010 INFO  [algorithm] Quasi-random sample: r0:[5.04617,5.04617]; r1:[12.5295,12.5295]; 
+2016-07-15 01:03:25,010 INFO  [algorithm] The sample is inside the domain
+2016-07-15 01:03:25,010 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 02:12:19,737 INFO  [algorithm] Random sample size: 1661
+2016-07-15 02:12:19,737 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 02:12:19,737 INFO  [algorithm] Probability: [0.0275045,0.148082]
+
+2016-07-15 02:12:19,737 INFO  [algorithm] Quasi-random sample: r0:[5.83924,5.83924]; r1:[14.0925,14.0925]; 
+2016-07-15 02:12:19,737 INFO  [algorithm] The sample is inside the domain
+2016-07-15 02:12:19,737 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 02:48:00,947 INFO  [algorithm] Random sample size: 1792
+2016-07-15 02:48:00,948 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 02:48:00,948 INFO  [algorithm] Probability: [0.0296098,0.158239]
+
+2016-07-15 02:48:00,948 INFO  [algorithm] Quasi-random sample: r0:[5.74172,5.74172]; r1:[10.1695,10.1695]; 
+2016-07-15 02:48:00,948 INFO  [algorithm] The sample is inside the domain
+2016-07-15 02:48:00,948 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 02:59:29,614 INFO  [algorithm] Random sample size: 1866
+2016-07-15 02:59:29,614 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 02:59:29,614 INFO  [algorithm] Probability: [0.0388865,0.166146]
+
+2016-07-15 02:59:29,614 INFO  [algorithm] Quasi-random sample: r0:[4.91494,4.91494]; r1:[13.9731,13.9731]; 
+2016-07-15 02:59:29,614 INFO  [algorithm] The sample is inside the domain
+2016-07-15 02:59:29,614 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 03:18:14,947 INFO  [algorithm] Random sample size: 1798
+2016-07-15 03:18:14,947 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 03:18:14,947 INFO  [algorithm] Probability: [0.025,0.161111]
+
+2016-07-15 03:18:14,947 INFO  [algorithm] Quasi-random sample: r0:[4.97919,4.97919]; r1:[10.7689,10.7689]; 
+2016-07-15 03:18:14,947 INFO  [algorithm] The sample is inside the domain
+2016-07-15 03:18:14,947 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 03:21:06,789 INFO  [algorithm] Random sample size: 1722
+2016-07-15 03:21:06,789 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 03:21:06,789 INFO  [algorithm] Probability: [0.0281439,0.15109]
+
+2016-07-15 03:21:06,789 INFO  [algorithm] Quasi-random sample: r0:[4.91461,4.91461]; r1:[13.8106,13.8106]; 
+2016-07-15 03:21:06,789 INFO  [algorithm] The sample is inside the domain
+2016-07-15 03:21:06,789 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 03:31:52,739 INFO  [algorithm] Random sample size: 1681
+2016-07-15 03:31:52,739 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 03:31:52,739 INFO  [algorithm] Probability: [0.0209982,0.14656]
+
+2016-07-15 03:31:52,739 INFO  [algorithm] Quasi-random sample: r0:[6.00149,6.00149]; r1:[16.1186,16.1186]; 
+2016-07-15 03:31:52,739 INFO  [algorithm] The sample is outside the domain
+2016-07-15 03:31:52,739 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-15 03:31:52,739 INFO  [algorithm] Quasi-random sample: r0:[5.87937,5.87937]; r1:[11.0826,11.0826]; 
+2016-07-15 03:31:52,739 INFO  [algorithm] The sample is inside the domain
+2016-07-15 03:31:52,739 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 04:32:24,704 INFO  [algorithm] Random sample size: 1902
+2016-07-15 04:32:24,704 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 04:32:24,705 INFO  [algorithm] Probability: [0.0204412,0.169685]
+
+2016-07-15 04:32:24,705 INFO  [algorithm] Quasi-random sample: r0:[5.09698,5.09698]; r1:[13.0462,13.0462]; 
+2016-07-15 04:32:24,705 INFO  [algorithm] The sample is inside the domain
+2016-07-15 04:32:24,705 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 04:40:22,967 INFO  [algorithm] Random sample size: 1747
+2016-07-15 04:40:22,970 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 04:40:22,970 INFO  [algorithm] Probability: [0.0268839,0.154934]
+
+2016-07-15 04:40:22,970 INFO  [algorithm] Quasi-random sample: r0:[4.88645,4.88645]; r1:[12.7057,12.7057]; 
+2016-07-15 04:40:22,970 INFO  [algorithm] The sample is inside the domain
+2016-07-15 04:40:22,970 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 05:10:08,169 INFO  [algorithm] Random sample size: 1741
+2016-07-15 05:10:08,169 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 05:10:08,169 INFO  [algorithm] Probability: [0.0253242,0.153678]
+
+2016-07-15 05:10:08,169 INFO  [algorithm] Quasi-random sample: r0:[5.15425,5.15425]; r1:[13.5745,13.5745]; 
+2016-07-15 05:10:08,169 INFO  [algorithm] The sample is inside the domain
+2016-07-15 05:10:08,169 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 05:17:42,020 INFO  [algorithm] Random sample size: 1809
+2016-07-15 05:17:42,020 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 05:17:42,020 INFO  [algorithm] Probability: [0.0390834,0.160806]
+
+2016-07-15 05:17:42,020 INFO  [algorithm] Quasi-random sample: r0:[5.52398,5.52398]; r1:[15.6646,15.6646]; 
+2016-07-15 05:17:42,020 INFO  [algorithm] The sample is inside the domain
+2016-07-15 05:17:42,020 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 05:35:41,491 INFO  [algorithm] Random sample size: 1998
+2016-07-15 05:35:41,491 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 05:35:41,491 INFO  [algorithm] Probability: [0.035,0.179]
+
+2016-07-15 05:35:41,491 INFO  [algorithm] Quasi-random sample: r0:[6.16731,6.16731]; r1:[12.5331,12.5331]; 
+2016-07-15 05:35:41,491 INFO  [algorithm] The sample is outside the domain
+2016-07-15 05:35:41,491 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-15 05:35:41,491 INFO  [algorithm] Quasi-random sample: r0:[4.846,4.846]; r1:[11.1516,11.1516]; 
+2016-07-15 05:35:41,491 INFO  [algorithm] The sample is inside the domain
+2016-07-15 05:35:41,491 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 05:38:15,772 INFO  [algorithm] Random sample size: 1710
+2016-07-15 05:38:15,772 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 05:38:15,772 INFO  [algorithm] Probability: [0.0249766,0.149089]
+
+2016-07-15 05:38:15,772 INFO  [algorithm] Quasi-random sample: r0:[4.7144,4.7144]; r1:[11.9103,11.9103]; 
+2016-07-15 05:38:15,772 INFO  [algorithm] The sample is inside the domain
+2016-07-15 05:38:15,772 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 05:40:39,021 INFO  [algorithm] Random sample size: 1798
+2016-07-15 05:40:39,021 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 05:40:39,021 INFO  [algorithm] Probability: [0.03,0.156111]
+
+2016-07-15 05:40:39,021 INFO  [algorithm] Quasi-random sample: r0:[4.50623,4.50623]; r1:[13.4195,13.4195]; 
+2016-07-15 05:40:39,021 INFO  [algorithm] The sample is inside the domain
+2016-07-15 05:40:39,022 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 06:26:20,102 INFO  [algorithm] Random sample size: 1580
+2016-07-15 06:26:20,102 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 06:26:20,102 INFO  [algorithm] Probability: [0.0172946,0.135676]
+
+2016-07-15 06:26:20,102 INFO  [algorithm] Quasi-random sample: r0:[4.91227,4.91227]; r1:[14.1176,14.1176]; 
+2016-07-15 06:26:20,102 INFO  [algorithm] The sample is inside the domain
+2016-07-15 06:26:20,102 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 06:38:07,114 INFO  [algorithm] Random sample size: 1621
+2016-07-15 06:38:07,114 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 06:38:07,114 INFO  [algorithm] Probability: [0.0138879,0.140764]
+
+2016-07-15 06:38:07,114 INFO  [algorithm] Number of outliers: 3
+
+2016-07-15 06:38:07,114 INFO  [algorithm] Mean: r0:[5.47332,5.47332]; r1:[13.1362,13.1362]; 
+2016-07-15 06:38:07,115 INFO  [algorithm] Standard deviation: r0:[0.242496,0.242496]; r1:[2.26466,2.26466]; 
+2016-07-15 06:38:07,132 INFO  [algorithm] Sample size: 25
+2016-07-15 06:38:07,132 INFO  [algorithm] Quasi-random sample: r0:[5.38974,5.38974]; r1:[15.6611,15.6611]; 
+2016-07-15 06:38:07,132 INFO  [algorithm] The sample is inside the domain
+2016-07-15 06:38:07,132 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 07:20:51,592 INFO  [algorithm] Random sample size: 1801
+2016-07-15 07:20:51,592 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 07:20:51,592 INFO  [algorithm] Probability: [0.026589,0.161986]
+
+2016-07-15 07:20:51,592 INFO  [algorithm] Quasi-random sample: r0:[5.2621,5.2621]; r1:[14.4079,14.4079]; 
+2016-07-15 07:20:51,592 INFO  [algorithm] The sample is inside the domain
+2016-07-15 07:20:51,592 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 08:58:51,492 INFO  [algorithm] Random sample size: 1872
+2016-07-15 08:58:51,493 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 08:58:51,493 INFO  [algorithm] Probability: [0.0392316,0.168346]
+
+2016-07-15 08:58:51,493 INFO  [algorithm] Quasi-random sample: r0:[5.36143,5.36143]; r1:[13.3189,13.3189]; 
+2016-07-15 08:58:51,493 INFO  [algorithm] The sample is inside the domain
+2016-07-15 08:58:51,493 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 09:14:03,560 INFO  [algorithm] Random sample size: 1789
+2016-07-15 09:14:03,561 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 09:14:03,561 INFO  [algorithm] Probability: [0.0319263,0.159587]
+
+2016-07-15 09:14:03,561 INFO  [algorithm] Quasi-random sample: r0:[5.75116,5.75116]; r1:[12.6476,12.6476]; 
+2016-07-15 09:14:03,561 INFO  [algorithm] The sample is inside the domain
+2016-07-15 09:14:03,561 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 09:53:53,857 INFO  [algorithm] Random sample size: 1812
+2016-07-15 09:53:53,857 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 09:53:53,857 INFO  [algorithm] Probability: [0.027409,0.161125]
+
+2016-07-15 09:53:53,858 INFO  [algorithm] Quasi-random sample: r0:[5.14733,5.14733]; r1:[14.4806,14.4806]; 
+2016-07-15 09:53:53,858 INFO  [algorithm] The sample is inside the domain
+2016-07-15 09:53:53,858 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 10:04:27,153 INFO  [algorithm] Random sample size: 1792
+2016-07-15 10:04:27,153 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 10:04:27,153 INFO  [algorithm] Probability: [0.0229208,0.158796]
+
+2016-07-15 10:04:27,153 INFO  [algorithm] Quasi-random sample: r0:[5.42925,5.42925]; r1:[18.2527,18.2527]; 
+2016-07-15 10:04:27,153 INFO  [algorithm] The sample is outside the domain
+2016-07-15 10:04:27,153 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-15 10:04:27,153 INFO  [algorithm] Quasi-random sample: r0:[5.49413,5.49413]; r1:[13.7068,13.7068]; 
+2016-07-15 10:04:27,153 INFO  [algorithm] The sample is inside the domain
+2016-07-15 10:04:27,153 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 10:45:36,558 INFO  [algorithm] Random sample size: 1852
+2016-07-15 10:45:36,563 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 10:45:36,563 INFO  [algorithm] Probability: [0.0296224,0.16617]
+
+2016-07-15 10:45:36,563 INFO  [algorithm] Quasi-random sample: r0:[5.02727,5.02727]; r1:[8.4702,8.4702]; 
+2016-07-15 10:45:36,563 INFO  [algorithm] The sample is outside the domain
+2016-07-15 10:45:36,563 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-15 10:45:36,563 INFO  [algorithm] Quasi-random sample: r0:[6.22683,6.22683]; r1:[10.9386,10.9386]; 
+2016-07-15 10:45:36,564 INFO  [algorithm] The sample is outside the domain
+2016-07-15 10:45:36,564 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-15 10:45:36,564 INFO  [algorithm] Quasi-random sample: r0:[5.47803,5.47803]; r1:[12.5069,12.5069]; 
+2016-07-15 10:45:36,564 INFO  [algorithm] The sample is inside the domain
+2016-07-15 10:45:36,564 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 11:29:22,221 INFO  [algorithm] Random sample size: 1744
+2016-07-15 11:29:22,221 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 11:29:22,221 INFO  [algorithm] Probability: [0.0263918,0.154021]
+
+2016-07-15 11:29:22,221 INFO  [algorithm] Quasi-random sample: r0:[5.70487,5.70487]; r1:[19.7681,19.7681]; 
+2016-07-15 11:29:22,221 INFO  [algorithm] The sample is outside the domain
+2016-07-15 11:29:22,221 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-15 11:29:22,221 INFO  [algorithm] Quasi-random sample: r0:[5.43463,5.43463]; r1:[11.5796,11.5796]; 
+2016-07-15 11:29:22,221 INFO  [algorithm] The sample is inside the domain
+2016-07-15 11:29:22,221 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 11:32:29,382 INFO  [algorithm] Random sample size: 1915
+2016-07-15 11:32:29,384 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 11:32:29,384 INFO  [algorithm] Probability: [0.0285133,0.170235]
+
+2016-07-15 11:32:29,384 INFO  [algorithm] Quasi-random sample: r0:[5.37818,5.37818]; r1:[12.7252,12.7252]; 
+2016-07-15 11:32:29,384 INFO  [algorithm] The sample is inside the domain
+2016-07-15 11:32:29,384 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 12:50:33,348 INFO  [algorithm] Random sample size: 1972
+2016-07-15 12:50:33,351 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 12:50:33,351 INFO  [algorithm] Probability: [0.0326849,0.180588]
+
+2016-07-15 12:50:33,351 INFO  [algorithm] Quasi-random sample: r0:[5.38165,5.38165]; r1:[9.26095,9.26095]; 
+2016-07-15 12:50:33,351 INFO  [algorithm] The sample is outside the domain
+2016-07-15 12:50:33,351 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-15 12:50:33,351 INFO  [algorithm] Quasi-random sample: r0:[5.01821,5.01821]; r1:[12.9862,12.9862]; 
+2016-07-15 12:50:33,351 INFO  [algorithm] The sample is inside the domain
+2016-07-15 12:50:33,351 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 13:19:05,225 INFO  [algorithm] Random sample size: 1738
+2016-07-15 13:19:05,225 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 13:19:05,225 INFO  [algorithm] Probability: [0.0242529,0.152759]
+
+2016-07-15 13:19:05,225 INFO  [algorithm] Quasi-random sample: r0:[5.15908,5.15908]; r1:[14.4831,14.4831]; 
+2016-07-15 13:19:05,225 INFO  [algorithm] The sample is inside the domain
+2016-07-15 13:19:05,225 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 13:32:45,207 INFO  [algorithm] Random sample size: 1812
+2016-07-15 13:32:45,207 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 13:32:45,207 INFO  [algorithm] Probability: [0.0202426,0.161125]
+
+2016-07-15 13:32:45,207 INFO  [algorithm] Quasi-random sample: r0:[5.70313,5.70313]; r1:[12.0842,12.0842]; 
+2016-07-15 13:32:45,207 INFO  [algorithm] The sample is inside the domain
+2016-07-15 13:32:45,207 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 13:53:24,494 INFO  [algorithm] Random sample size: 1841
+2016-07-15 13:53:24,494 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 13:53:24,495 INFO  [algorithm] Probability: [0.0277482,0.163245]
+
+2016-07-15 13:53:24,495 INFO  [algorithm] Quasi-random sample: r0:[5.54387,5.54387]; r1:[14.2963,14.2963]; 
+2016-07-15 13:53:24,495 INFO  [algorithm] The sample is inside the domain
+2016-07-15 13:53:24,495 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 14:45:43,166 INFO  [algorithm] Random sample size: 1734
+2016-07-15 14:45:43,166 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 14:45:43,166 INFO  [algorithm] Probability: [0.0122581,0.151336]
+
+2016-07-15 14:45:43,166 INFO  [algorithm] Quasi-random sample: r0:[5.58707,5.58707]; r1:[12.3546,12.3546]; 
+2016-07-15 14:45:43,166 INFO  [algorithm] The sample is inside the domain
+2016-07-15 14:45:43,166 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 14:57:59,262 INFO  [algorithm] Random sample size: 1835
+2016-07-15 14:57:59,262 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 14:57:59,262 INFO  [algorithm] Probability: [0.0213718,0.161535]
+
+2016-07-15 14:57:59,263 INFO  [algorithm] Quasi-random sample: r0:[5.32621,5.32621]; r1:[11.6672,11.6672]; 
+2016-07-15 14:57:59,263 INFO  [algorithm] The sample is inside the domain
+2016-07-15 14:57:59,263 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 15:09:27,250 INFO  [algorithm] Random sample size: 1706
+2016-07-15 15:09:27,250 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 15:09:27,250 INFO  [algorithm] Probability: [0.0180562,0.148806]
+
+2016-07-15 15:09:27,250 INFO  [algorithm] Quasi-random sample: r0:[5.80201,5.80201]; r1:[12.3184,12.3184]; 
+2016-07-15 15:09:27,250 INFO  [algorithm] The sample is inside the domain
+2016-07-15 15:09:27,250 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 16:19:25,037 INFO  [algorithm] Random sample size: 1741
+2016-07-15 16:19:25,037 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 16:19:25,037 INFO  [algorithm] Probability: [0.013276,0.150809]
+
+2016-07-15 16:19:25,037 INFO  [algorithm] Quasi-random sample: r0:[5.47745,5.47745]; r1:[14.067,14.067]; 
+2016-07-15 16:19:25,037 INFO  [algorithm] The sample is inside the domain
+2016-07-15 16:19:25,037 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 16:24:19,307 INFO  [algorithm] Random sample size: 1893
+2016-07-15 16:24:19,308 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 16:24:19,308 INFO  [algorithm] Probability: [0.0301319,0.169868]
+
+2016-07-15 16:24:19,308 INFO  [algorithm] Quasi-random sample: r0:[5.48141,5.48141]; r1:[12.0356,12.0356]; 
+2016-07-15 16:24:19,308 INFO  [algorithm] The sample is inside the domain
+2016-07-15 16:24:19,308 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 16:53:54,542 INFO  [algorithm] Random sample size: 1806
+2016-07-15 16:53:54,544 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 16:53:54,544 INFO  [algorithm] Probability: [0.0303319,0.160487]
+
+2016-07-15 16:53:54,544 INFO  [algorithm] Quasi-random sample: r0:[5.4351,5.4351]; r1:[13.4463,13.4463]; 
+2016-07-15 16:53:54,544 INFO  [algorithm] The sample is inside the domain
+2016-07-15 16:53:54,544 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 17:02:59,424 INFO  [algorithm] Random sample size: 1783
+2016-07-15 17:02:59,426 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 17:02:59,426 INFO  [algorithm] Probability: [0.0248179,0.157255]
+
+2016-07-15 17:02:59,426 INFO  [algorithm] Quasi-random sample: r0:[5.80724,5.80724]; r1:[11.2847,11.2847]; 
+2016-07-15 17:02:59,426 INFO  [algorithm] The sample is inside the domain
+2016-07-15 17:02:59,426 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 19:53:30,258 INFO  [algorithm] Random sample size: 1818
+2016-07-15 19:53:30,258 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 19:53:30,258 INFO  [algorithm] Probability: [0.0272527,0.162857]
+
+2016-07-15 19:53:30,258 INFO  [algorithm] Number of outliers: 5
+
+2016-07-15 19:53:30,259 INFO  [algorithm] Mean: r0:[5.37258,5.37258]; r1:[13.7334,13.7334]; 
+2016-07-15 19:53:30,260 INFO  [algorithm] Standard deviation: r0:[0.0880085,0.0880085]; r1:[0.726342,0.726342]; 
+2016-07-15 19:53:30,344 INFO  [algorithm] Sample size: 21
+2016-07-15 19:53:30,344 INFO  [algorithm] Quasi-random sample: r0:[5.3306,5.3306]; r1:[14.0862,14.0862]; 
+2016-07-15 19:53:30,344 INFO  [algorithm] The sample is inside the domain
+2016-07-15 19:53:30,344 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 20:34:02,253 INFO  [algorithm] Random sample size: 1830
+2016-07-15 20:34:02,253 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 20:34:02,253 INFO  [algorithm] Probability: [0.0356769,0.163013]
+
+2016-07-15 20:34:02,253 INFO  [algorithm] Quasi-random sample: r0:[5.47935,5.47935]; r1:[13.6725,13.6725]; 
+2016-07-15 20:34:02,253 INFO  [algorithm] The sample is inside the domain
+2016-07-15 20:34:02,253 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 20:50:51,069 INFO  [algorithm] Random sample size: 1722
+2016-07-15 20:50:51,069 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 20:50:51,069 INFO  [algorithm] Probability: [0.0188631,0.15109]
+
+2016-07-15 20:50:51,069 INFO  [algorithm] Quasi-random sample: r0:[5.2741,5.2741]; r1:[13.2097,13.2097]; 
+2016-07-15 20:50:51,069 INFO  [algorithm] The sample is inside the domain
+2016-07-15 20:50:51,069 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 21:10:46,162 INFO  [algorithm] Random sample size: 1530
+2016-07-15 21:10:46,162 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 21:10:46,162 INFO  [algorithm] Probability: [0.015248,0.132272]
+
+2016-07-15 21:10:46,162 INFO  [algorithm] Quasi-random sample: r0:[5.34418,5.34418]; r1:[13.6765,13.6765]; 
+2016-07-15 21:10:46,162 INFO  [algorithm] The sample is inside the domain
+2016-07-15 21:10:46,162 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 21:35:29,358 INFO  [algorithm] Random sample size: 1818
+2016-07-15 21:35:29,358 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 21:35:29,358 INFO  [algorithm] Probability: [0.0310989,0.161758]
+
+2016-07-15 21:35:29,358 INFO  [algorithm] Quasi-random sample: r0:[5.38019,5.38019]; r1:[14.2049,14.2049]; 
+2016-07-15 21:35:29,358 INFO  [algorithm] The sample is inside the domain
+2016-07-15 21:35:29,359 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 21:52:10,733 INFO  [algorithm] Random sample size: 1658
+2016-07-15 21:52:10,733 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 21:52:10,733 INFO  [algorithm] Probability: [0.0215663,0.149518]
+
+2016-07-15 21:52:10,733 INFO  [algorithm] Quasi-random sample: r0:[5.4151,5.4151]; r1:[13.7205,13.7205]; 
+2016-07-15 21:52:10,733 INFO  [algorithm] The sample is inside the domain
+2016-07-15 21:52:10,733 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 21:56:28,668 INFO  [algorithm] Random sample size: 1747
+2016-07-15 21:56:28,668 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 21:56:28,668 INFO  [algorithm] Probability: [0.029171,0.153791]
+
+2016-07-15 21:56:28,668 INFO  [algorithm] Quasi-random sample: r0:[5.38573,5.38573]; r1:[12.6656,12.6656]; 
+2016-07-15 21:56:28,668 INFO  [algorithm] The sample is inside the domain
+2016-07-15 21:56:28,668 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 22:07:48,173 INFO  [algorithm] Random sample size: 1710
+2016-07-15 22:07:48,173 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 22:07:48,173 INFO  [algorithm] Probability: [0.0273131,0.147336]
+
+2016-07-15 22:07:48,173 INFO  [algorithm] Quasi-random sample: r0:[5.43286,5.43286]; r1:[12.6467,12.6467]; 
+2016-07-15 22:07:48,173 INFO  [algorithm] The sample is inside the domain
+2016-07-15 22:07:48,173 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 22:11:30,674 INFO  [algorithm] Random sample size: 1638
+2016-07-15 22:11:30,674 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 22:11:30,675 INFO  [algorithm] Probability: [0.0232927,0.140732]
+
+2016-07-15 22:11:30,675 INFO  [algorithm] Quasi-random sample: r0:[5.33913,5.33913]; r1:[14.3671,14.3671]; 
+2016-07-15 22:11:30,675 INFO  [algorithm] The sample is inside the domain
+2016-07-15 22:11:30,675 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 22:44:44,712 INFO  [algorithm] Random sample size: 1783
+2016-07-15 22:44:44,712 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 22:44:44,712 INFO  [algorithm] Probability: [0.0203361,0.156695]
+
+2016-07-15 22:44:44,712 INFO  [algorithm] Quasi-random sample: r0:[5.36187,5.36187]; r1:[15.1614,15.1614]; 
+2016-07-15 22:44:44,712 INFO  [algorithm] The sample is inside the domain
+2016-07-15 22:44:44,712 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 22:49:30,777 INFO  [algorithm] Random sample size: 1697
+2016-07-15 22:49:30,784 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 22:49:30,784 INFO  [algorithm] Probability: [0.0182578,0.150077]
+
+2016-07-15 22:49:30,784 INFO  [algorithm] Quasi-random sample: r0:[5.29388,5.29388]; r1:[13.3328,13.3328]; 
+2016-07-15 22:49:30,784 INFO  [algorithm] The sample is inside the domain
+2016-07-15 22:49:30,784 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 23:00:28,477 INFO  [algorithm] Random sample size: 1734
+2016-07-15 23:00:28,477 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 23:00:28,477 INFO  [algorithm] Probability: [0.0191705,0.15076]
+
+2016-07-15 23:00:28,477 INFO  [algorithm] Quasi-random sample: r0:[5.37432,5.37432]; r1:[11.7613,11.7613]; 
+2016-07-15 23:00:28,477 INFO  [algorithm] The sample is inside the domain
+2016-07-15 23:00:28,478 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 23:04:46,366 INFO  [algorithm] Random sample size: 1741
+2016-07-15 23:04:46,366 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 23:04:46,366 INFO  [algorithm] Probability: [0.0230293,0.150809]
+
+2016-07-15 23:04:46,367 INFO  [algorithm] Quasi-random sample: r0:[5.12153,5.12153]; r1:[14.9782,14.9782]; 
+2016-07-15 23:04:46,367 INFO  [algorithm] The sample is inside the domain
+2016-07-15 23:04:46,367 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 23:25:23,276 INFO  [algorithm] Random sample size: 1642
+2016-07-15 23:25:23,276 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 23:25:23,276 INFO  [algorithm] Probability: [0.0189294,0.142871]
+
+2016-07-15 23:25:23,276 INFO  [algorithm] Quasi-random sample: r0:[5.33079,5.33079]; r1:[13.2707,13.2707]; 
+2016-07-15 23:25:23,276 INFO  [algorithm] The sample is inside the domain
+2016-07-15 23:25:23,276 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 23:33:37,460 INFO  [algorithm] Random sample size: 1815
+2016-07-15 23:33:37,460 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 23:33:37,460 INFO  [algorithm] Probability: [0.0311833,0.160892]
+
+2016-07-15 23:33:37,460 INFO  [algorithm] Quasi-random sample: r0:[5.48138,5.48138]; r1:[15.1605,15.1605]; 
+2016-07-15 23:33:37,461 INFO  [algorithm] The sample is inside the domain
+2016-07-15 23:33:37,461 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-15 23:50:26,952 INFO  [algorithm] Random sample size: 1728
+2016-07-15 23:50:26,953 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-15 23:50:26,953 INFO  [algorithm] Probability: [0.0273988,0.15237]
+
+2016-07-15 23:50:26,953 INFO  [algorithm] Quasi-random sample: r0:[5.4871,5.4871]; r1:[13.8021,13.8021]; 
+2016-07-15 23:50:26,953 INFO  [algorithm] The sample is inside the domain
+2016-07-15 23:50:26,953 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-16 00:17:11,625 INFO  [algorithm] Random sample size: 1801
+2016-07-16 00:17:11,630 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-16 00:17:11,631 INFO  [algorithm] Probability: [0.0304714,0.159767]
+
+2016-07-16 00:17:11,631 INFO  [algorithm] Quasi-random sample: r0:[5.48119,5.48119]; r1:[13.5664,13.5664]; 
+2016-07-16 00:17:11,631 INFO  [algorithm] The sample is inside the domain
+2016-07-16 00:17:11,631 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-16 00:57:01,754 INFO  [algorithm] Random sample size: 1741
+2016-07-16 00:57:01,756 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-16 00:57:01,756 INFO  [algorithm] Probability: [0.0207344,0.15253]
+
+2016-07-16 00:57:01,756 INFO  [algorithm] Quasi-random sample: r0:[5.41339,5.41339]; r1:[13.7051,13.7051]; 
+2016-07-16 00:57:01,756 INFO  [algorithm] The sample is inside the domain
+2016-07-16 00:57:01,756 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-16 01:19:51,140 INFO  [algorithm] Random sample size: 1928
+2016-07-16 01:19:51,141 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-16 01:19:51,141 INFO  [algorithm] Probability: [0.0359585,0.17285]
+
+2016-07-16 01:19:51,141 INFO  [algorithm] Quasi-random sample: r0:[5.38354,5.38354]; r1:[12.9914,12.9914]; 
+2016-07-16 01:19:51,141 INFO  [algorithm] The sample is inside the domain
+2016-07-16 01:19:51,141 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-16 01:36:51,374 INFO  [algorithm] Random sample size: 1891
+2016-07-16 01:36:51,374 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-16 01:36:51,374 INFO  [algorithm] Probability: [0.0259588,0.170026]
+
+2016-07-16 01:36:51,374 INFO  [algorithm] Quasi-random sample: r0:[5.39009,5.39009]; r1:[13.648,13.648]; 
+2016-07-16 01:36:51,374 INFO  [algorithm] The sample is inside the domain
+2016-07-16 01:36:51,375 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-16 01:54:24,448 INFO  [algorithm] Random sample size: 1885
+2016-07-16 01:54:24,449 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-16 01:54:24,449 INFO  [algorithm] Probability: [0.0287546,0.168914]
+
+2016-07-16 01:54:24,449 INFO  [algorithm] Quasi-random sample: r0:[5.39107,5.39107]; r1:[13.0125,13.0125]; 
+2016-07-16 01:54:24,449 INFO  [algorithm] The sample is inside the domain
+2016-07-16 01:54:24,449 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-16 02:16:28,233 INFO  [algorithm] Random sample size: 1818
+2016-07-16 02:16:28,234 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-16 02:16:28,234 INFO  [algorithm] Probability: [0.0343956,0.162857]
+
+2016-07-16 02:16:28,234 INFO  [algorithm] Number of outliers: 0
+
+2016-07-16 02:16:28,234 INFO  [algorithm] Mean: r0:[5.37803,5.37803]; r1:[13.8131,13.8131]; 
+2016-07-16 02:16:28,234 INFO  [algorithm] Standard deviation: r0:[0.0348574,0.0348574]; r1:[0.19452,0.19452]; 
+2016-07-16 02:16:28,274 INFO  [algorithm] Sample size: 20
+2016-07-16 02:16:28,274 INFO  [algorithm] Quasi-random sample: r0:[5.47908,5.47908]; r1:[13.5937,13.5937]; 
+2016-07-16 02:16:28,274 INFO  [algorithm] The sample is inside the domain
+2016-07-16 02:16:28,274 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-16 02:19:43,792 INFO  [algorithm] Random sample size: 1753
+2016-07-16 02:19:43,792 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-16 02:19:43,792 INFO  [algorithm] Probability: [0.0250142,0.152764]
+
+2016-07-16 02:19:43,792 INFO  [algorithm] Quasi-random sample: r0:[5.3787,5.3787]; r1:[13.7201,13.7201]; 
+2016-07-16 02:19:43,792 INFO  [algorithm] The sample is inside the domain
+2016-07-16 02:19:43,792 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-16 23:21:25,664 INFO  [algorithm] Random sample size: 1944
+2016-07-16 23:21:25,664 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-16 23:21:25,664 INFO  [algorithm] Probability: [0.0277903,0.17519]
+
+2016-07-16 23:21:25,664 INFO  [algorithm] Quasi-random sample: r0:[5.44727,5.44727]; r1:[13.9048,13.9048]; 
+2016-07-16 23:21:25,664 INFO  [algorithm] The sample is inside the domain
+2016-07-16 23:21:25,664 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-16 23:29:30,762 INFO  [algorithm] Random sample size: 1783
+2016-07-16 23:29:30,763 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-16 23:29:30,763 INFO  [algorithm] Probability: [0.0242577,0.158375]
+
+2016-07-16 23:29:30,763 INFO  [algorithm] Quasi-random sample: r0:[5.40481,5.40481]; r1:[13.9085,13.9085]; 
+2016-07-16 23:29:30,764 INFO  [algorithm] The sample is inside the domain
+2016-07-16 23:29:30,764 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 00:20:48,886 INFO  [algorithm] Random sample size: 1738
+2016-07-17 00:20:48,886 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 00:20:48,886 INFO  [algorithm] Probability: [0.021954,0.153333]
+
+2016-07-17 00:20:48,886 INFO  [algorithm] Quasi-random sample: r0:[5.42551,5.42551]; r1:[13.9056,13.9056]; 
+2016-07-17 00:20:48,886 INFO  [algorithm] The sample is inside the domain
+2016-07-17 00:20:48,886 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 00:54:54,778 INFO  [algorithm] Random sample size: 1858
+2016-07-17 00:54:54,779 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 00:54:54,779 INFO  [algorithm] Probability: [0.0305376,0.167312]
+
+2016-07-17 00:54:54,779 INFO  [algorithm] Quasi-random sample: r0:[5.34847,5.34847]; r1:[13.5505,13.5505]; 
+2016-07-17 00:54:54,779 INFO  [algorithm] The sample is inside the domain
+2016-07-17 00:54:54,779 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 01:02:57,266 INFO  [algorithm] Random sample size: 1691
+2016-07-17 01:02:57,266 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 01:02:57,271 INFO  [algorithm] Probability: [0.017212,0.148766]
+
+2016-07-17 01:02:57,271 INFO  [algorithm] Quasi-random sample: r0:[5.3484,5.3484]; r1:[13.8777,13.8777]; 
+2016-07-17 01:02:57,271 INFO  [algorithm] The sample is inside the domain
+2016-07-17 01:02:57,271 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 01:23:13,919 INFO  [algorithm] Random sample size: 1880
+2016-07-17 01:23:13,919 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 01:23:13,919 INFO  [algorithm] Probability: [0.0326036,0.168778]
+
+2016-07-17 01:23:13,919 INFO  [algorithm] Quasi-random sample: r0:[5.3883,5.3883]; r1:[13.6729,13.6729]; 
+2016-07-17 01:23:13,919 INFO  [algorithm] The sample is inside the domain
+2016-07-17 01:23:13,919 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 01:36:35,341 INFO  [algorithm] Random sample size: 1849
+2016-07-17 01:36:35,341 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 01:36:35,341 INFO  [algorithm] Probability: [0.0291626,0.164787]
+
+2016-07-17 01:36:35,342 INFO  [algorithm] Quasi-random sample: r0:[5.42169,5.42169]; r1:[13.8373,13.8373]; 
+2016-07-17 01:36:35,342 INFO  [algorithm] The sample is inside the domain
+2016-07-17 01:36:35,342 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 02:03:48,098 INFO  [algorithm] Random sample size: 1783
+2016-07-17 02:03:48,098 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 02:03:48,098 INFO  [algorithm] Probability: [0.0242577,0.156695]
+
+2016-07-17 02:03:48,098 INFO  [algorithm] Quasi-random sample: r0:[5.42075,5.42075]; r1:[13.6751,13.6751]; 
+2016-07-17 02:03:48,098 INFO  [algorithm] The sample is inside the domain
+2016-07-17 02:03:48,098 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 02:05:55,168 INFO  [algorithm] Random sample size: 1750
+2016-07-17 02:05:55,169 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 02:05:55,169 INFO  [algorithm] Probability: [0.0250913,0.152991]
+
+2016-07-17 02:05:55,169 INFO  [algorithm] Quasi-random sample: r0:[5.37538,5.37538]; r1:[13.6879,13.6879]; 
+2016-07-17 02:05:55,169 INFO  [algorithm] The sample is inside the domain
+2016-07-17 02:05:55,169 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 02:54:08,180 INFO  [algorithm] Random sample size: 1753
+2016-07-17 02:54:08,180 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 02:54:08,180 INFO  [algorithm] Probability: [0.019886,0.152194]
+
+2016-07-17 02:54:08,180 INFO  [algorithm] Quasi-random sample: r0:[5.37676,5.37676]; r1:[14.0099,14.0099]; 
+2016-07-17 02:54:08,180 INFO  [algorithm] The sample is inside the domain
+2016-07-17 02:54:08,180 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 03:06:29,638 INFO  [algorithm] Random sample size: 1821
+2016-07-17 03:06:29,638 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 03:06:29,639 INFO  [algorithm] Probability: [0.0255293,0.161525]
+
+2016-07-17 03:06:29,639 INFO  [algorithm] Quasi-random sample: r0:[5.38975,5.38975]; r1:[13.8244,13.8244]; 
+2016-07-17 03:06:29,639 INFO  [algorithm] The sample is inside the domain
+2016-07-17 03:06:29,639 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 03:13:24,124 INFO  [algorithm] Random sample size: 1795
+2016-07-17 03:13:24,125 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 03:13:24,125 INFO  [algorithm] Probability: [0.0289705,0.158564]
+
+2016-07-17 03:13:24,125 INFO  [algorithm] Quasi-random sample: r0:[5.4329,5.4329]; r1:[13.8765,13.8765]; 
+2016-07-17 03:13:24,125 INFO  [algorithm] The sample is inside the domain
+2016-07-17 03:13:24,125 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 03:22:21,488 INFO  [algorithm] Random sample size: 1838
+2016-07-17 03:22:21,488 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 03:22:21,488 INFO  [algorithm] Probability: [0.0245652,0.162935]
+
+2016-07-17 03:22:21,489 INFO  [algorithm] Quasi-random sample: r0:[5.32803,5.32803]; r1:[14.1458,14.1458]; 
+2016-07-17 03:22:21,489 INFO  [algorithm] The sample is inside the domain
+2016-07-17 03:22:21,489 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 09:39:16,758 INFO  [algorithm] Random sample size: 1807
+2016-07-17 09:39:16,758 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 09:39:16,759 INFO  [algorithm] Probability: [0.0369375,0.158198]
+
+2016-07-17 09:39:16,759 INFO  [algorithm] Quasi-random sample: r0:[5.40045,5.40045]; r1:[13.9016,13.9016]; 
+2016-07-17 09:39:16,759 INFO  [algorithm] The sample is inside the domain
+2016-07-17 09:39:16,759 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 11:26:16,782 INFO  [algorithm] Random sample size: 1863
+2016-07-17 11:26:16,783 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 11:26:16,783 INFO  [algorithm] Probability: [0.0293298,0.169598]
+
+2016-07-17 11:26:16,783 INFO  [algorithm] Quasi-random sample: r0:[5.37298,5.37298]; r1:[13.3465,13.3465]; 
+2016-07-17 11:26:16,783 INFO  [algorithm] The sample is inside the domain
+2016-07-17 11:26:16,783 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 12:10:21,077 INFO  [algorithm] Random sample size: 1783
+2016-07-17 12:10:21,078 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 12:10:21,078 INFO  [algorithm] Probability: [0.0304202,0.158375]
+
+2016-07-17 12:10:21,078 INFO  [algorithm] Quasi-random sample: r0:[5.39513,5.39513]; r1:[13.6707,13.6707]; 
+2016-07-17 12:10:21,078 INFO  [algorithm] The sample is inside the domain
+2016-07-17 12:10:21,078 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 12:19:19,459 INFO  [algorithm] Random sample size: 1841
+2016-07-17 12:19:19,460 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 12:19:19,460 INFO  [algorithm] Probability: [0.0255779,0.163245]
+
+2016-07-17 12:19:19,460 INFO  [algorithm] Quasi-random sample: r0:[5.35433,5.35433]; r1:[13.4684,13.4684]; 
+2016-07-17 12:19:19,460 INFO  [algorithm] The sample is inside the domain
+2016-07-17 12:19:19,460 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 12:23:21,508 INFO  [algorithm] Random sample size: 1801
+2016-07-17 12:23:21,508 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 12:23:21,508 INFO  [algorithm] Probability: [0.0243705,0.158103]
+
+2016-07-17 12:23:21,508 INFO  [algorithm] Quasi-random sample: r0:[5.43534,5.43534]; r1:[13.6491,13.6491]; 
+2016-07-17 12:23:21,508 INFO  [algorithm] The sample is inside the domain
+2016-07-17 12:23:21,508 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 13:18:08,153 INFO  [algorithm] Random sample size: 1846
+2016-07-17 13:18:08,153 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 13:18:08,154 INFO  [algorithm] Probability: [0.0303247,0.163939]
+
+2016-07-17 13:18:08,154 INFO  [algorithm] Number of outliers: 0
+
+2016-07-17 13:18:08,154 INFO  [algorithm] Mean: r0:[5.37585,5.37585]; r1:[13.8331,13.8331]; 
+2016-07-17 13:18:08,154 INFO  [algorithm] Standard deviation: r0:[0.0213448,0.0213448]; r1:[0.0805143,0.0805143]; 
+2016-07-17 13:18:08,212 INFO  [algorithm] Sample size: 20
+2016-07-17 13:18:08,212 INFO  [algorithm] Quasi-random sample: r0:[5.38614,5.38614]; r1:[13.8193,13.8193]; 
+2016-07-17 13:18:08,212 INFO  [algorithm] The sample is inside the domain
+2016-07-17 13:18:08,212 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 13:40:17,285 INFO  [algorithm] Random sample size: 1801
+2016-07-17 13:40:17,285 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 13:40:17,285 INFO  [algorithm] Probability: [0.0204881,0.160322]
+
+2016-07-17 13:40:17,285 INFO  [algorithm] Quasi-random sample: r0:[5.37181,5.37181]; r1:[13.9683,13.9683]; 
+2016-07-17 13:40:17,285 INFO  [algorithm] The sample is inside the domain
+2016-07-17 13:40:17,285 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 13:53:59,904 INFO  [algorithm] Random sample size: 1601
+2016-07-17 13:53:59,904 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 13:53:59,904 INFO  [algorithm] Probability: [0.0193013,0.141023]
+
+2016-07-17 13:53:59,904 INFO  [algorithm] Quasi-random sample: r0:[5.36928,5.36928]; r1:[13.7946,13.7946]; 
+2016-07-17 13:53:59,904 INFO  [algorithm] The sample is inside the domain
+2016-07-17 13:53:59,904 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 13:59:51,066 INFO  [algorithm] Random sample size: 1777
+2016-07-17 13:59:51,066 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 13:59:51,066 INFO  [algorithm] Probability: [0.0210343,0.154345]
+
+2016-07-17 13:59:51,067 INFO  [algorithm] Quasi-random sample: r0:[5.35552,5.35552]; r1:[13.7834,13.7834]; 
+2016-07-17 13:59:51,067 INFO  [algorithm] The sample is inside the domain
+2016-07-17 13:59:51,067 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 14:02:59,500 INFO  [algorithm] Random sample size: 1710
+2016-07-17 14:02:59,500 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 14:02:59,500 INFO  [algorithm] Probability: [0.0220561,0.147921]
+
+2016-07-17 14:02:59,500 INFO  [algorithm] Quasi-random sample: r0:[5.37257,5.37257]; r1:[13.9851,13.9851]; 
+2016-07-17 14:02:59,500 INFO  [algorithm] The sample is inside the domain
+2016-07-17 14:02:59,500 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 14:07:23,755 INFO  [algorithm] Random sample size: 1803
+2016-07-17 14:07:23,755 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 14:07:23,755 INFO  [algorithm] Probability: [0.0276454,0.159058]
+
+2016-07-17 14:07:23,755 INFO  [algorithm] Quasi-random sample: r0:[5.35955,5.35955]; r1:[13.7665,13.7665]; 
+2016-07-17 14:07:23,756 INFO  [algorithm] The sample is inside the domain
+2016-07-17 14:07:23,756 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 14:44:00,281 INFO  [algorithm] Random sample size: 1838
+2016-07-17 14:44:00,286 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 14:44:00,286 INFO  [algorithm] Probability: [0.0272826,0.166196]
+
+2016-07-17 14:44:00,286 INFO  [algorithm] Quasi-random sample: r0:[5.39112,5.39112]; r1:[13.9947,13.9947]; 
+2016-07-17 14:44:00,286 INFO  [algorithm] The sample is inside the domain
+2016-07-17 14:44:00,286 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 14:50:25,525 INFO  [algorithm] Random sample size: 1844
+2016-07-17 14:50:25,525 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 14:50:25,525 INFO  [algorithm] Probability: [0.0271289,0.164095]
+
+2016-07-17 14:50:25,525 INFO  [algorithm] Quasi-random sample: r0:[5.38962,5.38962]; r1:[13.8755,13.8755]; 
+2016-07-17 14:50:25,525 INFO  [algorithm] The sample is inside the domain
+2016-07-17 14:50:25,525 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 15:23:33,957 INFO  [algorithm] Random sample size: 1774
+2016-07-17 15:23:33,957 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 15:23:33,957 INFO  [algorithm] Probability: [0.0340541,0.156824]
+
+2016-07-17 15:23:33,957 INFO  [algorithm] Quasi-random sample: r0:[5.3969,5.3969]; r1:[13.8416,13.8416]; 
+2016-07-17 15:23:33,957 INFO  [algorithm] The sample is inside the domain
+2016-07-17 15:23:33,957 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 15:27:16,134 INFO  [algorithm] Random sample size: 1783
+2016-07-17 15:27:16,140 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 15:27:16,140 INFO  [algorithm] Probability: [0.017535,0.156134]
+
+2016-07-17 15:27:16,140 INFO  [algorithm] Quasi-random sample: r0:[5.36112,5.36112]; r1:[13.7861,13.7861]; 
+2016-07-17 15:27:16,140 INFO  [algorithm] The sample is inside the domain
+2016-07-17 15:27:16,140 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 16:57:28,678 ERROR [algorithm] Error occured while calling a solver
+2016-07-17 16:58:17,109 INFO  [algorithm] Domain of nondeterministic parameters: r0:[0.01,6]; r1:[10,16]; 
+2016-07-17 16:58:17,109 INFO  [algorithm] Mean: r0:[3.005,3.005]; r1:[13,13]; 
+2016-07-17 16:58:17,109 INFO  [algorithm] Standard deviation: r0:[2.995,2.995]; r1:[3,3]; 
+2016-07-17 16:58:17,119 INFO  [algorithm] Sample size: 22
+2016-07-17 16:58:17,119 INFO  [algorithm] Quasi-random sample: r0:[2.1859,2.1859]; r1:[8.54767,8.54767]; 
+2016-07-17 16:58:17,120 INFO  [algorithm] The sample is outside the domain
+2016-07-17 16:58:17,120 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-17 16:58:17,120 INFO  [algorithm] Quasi-random sample: r0:[3.43963,3.43963]; r1:[6.91237,6.91237]; 
+2016-07-17 16:58:17,120 INFO  [algorithm] The sample is outside the domain
+2016-07-17 16:58:17,120 INFO  [algorithm] Probability: [-inf,-inf]
+
+2016-07-17 16:58:17,120 INFO  [algorithm] Quasi-random sample: r0:[2.69113,2.69113]; r1:[14.6697,14.6697]; 
+2016-07-17 16:58:17,120 INFO  [algorithm] The sample is inside the domain
+2016-07-17 16:58:17,120 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 16:58:34,091 ERROR [algorithm] Error occured while calling a solver
+2016-07-17 17:00:39,571 INFO  [algorithm] Domain of nondeterministic parameters: r0:[0.01,6]; r1:[10,16]; 
+2016-07-17 17:00:39,571 INFO  [algorithm] Mean: r0:[3.005,3.005]; r1:[13,13]; 
+2016-07-17 17:00:39,571 INFO  [algorithm] Standard deviation: r0:[2.995,2.995]; r1:[3,3]; 
+2016-07-17 17:00:39,581 INFO  [algorithm] Sample size: 22
+2016-07-17 17:00:39,581 INFO  [algorithm] Quasi-random sample: r0:[4.55706,4.55706]; r1:[14.1031,14.1031]; 
+2016-07-17 17:00:39,581 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:00:39,581 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 17:36:26,700 INFO  [algorithm] Random sample size: 1587
+2016-07-17 17:36:26,700 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 17:36:26,700 INFO  [algorithm] Probability: [0.0133543,0.134537]
+
+2016-07-17 17:36:26,700 INFO  [algorithm] Quasi-random sample: r0:[-2.08655,-2.08655]; r1:[16.2351,16.2351]; 
+2016-07-17 17:36:26,700 INFO  [algorithm] The sample is outside the domain
+2016-07-17 17:36:26,700 INFO  [algorithm] Probability: [inf,inf]
+
+2016-07-17 17:36:26,700 INFO  [algorithm] Quasi-random sample: r0:[-2.30366,-2.30366]; r1:[17.338,17.338]; 
+2016-07-17 17:36:26,700 INFO  [algorithm] The sample is outside the domain
+2016-07-17 17:36:26,700 INFO  [algorithm] Probability: [inf,inf]
+
+2016-07-17 17:36:26,700 INFO  [algorithm] Quasi-random sample: r0:[2.1846,2.1846]; r1:[12.7103,12.7103]; 
+2016-07-17 17:36:26,700 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:36:26,700 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 17:37:34,638 INFO  [algorithm] Random sample size: 1186
+2016-07-17 17:37:34,638 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 17:37:34,638 INFO  [algorithm] Probability: [0.00020202,0.0890236]
+
+2016-07-17 17:37:34,638 INFO  [algorithm] Quasi-random sample: r0:[2.41583,2.41583]; r1:[13.1021,13.1021]; 
+2016-07-17 17:37:34,638 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:37:34,638 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 17:42:00,168 INFO  [algorithm] Random sample size: 1106
+2016-07-17 17:42:00,168 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 17:42:00,168 INFO  [algorithm] Probability: [0,0.0804693]
+
+2016-07-17 17:42:00,168 INFO  [algorithm] Quasi-random sample: r0:[-0.255589,-0.255589]; r1:[11.0715,11.0715]; 
+2016-07-17 17:42:00,168 INFO  [algorithm] The sample is outside the domain
+2016-07-17 17:42:00,168 INFO  [algorithm] Probability: [inf,inf]
+
+2016-07-17 17:42:00,168 INFO  [algorithm] Quasi-random sample: r0:[6.03218,6.03218]; r1:[13.2989,13.2989]; 
+2016-07-17 17:42:00,168 INFO  [algorithm] The sample is outside the domain
+2016-07-17 17:42:00,168 INFO  [algorithm] Probability: [inf,inf]
+
+2016-07-17 17:42:00,168 INFO  [algorithm] Quasi-random sample: r0:[6.17761,6.17761]; r1:[13.8459,13.8459]; 
+2016-07-17 17:42:00,168 INFO  [algorithm] The sample is outside the domain
+2016-07-17 17:42:00,168 INFO  [algorithm] Probability: [inf,inf]
+
+2016-07-17 17:42:00,168 INFO  [algorithm] Quasi-random sample: r0:[3.93552,3.93552]; r1:[17.1325,17.1325]; 
+2016-07-17 17:42:00,168 INFO  [algorithm] The sample is outside the domain
+2016-07-17 17:42:00,168 INFO  [algorithm] Probability: [inf,inf]
+
+2016-07-17 17:42:00,169 INFO  [algorithm] Quasi-random sample: r0:[6.91307,6.91307]; r1:[16.2704,16.2704]; 
+2016-07-17 17:42:00,169 INFO  [algorithm] The sample is outside the domain
+2016-07-17 17:42:00,169 INFO  [algorithm] Probability: [inf,inf]
+
+2016-07-17 17:42:00,169 INFO  [algorithm] Quasi-random sample: r0:[3.75695,3.75695]; r1:[11.6725,11.6725]; 
+2016-07-17 17:42:00,169 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:42:00,169 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 17:48:07,091 INFO  [algorithm] Random sample size: 1500
+2016-07-17 17:48:07,092 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 17:48:07,092 INFO  [algorithm] Probability: [0.0106258,0.128522]
+
+2016-07-17 17:48:07,092 INFO  [algorithm] Quasi-random sample: r0:[0.784653,0.784653]; r1:[13.2667,13.2667]; 
+2016-07-17 17:48:07,092 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:48:07,092 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 17:50:14,700 INFO  [algorithm] Random sample size: 744
+2016-07-17 17:50:14,701 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 17:50:14,701 INFO  [algorithm] Probability: [0,0.0334048]
+
+2016-07-17 17:50:14,701 INFO  [algorithm] Quasi-random sample: r0:[0.85148,0.85148]; r1:[12.6776,12.6776]; 
+2016-07-17 17:50:14,701 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:50:14,701 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 17:50:49,037 INFO  [algorithm] Random sample size: 735
+2016-07-17 17:50:49,048 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 17:50:49,048 INFO  [algorithm] Probability: [0,0.0322117]
+
+2016-07-17 17:50:49,048 INFO  [algorithm] Quasi-random sample: r0:[0.753412,0.753412]; r1:[11.7958,11.7958]; 
+2016-07-17 17:50:49,048 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:50:49,048 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 17:51:27,600 INFO  [algorithm] Random sample size: 771
+2016-07-17 17:51:27,600 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 17:51:27,600 INFO  [algorithm] Probability: [0,0.0342303]
+
+2016-07-17 17:51:27,600 INFO  [algorithm] Quasi-random sample: r0:[5.25073,5.25073]; r1:[13.2951,13.2951]; 
+2016-07-17 17:51:27,600 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:51:27,600 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 17:53:22,622 ERROR [algorithm] Error occured while calling a solver
+2016-07-17 17:53:40,609 INFO  [algorithm] Domain of nondeterministic parameters: r0:[0.01,6]; r1:[10,16]; 
+2016-07-17 17:53:40,609 INFO  [algorithm] Mean: r0:[3.005,3.005]; r1:[13,13]; 
+2016-07-17 17:53:40,609 INFO  [algorithm] Standard deviation: r0:[2.995,2.995]; r1:[3,3]; 
+2016-07-17 17:53:40,619 INFO  [algorithm] Sample size: 22
+2016-07-17 17:53:40,619 INFO  [algorithm] Quasi-random sample: r0:[2.67484,2.67484]; r1:[13.037,13.037]; 
+2016-07-17 17:53:40,619 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:53:40,619 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 17:55:16,783 ERROR [algorithm] Error occured while calling a solver
+2016-07-17 17:55:23,791 INFO  [algorithm] Domain of nondeterministic parameters: r0:[0.01,6]; r1:[10,16]; 
+2016-07-17 17:55:23,791 INFO  [algorithm] Mean: r0:[3.005,3.005]; r1:[13,13]; 
+2016-07-17 17:55:23,792 INFO  [algorithm] Standard deviation: r0:[2.995,2.995]; r1:[3,3]; 
+2016-07-17 17:55:23,801 INFO  [algorithm] Sample size: 22
+2016-07-17 17:55:23,801 INFO  [algorithm] Quasi-random sample: r0:[0.273213,0.273213]; r1:[10.2571,10.2571]; 
+2016-07-17 17:55:23,802 INFO  [algorithm] The sample is inside the domain
+2016-07-17 17:55:23,802 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 20:27:06,535 ERROR [algorithm] Error occured while calling a solver
+2016-07-17 20:28:16,817 INFO  [algorithm] Domain of nondeterministic parameters: r0:[0.01,8]; 
+2016-07-17 20:28:16,817 INFO  [algorithm] Mean: r0:[4.005,4.005]; 
+2016-07-17 20:28:16,817 INFO  [algorithm] Standard deviation: r0:[3.995,3.995]; 
+2016-07-17 20:28:16,822 INFO  [algorithm] Sample size: 15
+2016-07-17 20:28:16,822 INFO  [algorithm] Quasi-random sample: r0:[3.41283,3.41283]; 
+2016-07-17 20:28:16,822 INFO  [algorithm] The sample is inside the domain
+2016-07-17 20:28:16,822 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-17 21:17:03,328 INFO  [algorithm] Random sample size: 1562
+2016-07-17 21:17:03,328 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-17 21:17:03,328 INFO  [algorithm] Probability: [0.0177238,0.129335]
+
+2016-07-17 21:17:03,328 INFO  [algorithm] Quasi-random sample: r0:[6.852,6.852]; 
+2016-07-17 21:17:03,328 INFO  [algorithm] The sample is inside the domain
+2016-07-17 21:17:03,328 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-18 04:42:58,655 INFO  [algorithm] Random sample size: 1891
+2016-07-18 04:42:58,658 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-18 04:42:58,658 INFO  [algorithm] Probability: [0.0286001,0.167913]
+
+2016-07-18 04:42:58,658 INFO  [algorithm] Quasi-random sample: r0:[-4.44899,-4.44899]; 
+2016-07-18 04:42:58,658 INFO  [algorithm] The sample is outside the domain
+2016-07-18 04:42:58,658 INFO  [algorithm] Probability: [inf,inf]
+
+2016-07-18 04:42:58,658 INFO  [algorithm] Quasi-random sample: r0:[4.43195,4.43195]; 
+2016-07-18 04:42:58,658 INFO  [algorithm] The sample is inside the domain
+2016-07-18 04:42:58,658 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-18 06:04:54,214 INFO  [algorithm] Random sample size: 1635
+2016-07-18 06:04:54,214 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-18 06:04:54,214 INFO  [algorithm] Probability: [0.0252046,0.137899]
+
+2016-07-18 06:04:54,214 INFO  [algorithm] Quasi-random sample: r0:[0.373155,0.373155]; 
+2016-07-18 06:04:54,214 INFO  [algorithm] The sample is inside the domain
+2016-07-18 06:04:54,214 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-18 06:13:25,820 INFO  [algorithm] Random sample size: 708
+2016-07-18 06:13:25,826 INFO  [algorithm] Bayesian estimations algorithm finished
+2016-07-18 06:13:25,826 INFO  [algorithm] Probability: [0,0.0242254]
+
+2016-07-18 06:13:25,826 INFO  [algorithm] Quasi-random sample: r0:[4.62039,4.62039]; 
+2016-07-18 06:13:25,826 INFO  [algorithm] The sample is inside the domain
+2016-07-18 06:13:25,826 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-18 10:48:18,105 ERROR [algorithm] Error occured while calling a solver
+2016-07-18 10:48:27,653 INFO  [algorithm] Domain of nondeterministic parameters: r0:[0.01,8]; 
+2016-07-18 10:48:27,654 INFO  [algorithm] Mean: r0:[4.005,4.005]; 
+2016-07-18 10:48:27,654 INFO  [algorithm] Standard deviation: r0:[3.995,3.995]; 
+2016-07-18 10:48:27,659 INFO  [algorithm] Sample size: 15
+2016-07-18 10:48:27,659 INFO  [algorithm] Quasi-random sample: r0:[5.874,5.874]; 
+2016-07-18 10:48:27,659 INFO  [algorithm] The sample is inside the domain
+2016-07-18 10:48:27,659 INFO  [algorithm] Bayesian estimations algorithm started
+2016-07-18 11:15:59,936 ERROR [algorithm] Error occured while calling a solver

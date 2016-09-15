@@ -35,6 +35,19 @@ int main(int argc, char* argv[])
 
     // parse command line
     parse_pdrh_config(argc, argv);
+
+    cout << "RV partition map:" << endl;
+    for(auto it = global_config.partition_prob_map.cbegin(); it != global_config.partition_prob_map.cend(); it++)
+    {
+        cout << it->first << " : " << it->second << endl;
+    }
+
+    cout << "Nondet partition map:" << endl;
+    for(auto it = global_config.partition_nondet_map.cbegin(); it != global_config.partition_nondet_map.cend(); it++)
+    {
+        cout << it->first << " : " << it->second << endl;
+    }
+
     // setting precision on the output
     std::cout.precision(16);
 
@@ -149,9 +162,19 @@ int main(int argc, char* argv[])
             }
             else if(global_config.cross_entropy_flag)
             {
-                pair<box, capd::interval> probability = algorithm::evaluate_npha_cross_entropy(global_config.reach_depth_min,
-                                                                                               global_config.reach_depth_max,
-                                                                                               global_config.sample_size);
+                pair<box, capd::interval> probability;
+                if(global_config.cross_entropy_normal)
+                {
+                    probability = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
+                                                                                 global_config.reach_depth_max,
+                                                                                 global_config.sample_size);
+                }
+                else if(global_config.cross_entropy_beta)
+                {
+                    probability = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
+                                                                                 global_config.reach_depth_max,
+                                                                                 global_config.sample_size);
+                }
                 std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
             }
             else

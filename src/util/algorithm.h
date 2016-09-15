@@ -44,7 +44,8 @@ namespace algorithm
 
     // the last argument is the sample size for cross entropy method
     pair<box, capd::interval> evaluate_npha_sobol(int, int, int);
-    pair<box, capd::interval> evaluate_npha_cross_entropy(int, int, int);
+    pair<box, capd::interval> evaluate_npha_cross_entropy_normal(int, int, int);
+    pair<box, capd::interval> evaluate_npha_cross_entropy_beta(int, int, int);
 
 }
 

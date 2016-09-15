@@ -50,7 +50,7 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
         }
         else
         {
-            CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNSAT)";
+            //CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNSAT)";
             return decision_procedure::ERROR;
         }
     }
@@ -60,7 +60,7 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
         if((remove(smt_filename.c_str()) != 0) ||
             (remove(std::string(smt_filename + ".output").c_str()) != 0))
         {
-            CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (DELTA-SAT)";
+            //CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (DELTA-SAT)";
             return decision_procedure::ERROR;
         }
         // going through the formulas psi_i_pi
@@ -89,16 +89,18 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
                 if((remove(smt_c_filename.c_str()) != 0) ||
                     (remove(std::string(smt_c_filename + ".output").c_str()) != 0))
                 {
-                    CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (SAT)";
+                    //CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (SAT)";
                     return decision_procedure::ERROR;
                 }
             }
             else
             {
+                //cout << "THIS SAMPLE IS UNDET" << endl;
+                //exit(EXIT_SUCCESS);
                 if((remove(smt_c_filename.c_str()) != 0) ||
                     (remove(std::string(smt_c_filename + ".output").c_str()) != 0))
                 {
-                    CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNDET)";
+                    //CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNDET)";
                     return decision_procedure::ERROR;
                 }
                 else

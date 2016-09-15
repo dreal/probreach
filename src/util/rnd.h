@@ -8,6 +8,9 @@
 #include<box.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_qrng.h>
+#include <gsl/gsl_multiroots.h>
+
+using namespace std;
 
 namespace rnd
 {
@@ -17,6 +20,16 @@ namespace rnd
     // the second argument is the mean vector
     // the third argument is the standard deviation vector
     box get_normal_random_sample(gsl_rng*, box, box);
+    box get_beta_random_sample(gsl_rng*, box, box, box);
+    double digamma(double);
+    int beta_system(const gsl_vector *, void *, gsl_vector *);
+    struct beta_system_params
+    {
+        double c1;
+        double c2;
+    };
+    pair<box, box> update_beta_dist(vector<box>, box, box, box);
+    pair<double, double> solve_beta_system(double, double, double, double);
 }
 
 #endif //PROBREACH_RANDOM_H

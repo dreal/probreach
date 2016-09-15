@@ -7,6 +7,10 @@
 #include "box.h"
 #include "box_factory.h"
 #include "pdrh_config.h"
+//#include "dreal.hh"
+#include<gsl/gsl_multiroots.h>
+//#include<ibex.h>
+
 
 /**
  * Cartesian product
@@ -70,6 +74,40 @@ vector<box> box_factory::partition(box b, double e)
     for(auto it = edges.cbegin(); it != edges.cend(); it++)
     {
         e_map.insert(make_pair(it->first, capd::interval(e)));
+    }
+    // main algorithm
+    vector<box> q = {b};
+    vector<box> res;
+    while(!q.empty())
+    {
+        box tmp_b = q.front();
+        q.erase(q.cbegin());
+        vector<box> tmp_v = bisect(tmp_b, e_map);
+        if(tmp_v.empty())
+        {
+            res.push_back(tmp_b);
+        }
+        else
+        {
+            q.insert(q.cend(), tmp_v.cbegin(), tmp_v.cend());
+        }
+    }
+    return res;
+}
+
+vector<box> box_factory::partition(box b, map<string, capd::interval> e_map)
+{
+    // checking whether partition map contains does not contain undefined variables
+    if(!box_factory::get_keys_diff(box(e_map), b).empty())
+    {
+        ostringstream s;
+        s << "partition map \"" << box(e_map) << "\" contains variables not defined in the box \"" << b << "\"";
+        throw std::invalid_argument(s.str());
+    }
+    // checking if precision map is empty
+    if(e_map.empty())
+    {
+        return vector<box>{b};
     }
     // main algorithm
     vector<box> q = {b};
@@ -263,6 +301,17 @@ box box_factory::sqrt(box b)
     return box(res);
 }
 
+box box_factory::log(box b)
+{
+    map<string, capd::interval> b_map = b.get_map();
+    map<string, capd::interval> res;
+    for(auto it = b_map.cbegin(); it != b_map.cend(); it++)
+    {
+        res.insert(make_pair(it->first, capd::intervals::log(it->second)));
+    }
+    return box(res);
+}
+
 box box_factory::get_keys_diff(box lhs, box rhs)
 {
     map<string, capd::interval> res;
@@ -331,3 +380,15 @@ bool box_factory::compatible(vector<box> q)
     }
     return true;
 }
+
+box box_factory::map_box(box ratio, box b)
+{
+    map<string, capd::interval> b_map = b.get_map();
+    map<string, capd::interval> res_map;
+    for(auto it = b_map.cbegin(); it != b_map.cend(); it++)
+    {
+        res_map.insert(make_pair(it->first, it->second.leftBound() + ratio.get_map()[it->first] * capd::intervals::width(it->second)));
+    }
+    return box(res_map);
+}
+

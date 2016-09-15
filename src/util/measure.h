@@ -34,6 +34,8 @@ namespace measure
         bool descending(const pair<box, capd::interval> &, const pair<box, capd::interval> &);
     }
 
+    bool compare_boxes_by_p_measure(const box, const box);
+
     //bool compare_pairs_acs(const prob_pair&, const prob_pair&);
 
     // obtain the partition of the parameter space

@@ -4,11 +4,14 @@
 
 #include "rnd.h"
 #include "model.h"
+#include "box_factory.h"
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include <logging/easylogging++.h>
+#include <gsl/gsl_vector_double.h>
+#include <gsl/gsl_multiroots.h>
 
 using namespace std;
 
@@ -107,3 +110,166 @@ box rnd::get_normal_random_sample(gsl_rng* r, box mu, box sigma)
     }
     return box(edges);
 }
+
+box rnd::get_beta_random_sample(gsl_rng* r, box alpha, box beta, box b)
+{
+    map<std::string, capd::interval> edges;
+    map<std::string, capd::interval> b_map = b.get_map();
+    for(auto it = b_map.cbegin(); it != b_map.cend(); it++)
+    {
+        double beta_dist_value = gsl_ran_beta(r, alpha.get_map()[it->first].leftBound(), beta.get_map()[it->first].leftBound());
+        edges.insert(make_pair(it->first, capd::interval(it->second.leftBound() + beta_dist_value * capd::intervals::width(it->second))));
+    }
+    return box(edges);
+}
+
+double rnd::digamma(double x)
+{
+    return log(x)  - 1/(2*x)
+                   - 1/(12*pow(x,2))
+                   + 1/(120*pow(x,4))
+                   - 1/(252*pow(x,6))
+                   + 1/(240*pow(x,8))
+                   - 5/(660*pow(x,10))
+                   + 691/(32760*pow(x,12))
+                   - 1/(12*pow(x,14));
+}
+
+pair<box, box> rnd::update_beta_dist(vector<box> q, box domain, box prev_alpha, box prev_beta)
+{
+    vector<box> q_norm;
+    for(box b : q)
+    {
+        map<string, capd::interval> b_map = b.get_map();
+        map<string, capd::interval> w_map, l_map;
+        for(auto it = b_map.cbegin(); it != b_map.cend(); it++)
+        {
+            l_map.insert(make_pair(it->first, capd::interval(domain.get_map()[it->first].leftBound())));
+            w_map.insert(make_pair(it->first, capd::intervals::width(domain.get_map()[it->first])));
+        }
+        box w(w_map), l(l_map);
+        q_norm.push_back((b - l) / w);
+        //cout << "initial box: " << b << " width: " << w << " left: " << l <<  " normalized box: " << (b - l) / w << endl;
+    }
+
+    map<string, capd::interval> n_map, one_map, zero_map;
+    map<string, capd::interval> b_map = q.front().get_map();
+    for(auto it = b_map.cbegin(); it != b_map.cend(); it++)
+    {
+        n_map.insert(make_pair(it->first, capd::interval(q_norm.size())));
+        one_map.insert(make_pair(it->first, capd::interval(1)));
+        zero_map.insert(make_pair(it->first, capd::interval(0)));
+    }
+
+    // initializing boxes
+    box n(n_map), one(one_map), c1(zero_map), c2(zero_map);
+    for(box b : q_norm)
+    {
+        c1 = c1 + box_factory::log(b);
+        c2 = c2 + box_factory::log(one - b);
+    }
+    c1 = c1 / n;
+    c2 = c2 / n;
+    cout << "C1 = " << c1 << endl;
+    cout << "C2 = " << c2 << endl;
+    map<string, capd::interval> c_map = c1.get_map();
+    map<string, capd::interval> alpha_map, beta_map;
+    for(auto it = c_map.begin(); it != c_map.end(); it++)
+    {
+        pair<double, double> beta_params = rnd::solve_beta_system(c1.get_map()[it->first].mid().leftBound(),
+                                                                  c2.get_map()[it->first].mid().leftBound(),
+                                                                  prev_alpha.get_map()[it->first].mid().leftBound(),
+                                                                  prev_beta.get_map()[it->first].mid().leftBound());
+        alpha_map.insert(make_pair(it->first, beta_params.first));
+        beta_map.insert(make_pair(it->first, beta_params.second));
+    }
+    return make_pair(box(alpha_map), box(beta_map));
+}
+
+int rnd::beta_system(const gsl_vector * x, void * param, gsl_vector * f)
+{
+    rnd::beta_system_params * params = (rnd::beta_system_params *)param;
+    const double c1 = (params->c1);
+    const double c2 = (params->c2);
+    const double a = gsl_vector_get(x,0);
+    const double b = gsl_vector_get(x,1);
+
+    gsl_vector_set (f, 0, rnd::digamma(a) - rnd::digamma(a+b) - c1);
+    gsl_vector_set (f, 1, rnd::digamma(b) - rnd::digamma(a+b) - c2);
+
+    return GSL_SUCCESS;
+}
+
+pair<double, double> rnd::solve_beta_system(double c1, double c2, double prev_alpha, double prev_beta)
+{
+    const gsl_multiroot_fsolver_type * T;
+    gsl_multiroot_fsolver * s;
+
+    struct rnd::beta_system_params params = { c1, c2 };
+    gsl_multiroot_function f;
+    f.f = &beta_system;
+    f.n = 2;
+    f.params = &params;
+
+    int status;
+    size_t i, iter = 0;
+
+    const size_t n = 2;
+
+    gsl_vector *x = gsl_vector_alloc(n);
+
+    gsl_vector_set (x, 0, prev_alpha);
+    gsl_vector_set (x, 1, prev_beta);
+
+    T = gsl_multiroot_fsolver_hybrids;
+    s = gsl_multiroot_fsolver_alloc (T, n);
+    gsl_multiroot_fsolver_set(s, &f, x);
+
+    do
+    {
+        iter++;
+        status = gsl_multiroot_fsolver_iterate (s);
+        /* check if solver is stuck */
+        if (status)
+        {
+            break;
+        }
+        status = gsl_multiroot_test_residual (s->f, 1e-7);
+    }
+    while (status == GSL_CONTINUE && iter < 1000);
+
+    //cout << "status " << gsl_strerror (status) << endl;
+    //cout << "alpha = " << gsl_vector_get(s->x, 0) << endl;
+    //cout << "beta = " << gsl_vector_get(s->x, 1) << endl;
+
+    double alpha = gsl_vector_get(s->x, 0);
+    double beta = gsl_vector_get(s->x, 1);
+
+    gsl_multiroot_fsolver_free (s);
+    gsl_vector_free (x);
+
+    return make_pair(alpha, beta);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,6 +1,6 @@
 # File format
 
-See below the content of `stop-nonlinear.pdrh`.
+We start with the example of a `.pdrh` file. See below the content of `stop-nonlinear.pdrh`.
 ```
 model: npha;
 /*
@@ -140,7 +140,7 @@ The goal state of the system is defined using the keyword `goal:` followed by `@
 ## Command Line Options
 In order to see the list of `<solver-options>` run `dReal --help`. The following options are available in `ProbReach`.
 
-#### general options:
+#### General options:
 
     -h/--help - displays help message
     -k <int> - defines the reachability depth (default: the shortest path length if exists)
@@ -151,16 +151,16 @@ In order to see the list of `<solver-options>` run `dReal --help`. The following
     --verbose-result - outputs the runtime and the number of samples (statistical model checking only; default false)
     --version - displays current version of the tool
 
-#### solver related options:
+#### Solver related options:
    
     --delta-sat - uses the delta-sat answer of dReal to conclude about satisfiability of the evaluated formula (statistical model checking and hybrid automata only; default false)
     --solver <path> - full path to the solver
 
-#### special options:
+#### Special options:
 
     --time-var-name <string> - the name of the variable representing time in the model (default tau)
 
-#### statistical model checking options:
+#### Statistical model checking options:
 
     --bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default: 0.01)
     --bayesian-conf <double> - confidence value in Bayesian estimations (default: 0.99)
@@ -172,7 +172,7 @@ In order to see the list of `<solver-options>` run `dReal --help`. The following
     --min-prob - computes confidence interval for the minimum reachability probability (default: maximum reachbility probability)
     --sample-size <int> - number of sample per iteration of Cross-Entropy algorithm
     
-#### formal method options:
+#### Formal method options:
 
     -e/--precision-prob <double> - length of the probability enclosure (default: 0.001)
     --integral-inf-coeff <double> - ratio for the continuous random variables with unbounded support (default: 0.1)

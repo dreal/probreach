@@ -46,6 +46,7 @@ model:npha;
 #define beta4d 9.75e-05 // SpC apoptosis rate constant
 
 //#define lambda 0.285714285714286
+#define lambda 0.4953
 #define SCmax 225 
 #define SCmaxt 787.5
 #define omega 100
@@ -63,7 +64,7 @@ model:npha;
 [0,10000] SC_d; // abnormal stem cell
 [0,10000] TA_d; // abnormal transit amplifying cell
 [0,10000] GA_d; // abnormal growth arrested cell
-[0.2,0.5] lambda;
+//[0.2,0.5] lambda;
 
 dist_normal(60000,10000) InA;
 
@@ -78,7 +79,7 @@ d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*InA*TA_d-k2sd*
 d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
 d/dt[tau] = 1;
 jump:
-(and (tau = 2)) ==> @2(and (SC'=SC)(TA'=TA)(GA'=GA)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(tau' = 0)(InA' = InA)(lambda'=lambda));
+(and (tau = 2)) ==> @2(and (SC'=SC)(TA'=TA)(GA'=GA)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(tau' = 0)(InA' = InA));
 }
 
 {
@@ -92,7 +93,7 @@ d/dt[TA_d] = k1asd*SC_d+2*k1sd*SC_d+gamma2d*TA_d+k_2d*GA_d-beta2d*TA_d-k2sd*TA_d
 d/dt[GA_d] = (k2asd+2*k2sd)*TA_d-k_2d*GA_d-k3d*GA_d-beta3d*GA_d;
 d/dt[tau] = 1;
 jump:
-(and (tau = 8/24)) ==> @1(and (SC'=SC)(TA'=TA)(GA'=GA)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(tau' = 0)(InA' = InA)(lambda'=lambda));
+(and (tau = 8/24)) ==> @1(and (SC'=SC)(TA'=TA)(GA'=GA)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(tau' = 0)(InA' = InA));
 }
 
 // initial values are medians of the intervals derived by evaluating the goal (tau = 2000)

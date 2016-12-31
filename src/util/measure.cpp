@@ -16,12 +16,10 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
     std::vector<capd::interval> stack,partition;
     capd::interval value(0);
     stack.push_back(it);
-
     while(!stack.empty())
     {
         capd::interval i = stack.front();
         stack.erase(stack.begin());
-
         capd::interval v[] = {i};
         capd::IVector x(1, v);
         capd::IJet jet(1, 1, 4);
@@ -281,7 +279,7 @@ capd::interval measure::p_measure(dd_box b)
             throw std::invalid_argument(s.str());
         }
     }
-    cout << "RETURNING DD MEASURE: " << res << endl;
+    //cout << "RETURNING DD MEASURE: " << res << endl;
     return res;
 }
 
@@ -377,8 +375,8 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::bounds::pdf(std:
 std::string measure::distribution::gaussian(std::string var, capd::interval mu, capd::interval sigma)
 {
     std::stringstream s;
-    s 	<< "(1 / (" << sigma.leftBound() << " * sqrt(2 * 3.14159265359)) * exp(- (( " << var << " - " << mu.leftBound()
-    <<	") * (" << var << " - " << mu.leftBound() << ")) / (2 * " << sigma.leftBound() << " * " << sigma.leftBound() << ")))";
+    s 	<< "(1 / (" << sigma.leftBound() << " * sqrt(2 * 3.14159265359)) * exp(- (( " << var << " - (" << mu.leftBound()
+    <<	")) * (" << var << " - (" << mu.leftBound() << "))) / (2 * (" << sigma.leftBound() << ") * (" << sigma.leftBound() << "))))";
     return s.str();
 }
 
@@ -386,14 +384,14 @@ std::string measure::distribution::gaussian(std::string var, capd::interval mu, 
 std::string measure::distribution::exp(std::string var, capd::interval lambda)
 {
     std::stringstream s;
-    s << lambda.leftBound() << " * exp(" << "-" << lambda.leftBound() << " * " << var << ")";
+    s << lambda.leftBound() << " * exp(" << "-(" << lambda.leftBound() << ") * " << var << ")";
     return s.str();
 }
 
 std::string measure::distribution::uniform(capd::interval a, capd::interval b)
 {
     std::stringstream s;
-    s << "1 / (" << b.leftBound() << " - " << a.leftBound() << ")";
+    s << "1 / (" << b.leftBound() << " - (" << a.leftBound() << "))";
     return s.str();
 }
 
@@ -402,6 +400,7 @@ std::vector<box> measure::get_rv_partition()
     std::map<std::string, std::vector<capd::interval>> partition_map;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
+        //cout << "RV: " << it->first << endl;
         // setting initial rv bounds
         capd::interval init_domain(-numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
         if(strcmp(get<1>(it->second)->value.c_str(), "-infty") != 0)

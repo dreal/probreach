@@ -22,51 +22,23 @@ extern "C" FILE *yyin;
 
 INITIALIZE_EASYLOGGINGPP
 
-int main(int argc, char* argv[])
+void parse_pdrh(string filename)
 {
-    START_EASYLOGGINGPP(argc, argv);
-    el::Logger* parser_logger = el::Loggers::getLogger("parser");
-    el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
-    el::Logger* solver_logger = el::Loggers::getLogger("solver");
-    el::Logger* series_parser_logger = el::Loggers::getLogger("series-parser");
-    el::Logger* config_parser_logger = el::Loggers::getLogger("config");
-    el::Logger* rng_logger = el::Loggers::getLogger("ran_gen");
-    el::Logger* model_logger = el::Loggers::getLogger("model");
-
-    // parse command line
-    parse_pdrh_config(argc, argv);
-
-    cout << "RV partition map:" << endl;
-    for(auto it = global_config.partition_prob_map.cbegin(); it != global_config.partition_prob_map.cend(); it++)
-    {
-        cout << it->first << " : " << it->second << endl;
-    }
-
-    cout << "Nondet partition map:" << endl;
-    for(auto it = global_config.partition_nondet_map.cbegin(); it != global_config.partition_nondet_map.cend(); it++)
-    {
-        cout << it->first << " : " << it->second << endl;
-    }
-
-    // setting precision on the output
-    std::cout.precision(16);
-
-    // PDRH PARSER
-    CLOG_IF(global_config.verbose, INFO, "parser") << "Model file: " << global_config.model_filename;
-    FILE *pdrhfile = fopen(global_config.model_filename.c_str(), "r");
+    CLOG_IF(global_config.verbose, INFO, "parser") << "Model file: " << filename;
+    FILE *pdrhfile = fopen(filename.c_str(), "r");
     if (!pdrhfile)
     {
-        CLOG(ERROR, "parser") << "Couldn't open " << global_config.model_filename;
-        return -1;
+        CLOG(ERROR, "parser") << "Couldn't open " << filename;
+        exit(EXIT_FAILURE);
     }
     std::stringstream s, pdrhnameprep;
-    pdrhnameprep << global_config.model_filename << ".preprocessed";
-    s << "cpp -w -P " << global_config.model_filename << " > " << pdrhnameprep.str().c_str();
+    pdrhnameprep << filename << ".preprocessed";
+    s << "cpp -w -P " << filename << " > " << pdrhnameprep.str().c_str();
     int res = system(s.str().c_str());
     // cheking the result of system call
     if(res != 0)
     {
-        CLOG(ERROR, "parser") << "Problem occured while preprocessing " << global_config.model_filename;
+        CLOG(ERROR, "parser") << "Problem occured while preprocessing " << filename;
         exit(EXIT_FAILURE);
     }
     // parsing the preprocessed file
@@ -85,8 +57,30 @@ int main(int argc, char* argv[])
         yyparse();
     }
     while (!feof(yyin));
-    std::remove(pdrhnameprep.str().c_str());
+    remove(pdrhnameprep.str().c_str());
     CLOG_IF(global_config.verbose, INFO, "parser") << "OK";
+}
+
+int main(int argc, char* argv[])
+{
+    START_EASYLOGGINGPP(argc, argv);
+    el::Logger* parser_logger = el::Loggers::getLogger("parser");
+    el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
+    el::Logger* solver_logger = el::Loggers::getLogger("solver");
+    el::Logger* series_parser_logger = el::Loggers::getLogger("series-parser");
+    el::Logger* config_parser_logger = el::Loggers::getLogger("config");
+    el::Logger* rng_logger = el::Loggers::getLogger("ran_gen");
+    el::Logger* model_logger = el::Loggers::getLogger("model");
+
+    // parse command line
+    parse_pdrh_config(argc, argv);
+    // setting precision on the output
+    cout.precision(16);
+    // pdrh parser
+    parse_pdrh(global_config.model_filename);
+
+    //pdrh::set_model_type();
+    CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
     //cout << pdrh::model_to_string() << endl;
     switch(pdrh::model_type)
     {
@@ -116,15 +110,6 @@ int main(int argc, char* argv[])
         // probabilistic hybrid automata
         case pdrh::PHA:
         {
-            // move this check to parser
-            /*
-            if(pdrh::par_map.size() > 0)
-            {
-                CLOG(ERROR, "algorithm") << "Found " << pdrh::par_map.size() << " nondeterministic parameters. Please specify correct model type";
-                std::cout << "error" << std::endl;
-                return EXIT_FAILURE;
-            }
-            */
             capd::interval probability;
             if(global_config.chernoff_flag)
             {

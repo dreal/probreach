@@ -72,6 +72,7 @@ std::ostream& operator<<(std::ostream& os, const box& b)
     return os;
 }
 
+// WORK ON THIS ONE!!!
 bool operator<(const box& lhs, const box& rhs)
 {
     // checking if dimensions of the boxes are the same
@@ -88,6 +89,10 @@ bool operator<(const box& lhs, const box& rhs)
         if(it->second.leftBound() < rhs_map[it->first].leftBound())
         {
             return true;
+        }
+        if(it->second.leftBound() > rhs_map[it->first].leftBound())
+        {
+            return false;
         }
     }
     return false;

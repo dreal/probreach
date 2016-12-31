@@ -1,19 +1,20 @@
-MODEL_TYPE(NPHA)
-U(0,1)r;
-//DD(0.1:0.1,0.4:0.4,0.5:0.5)dd;
-[0,1]x;
-[1,1]n;
-[0,1]time;
+model:npha;
+dist_uniform(0,1) r;
+[0,1] x;
+[0,1] n;
+[0,1] time;
+[0,1] tau;
+
 {
-mode1;
+mode 1;
 flow:
 d/dt[x]=0;
+d/dt[tau]=1;
 jump:
 }
-init:
-@1(and(x=r));
-goal:
-@1(and(x<=0.9*n+0.1)(x>=0.9*n));
-goal_c:
-@1(not(and(x<=0.9*n+0.1)(x>=0.9*n)));
 
+init:
+@1(and(x=r)(tau = 0));
+
+goal:
+@1(and(tau=1)(and(x<=2*(n-0.5)*(n-0.5) + 0.5)(x>= -2*(n-0.5)*(n-0.5) + 0.5)));

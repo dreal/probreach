@@ -66,7 +66,7 @@ void parse_pdrh_config(int argc, char* argv[])
             exit(EXIT_SUCCESS);
         }
         // probability precision
-        else if((strcmp(argv[i], "-e") == 0) || (strcmp(argv[i], "--precision-prob") == 0))
+        else if((strcmp(argv[i], "-e") == 0))
         {
             i++;
             istringstream is(argv[i]);
@@ -187,13 +187,33 @@ void parse_pdrh_config(int argc, char* argv[])
         // nondeterministic precision
         else if(strcmp(argv[i], "--precision-nondet") == 0)
         {
+            //global_config.partition_nondet = true;
             i++;
-            istringstream is(argv[i]);
-            is >> global_config.precision_nondet;
-            if(global_config.precision_nondet <= 0)
+            bool map_end = false;
+            while(!map_end)
             {
-                CLOG(ERROR, "config") << "--max-nondet should be positive";
-                exit(EXIT_FAILURE);
+                if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                {
+                    map_end = true;
+                    i--;
+                }
+                else
+                {
+                    istringstream var_is(argv[i]);
+                    string var = var_is.str();
+                    i++;
+                    if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                    {
+                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
+                        exit(EXIT_FAILURE);
+                    }
+                    else
+                    {
+                        istringstream val_is(argv[i]);
+                        pdrh::push_nondet_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
+                        i++;
+                    }
+                }
             }
         }
         // precision to volume ratio
@@ -343,33 +363,6 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--partition-nondet") == 0)
         {
             global_config.partition_nondet = true;
-            i++;
-            bool map_end = false;
-            while(!map_end)
-            {
-                if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
-                {
-                    map_end = true;
-                    i--;
-                }
-                else
-                {
-                    istringstream var_is(argv[i]);
-                    string var = var_is.str();
-                    i++;
-                    if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
-                    {
-                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
-                        exit(EXIT_FAILURE);
-                    }
-                    else
-                    {
-                        istringstream val_is(argv[i]);
-                        pdrh::push_nondet_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
-                        i++;
-                    }
-                }
-            }
         }
         // partition the synthesized parameters
         else if(strcmp(argv[i], "--partition-psy") == 0)
@@ -396,6 +389,16 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             global_config.verbose = true;
             global_config.verbose_result = true;
+        }
+        // ignore nondeterministic parameters termination condition
+        else if(strcmp(argv[i], "--ignore-nondet") == 0)
+        {
+            global_config.ignore_nondet = true;
+        }
+        // debug flag
+        else if(strcmp(argv[i], "--debug") == 0)
+        {
+            global_config.debug = true;
         }
         // sobol
         else if(strcmp(argv[i], "--sobol") == 0)
@@ -477,32 +480,42 @@ void print_usage()
     cout << endl;
     cout << "	ProbReach <options> <file.pdrh/file.drh> <solver-options>" << endl;
     cout << endl;
-    cout << "options:" << endl;
-    cout << "--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default " << global_config.bayesian_acc << ")" << endl;
-    cout << "--bayesian-conf <double> - confidence value in Bayesian estimations (default " << global_config.bayesian_conf << ")" << endl;
-    cout << "--chernoff-acc <double> - half-length of the confidence interval in Chernoff-Hoeffding method (default " << global_config.chernoff_acc << ")" << endl;
-    cout << "--chernoff-conf <double> - confidence value in Chernoff-Hoeffding method (default " << global_config.chernoff_conf << ")" << endl;
-    cout << "--delta-sat - uses the delta-sat answer of the solver only (statistical model checking and habrid automata only; default false)" << endl;
-    cout << "-e/--precision-prob <double> - length of probability interval (default " << global_config.precision_prob << ")" << endl;
-    cout << "-h/--help - help message" << endl;
-    cout << "--integral-inf-coeff <double> - ratio for the continuous random variables with unbounded support (default " << global_config.integral_inf_coeff << ")" << endl;
-    cout << "--integral-pdf-step <double> - step value used for bounding domains of continuous random variables with user-defined distributions (default " << global_config.integral_pdf_step << ")" << endl;
-    cout << "-k <double> - reachability depth bound (default: the shortest path length if exists)" << endl;
-    cout << "-l <double> - lower reachability depth bound (cannot be used without -u; default: the shortest path length if exists)" << endl;
-    cout << "--merge-boxes - merges boxes which were partitioned during parameter synthesis (default false)" << endl;
-    cout << "--partition-nondet - partitions the domain nondeterministic parameters up to the precision --precision-nondet (default false)" << endl;
-    cout << "--partition-prob - obtains a partition of the domain continuous random parameters satisfying -e/--precision-prob (default false)" << endl;
-    cout << "--partition-psy - partitions the domain the synthesized parameters up to the precision defined in the time series data (default false)" << endl;
-    cout << "--precision-nondet - length of the largest dimension of nondeterministic box (default " << global_config.precision_nondet << ")" << endl;
-    cout << "--precision-ratio <double> - solver precision ratio defined as (solver-precision = min-box-dimension * precision-ratio) (default " << global_config.solver_precision_ratio << ")" << endl;
-    cout << "--series </path/to/solver> - full path to the solver (default " << global_config.solver_bin << ")" << endl;
-    cout << "--solver <path> - name of the file containing the time series data" << endl;
-    cout << "-t <int> - number of CPU cores (default " << global_config.max_num_threads << ") (max " << global_config.max_num_threads << ")" << endl;
-    cout << "--time-var-name <string> - the name of the variable representing time in the model (default tau)" << endl;
-    cout << "-u <double> - upper reachability depth bound (cannot be used without -l; default: the shortest path length if exists)" << endl;
-    cout << "--verbose - output computation details (default false)" << endl;
-    cout << "--verbose-result - outputs the runtime and the number of samples (statistical model checking only; default false)" << endl;
-    cout << "--version - version of the tool" << endl;
+    cout << "general options:" << endl;
+    cout << "-h/--help - displays help message" << endl;
+    cout << "-k <int> - defines the reachability depth (default: the shortest path length if exists)" << endl;
+    cout << "-l <int> - defines the reachability depth lower bound (cannot be used without -u; default: the shortest path length if exists)" << endl;
+    cout << "-u <int> - defines the reachability depth upper bound (cannot be used without -l; default: the shortest path length if exists)" << endl;
+    cout << "-t <int> - number of CPU cores (default: " << global_config.max_num_threads << ") (max " << global_config.max_num_threads << ")" << endl;
+    cout << "--verbose - outputs computation details (default: " << global_config.verbose << ")" << endl;
+    cout << "--verbose-result - outputs the runtime and the number of samples (statistical model checking only; default: " << global_config.verbose_result << ")" << endl;
+    cout << "--version - displays current version of the tool" << endl;
+    cout << endl;
+    cout << "solver related options:" << endl;
+    cout << "--delta-sat - uses the delta-sat answer of dReal to conclude about satisfiability of the evaluated formula (statistical model checking and hybrid automata only; default: " << global_config.delta_sat << ")" << endl;
+    cout << "--solver <path> - full path to the solver (default: " << global_config.solver_bin << ")" << endl;
+    cout << endl;
+    cout << "special options:" << endl;
+    cout << "--time-var-name <string> - the name of the variable representing time in the model (default: " << global_config.time_var_name << ")" << endl;
+    cout << endl;
+    cout << "statistical model checking options:" << endl;
+    cout << "--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default: " << global_config.bayesian_acc << ")" << endl;
+    cout << "--bayesian-conf <double> - confidence value in Bayesian estimations (default: " << global_config.bayesian_conf << ")" << endl;
+    cout << "--cross-entropy - enables Cross-Entropy algorithm (default: " << global_config.cross_entropy_flag << ")" << endl;
+    cout << "--cross-entropy-term-arg <double> - termination argument (variance) for Cross-Entropy algorithm (default: " << global_config.cross_entropy_term_arg << ")" << endl;
+    cout << "--chernoff-acc <double> - half-length of the confidence interval in Chernoff-Hoeffding method (default: " << global_config.chernoff_acc << ")" << endl;
+    cout << "--chernoff-conf <double> - confidence value in Chernoff-Hoeffding method (default: " << global_config.chernoff_conf << ")" << endl;
+    cout << "--elite-ratio <double> - defines the fraction of the sample size - elite samples which are used in Cross-Entropy algorithm for updating the distribution parameters (default: " << global_config.elite_ratio << ")" << endl;
+    cout << "--min-prob - computes confidence interval for the minimum reachability probability (default: " << global_config.min_prob << ")" << endl;
+    cout << "--sample-size <int> - number of sample per iteration of Cross-Entropy algorithm (default: " << global_config.sample_size << ")" << endl;
+    cout << endl;
+    cout << "formal method options:" << endl;
+    cout << "-e/--precision-prob <double> - length of the probability enclosure (default: " << global_config.precision_prob << ")" << endl;
+    cout << "--integral-inf-coeff <double> - ratio for the continuous random variables with unbounded support (default: " << global_config.integral_inf_coeff << ")" << endl;
+    cout << "--integral-pdf-step <double> - step value used for bounding domains of unbounded continuous random variables (default " << global_config.integral_pdf_step << ")" << endl;
+    cout << "--partition-nondet - partitions the domain nondeterministic parameters up to the value defined in --precision-nondet (default: " << global_config.partition_nondet << ")" << endl;
+    cout << "--partition-prob - obtains a partition of the domain of continuous random parameters satisfying -e/--precision-prob (default: " << global_config.partition_prob << ")" << endl;
+    cout << "--precision-nondet [<var> <double>] - defines the precision vector for the nondeterministic parameters" << endl;
+    cout << "--precision-ratio <double> - used to define precision passed to the solver as (solver-precision = min-box-dimension * precision-ratio) (default: " << global_config.solver_precision_ratio << ")" << endl;
     cout << endl;
 }
 

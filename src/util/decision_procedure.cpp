@@ -11,6 +11,7 @@
 
 using namespace std;
 
+// Used for statistical verification
 int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {
     // default value for the thread number
@@ -30,8 +31,12 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
     ofstream smt_file;
     smt_file.open(smt_filename.c_str());
     smt_file << pdrh::reach_to_smt2(path, boxes);
-    //cout << "FIRST FORMULA" << endl;
-    //cout << pdrh::reach_to_smt2(path, boxes) << endl;
+    if(global_config.debug)
+    {
+        cout << "Thread: " << omp_get_thread_num() << endl;
+        cout << "First formula:" << endl;
+        cout << pdrh::reach_to_smt2(path, boxes) << endl;
+    }
     //exit(EXIT_SUCCESS);
     smt_file.close();
     // calling dreal here
@@ -50,7 +55,7 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
         }
         else
         {
-            //CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNSAT)";
+            CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNSAT)";
             return decision_procedure::ERROR;
         }
     }
@@ -60,7 +65,7 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
         if((remove(smt_filename.c_str()) != 0) ||
             (remove(std::string(smt_filename + ".output").c_str()) != 0))
         {
-            //CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (DELTA-SAT)";
+            CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (DELTA-SAT)";
             return decision_procedure::ERROR;
         }
         // going through the formulas psi_i_pi
@@ -74,8 +79,12 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
             ofstream smt_c_file;
             smt_c_file.open(smt_c_filename.c_str());
             smt_c_file << pdrh::reach_c_to_smt2(i, path, boxes);
-            //cout << "SECOND FORMULA(" << i << "):" << endl;
-            //cout << pdrh::reach_c_to_smt2(i, path, boxes) << endl;
+            if(global_config.debug)
+            {
+                cout << "Thread: " << omp_get_thread_num() << endl;
+                cout << "Second formula (" << i << "):" << endl;
+                cout << pdrh::reach_c_to_smt2(i, path, boxes) << endl;
+            }
             smt_c_file.close();
             // calling dreal here
             int second_res = dreal::execute(global_config.solver_bin, smt_c_filename, global_config.solver_opt);
@@ -114,6 +123,125 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
     }
 }
 
+// Used for formal verification
+int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box> boxes, string solver_opt)
+{
+    // default value for the thread number
+    int thread_num = 0;
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
+    // getting raw filename here
+    string filename = string(global_config.model_filename);
+    size_t ext_index = filename.find_last_of('.');
+    string raw_filename = filename.substr(0, ext_index);
+    // creating a name for the smt2 file
+    stringstream f_stream;
+    f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".smt2";
+    string smt_filename = f_stream.str();
+    // writing to the file
+    ofstream smt_file;
+    smt_file.open(smt_filename.c_str());
+    smt_file << pdrh::reach_to_smt2(path, boxes);
+    // outputing the formulas if the debug flag is enabled
+    if(global_config.debug)
+    {
+        cout << "Thread: " << omp_get_thread_num() << endl;
+        cout << "First formula:" << endl;
+        cout << pdrh::reach_to_smt2(path, boxes) << endl;
+    }
+    //exit(EXIT_SUCCESS);
+    smt_file.close();
+    // calling dreal here
+    int first_res = dreal::execute(global_config.solver_bin, smt_filename, solver_opt);
+    if(first_res == -1)
+    {
+        return decision_procedure::ERROR;
+    }
+    else if(first_res == 1)
+    {
+        if((remove(smt_filename.c_str()) == 0) &&
+           (remove(std::string(smt_filename + ".output").c_str()) == 0))
+        {
+            //LOG(DEBUG) << "Removed auxiliary files";
+            return decision_procedure::UNSAT;
+        }
+        else
+        {
+            CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNSAT)";
+            return decision_procedure::ERROR;
+        }
+    }
+    else
+    {
+        // removing auxiliary files for the first formula
+        if((remove(smt_filename.c_str()) != 0) ||
+           (remove(std::string(smt_filename + ".output").c_str()) != 0))
+        {
+            CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (DELTA-SAT)";
+            return decision_procedure::ERROR;
+        }
+        // going through the formulas psi_i_pi
+        for(int i = 0; i < path.size(); i++)
+        {
+            // the complement formula
+            f_stream.str("");
+            f_stream << raw_filename << "_" << i << "_" << path.size() - 1 << "_0_" << thread_num << ".c.smt2";
+            string smt_c_filename = f_stream.str();
+            // writing to the file
+            ofstream smt_c_file;
+            smt_c_file.open(smt_c_filename.c_str());
+            smt_c_file << pdrh::reach_c_to_smt2(i, path, boxes);
+            if(global_config.debug)
+            {
+                cout << "Thread: " << omp_get_thread_num() << endl;
+                cout << "Second formula (" << i << "):" << endl;
+                cout << pdrh::reach_c_to_smt2(i, path, boxes) << endl;
+            }
+            smt_c_file.close();
+            // calling dreal here
+            int second_res = dreal::execute(global_config.solver_bin, smt_c_filename, solver_opt);
+            //cout << "RESULT: " << second_res << endl;
+            if(second_res == -1)
+            {
+                return decision_procedure::ERROR;
+            }
+            else if(second_res == 1)
+            {
+                if((remove(smt_c_filename.c_str()) != 0) ||
+                   (remove(std::string(smt_c_filename + ".output").c_str()) != 0))
+                {
+                    //CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (SAT)";
+                    return decision_procedure::ERROR;
+                }
+            }
+            else
+            {
+                //cout << "THIS SAMPLE IS UNDET" << endl;
+                //exit(EXIT_SUCCESS);
+                if((remove(smt_c_filename.c_str()) != 0) ||
+                   (remove(std::string(smt_c_filename + ".output").c_str()) != 0))
+                {
+                    //CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNDET)";
+                    return decision_procedure::ERROR;
+                }
+                else
+                {
+                    //if(i < path.size() - 1)
+                    //{
+                    //    cout << "The formula was undetermined for one of the jumps (i= " << i << ")" << endl;
+                    //    exit(EXIT_FAILURE);
+                    //}
+                    //exit(EXIT_SUCCESS);
+                    return decision_procedure::UNDET;
+                }
+            }
+        }
+        return decision_procedure::SAT;
+    }
+}
+
+// not used
 int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {
     // default value for the thread number

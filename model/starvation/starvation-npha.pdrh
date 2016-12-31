@@ -16,14 +16,14 @@ model: npha;
 #define V 0.9
 #define M0 43.6
 #define b 0.075
-//#define t_g 27
+#define t_g 25
 
 [0,100] F; //fat
 [0,100] M; //muscle mass
 [0,100] K; //ketone bodies
 [0,100] time;
 [0,100] tau;
-[20,25] t_g;
+//[20,25] t_g;
 //[0.02, 0.08] b;
 //[40, 50] M0;
 

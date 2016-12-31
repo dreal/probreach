@@ -378,14 +378,6 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     {
         p_map.insert(std::make_pair(nd, capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound())));
     }
-    // initial p map
-    /*
-    cout << "Initial p_map" << endl;
-    for(auto it = p_map.cbegin(); it != p_map.cend(); it++)
-    {
-        cout << "P(" << it->first << ")=" << it->second << endl;
-    }
-    */
     // initializing partition map
     std::map<box, std::vector<box>> partition_map;
     for(box nd : nd_partition)
@@ -399,9 +391,11 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     {
         // updating the nd_partition
         nd_partition.clear();
+        //cout << "ND partition NOW:" << endl;
         for(auto it = p_map.cbegin(); it != p_map.cend(); it++)
         {
             nd_partition.push_back(it->first);
+            //cout << it->first << endl;
         }
         // iterating through the boxes
         for(box nd : nd_partition)
@@ -410,30 +404,31 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
             {
                 rv_partition = partition_map[nd];
                 std::vector<box> rv_stack;
-                //#pragma omp parallel for
+                #pragma omp parallel for
                 for(int i = 0; i < rv_partition.size(); i++)
                 {
                     box rv = rv_partition.at(i);
-                    //cout << "rv_box: " << rv << " index: " << i << " by thread number: " << omp_get_thread_num() << endl;
-                    // calculating probability measure of the box rv
-                    // initally p_box = [1.0, 1.0]
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "====================";
-                    capd::interval p_box(1);
-                    if(!nd.empty())
+                    // calculating probability measure of the box rv; initally p_box = [1.0, 1.0]
+                    capd::interval p_box(1.0,1.0);
+                    #pragma omp critical
                     {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "nd_box: " << nd;
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "====================";
+                        if(!nd.empty())
+                        {
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "nd_box: " << nd;
+                        }
+                        if(!dd.empty())
+                        {
+                            p_box *= measure::p_dd_measure(dd);
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "dd_box: " << dd;
+                        }
+                        if(!rv.empty())
+                        {
+                            p_box *= measure::p_measure(rv);
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "rv_box: " << rv;
+                        }
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "p_box: " << p_box;
                     }
-                    if(!dd.empty())
-                    {
-                        p_box *= measure::p_dd_measure(dd);
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "dd_box: " << dd;
-                    }
-                    if(!rv.empty())
-                    {
-                        p_box *= measure::p_measure(rv);
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "rv_box: " << rv;
-                    }
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "p_box: " << p_box;
                     // undetermined answers counter
                     int undet_counter = 0;
                     // solver timeout counter
@@ -451,58 +446,67 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                             p_stream << m->id << " ";
                         }
                         // removing trailing whitespace
+                        #pragma omp critical
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
                         // changing solver precision
-                        std::string solver_opt = global_config.solver_opt;
                         std::stringstream s;
-                        s << solver_opt << " --precision " << measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
-                        global_config.solver_opt = s.str();
-                        //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solver options: " << global_config.solver_opt;
-                        int res = decision_procedure::evaluate(path, vector<box>{nd, dd, rv});
-                        // setting old precision
-                        global_config.solver_opt = solver_opt;
-                        if(res == decision_procedure::SAT)
+                        std::string solver_opt;
+                        #pragma omp critical
                         {
-                            capd::interval probability;
-                            if(p_box.leftBound() > 0)
+                            solver_opt = global_config.solver_opt;
+                            s << solver_opt << " --precision " << measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solver options: " << s.str();
+                        }
+                        int res = decision_procedure::evaluate(path, vector<box>{nd, dd, rv}, s.str());
+                        // analyzing the output
+                        switch(res)
+                        {
+                            case decision_procedure::SAT:
+                            #pragma omp critical
                             {
-                                probability = capd::interval(p_map[nd].leftBound() + p_box.leftBound(), p_map[nd].rightBound());
+                                if(p_box.leftBound() > 0)
+                                {
+                                    p_map[nd]=capd::interval(p_map[nd].leftBound() + p_box.leftBound(), p_map[nd].rightBound());
+                                }
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << p_map[nd];
+                                sat_flag = true;
                             }
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
-                            if(capd::intervals::width(probability) <= global_config.precision_prob)
+                            break;
+
+                            case decision_procedure::UNSAT:
+                            #pragma omp critical
                             {
-                                //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating resulting probability map";
-                                p_map.erase(nd);
-                                partition_map.erase(nd);
-                                res_map.insert(std::make_pair(nd, probability));
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                                unsat_counter++;
                             }
-                            else
+                            break;
+
+                            case decision_procedure::UNDET:
+                            #pragma omp critical
                             {
-                                p_map[nd] = probability;
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDEC";
+                                undet_counter++;
                             }
-                            sat_flag = true;
+                            break;
+
+                            case decision_procedure::ERROR:
+                            #pragma omp critical
+                            {
+                                CLOG(ERROR, "algorithm") << "Error occurred while calling the solver";
+                                exit(EXIT_FAILURE);
+                            }
+                            break;
+
+                            case decision_procedure::SOLVER_TIMEOUT:
+                            #pragma omp critical
+                            {
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
+                                timeout_counter++;
+                            }
+                            break;
                         }
-                        else if(res == decision_procedure::UNSAT)
-                        {
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                            unsat_counter++;
-                        }
-                        else if(res == decision_procedure::UNDET)
-                        {
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDEC";
-                            undet_counter++;
-                        }
-                        else if(res == decision_procedure::ERROR)
-                        {
-                            CLOG(ERROR, "algorithm") << "Error occurred while calling the solver";
-                            //return ;
-                        }
-                        else if(res == decision_procedure::SOLVER_TIMEOUT)
-                        {
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                            timeout_counter++;
-                        }
+                        // checking if the evaluated path is SAT
                         if(sat_flag)
                         {
                             break;
@@ -514,33 +518,54 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                         // if the box is undetermined on either path
                         if ((undet_counter > 0) || (timeout_counter > 0))
                         {
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << rv;
-                            std::vector<box> rv_bisect = box_factory::bisect(rv);
-                            rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
+                            #pragma omp critical
+                            {
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << rv;
+                                std::vector<box> rv_bisect = box_factory::bisect(rv);
+                                rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
+                            }
                         }
                         // if the box is unsat for all paths
                         else if (unsat_counter == paths.size())
                         {
-                            capd::interval probability;
-                            if (p_box.rightBound() > 0)
+                            #pragma omp critical
                             {
-                                probability = capd::interval(p_map[nd].leftBound(), p_map[nd].rightBound() - p_box.leftBound());
-                            }
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
-                            if(capd::intervals::width(probability) <= global_config.precision_prob)
-                            {
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating resulting probability map";
-                                p_map.erase(nd);
-                                partition_map.erase(nd);
-                                res_map.insert(make_pair(nd, probability));
-                                break;
-                            }
-                            else
-                            {
-                                p_map[nd] = probability;
+                                if (p_box.leftBound() > 0)
+                                {
+                                    p_map[nd]=capd::interval(p_map[nd].leftBound(), p_map[nd].rightBound() - p_box.leftBound());
+                                }
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << p_map[nd];
                             }
                         }
                     }
+                }
+
+                if(p_map.find(nd) == p_map.end())
+                {
+                    CLOG(ERROR, "algorithm") << "The box " << nd << " is not in the map";
+                    /*
+                    for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
+                    {
+                        cout << it2->first << " | " << it2->second << " " << (nd < it2->first) << " " << (it2->first < nd) << endl;
+                    }
+                    */
+                    exit(EXIT_FAILURE);
+                }
+                /*
+                else
+                {
+                    cout << "BOX " << nd << " IS IN THE MAP" << endl;
+                }
+                */
+                capd::interval probability;
+                probability = p_map[nd];
+                if(capd::intervals::width(probability) <= global_config.precision_prob)
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Epsilon is satisfied. Updating resulting probability map with " << nd;
+                    p_map.erase(nd);
+                    partition_map.erase(nd);
+                    res_map.insert(make_pair(nd, probability));
+                    break;
                 }
                 // updating partition map only in case if probability value does not satisfy the probability precision
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating partition map";
@@ -548,52 +573,98 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                 {
                     partition_map[nd] = rv_stack;
                 }
-                /*
-                std::cout << "p_map:" << std::endl;
-                for(auto it = p_map.cbegin(); it != p_map.cend(); it++)
-                {
-                    std::cout << std::scientific << it->first << " | " << it->second << std::endl;
-                }
-                */
-                //exit(EXIT_SUCCESS);
             }
+            // cout << "Probability map after " << nd << " was processed" << endl;
+            // for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
+            // {
+            //     std::cout << it2->first << " | " << it2->second << std::endl;
+            // }
+            // cout << "Resulting map after " << nd << " was processed" << endl;
+            // for(auto it2 = res_map.begin(); it2 != res_map.end(); it2++)
+            // {
+            //     std::cout << it2->first << " | " << it2->second << std::endl;
+            // }
+            // cout << "----------------------------------" << endl;
         }
+        /*
+        cout << "----------------------------------" << endl;
+        cout << "Probability map after all boxes are processed" << endl;
+        for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
+        {
+            std::cout << it2->first << " | " << it2->second << std::endl;
+        }
+        cout << "Resulting map after all boxes are processed" << endl;
+        for(auto it2 = res_map.begin(); it2 != res_map.end(); it2++)
+        {
+            std::cout << it2->first << " | " << it2->second << std::endl;
+        }
+        cout << "----------------------------------" << endl;
+        */
+        //exit(EXIT_SUCCESS);
+
         // updating probability and partition maps
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating probability map";
-        std::map<box, capd::interval> tmp_map = p_map;
+	    std::map<box, capd::interval> tmp_map = p_map;
         for(auto it = tmp_map.cbegin(); it != tmp_map.cend(); it++)
         {
             // bisecting the nondeterministic box
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << it->first;
-            std::vector<box> tmp_boxes = box_factory::partition(it->first, global_config.precision_nondet);
+            std::vector<box> tmp_boxes;
+            // checking if the --ignore-nondet flag is up
+            if(global_config.ignore_nondet)
+            {
+                tmp_boxes = box_factory::bisect(it->first);
+            }
+            else
+            {
+                tmp_boxes = box_factory::bisect(it->first, global_config.partition_nondet_map);
+            }
             capd::interval tmp_prob_value = p_map[it->first];
             std::vector<box> tmp_rv_partition = partition_map[it->first];
             // removing probability and partition for the bisected box
             p_map.erase(it->first);
             partition_map.erase(it->first);
             // updating probability and partition maps
-            for(box b : tmp_boxes)
+            if(tmp_boxes.size() > 0)
             {
-                p_map.insert(std::make_pair(b, tmp_prob_value));
-                partition_map.insert(std::make_pair(b, tmp_rv_partition));
+                for(box b : tmp_boxes)
+                {
+                    p_map.insert(std::make_pair(b, tmp_prob_value));
+                    partition_map.insert(std::make_pair(b, tmp_rv_partition));
+                }
             }
-            /*
-            std::cout << "p_map after:" << std::endl;
-            for(auto it2 = p_map.cbegin(); it2 != p_map.cend(); it2++)
+            else
             {
-                std::cout << std::scientific << it2->first << " | " << it2->second << std::endl;
+                res_map.insert(make_pair(it->first, tmp_prob_value));
             }
-             */
         }
         /*
-        std::cout << "p_map:" << std::endl;
-        for(auto it = p_map.cbegin(); it != p_map.cend(); it++)
+        cout << "----------------------------------" << endl;
+        cout << "Probability map after it's been updated" << endl;
+        for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
         {
-            std::cout << std::scientific << it->first << " | " << it->second << std::endl;
+            std::cout << it2->first << " | " << it2->second << std::endl;
         }
+        cout << "Resulting map after it's been updated" << endl;
+        for(auto it2 = res_map.begin(); it2 != res_map.end(); it2++)
+        {
+            std::cout << it2->first << " | " << it2->second << std::endl;
+        }
+        cout << "----------------------------------" << endl;
         */
-    }
-    return res_map;
+
+   }
+   // cout << "Resulting map after adding" << endl;
+   // for(auto it2 = res_map.begin(); it2 != res_map.end(); it2++)
+   // {
+   //     cout << it2->first << " | " << it2->second << std::endl;
+   // }
+   // cout << "Final p_map" << endl;
+   // for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
+   // {
+   //     cout << it2->first << " | " << it2->second << std::endl;
+   // }
+   return res_map;
 }
 
 tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string, vector<pair<pdrh::node*, pdrh::node*>>> time_series)

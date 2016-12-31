@@ -65,6 +65,8 @@ struct pdrh_config
     bool cross_entropy_normal = true;
     bool cross_entropy_beta = false;
     double cross_entropy_term_arg = 1e-2;
+    bool ignore_nondet = false;
+    bool debug = false;
 
 } extern global_config;
 

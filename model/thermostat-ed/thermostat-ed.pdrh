@@ -1,38 +1,26 @@
-MODEL_TYPE(PHA)
+model:ha;
 #define K 1.0
-[0,5]time;
-[0,100]tau;
-N(30,1)x;
+[0,100]time;
+[18,22]t;
 
 {
-mode1;
-invt:
-(x >= 18);
-invt_c:
-(x >= 18);
+mode 1;
 flow:
-d/dt[x]=- x * K;
-d/dt[tau]=10.0;
+d/dt[t]= -t * K;
 jump:
-(x <= 18)==>@2(and (x' = x) (tau' = tau));
+(t <= 18)==>@2(and (t' = t)(tau'=0));
 }
+
 {
-mode2;
-invt:
-(x <= 22);
-invt_c:
-(x <= 22);
+mode 2;
 flow:
-d/dt[x]=- K * (x - 30);
-d/dt[tau]=10.0;
+d/dt[t]= -K * (t - 30);
 jump:
-(x >= 22)==>@1(and (x' = x) (tau' = tau));
+(t >= 22)==>@1(and (t' = t)(tau'=0));
 }
+
 init:
-@1(and (tau = 0));
+@1(and (t = 22)(tau = 0));
 
 goal:
-@2(and (x >= 19.9) (x <= 20.1) (tau = 24));
-
-goal_c:
-@2(and (or (x < 19.9) (x > 20.1)) (tau = 24));
+@2(and (t >= 22));

@@ -1,7 +1,7 @@
 model: pha;
 
 [9.8067]    g; // taken from wikipedia
-[-100, 100]    Sy; // vertical distance
+[0, 100]    Sy; // vertical distance
 [0, 1000] Sx; // horizontal distance
 [0, 4.5]     tau; // local time
 [0, 4.5]     time; // local time (required)

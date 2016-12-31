@@ -13,6 +13,7 @@ namespace decision_procedure
 {
     enum result {SAT, UNSAT, UNDET, ERROR, SOLVER_TIMEOUT, SOLVER_PROCESS_ERROR};
     int evaluate(vector<pdrh::mode*>, vector<box>);
+    int evaluate(vector<pdrh::mode*>, vector<box>, string);
     //int evaluate(std::vector<pdrh::mode*>, rv_box*, dd_box*, nd_box*);
     int evaluate(pdrh::state, pdrh::state, vector<pdrh::mode*>, vector<box>);
     int evaluate_delta_sat(vector<pdrh::mode*>, vector<box>);

@@ -9,6 +9,7 @@ src/.obj
 src/logs/
 cmake_install.cmake
 CMakeFiles/
+cmake-build-debug/
 Makefile
 ProbReach
 CMakeCache.txt

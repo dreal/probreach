@@ -172,7 +172,7 @@ In order to see the list of `<solver-options>` run `dReal --help`. The following
     --min-prob - computes confidence interval for the minimum reachability probability (default: maximum reachbility probability)
     --sample-size <int> - number of sample per iteration of Cross-Entropy algorithm
     
-#### Formal method options:
+#### Formal verification options:
 
     -e/--precision-prob <double> - length of the probability enclosure (default: 0.001)
     --integral-inf-coeff <double> - ratio for the continuous random variables with unbounded support (default: 0.1)

@@ -159,6 +159,9 @@ namespace pdrh
     string reach_c_to_smt2(int, vector<mode*>, vector<box>);
     string reach_c_to_smt2(state, state, int, vector<mode*>, vector<box>);
 
+    string reach_to_smt2_all_paths();
+    string reach_c_to_smt2_all_paths();
+
     string model_to_string();
     string print_jump(mode::jump);
 

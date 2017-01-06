@@ -342,6 +342,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     // performing extra partition if the probability partition map is defined
     else
     {
+        //cout << "rv partition size before extra partition: " << rv_partition.size() << endl;
         vector<box> tmp_vector;
         for(box b : rv_partition)
         {
@@ -349,6 +350,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
             tmp_vector.insert(tmp_vector.cend(), extra_partition.cbegin(), extra_partition.cend());
         }
         rv_partition = tmp_vector;
+        //cout << "rv partition size after extra partition:" << rv_partition.size() << endl;
     }
     // sorting boxes by probability value
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sorting the partition of domain of continuous random parameters";
@@ -404,7 +406,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
             {
                 rv_partition = partition_map[nd];
                 std::vector<box> rv_stack;
-                #pragma omp parallel for
+                #pragma omp parallel for schedule (dynamic)
                 for(int i = 0; i < rv_partition.size(); i++)
                 {
                     box rv = rv_partition.at(i);

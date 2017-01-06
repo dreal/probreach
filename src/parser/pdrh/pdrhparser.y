@@ -77,7 +77,8 @@ pdrh:
 	                                        pdrh::model_type = pdrh::PSY;
 	                                    }
 	| declarations modes init goal      {
-	                                        pdrh::model_type = pdrh::HA;
+	                                        // we try to identify the model type automatically here
+	                                        //pdrh::model_type = pdrh::HA;
 	                                    }
 	| model declarations modes init goal { ; }
 

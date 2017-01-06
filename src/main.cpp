@@ -78,8 +78,8 @@ int main(int argc, char* argv[])
     cout.precision(16);
     // pdrh parser
     parse_pdrh(global_config.model_filename);
-
-    //pdrh::set_model_type();
+    // setting the model type automatically here
+    pdrh::set_model_type();
     CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
     //cout << pdrh::model_to_string() << endl;
     switch(pdrh::model_type)

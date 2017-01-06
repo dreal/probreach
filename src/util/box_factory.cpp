@@ -117,7 +117,7 @@ vector<box> box_factory::partition(box b, map<string, capd::interval> e_map)
         box tmp_b = q.front();
         q.erase(q.cbegin());
         vector<box> tmp_v = bisect(tmp_b, e_map);
-        if(tmp_v.empty())
+        if(tmp_v.size() == 1)
         {
             res.push_back(tmp_b);
         }
@@ -145,6 +145,10 @@ std::vector<box> box_factory::bisect(box b, std::map<std::string, capd::interval
             tmp_v.push_back(capd::interval((it->second).leftBound(), (it->second).mid().rightBound()));
             tmp_v.push_back(capd::interval((it->second).mid().leftBound(), (it->second).rightBound()));
             tmp_m.insert(make_pair(it->first, tmp_v));
+        }
+        else
+        {
+            tmp_m.insert(make_pair(it->first, vector<capd::interval>{it->second}));
         }
     }
     return box_factory::cartesian_product(tmp_m);

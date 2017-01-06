@@ -147,6 +147,7 @@ namespace pdrh
     vector<mode*> get_shortest_path(mode*, mode*);
     vector<vector<mode*>> get_paths(mode*, mode*, int);
     vector<vector<mode*>> get_all_paths(int);
+    vector<vector<mode*>> get_all_paths();
 
     // returns <first_map_keys> \ <second_map_keys>
     vector<string> get_keys_diff(map<string, pair<node*, node*>>, map<string, pair<node*, node*>>);
@@ -159,7 +160,7 @@ namespace pdrh
     string reach_c_to_smt2(int, vector<mode*>, vector<box>);
     string reach_c_to_smt2(state, state, int, vector<mode*>, vector<box>);
 
-    string reach_to_smt2_all_paths();
+    string reach_to_smt2_all_paths(vector<box>);
     string reach_c_to_smt2_all_paths();
 
     string model_to_string();

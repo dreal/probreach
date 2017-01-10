@@ -627,7 +627,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
             p_map.erase(it->first);
             partition_map.erase(it->first);
             // updating probability and partition maps
-            if(tmp_boxes.size() > 0)
+            if(tmp_boxes.size() > 1)
             {
                 for(box b : tmp_boxes)
                 {

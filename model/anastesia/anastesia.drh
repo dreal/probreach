@@ -19,6 +19,7 @@
 #define u_max 20000
 
 #define pi 3.1415
+#define p1 100
 
 [-1e3, 1e3] cp; // (mug/l)
 [-1e3, 1e3]	c1; // (mug/l)
@@ -27,10 +28,10 @@
 [0, 15] tau; // (min)
 [0, 15] time;
 
-dist_normal(0,350) du0;
-dist_normal(0,350) du1;
-dist_normal(0,350) du2;
-dist_normal(0,350) du3;
+[-1.54] du1;
+[-1.54] du2;
+[-1.54] du3;
+[-1.54] du4;
 
 {
 mode 1;
@@ -38,18 +39,22 @@ flow:
 	d/dt[cp] = -(k10+k12+k13)*cp + k12*c1 + k13*c2 + u / V1;
 	d/dt[c1] = k21*cp - k21*c1;
 	d/dt[c2] = k31*cp - k31*c2;
-	d/dt[u] = 100*cos(tau*2*pi/Tj);
+	d/dt[u] = p1*cos(tau*2*pi/Tj + du1);
 	d/dt[tau] = 1.0;
+	d/dt[du1] = 0.0;
+	d/dt[du2] = 0.0;
+	d/dt[du3] = 0.0;
+	d/dt[du4] = 0.0;
 jump:
 	(tau = Tj) ==> @2(and 	(cp' = cp)
 							(c1' = c1)
 							(c2' = c2)
 							(tau' = 0)
-							(u' = u + du1)
-							(du0'=du0)
+							(u' = u)
 							(du1'=du1)
 							(du2'=du2)
-							(du3'=du3));
+							(du3'=du3)
+							(du4'=du4));
 }
 
 {
@@ -58,18 +63,22 @@ flow:
     d/dt[cp] = -(k10+k12+k13)*cp + k12*c1 + k13*c2 + u / V1;
     d/dt[c1] = k21*cp - k21*c1;
     d/dt[c2] = k31*cp - k31*c2;
-    d/dt[u] = 100*cos(tau*2*pi/Tj);
+    d/dt[u] = p1*cos((tau+Tj)*2*pi/Tj + du2);
     d/dt[tau] = 1.0;
+	d/dt[du1] = 0.0;
+	d/dt[du2] = 0.0;
+	d/dt[du3] = 0.0;
+	d/dt[du4] = 0.0;
 jump:
 	(tau = Tj) ==> @3(and 	(cp' = cp)
 							(c1' = c1)
 							(c2' = c2)
 							(tau' = 0)
-							(u' = u + du2)
-							(du0'=du0)
+							(u' = u)
 							(du1'=du1)
 							(du2'=du2)
-							(du3'=du3));	
+							(du3'=du3)
+							(du4'=du4));	
 }
 
 {
@@ -78,18 +87,22 @@ flow:
     d/dt[cp] = -(k10+k12+k13)*cp + k12*c1 + k13*c2 + u / V1;
     d/dt[c1] = k21*cp - k21*c1;
     d/dt[c2] = k31*cp - k31*c2;
-    d/dt[u] = 100*cos(tau*2*pi/Tj);
+    d/dt[u] = p1*cos((tau+2*Tj)*2*pi/Tj + du3);
     d/dt[tau] = 1.0;
+	d/dt[du1] = 0.0;
+	d/dt[du2] = 0.0;
+	d/dt[du3] = 0.0;
+	d/dt[du4] = 0.0;
 jump:
 	(tau = Tj) ==> @4(and 	(cp' = cp)
 							(c1' = c1)
 							(c2' = c2)
 							(tau' = 0)
-							(u' = u + du3)
-							(du0'=du0)
+							(u' = u)
 							(du1'=du1)
 							(du2'=du2)
-							(du3'=du3));	
+							(du3'=du3)
+							(du4'=du4));	
 }
 
 {
@@ -98,27 +111,27 @@ flow:
     d/dt[cp] = -(k10+k12+k13)*cp + k12*c1 + k13*c2 + u / V1;
     d/dt[c1] = k21*cp - k21*c1;
     d/dt[c2] = k31*cp - k31*c2;
-    d/dt[u] = 100*cos(tau*2*pi/Tj);
+    d/dt[u] = p1*cos((tau+3*Tj)*2*pi/Tj + du4);
     d/dt[tau] = 1.0;
+	d/dt[du1] = 0.0;
+	d/dt[du2] = 0.0;
+	d/dt[du3] = 0.0;
+	d/dt[du4] = 0.0;
 jump:
 	
 }
 
 init:
-@1 (and (cp = 3.0)(c1 = 3.0)(c2 = 3.0)(u = u0 + du0)(tau = 0));
+@1 (and (cp = 3.0)(c1 = 3.0)(c2 = 3.0)(u = u0)(tau = 0));
 
 goal:
-//@1 (and (tau = 10));
-//@2 (and (tau = 10));
-//@3 (and (tau = 60));
-//@6(tau = 10);
-@4 (not (and 
-			(cp <= cp_max) 
-			(cp >= cp_min) 
-			(c1 >= c1_min) 
-			(c1 <= c1_max) 
-			(c2 >= c2_min) 
-			(c2 <= c2_max)
-			(u >= u_min)
-			(u <= u_max)));
-
+//@4 (not (and 
+//			(cp <= cp_max) 
+//			(cp >= cp_min) 
+//			(c1 >= c1_min) 
+//			(c1 <= c1_max) 
+//			(c2 >= c2_min) 
+//			(c2 <= c2_max)
+//			(u >= u_min)
+//			(u <= u_max)));
+@4 (tau = 15.0);

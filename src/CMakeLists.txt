@@ -17,8 +17,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROBREACH_BINARY_DIR})
 
 # checking if dReal binary is set
 if(NOT DEFINED DREAL_DIR)
-    message(WARNING "The variable DREAL_DIR is not defined. The default value \"/usr/local/src/dreal\" will be set")
-    set(DREAL_DIR /usr/local/src/dreal)
+    message(WARNING "The variable DREAL_DIR is not defined. The default value \"$ENV{HOME}/dreal\" will be set")
+    set(DREAL_DIR $ENV{HOME}/dreal)
 endif(NOT DEFINED DREAL_DIR)
 
 if(NOT DEFINED DREAL_REL_DIR)

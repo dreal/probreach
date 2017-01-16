@@ -312,3 +312,17 @@ double box::max_side_width()
     }
     return max;
 }
+
+double box::min_side_width()
+{
+    map<string, capd::interval> edges = get_map();
+    double min = capd::intervals::width(edges.cbegin()->second);
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        if(capd::intervals::width(it->second) < min)
+        {
+            min = capd::intervals::width(it->second);
+        }
+    }
+    return min;
+}

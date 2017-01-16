@@ -27,10 +27,10 @@
 [0, 15] tau; // (min)
 [0, 15] time;
 
-dist_normal(0,350) du0;
-dist_normal(0,350) du1;
-dist_normal(0,350) du2;
-dist_normal(0,350) du3;
+dist_normal(0,100) du0;
+dist_normal(0,100) du1;
+dist_normal(0,100) du2;
+dist_normal(0,100) du3;
 
 {
 mode 1;

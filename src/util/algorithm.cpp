@@ -456,7 +456,8 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                         #pragma omp critical
                         {
                             solver_opt = global_config.solver_opt;
-                            s << solver_opt << " --precision " << measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
+                            //s << solver_opt << " --precision " << measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
+                            s << solver_opt << " --precision " << rv.min_side_width() * global_config.solver_precision_ratio;
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solver options: " << s.str();
                         }
                         int res = decision_procedure::evaluate(path, vector<box>{nd, dd, rv}, s.str());
@@ -609,35 +610,40 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
 	    std::map<box, capd::interval> tmp_map = p_map;
         for(auto it = tmp_map.cbegin(); it != tmp_map.cend(); it++)
         {
-            // bisecting the nondeterministic box
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << it->first;
-            std::vector<box> tmp_boxes;
-            // checking if the --ignore-nondet flag is up
-            if(global_config.ignore_nondet)
+            box nd = it->first;
+            // checking if the system features nondeterministic parameters
+            if(!nd.empty())
             {
-                tmp_boxes = box_factory::bisect(it->first);
-            }
-            else
-            {
-                tmp_boxes = box_factory::bisect(it->first, global_config.partition_nondet_map);
-            }
-            capd::interval tmp_prob_value = p_map[it->first];
-            std::vector<box> tmp_rv_partition = partition_map[it->first];
-            // removing probability and partition for the bisected box
-            p_map.erase(it->first);
-            partition_map.erase(it->first);
-            // updating probability and partition maps
-            if(tmp_boxes.size() > 1)
-            {
-                for(box b : tmp_boxes)
+                // bisecting the nondeterministic box
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << nd;
+                std::vector<box> tmp_boxes;
+                // checking if the --ignore-nondet flag is up
+                if(global_config.ignore_nondet)
                 {
-                    p_map.insert(std::make_pair(b, tmp_prob_value));
-                    partition_map.insert(std::make_pair(b, tmp_rv_partition));
+                    tmp_boxes = box_factory::bisect(nd);
                 }
-            }
-            else
-            {
-                res_map.insert(make_pair(it->first, tmp_prob_value));
+                else
+                {
+                    tmp_boxes = box_factory::bisect(nd, global_config.partition_nondet_map);
+                }
+                capd::interval tmp_prob_value = p_map[nd];
+                std::vector<box> tmp_rv_partition = partition_map[nd];
+                // removing probability and partition for the bisected box
+                p_map.erase(nd);
+                partition_map.erase(nd);
+                // updating probability and partition maps
+                if(tmp_boxes.size() > 1)
+                {
+                    for(box b : tmp_boxes)
+                    {
+                        p_map.insert(std::make_pair(b, tmp_prob_value));
+                        partition_map.insert(std::make_pair(b, tmp_rv_partition));
+                    }
+                }
+                else
+                {
+                    res_map.insert(make_pair(nd, tmp_prob_value));
+                }
             }
         }
         /*

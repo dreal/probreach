@@ -42,6 +42,7 @@ public:
     box get_stddev();
     double max_coordinate_value();
     double max_side_width();
+    double min_side_width();
 };
 
 class dd_box : public box

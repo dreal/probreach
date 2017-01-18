@@ -67,6 +67,7 @@ struct pdrh_config
     double cross_entropy_term_arg = 1e-2;
     bool ignore_nondet = false;
     bool debug = false;
+    bool sort_rv_flag = false;
 
 } extern global_config;
 

@@ -401,6 +401,11 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             global_config.debug = true;
         }
+        // debug flag
+        else if(strcmp(argv[i], "--sort-rv") == 0)
+        {
+            global_config.debug = true;
+        }
         // sobol
         else if(strcmp(argv[i], "--sobol") == 0)
         {

@@ -352,9 +352,14 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
         rv_partition = tmp_vector;
         //cout << "rv partition size after extra partition:" << rv_partition.size() << endl;
     }
+
     // sorting boxes by probability value
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sorting the partition of domain of continuous random parameters";
-    sort(rv_partition.begin(), rv_partition.end(), measure::compare_boxes_by_p_measure);
+    if(global_config.sort_rv_flag)
+    {
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sorting the partition of domain of continuous random parameters";
+        sort(rv_partition.begin(), rv_partition.end(), measure::compare_boxes_by_p_measure);
+    }
+
     // getting partition of domain of discrete random variables
     std::vector<box> dd_partition = measure::get_dd_partition();
     // fix for now

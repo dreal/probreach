@@ -41,6 +41,25 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
             stack.push_back(capd::interval(i.mid().leftBound(), i.rightBound()));
         }
     }
+
+    // turning intervals into boxes
+    vector<box> boxes;
+    for(capd::interval i : partition)
+    {
+        map<string, capd::interval> m;
+        m.insert(make_pair(var, i));
+        boxes.push_back(box(m));
+    }
+    // sorting boxes by probability measure
+    sort(boxes.begin(), boxes.end(), measure::compare_boxes_by_p_measure);
+
+    // turning boxes back into intervals
+    partition.clear();
+    for(box b : boxes)
+    {
+        partition.push_back(b.get_intervals().front());
+    }
+
     return make_pair(value, partition);
 }
 

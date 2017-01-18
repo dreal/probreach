@@ -31,11 +31,19 @@ if(NOT DEFINED DREAL_REL_DIR)
     endif(EXISTS ${DREAL_DIR}/build/release)
 endif(NOT DEFINED DREAL_REL_DIR)
 
+# getting git commit as a string
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+configure_file(
+  "${PROJECT_SOURCE_DIR}/util/git_sha1.cpp.in"
+  "${PROBREACH_BINARY_DIR}/git_sha1.cpp" @ONLY)
+
 # setting ProbReach version
 set(PROBREACH_VERSION_MAJOR 1)
 set(PROBREACH_VERSION_MINOR 4)
-set(PROBREACH_VERSION_PATCH 0)
-set(PROBREACH_VERSION ${PROBREACH_VERSION_MAJOR}.${PROBREACH_VERSION_MINOR}.${PROBREACH_VERSION_PATCH})
+
+set(PROBREACH_VERSION ${PROBREACH_VERSION_MAJOR}.${PROBREACH_VERSION_MINOR})
 configure_file(
   "${PROBREACH_SOURCE_DIR}/version.h.in"
   "${PROBREACH_SOURCE_DIR}/version.h"
@@ -78,6 +86,7 @@ add_custom_command(
 # setting propeties for the generated lexer and parser files
 set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c GENERATED PROPERTIES LANGUAGE CXX)
 set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c GENERATED PROPERTIES LANGUAGE CXX)
+set_source_files_properties(${PROBREACH_BINARY_DIR}/git_sha1.cpp GENERATED PROPERTIES LANGUAGE CXX)
 
 # header files
 include_directories("${DREAL_REL_DIR}/include/ibex")
@@ -100,7 +109,9 @@ file(GLOB SOURCES   ${PROBREACH_SOURCE_DIR}/util/*.cpp
                     ${PROBREACH_SOURCE_DIR}/solver/*.cpp
                     ${PROBREACH_SOURCE_DIR}/main.cpp)
 
-set(SOURCES ${SOURCES} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c)
+set(SOURCES ${SOURCES}  ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
+                        ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
+                        ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
 # adding executable
 add_executable(ProbReach ${SOURCES})

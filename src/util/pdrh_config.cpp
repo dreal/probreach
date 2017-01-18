@@ -14,6 +14,7 @@
 
 #include "version.h"
 #include "model.h"
+#include "git_sha1.h"
 
 using namespace std;
 
@@ -521,7 +522,7 @@ void print_usage()
 
 void print_version()
 {
-    cout << "ProbReach " << PROBREACH_VERSION << endl;
+    cout << "ProbReach " << PROBREACH_VERSION << " (" << git::get_sha1() << ")" << endl;
 }
 
 bool is_flag(char* str)

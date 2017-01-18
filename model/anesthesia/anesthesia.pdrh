@@ -1,0 +1,124 @@
+#define M 35 // (kg) body mass
+#define V1 (458.4*M)
+#define k10 0.1527*M^(-0.3)
+#define k12 0.114
+#define k13 0.0419
+#define k21 0.055
+#define k31 0.0033
+#define Td 20
+#define Tj 15
+#define u0 7000
+
+#define cp_min 1.0
+#define cp_max 6.0
+#define c1_min 0.0
+#define c1_max 10.0
+#define c2_min 0.0
+#define c2_max 10.0
+#define u_min 0.0
+#define u_max 20000
+
+#define pi 3.1415
+
+[-1e3, 1e3] cp; // (mug/l)
+[-1e3, 1e3]	c1; // (mug/l)
+[-1e3, 1e3] c2; // (mug/l)
+[-1e6, 1e6] u; // (mug/kg*min)
+[0, 15] tau; // (min)
+[0, 15] time;
+
+dist_normal(0,100) du0;
+dist_normal(0,100) du1;
+dist_normal(0,100) du2;
+dist_normal(0,100) du3;
+
+{
+mode 1;
+flow:
+	d/dt[cp] = -(k10+k12+k13)*cp + k12*c1 + k13*c2 + u / V1;
+	d/dt[c1] = k21*cp - k21*c1;
+	d/dt[c2] = k31*cp - k31*c2;
+	d/dt[u] = 100*cos(tau*2*pi/Tj);
+	d/dt[tau] = 1.0;
+jump:
+	(tau = Tj) ==> @2(and 	(cp' = cp)
+							(c1' = c1)
+							(c2' = c2)
+							(tau' = 0)
+							(u' = u + du1)
+							(du0'=du0)
+							(du1'=du1)
+							(du2'=du2)
+							(du3'=du3));
+}
+
+{
+mode 2;
+flow:
+    d/dt[cp] = -(k10+k12+k13)*cp + k12*c1 + k13*c2 + u / V1;
+    d/dt[c1] = k21*cp - k21*c1;
+    d/dt[c2] = k31*cp - k31*c2;
+    d/dt[u] = 100*cos(tau*2*pi/Tj);
+    d/dt[tau] = 1.0;
+jump:
+	(tau = Tj) ==> @3(and 	(cp' = cp)
+							(c1' = c1)
+							(c2' = c2)
+							(tau' = 0)
+							(u' = u + du2)
+							(du0'=du0)
+							(du1'=du1)
+							(du2'=du2)
+							(du3'=du3));	
+}
+
+{
+mode 3;
+flow:
+    d/dt[cp] = -(k10+k12+k13)*cp + k12*c1 + k13*c2 + u / V1;
+    d/dt[c1] = k21*cp - k21*c1;
+    d/dt[c2] = k31*cp - k31*c2;
+    d/dt[u] = 100*cos(tau*2*pi/Tj);
+    d/dt[tau] = 1.0;
+jump:
+	(tau = Tj) ==> @4(and 	(cp' = cp)
+							(c1' = c1)
+							(c2' = c2)
+							(tau' = 0)
+							(u' = u + du3)
+							(du0'=du0)
+							(du1'=du1)
+							(du2'=du2)
+							(du3'=du3));	
+}
+
+{
+mode 4;
+flow:
+    d/dt[cp] = -(k10+k12+k13)*cp + k12*c1 + k13*c2 + u / V1;
+    d/dt[c1] = k21*cp - k21*c1;
+    d/dt[c2] = k31*cp - k31*c2;
+    d/dt[u] = 100*cos(tau*2*pi/Tj);
+    d/dt[tau] = 1.0;
+jump:
+	
+}
+
+init:
+@1 (and (cp = 3.0)(c1 = 3.0)(c2 = 3.0)(u = u0 + du0)(tau = 0));
+
+goal:
+//@1 (and (tau = 10));
+//@2 (and (tau = 10));
+//@3 (and (tau = 60));
+//@6(tau = 10);
+@4 (not (and 
+			(cp <= cp_max) 
+			(cp >= cp_min) 
+			(c1 >= c1_min) 
+			(c1 <= c1_max) 
+			(c2 >= c2_min) 
+			(c2 <= c2_max)
+			(u >= u_min)
+			(u <= u_max)));
+

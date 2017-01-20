@@ -3,6 +3,7 @@
 //
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
+#include <algorithm>
 
 #include "box.h"
 #include "box_factory.h"
@@ -55,6 +56,29 @@ box::box(std::map<std::string, capd::interval> e)
         }
     }
     this->edges = e;
+}
+
+box::box(string line)
+{
+    // removing whitespaces
+    line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
+    size_t pos = 0;
+    map<string, capd::interval> b_map;
+    while (line.length() > 0)
+    {
+        pos = line.find(";");
+        string edge_string = line.substr(0, pos);
+        line.erase(0, pos + 1);
+
+        size_t pos2 = edge_string.find(":");
+        string var = edge_string.substr(0, pos2);
+
+        string interval_string = edge_string.substr(pos2 + 1, edge_string.length() - pos2);
+
+        size_t pos3 = interval_string.find(",");
+        b_map.insert(make_pair(var, capd::interval(interval_string.substr(1, pos3 - 1), interval_string.substr(pos3 + 1, interval_string.length() - pos3 - 2))));
+    }
+    this->edges = b_map;
 }
 
 std::map<std::string, capd::interval> box::get_map() const

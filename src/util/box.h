@@ -7,6 +7,7 @@
 #ifndef PROBREACH_BOX_H
 #define PROBREACH_BOX_H
 
+using namespace std;
 
 class box
 {
@@ -16,6 +17,7 @@ protected:
 public:
     box();
     box(std::map<std::string, capd::interval>);
+    box(string);
 
     //friend std::ostream& operator<<(std::ostream&, const box &);
     //inline bool operator< (const X& lhs, const X& rhs){ /* do actual comparison */ }

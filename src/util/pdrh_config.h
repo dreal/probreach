@@ -4,7 +4,6 @@
 
 #ifndef PROBREACH_PDRH_CONTEXT_H
 #define PROBREACH_PDRH_CONTEXT_H
-#include "pugixml.hpp"
 #include "config.h"
 #include<capd/capdlib.h>
 

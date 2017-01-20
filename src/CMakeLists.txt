@@ -96,16 +96,16 @@ include_directories("${PROBREACH_SOURCE_DIR}")
 include_directories("${PROBREACH_SOURCE_DIR}/util")
 include_directories("${PROBREACH_SOURCE_DIR}/solver")
 include_directories("${PROBREACH_SOURCE_DIR}/parser/csv")
+include_directories("${PROBREACH_SOURCE_DIR}/parser/output")
 include_directories("${PROBREACH_SOURCE_DIR}/parser/pdrh")
 include_directories("${PROBREACH_SOURCE_DIR}/logging")
-include_directories("${PROBREACH_SOURCE_DIR}/xml")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 include_directories("${DREAL_DIR}/src/api")
 
 # putting all source files together
 file(GLOB SOURCES   ${PROBREACH_SOURCE_DIR}/util/*.cpp
-                    ${PROBREACH_SOURCE_DIR}/xml/*.cpp
                     ${PROBREACH_SOURCE_DIR}/parser/csv/*.cpp
+                    ${PROBREACH_SOURCE_DIR}/parser/output/*.cpp
                     ${PROBREACH_SOURCE_DIR}/solver/*.cpp
                     ${PROBREACH_SOURCE_DIR}/main.cpp)
 

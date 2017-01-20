@@ -411,6 +411,21 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
             {
                 rv_partition = partition_map[nd];
                 std::vector<box> rv_stack;
+                // this code is for implementing early checking of the size of probability enclosure
+                /*
+                int counter = 0;
+                while(counter < rv_partition.size())
+                {
+                    if(capd::intervals::width(p_map[nd]) > global_config.precision_prob)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+                */
                 #pragma omp parallel for schedule (dynamic)
                 for(int i = 0; i < rv_partition.size(); i++)
                 {
@@ -574,6 +589,12 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                     partition_map.erase(nd);
                     res_map.insert(make_pair(nd, probability));
                     break;
+                }
+                // sorting newly obtained boxes
+                if(global_config.sort_rv_flag)
+                {
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sorting bisected boxes";
+                    sort(rv_stack.begin(), rv_stack.end(), measure::compare_boxes_by_p_measure);
                 }
                 // updating partition map only in case if probability value does not satisfy the probability precision
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating partition map";

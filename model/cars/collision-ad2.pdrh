@@ -13,18 +13,25 @@ model: npha;
 #define car_length 5
 //#define t_react 1 //time to react for car2 to hit the brakes (s)
 
-dist_normal(-1.8, 0.1) ad1;
-dist_normal(-1.35, 0.1) ad2;
+dist_normal(-2.0, 0.2) ad1;
+//dist_normal(3, 0.3) aa1;
+//dist_normal(-1.35, 0.1) ad2;
+
+[-0.7,-0.3]ad2;
+//[-2.0,-0.5]ad1;
+//[2.5,3.5]aa1;
 [0,500]s1;
 [0,500]s2;
-[0,50]v1;
-[0,50]v2;
-[0,50]v01;
-[0,50]v02;
+[0,40]v1;
+[0,40]v2;
+[0,40]v01;
+[0,40]v02;
 [0,60]tau;
 [0,60]time;
-[1.0,2.0]t_react;
-[1e-1,3]t_safe;
+//[0.5,1.5]t_react;
+//[1.0,2.0]t_safe;
+#define t_react 1.5
+#define t_safe 1.0
 
 // car1 started accelerating
 // car2 is moving with a constant speed
@@ -35,9 +42,11 @@ d/dt[s1]=v01_init + aa1 * tau;
 d/dt[s2]=v02_init;
 d/dt[v1]=aa1;
 d/dt[v2]=0.0;
+d/dt[v01]=0.0;
+d/dt[v02]=0.0;
 d/dt[tau]=1.0;
 jump:
-(and (s1 >= s2 + v2 * t_safe))==>@2(and (s1' = s1) (s2' = s2) (v1' = v1) (v2' = v2) (v01' = v1) (v02' = v2) (tau' = 0) (ad1'=ad1) (ad2'=ad2));
+(and (s1 = s2 + v2 * t_safe))==>@2(and (s1' = s1) (s2' = s2) (v1' = v1) (v2' = v2) (v01' = v1) (v02' = v2) (tau' = 0) (ad1'=ad1) (ad2'=ad2));
 }
 
 // car1 started decelerating
@@ -53,7 +62,7 @@ d/dt[v01]=0.0;
 d/dt[v02]=0.0;
 d/dt[tau]=1.0;
 jump:
-(and (tau = t_react))==>@3(and (s1' = s1) (s2' = s2) (v1' = v1) (v2' = v2) (v01' = v1) (v02' = v2) (tau' = 0)(ad1'=ad1) (ad2'=ad2));
+(and (tau = t_react))==>@3(and (s1' = s1) (s2' = s2) (v1' = v1) (v2' = v2) (v01' = v1) (v02' = v2) (tau' = 0) (ad1'=ad1) (ad2'=ad2));
 }
 
 // car1 is decelerating
@@ -69,8 +78,8 @@ d/dt[v01]=0.0;
 d/dt[v02]=0.0;
 d/dt[tau]=1.0;
 jump:
-(and (v1 <= 0))==>@4(and (s1' = s1) (s2' = s2) (v2' = v2) (v02' = v2) (tau' = 0)(ad1'=ad1) (ad2'=ad2));
-(and (v2 <= 0))==>@5(and (s1' = s1) (s2' = s2) (v1' = v1) (v01' = v1) (tau' = 0)(ad1'=ad1) (ad2'=ad2));
+(and (v1 <= 0))==>@4(and (s1' = s1) (s2' = s2) (v1' = v1) (v2' = v2) (v01' = v1) (v02' = v2) (tau' = 0) (ad1'=ad1) (ad2'=ad2));
+(and (v2 <= 0))==>@5(and (s1' = s1) (s2' = s2) (v1' = v1) (v2' = v2) (v01' = v1) (v02' = v2) (tau' = 0) (ad1'=ad1) (ad2'=ad2));
 }
 
 // car1 stopped
@@ -80,11 +89,13 @@ mode 4;
 flow:
 d/dt[s1]=0;
 d/dt[s2]=v02 + ad2 * tau;
+d/dt[v1]=0;
 d/dt[v2]=ad2;
+d/dt[v01]=0.0;
 d/dt[v02]=0.0;
 d/dt[tau]=1.0;
 jump:
-(and (v2 <= 0))==>@6(and (s1' = s1) (s2' = s2) (tau' = 0)(ad1'=ad1) (ad2'=ad2));
+(and (v2 <= 0))==>@6(and (s1' = s1) (s2' = s2) (v1' = v1) (v2' = v2) (v01' = v1) (v02' = v2) (tau' = 0) (ad1'=ad1) (ad2'=ad2));
 }
 
 // car1 is decelerating
@@ -95,10 +106,12 @@ flow:
 d/dt[s1]=v01 + ad1 * tau;
 d/dt[s2]=0;
 d/dt[v1]=ad1;
+d/dt[v2]=0;
 d/dt[v01]=0.0;
+d/dt[v02]=0.0;
 d/dt[tau]=1.0;
 jump:
-(and (v1 <= 0))==>@6(and (s1' = s1) (s2' = s2) (tau' = 0)(ad1'=ad1) (ad2'=ad2));
+(and (v1 <= 0))==>@6(and (s1' = s1) (s2' = s2) (v1' = v1) (v2' = v2) (v01' = v1) (v02' = v2) (tau' = 0) (ad1'=ad1) (ad2'=ad2));
 }
 
 // car1 stopped
@@ -108,13 +121,26 @@ mode 6;
 flow:
 d/dt[s1]=0;
 d/dt[s2]=0;
+d/dt[v1]=0;
+d/dt[v2]=0;
+d/dt[v01]=0;
+d/dt[v02]=0;
 d/dt[tau]=0.0;
 jump:
 
 }
 
 init:
-@1(and (s1 = s01) (s2 = s02) (v1 = v01_init) (v2 = v02_init) (tau = 0));
+@1(and 
+		(s1 = s01) 
+		(s2 = s02) 
+		(v1 = v01_init) 
+		(v2 = v02_init) 
+		(v01 = v01_init)
+		(v02 = v02_init)
+		(tau = 0));
 
 goal:
-@6(and (tau = 0)(s1 >= s2 - car_length));
+@6(and (tau = 0)(s1 < s2 - car_length));
+//@1(s1 >= s2 + v2 * t_safe);
+//@2(and (tau = 0) (s1 >= s2 + v2 * t_safe));

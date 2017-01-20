@@ -1,43 +1,37 @@
-MODEL_TYPE(PHA)
 #define R 5.0
 #define C 0.0025
 #define m 7.0
 #define g 9.8
-N(9,1)x;
 
+dist_normal(9,1)x0;
+
+[-100,100]x;
 [-100,100]v;
 [0,10]time;
 
 {
-mode1;
-invt:
-(x >= 0);
-invt_c:
-(x >= 0);
+mode 1;
+
 flow:
 d/dt[x]= v;
 d/dt[v]= - g;
 jump:
-(x <= 0)==>@2(and (x' = x) (v' = v));
+(x <= 0)==>@2(and (x' = x) (v' = v)(x0' = x0));
 }
+
 {
-mode2;
-invt:
-(x <= 0);
-invt_c:
-(x <= 0);
+mode 2;
+
 flow:
 d/dt[x]= v;
 d/dt[v]= - g - (R * v + x / C) / m;
 jump:
-(x >= 0)==>@1(and (x' = x) (v' = v));
+(x > 0)==>@1(and (x' = x) (v' = v)(x0'=x0));
 }
 
 init:
-@1(and (v = 0));
+@1(and (v = 0)(x=x0));
 
 goal:
 @1(and (x >= 7.0));
 
-goal_c:
-@1(and (x < 7.0) (v = 0.0001));

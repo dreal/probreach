@@ -397,3 +397,17 @@ box box_factory::map_box(box ratio, box b)
     return box(res_map);
 }
 
+pair<map<box, capd::interval>, map<box, capd::interval>> box_factory::get_intersection_conflicts(
+        map<box, capd::interval> original, map<box, capd::interval> compared)
+{
+    map<box, capd::interval> original_conflict, compared_conflict;
+    for(auto it = compared.begin(); it != compared.end(); it++)
+    {
+        for(auto it2 = original.begin(); it2 != original.end(); it2++)
+        {
+
+        }
+    }
+
+    return make_pair(original_conflict, compared_conflict);
+}

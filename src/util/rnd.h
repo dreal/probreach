@@ -5,7 +5,7 @@
 #ifndef PROBREACH_RANDOM_H
 #define PROBREACH_RANDOM_H
 
-#include<box.h>
+#include <box.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_qrng.h>
 #include <gsl/gsl_multiroots.h>

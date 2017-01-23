@@ -31,6 +31,10 @@ namespace box_factory
     bool compatible(vector<box>);
     box map_box(box, box);
 
+    // checks map for intersection conflicts
+    // first argument the initial map
+    // second argument the map which is being tested
+    pair<map<box, capd::interval>, map<box, capd::interval>> get_intersection_conflicts(map<box, capd::interval>, map<box, capd::interval>);
 
     // sort a vector of pairs by probability value
     // first argument -- target unsorted vector

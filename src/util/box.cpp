@@ -67,6 +67,13 @@ box::box(string line)
     while (line.length() > 0)
     {
         pos = line.find(";");
+        if(pos == string::npos)
+        {
+            ostringstream s;
+            s << "Every variable definition must finish with \";\"";
+            throw invalid_argument(s.str());
+        }
+
         string edge_string = line.substr(0, pos);
         line.erase(0, pos + 1);
 

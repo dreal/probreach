@@ -37,7 +37,29 @@ bool box::contains(box b)
         else
         {
             ostringstream s;
-            s << "The target box does not contain varibale: \"" << it->first << "\"";
+            s << "The target box does not contain variable: \"" << it->first << "\"";
+            throw invalid_argument(s.str());
+        }
+    }
+    return true;
+}
+
+bool box::intersects(box b)
+{
+    map<string, capd::interval> edges = get_map();
+    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    {
+        if(b.get_map().find(it->first) != b.get_map().cend())
+        {
+            if(!box_factory::intersect(it->second, b.get_map()[it->first]))
+            {
+                return false;
+            }
+        }
+        else
+        {
+            ostringstream s;
+            s << "The target box does not contain variable: \"" << it->first << "\"";
             throw invalid_argument(s.str());
         }
     }

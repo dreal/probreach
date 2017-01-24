@@ -40,6 +40,7 @@ public:
     std::vector<std::string> get_vars() const;
     bool empty();
     bool contains(box);
+    bool intersects(box);
     box get_mean();
     box get_stddev();
     double max_coordinate_value();

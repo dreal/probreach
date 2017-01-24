@@ -403,11 +403,31 @@ pair<map<box, capd::interval>, map<box, capd::interval>> box_factory::get_inters
     map<box, capd::interval> original_conflict, compared_conflict;
     for(auto it = compared.begin(); it != compared.end(); it++)
     {
+        bool intersect_flag = false;
+        box b = it->first;
         for(auto it2 = original.begin(); it2 != original.end(); it2++)
         {
-
+            if(b.intersects(it2->first))
+            {
+                intersect_flag = true;
+                if(!box_factory::intersect(it->second, it2->second))
+                {
+                    original_conflict.insert(make_pair(it->first, it->second));
+                    compared_conflict.insert(make_pair(it2->first, it2->second));
+                }
+                break;
+            }
+        }
+        if(!intersect_flag)
+        {
+            original_conflict.insert(make_pair(it->first, it->second));
         }
     }
-
     return make_pair(original_conflict, compared_conflict);
+}
+
+bool box_factory::intersect(capd::interval lhs, capd::interval rhs)
+{
+    return lhs.contains(rhs.leftBound()) || lhs.contains(rhs.rightBound()) ||
+            rhs.contains(lhs.leftBound()) || rhs.contains(lhs.rightBound());
 }

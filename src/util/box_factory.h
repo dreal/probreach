@@ -30,6 +30,7 @@ namespace box_factory
     box get_cover(vector<box>);
     bool compatible(vector<box>);
     box map_box(box, box);
+    bool intersect(capd::interval, capd::interval);
 
     // checks map for intersection conflicts
     // first argument the initial map

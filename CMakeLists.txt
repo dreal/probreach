@@ -5,6 +5,7 @@ project(ProbReach)
 # checking for packages
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
+find_package(GTest)
 
 # setting compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-return-type -Wno-unused-function --std=c++11 -fopenmp -frounding-math")
@@ -130,15 +131,18 @@ target_link_libraries(ProbReach -lfl -lgsl -lgslcblas)
 #adding static flag for ProbReach
 set_target_properties(ProbReach PROPERTIES COMPILE_FLAGS "-static" )
 
+if (GTEST_FOUND)
+    #enable_testing()
+    # Building ProbReachTest
+    # putting all test files together
+    file(GLOB PROBREACH_TEST ${PROBREACH_TEST_DIR}/main_test.cpp
+            ${PROBREACH_TEST_DIR}/util/*.cpp)
 
-# Building ProbReachTest
-# putting all test files together
-file(GLOB PROBREACH_TEST ${PROBREACH_TEST_DIR}/main_test.cpp
-        ${PROBREACH_TEST_DIR}/util/*.cpp)
-
-add_executable(ProbReachTest ${PROBREACH_TEST} ${PROBREACH_SRC})
-target_link_libraries(ProbReachTest ${DREAL_REL_DIR}/lib/libcapd.a)
-target_link_libraries(ProbReachTest ${DREAL_REL_DIR}/lib/libibex.a)
-target_link_libraries(ProbReachTest ${DREAL_REL_DIR}/lib/libprim.a)
-# flag for FLEX and GSL
-target_link_libraries(ProbReachTest -lfl -lgsl -lgslcblas -lgtest)
+    add_executable(ProbReachTest ${PROBREACH_TEST} ${PROBREACH_SRC})
+    target_link_libraries(ProbReachTest ${DREAL_REL_DIR}/lib/libcapd.a)
+    target_link_libraries(ProbReachTest ${DREAL_REL_DIR}/lib/libibex.a)
+    target_link_libraries(ProbReachTest ${DREAL_REL_DIR}/lib/libprim.a)
+    # flag for FLEX and GSL
+    target_link_libraries(ProbReachTest -lfl -lgsl -lgslcblas -lgtest)
+    #add_test(RunAllTests ProbReachTest)
+endif (GTEST_FOUND)

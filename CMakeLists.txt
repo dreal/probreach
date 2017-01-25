@@ -2,10 +2,13 @@ cmake_minimum_required(VERSION 2.6)
 # project name
 project(ProbReach)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+
 # checking for packages
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(GTest)
+find_package(DREAL REQUIRED)
 
 # setting compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-return-type -Wno-unused-function --std=c++11 -fopenmp -frounding-math")
@@ -17,24 +20,7 @@ set(PROBREACH_BINARY_DIR ${PROJECT_SOURCE_DIR}/build/release)
 set(PROBREACH_TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
 
-# checking if dReal binary is set
-if(NOT DEFINED DREAL_DIR)
-    message(WARNING "The variable DREAL_DIR is not defined. The default value \"$ENV{HOME}/dreal\" will be set")
-    set(DREAL_DIR $ENV{HOME}/dreal)
-endif(NOT DEFINED DREAL_DIR)
-
-if(NOT DEFINED DREAL_REL_DIR)
-    if(EXISTS ${DREAL_DIR}/build/release)
-        set(DREAL_REL_DIR ${DREAL_DIR}/build/release)
-    elseif(EXISTS ${DREAL_DIR}/build/minsizerel)
-        set(DREAL_REL_DIR ${DREAL_DIR}/build/minsizerel)
-    else(EXISTS ${DREAL_DIR}/build/release)
-        message(FATAL_ERROR "dReal build not was not found at ${DREAL_DIR}/build/release or ${DREAL_DIR}/build/minsizerel. Please set the variable DREAL_REL_DIR with the full path to dReal build")
-    endif(EXISTS ${DREAL_DIR}/build/release)
-endif(NOT DEFINED DREAL_REL_DIR)
-
 # getting git commit as a string
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 configure_file(
@@ -51,8 +37,11 @@ configure_file(
         "${PROBREACH_SOURCE_DIR}/version.h"
 )
 
-# setting solver binary
-set(DREAL_BIN ${DREAL_DIR}/bin/dReal)
+# setting solver executable
+if(NOT DREAL_EXE)
+    set(DREAL_EXE dReal)
+endif(NOT DREAL_EXE)
+
 configure_file(
         "${PROBREACH_SOURCE_DIR}/config.h.in"
         "${PROBREACH_SOURCE_DIR}/config.h"
@@ -91,8 +80,8 @@ set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c GENE
 set_source_files_properties(${PROBREACH_BINARY_DIR}/git_sha1.cpp GENERATED PROPERTIES LANGUAGE CXX)
 
 # header files
-include_directories("${DREAL_REL_DIR}/include/ibex")
-include_directories("${DREAL_REL_DIR}/include")
+include_directories("${DREAL_INCLUDE_DIR}")
+include_directories("${DREAL_INCLUDE_DIR}/ibex")
 include_directories("${PROBREACH_SOURCE_DIR}")
 include_directories("${PROBREACH_SOURCE_DIR}/util")
 include_directories("${PROBREACH_SOURCE_DIR}/solver")
@@ -123,13 +112,11 @@ add_custom_command(TARGET ProbReach POST_BUILD
         COMMENT "Copying ${PROBREACH_BINARY_DIR}/ProbReach to ${PROBREACH_SOURCE_DIR}/../bin")
 
 # linking libraries
-target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libcapd.a)
-target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libibex.a)
-target_link_libraries(ProbReach ${DREAL_REL_DIR}/lib/libprim.a)
+target_link_libraries(ProbReach ${DREAL_LIBRARIES})
 # flag for FLEX and GSL
 target_link_libraries(ProbReach -lfl -lgsl -lgslcblas)
 #adding static flag for ProbReach
-set_target_properties(ProbReach PROPERTIES COMPILE_FLAGS "-static" )
+set_target_properties(ProbReach PROPERTIES COMPILE_FLAGS "-static")
 
 if (GTEST_FOUND)
     #enable_testing()
@@ -139,10 +126,8 @@ if (GTEST_FOUND)
             ${PROBREACH_TEST_DIR}/util/*.cpp)
 
     add_executable(ProbReachTest ${PROBREACH_TEST} ${PROBREACH_SRC})
-    target_link_libraries(ProbReachTest ${DREAL_REL_DIR}/lib/libcapd.a)
-    target_link_libraries(ProbReachTest ${DREAL_REL_DIR}/lib/libibex.a)
-    target_link_libraries(ProbReachTest ${DREAL_REL_DIR}/lib/libprim.a)
-    # flag for FLEX and GSL
+    target_link_libraries(ProbReachTest ${DREAL_LIBRARIES})
+    # flag for FLEX and GSL and gtest
     target_link_libraries(ProbReachTest -lfl -lgsl -lgslcblas -lgtest)
     #add_test(RunAllTests ProbReachTest)
 endif (GTEST_FOUND)

@@ -15,3 +15,6 @@ ProbReach
 CMakeCache.txt
 src/version.h
 src/config.h
+Testing/
+Debug/
+Release/

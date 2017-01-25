@@ -59,3 +59,17 @@ TEST(intersects, one_box_contains_another)
     box b("a:[0,1];b:[0,1];c:[0,1];");
     EXPECT_TRUE(b.contains(box("a:[0,0.5];b:[0.5,0.5];c:[0.5,1];")));
 }
+
+TEST(compatible, compatible_boxes)
+{
+    box b("a:[0,1];b:[0,1];c:[0,1];");
+    EXPECT_TRUE(b.compatible(box("a:[0,0.5];b:[0.5,0.5];c:[0.5,1];")));
+    EXPECT_TRUE(box().compatible(box()));
+}
+
+TEST(compatible, boxes_are_not_compatible)
+{
+    box b("a:[0,1];b:[0,1];");
+    EXPECT_FALSE(b.compatible(box("a:[0,0.5];b:[0.5,0.5];c:[0.5,1];")));
+    EXPECT_FALSE(box().compatible(box("c:[0,1];")));
+}

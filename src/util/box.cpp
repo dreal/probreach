@@ -6,7 +6,6 @@
 #include <algorithm>
 
 #include "box.h"
-#include "box_factory.h"
 
 using namespace std;
 
@@ -16,12 +15,12 @@ box::box()
 }
 
 // returns true if box is empty
-bool box::empty()
+bool box::empty() const
 {
     return (get_map().size() == 0);
 }
 
-bool box::contains(box b)
+bool box::contains(box b) const
 {
     map<string, capd::interval> edges = get_map();
     map<string, capd::interval> b_edges = b.get_map();
@@ -44,14 +43,15 @@ bool box::contains(box b)
     return true;
 }
 
-bool box::intersects(box b)
+bool box::intersects(box b) const
 {
     map<string, capd::interval> edges = get_map();
     for(auto it = edges.cbegin(); it != edges.cend(); it++)
     {
         if(b.get_map().find(it->first) != b.get_map().cend())
         {
-            if(!box_factory::intersect(it->second, b.get_map()[it->first]))
+            if(!(it->second.contains(b.get_map()[it->first].leftBound()) || it->second.contains(b.get_map()[it->first].rightBound()) ||
+                    b.get_map()[it->first].contains(it->second.leftBound()) || b.get_map()[it->first].contains(it->second.rightBound())))
             {
                 return false;
             }
@@ -65,6 +65,12 @@ bool box::intersects(box b)
     }
     return true;
 }
+
+bool box::compatible(box b) const
+{
+    return get_keys_diff(b).empty() && b.get_keys_diff(*this).empty();
+}
+
 
 box::box(std::map<std::string, capd::interval> e)
 {
@@ -175,8 +181,8 @@ bool operator==(const box& lhs, const box& rhs)
 
 box operator+(const box& lhs, const box& rhs)
 {
-    if(!box_factory::get_keys_diff(lhs, rhs).empty() ||
-            !box_factory::get_keys_diff(rhs, lhs).empty())
+    if(!lhs.get_keys_diff(rhs).empty() ||
+            !rhs.get_keys_diff(lhs).empty())
     {
         ostringstream s;
         s << "cannot perform \"+\" operation for " << lhs << " and " << rhs << ". The boxes have different sets of variables";
@@ -194,8 +200,8 @@ box operator+(const box& lhs, const box& rhs)
 
 box operator-(const box& lhs, const box& rhs)
 {
-    if(!box_factory::get_keys_diff(lhs, rhs).empty() ||
-            !box_factory::get_keys_diff(rhs, lhs).empty())
+    if(!lhs.get_keys_diff(rhs).empty() ||
+        !rhs.get_keys_diff(lhs).empty())
     {
         ostringstream s;
         s << "cannot perform \"+\" operation for " << lhs << " and " << rhs << ". The boxes have different sets of variables";
@@ -213,8 +219,8 @@ box operator-(const box& lhs, const box& rhs)
 
 box operator*(const box& lhs, const box& rhs)
 {
-    if(!box_factory::get_keys_diff(lhs, rhs).empty() ||
-            !box_factory::get_keys_diff(rhs, lhs).empty())
+    if(!lhs.get_keys_diff(rhs).empty() ||
+        !rhs.get_keys_diff(lhs).empty())
     {
         ostringstream s;
         s << "cannot perform \"+\" operation for " << lhs << " and " << rhs << ". The boxes have different sets of variables";
@@ -232,8 +238,8 @@ box operator*(const box& lhs, const box& rhs)
 
 box operator/(const box& lhs, const box& rhs)
 {
-    if(!box_factory::get_keys_diff(lhs, rhs).empty() ||
-            !box_factory::get_keys_diff(rhs, lhs).empty())
+    if(!lhs.get_keys_diff(rhs).empty() ||
+        !rhs.get_keys_diff(lhs).empty())
     {
         ostringstream s;
         s << "cannot perform \"+\" operation for " << lhs << " and " << rhs << ". The boxes have different sets of variables";
@@ -378,4 +384,19 @@ double box::min_side_width()
         }
     }
     return min;
+}
+
+box box::get_keys_diff(box b) const
+{
+    map<string, capd::interval> res;
+    map<string, capd::interval> lhs_map = get_map();
+    map<string, capd::interval> rhs_map = b.get_map();
+    for(auto it = lhs_map.cbegin(); it != lhs_map.cend(); it++)
+    {
+        if(rhs_map.find(it->first) == rhs_map.cend())
+        {
+            res.insert(make_pair(it->first, it->second));
+        }
+    }
+    return box(res);
 }

@@ -377,7 +377,7 @@ bool box_factory::compatible(vector<box> q)
     {
         for(box c : q)
         {
-            if(!box_factory::get_keys_diff(b,c).empty())
+            if(!b.compatible(c))
             {
                 return false;
             }

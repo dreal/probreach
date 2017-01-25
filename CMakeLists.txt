@@ -5,10 +5,10 @@ project(ProbReach)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
 # checking for packages
+find_package(DREAL REQUIRED)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(GTest)
-find_package(DREAL REQUIRED)
 
 # setting compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-return-type -Wno-unused-function --std=c++11 -fopenmp -frounding-math")
@@ -18,7 +18,10 @@ set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 set(PROBREACH_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 set(PROBREACH_BINARY_DIR ${PROJECT_SOURCE_DIR}/build/release)
 set(PROBREACH_TEST_DIR ${PROJECT_SOURCE_DIR}/test)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
+#set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../bin)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
+#set(CMAKE_BUILD_FILES_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
+#set(CMAKE_BUILD_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
 
 # getting git commit as a string
 include(GetGitRevisionDescription)
@@ -36,11 +39,6 @@ configure_file(
         "${PROBREACH_SOURCE_DIR}/version.h.in"
         "${PROBREACH_SOURCE_DIR}/version.h"
 )
-
-# setting solver executable
-if(NOT DREAL_EXE)
-    set(DREAL_EXE dReal)
-endif(NOT DREAL_EXE)
 
 configure_file(
         "${PROBREACH_SOURCE_DIR}/config.h.in"
@@ -102,6 +100,9 @@ set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhpa
         ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
+# setting the output directory for ProbReach
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROBREACH_BINARY_DIR})
+
 # adding executable
 add_executable(ProbReach ${PROBREACH_SRC} ${PROBREACH_SOURCE_DIR}/main.cpp)
 
@@ -118,16 +119,20 @@ target_link_libraries(ProbReach -lfl -lgsl -lgslcblas)
 #adding static flag for ProbReach
 set_target_properties(ProbReach PROPERTIES COMPILE_FLAGS "-static")
 
-if (GTEST_FOUND)
-    #enable_testing()
-    # Building ProbReachTest
-    # putting all test files together
-    file(GLOB PROBREACH_TEST ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_TEST_DIR}/util/*.cpp)
+if(GTEST_FOUND)
+    # Building tests
+    enable_testing()
 
-    add_executable(ProbReachTest ${PROBREACH_TEST} ${PROBREACH_SRC})
-    target_link_libraries(ProbReachTest ${DREAL_LIBRARIES})
-    # flag for FLEX and GSL and gtest
-    target_link_libraries(ProbReachTest -lfl -lgsl -lgslcblas -lgtest)
-    #add_test(RunAllTests ProbReachTest)
-endif (GTEST_FOUND)
+    # setting the output directory for ProbReach
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROBREACH_BINARY_DIR}/test)
+
+    # unit test for box.cpp
+    add_executable(box_test ${PROBREACH_TEST_DIR}/util/box_test.cpp
+            ${PROBREACH_TEST_DIR}/main_test.cpp
+            ${PROBREACH_SOURCE_DIR}/util/box.cpp)
+    target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
+    add_test(box_test ${PROBREACH_BINARY_DIR}/test/box_test)
+
+
+
+endif(GTEST_FOUND)

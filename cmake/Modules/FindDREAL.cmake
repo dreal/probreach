@@ -23,7 +23,7 @@ if(DREAL_INCLUDE_DIR AND DREAL_LIBRARIES)
     set(DREAL_FOUND TRUE)
 else(DREAL_INCLUDE_DIR AND DREAL_LIBRARIES)
     # going through possible dReal directories
-    foreach(DIRECTORY ${DREAL_DIRS})
+    foreach(DREAL_DIR ${DREAL_DIRS})
         foreach(BUILD ${BUILD_DIRS})
             # finding include directory
             if(EXISTS ${DREAL_DIR}/${BUILD}/include)
@@ -60,9 +60,24 @@ else(DREAL_INCLUDE_DIR AND DREAL_LIBRARIES)
                 set(DREAL_EXE ${DREAL_DIR}/${BUILD}/dReal)
             endif(NOT DREAL_EXE AND EXISTS ${DREAL_DIR}/${BUILD}/dReal)
         endforeach(BUILD)
-    endforeach(DIRECTORY)
+    endforeach(DREAL_DIR)
     # checking if include directories and libraries has been found
     if(DREAL_INCLUDE_DIR AND DREAL_LIBRARIES)
         set(DREAL_FOUND TRUE)
     endif(DREAL_INCLUDE_DIR AND DREAL_LIBRARIES)
 endif(DREAL_INCLUDE_DIR AND DREAL_LIBRARIES)
+
+# reporting that dReal has been found
+if(DREAL_FOUND)
+    message(STATUS "Found dReal (includes: ${DREAL_INCLUDE_DIR}, libs: ${DREAL_LIBRARIES})")
+else(DREAL_FOUND)
+    message(STATUS "dReal not found")
+endif(DREAL_FOUND)
+
+# setting solver executable
+if(NOT DREAL_EXE)
+    message(STATUS "dReal executable not found. DREAL_EXE=dReal will be set")
+    set(DREAL_EXE dReal)
+else(NOT DREAL_EXE)
+    message(STATUS "Found dReal executable: ${DREAL_EXE}")
+endif(NOT DREAL_EXE)

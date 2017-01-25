@@ -38,14 +38,17 @@ public:
     std::map<std::string, capd::interval> get_map() const;
     std::vector<capd::interval> get_intervals() const;
     std::vector<std::string> get_vars() const;
-    bool empty();
-    bool contains(box);
-    bool intersects(box);
+    bool empty() const;
+    bool contains(box) const;
+    bool intersects(box) const;
+    bool compatible(box) const;
+    box get_keys_diff(box) const;
     box get_mean();
     box get_stddev();
     double max_coordinate_value();
     double max_side_width();
     double min_side_width();
+
 };
 
 class dd_box : public box

@@ -133,6 +133,4 @@ if(GTEST_FOUND)
     target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
     add_test(box_test ${PROBREACH_BINARY_DIR}/test/box_test)
 
-
-
 endif(GTEST_FOUND)

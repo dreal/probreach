@@ -43,6 +43,7 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
     }
 
     // turning intervals into boxes
+    /*
     vector<box> boxes;
     for(capd::interval i : partition)
     {
@@ -59,6 +60,7 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
     {
         partition.push_back(b.get_intervals().front());
     }
+    */
 
     return make_pair(value, partition);
 }

@@ -148,20 +148,37 @@ int main(int argc, char* argv[])
             }
             else if(global_config.cross_entropy_flag)
             {
-                pair<box, capd::interval> probability;
-                if(global_config.cross_entropy_normal)
+                // just a temporary fix. come back to it !!!
+                if(pdrh::par_map.empty())
                 {
-                    probability = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
-                                                                                 global_config.reach_depth_max,
-                                                                                 global_config.sample_size);
+                    capd::interval probability;
+                    if(global_config.chernoff_flag)
+                    {
+                        probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
+                    }
+                    else if(global_config.bayesian_flag)
+                    {
+                        probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
+                    }
+                    cout << probability << " | " << capd::intervals::width(probability) << endl;
                 }
-                else if(global_config.cross_entropy_beta)
+                else
                 {
-                    probability = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
-                                                                                 global_config.reach_depth_max,
-                                                                                 global_config.sample_size);
+                    pair<box, capd::interval> probability;
+                    if(global_config.cross_entropy_normal)
+                    {
+                        probability = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
+                                                                                     global_config.reach_depth_max,
+                                                                                     global_config.sample_size);
+                    }
+                    else if(global_config.cross_entropy_beta)
+                    {
+                        probability = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
+                                                                                   global_config.reach_depth_max,
+                                                                                   global_config.sample_size);
+                    }
+                    std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
                 }
-                std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
             }
             else
             {

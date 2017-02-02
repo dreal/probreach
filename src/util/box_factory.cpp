@@ -3,15 +3,8 @@
 //
 
 #include<capd/capdlib.h>
-#include<capd/intervals/lib.h>
 #include "box.h"
 #include "box_factory.h"
-#include "pdrh_config.h"
-#include "measure.h"
-//#include "dreal.hh"
-#include<gsl/gsl_multiroots.h>
-//#include<ibex.h>
-
 
 /**
  * Cartesian product

@@ -19,3 +19,4 @@ Testing/
 Debug/
 Release/
 CTestTestfile.cmake
+install_manifest.txt

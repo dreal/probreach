@@ -5,7 +5,6 @@
 #include <gtest/gtest.h>
 #include "box_factory.h"
 #include "box.h"
-#include "outputparser.h"
 
 TEST(get_intersection_conflicts, no_conflicts)
 {

@@ -97,6 +97,13 @@ file(GLOB PROBREACH_SRC   ${PROBREACH_SOURCE_DIR}/util/*.cpp
         ${PROBREACH_SOURCE_DIR}/parser/output/*.cpp
         ${PROBREACH_SOURCE_DIR}/solver/*.cpp)
 
+file(GLOB PROBREACH_INCLUDE   ${PROBREACH_SOURCE_DIR}/util/*.h
+        ${PROBREACH_SOURCE_DIR}/parser/csv/*.h
+        ${PROBREACH_SOURCE_DIR}/parser/output/*.h
+        ${PROBREACH_SOURCE_DIR}/solver/*.h)
+
+set(PROBREACH_INCLUDE ${PROBREACH_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.h)
+
 set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
         ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
@@ -104,21 +111,23 @@ set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhpa
 # setting the output directory for ProbReach
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROBREACH_BINARY_DIR})
 
+# creating a library
+add_library(probreach ${PROBREACH_SRC})
+target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas)
+
 # adding executable
-add_executable(ProbReach ${PROBREACH_SRC} ${PROBREACH_SOURCE_DIR}/main.cpp)
+add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
+target_link_libraries(ProbReach probreach)
 
-# creating a bin folder and copying ProbReach binary there
-add_custom_command(TARGET ProbReach POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${PROBREACH_SOURCE_DIR}/../bin
-        COMMAND ${CMAKE_COMMAND} -E copy ${PROBREACH_BINARY_DIR}/ProbReach ${PROBREACH_SOURCE_DIR}/../bin
-        COMMENT "Copying ${PROBREACH_BINARY_DIR}/ProbReach to ${PROBREACH_SOURCE_DIR}/../bin")
+install(FILES ${PROBREACH_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include)
+install(TARGETS ProbReach DESTINATION ${PROBREACH_BINARY_DIR}/../../bin)
+install(TARGETS probreach DESTINATION ${PROBREACH_BINARY_DIR}/lib)
 
-# linking libraries
-target_link_libraries(ProbReach ${DREAL_LIBRARIES})
-# flag for FLEX and GSL
-target_link_libraries(ProbReach -lfl -lgsl -lgslcblas)
-#adding static flag for ProbReach
-#set_target_properties(ProbReach PROPERTIES COMPILE_FLAGS "-static")
+# this is for CLion IDE
+add_custom_target(install_probreach
+        $(MAKE) install
+        DEPENDS ProbReach
+        COMMENT "Installing ProbReach")
 
 if(GTEST_FOUND)
     # Building tests
@@ -133,5 +142,20 @@ if(GTEST_FOUND)
             ${PROBREACH_SOURCE_DIR}/util/box.cpp)
     target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
     add_test(box_test ${PROBREACH_BINARY_DIR}/test/box_test)
+
+    # unit test for box_factory.cpp
+#    add_executable(box_factory_test ${PROBREACH_TEST_DIR}/util/box_factory_test.cpp
+#            ${PROBREACH_TEST_DIR}/main_test.cpp
+#            ${PROBREACH_SOURCE_DIR}/util/box.cpp
+#            ${PROBREACH_SOURCE_DIR}/util/box_factory.cpp)
+#    target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
+#    add_test(box_factory_test ${PROBREACH_BINARY_DIR}/test/box_factory_test)
+
+    # unit test for box.cpp
+    add_executable(node_test ${PROBREACH_TEST_DIR}/util/node_test.cpp
+            ${PROBREACH_TEST_DIR}/main_test.cpp
+            ${PROBREACH_SOURCE_DIR}/util/node.cpp)
+    target_link_libraries(node_test ${DREAL_LIBRARIES} -lgtest)
+    add_test(node_test ${PROBREACH_BINARY_DIR}/test/node_test)
 
 endif(GTEST_FOUND)

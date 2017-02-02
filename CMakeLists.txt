@@ -8,10 +8,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/
 find_package(DREAL REQUIRED)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
+find_package(GSL REQUIRED)
 find_package(GTest)
 
 # setting compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-return-type -Wno-unused-function --std=c++11 -fopenmp -frounding-math")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-return-type -Wno-unused-function -static --std=c++11 -fopenmp -frounding-math")
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 # setting some environment variables
@@ -117,7 +118,7 @@ target_link_libraries(ProbReach ${DREAL_LIBRARIES})
 # flag for FLEX and GSL
 target_link_libraries(ProbReach -lfl -lgsl -lgslcblas)
 #adding static flag for ProbReach
-set_target_properties(ProbReach PROPERTIES COMPILE_FLAGS "-static")
+#set_target_properties(ProbReach PROPERTIES COMPILE_FLAGS "-static")
 
 if(GTEST_FOUND)
     # Building tests

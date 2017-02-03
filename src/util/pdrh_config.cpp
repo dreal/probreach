@@ -13,7 +13,7 @@
 #include <easylogging++.h>
 
 #include "version.h"
-#include "model.h"
+#include "pdrh.h"
 #include "git_sha1.h"
 
 using namespace std;

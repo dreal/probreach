@@ -4,7 +4,7 @@
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include "box.h"
-#include "model.h"
+#include "pdrh.h"
 
 #ifndef PROBREACH_MEASURE_H
 #define PROBREACH_MEASURE_H

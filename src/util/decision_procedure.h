@@ -5,7 +5,7 @@
 #ifndef PROBREACH_DECISION_PROCEDURE_H
 #define PROBREACH_DECISION_PROCEDURE_H
 #include<iostream>
-#include "model.h"
+#include "pdrh.h"
 
 using namespace std;
 

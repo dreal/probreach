@@ -16,13 +16,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 # setting some environment variables
-set(PROBREACH_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
-set(PROBREACH_BINARY_DIR ${PROJECT_SOURCE_DIR}/build/release)
-set(PROBREACH_TEST_DIR ${PROJECT_SOURCE_DIR}/test)
-#set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../bin)
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
-#set(CMAKE_BUILD_FILES_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
-#set(CMAKE_BUILD_DIRECTORY ${PROJECT_SOURCE_DIR}/build/release)
+set(PROBREACH_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(PROBREACH_BINARY_DIR ${CMAKE_BINARY_DIR})
+set(PROBREACH_TEST_DIR ${CMAKE_SOURCE_DIR}/test)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# setting ProbReach version
+set(PROBREACH_VERSION_MAJOR 1)
+set(PROBREACH_VERSION_MINOR 4)
 
 # getting git commit as a string
 include(GetGitRevisionDescription)
@@ -30,10 +34,6 @@ get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 configure_file(
         "${PROBREACH_SOURCE_DIR}/util/git_sha1.cpp.in"
         "${PROBREACH_BINARY_DIR}/git_sha1.cpp" @ONLY)
-
-# setting ProbReach version
-set(PROBREACH_VERSION_MAJOR 1)
-set(PROBREACH_VERSION_MINOR 4)
 
 set(PROBREACH_VERSION ${PROBREACH_VERSION_MAJOR}.${PROBREACH_VERSION_MINOR})
 configure_file(
@@ -88,6 +88,7 @@ include_directories("${PROBREACH_SOURCE_DIR}/parser/csv")
 include_directories("${PROBREACH_SOURCE_DIR}/parser/output")
 include_directories("${PROBREACH_SOURCE_DIR}/parser/pdrh")
 include_directories("${PROBREACH_SOURCE_DIR}/logging")
+include_directories("${PROBREACH_SOURCE_DIR}/pdrh2smt")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 
 # Building ProbReach
@@ -108,20 +109,31 @@ set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhpa
         ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
-# setting the output directory for ProbReach
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROBREACH_BINARY_DIR})
-
 # creating a library
 add_library(probreach ${PROBREACH_SRC})
 target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas)
+
+set(PDRH2SMT_SRC
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp)
+
+set(PDRH2SMT_INCLUDE
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.h
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.h
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.h
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.h)
+
+add_library(pdrh2smt ${PDRH2SMT_SRC})
+install(FILES ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
 
 # adding executable
 add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
 target_link_libraries(ProbReach probreach)
 
-install(FILES ${PROBREACH_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include)
-install(TARGETS ProbReach DESTINATION ${PROBREACH_BINARY_DIR}/../../bin)
-install(TARGETS probreach DESTINATION ${PROBREACH_BINARY_DIR}/lib)
+install(FILES ${PROBREACH_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/probreach)
+install(TARGETS ProbReach DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 
 # this is for CLion IDE
 add_custom_target(install_probreach
@@ -152,9 +164,9 @@ if(GTEST_FOUND)
 #    add_test(box_factory_test ${PROBREACH_BINARY_DIR}/test/box_factory_test)
 
     # unit test for box.cpp
-    add_executable(node_test ${PROBREACH_TEST_DIR}/util/node_test.cpp
+    add_executable(node_test ${PROBREACH_TEST_DIR}/pdrh2smt/node_test.cpp
             ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_SOURCE_DIR}/util/node.cpp)
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp)
     target_link_libraries(node_test ${DREAL_LIBRARIES} -lgtest)
     add_test(node_test ${PROBREACH_BINARY_DIR}/test/node_test)
 

@@ -3,7 +3,7 @@
 //
 
 #include "rnd.h"
-#include "model.h"
+#include "pdrh.h"
 #include "box_factory.h"
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>

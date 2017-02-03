@@ -8,7 +8,7 @@
 #include <limits>
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
-#include "model.h"
+#include "pdrh.h"
 #include "measure.h"
 #include "pdrh_config.h"
 

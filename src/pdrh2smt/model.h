@@ -42,6 +42,10 @@ public:
     // throws invalid_argument exception otherwise
     void push_var(string, node, node);
 
+    // adds a mode (id, mode) to the list of modes if a mode
+    // has not been defined yet and throws invalid_argument exception otherwise
+    void push_mode(mode);
+
     // adds initial state (id, predicate) to the list of initial states and
     // throws invalid_argument exception the mode with the specified id does not exist
     void push_init(int, node);
@@ -50,9 +54,7 @@ public:
     // throws invalid_argument exception the mode with the specified id does not exist
     void push_goal(int, node);
 
-    // adds a mode (id, mode) to the list of modes if a mode with the specified id
-    // has not been defined yet and throws invalid_argument exception otherwise
-    void push_mode(int, mode);
+
 
 
 };

@@ -28,7 +28,7 @@ protected:
     map<string, node> ode_map;
 
     // list of variables for which the ODEs were defined
-    map<string, pair<node*, node*>> var_map;
+    map<string, pair<node, node>> var_map;
 
 public:
 
@@ -52,7 +52,7 @@ public:
     map<string, node> get_odes();
 
     // returns a list of variables
-    map<string, pair<node*, node*>> get_vars();
+    map<string, pair<node, node>> get_vars();
 
 };
 

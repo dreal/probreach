@@ -54,6 +54,8 @@ public:
     // throws invalid_argument exception the mode with the specified id does not exist
     void push_goal(int, node);
 
+    // returns true if the variable exists and false otherwise
+    bool var_exists(string);
 
 
 

@@ -19,6 +19,7 @@ extern "C" FILE *yyin;
 extern int line_num;
 
 void yyerror(const char *s);
+
 %}
 
 %union
@@ -841,7 +842,8 @@ syn_pair:
 
 %%
 
-void yyerror(const char *s) {
+void yyerror(const char *s)
+{
 	std::cerr << "line " << line_num << ": " << s << std::endl;
 	exit(EXIT_FAILURE);
 }

@@ -79,3 +79,8 @@ void model::push_goal(int id, node pred)
     }
     this->goal_map.insert(make_pair(id, pred));
 }
+
+bool model::var_exists(string var)
+{
+    return (this->var_map.find(var) != this->var_map.end());
+}

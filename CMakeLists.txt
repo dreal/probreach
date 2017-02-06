@@ -12,7 +12,7 @@ find_package(GSL REQUIRED)
 find_package(GTest)
 
 # setting compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-return-type -Wno-unused-function -static --std=c++11 -fopenmp -frounding-math")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-return-type -Wno-unused-function --std=c++11 -fopenmp -frounding-math")
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 # setting some environment variables
@@ -78,9 +78,42 @@ set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c GEN
 set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c GENERATED PROPERTIES LANGUAGE CXX)
 set_source_files_properties(${PROBREACH_BINARY_DIR}/git_sha1.cpp GENERATED PROPERTIES LANGUAGE CXX)
 
+
+## create custom command for flex/lex (note the outputs)
+#add_custom_command(
+#        COMMAND ${FLEX_EXECUTABLE}
+#        ARGS -o ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.c
+#        ${PROBREACH_SOURCE_DIR}/pdrh2smt/parser/pdrhlexer.l
+#        OUTPUT  ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.c
+#        COMMENT "Generating ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.c"
+#)
+#
+## create custom command for bison/yacc (note the DEPENDS)
+#add_custom_command(
+#        COMMAND ${BISON_EXECUTABLE}
+#        ARGS -d -y ${PROBREACH_SOURCE_DIR}/pdrh2smt/parser/pdrhparser.y
+#        -o ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.c
+#        DEPENDS ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.c
+#        OUTPUT  ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.c
+#        COMMENT "Generating ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.c"
+#)
+#
+## setting propeties for the generated lexer and parser files
+#set_source_files_properties(${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.c GENERATED PROPERTIES LANGUAGE CXX)
+#set_source_files_properties(${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.c GENERATED PROPERTIES LANGUAGE CXX)
+
+MAKE_DIRECTORY(${PROBREACH_BINARY_DIR}/pdrh2smt/parser)
+
+BISON_TARGET(pdrh_parser ${PROBREACH_SOURCE_DIR}/pdrh2smt/parser/pdrhparser.y ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.cpp)
+FLEX_TARGET(pdrh_scanner ${PROBREACH_SOURCE_DIR}/pdrh2smt/parser/pdrhlexer.l  ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp)
+ADD_FLEX_BISON_DEPENDENCY(pdrh_scanner pdrh_parser)
+
+
 # header files
 include_directories("${DREAL_INCLUDE_DIR}")
 include_directories("${DREAL_INCLUDE_DIR}/ibex")
+include_directories("${PROBREACH_SOURCE_DIR}/pdrh2smt")
+include_directories("${PROBREACH_BINARY_DIR}/pdrh2smt/parser")
 include_directories("${PROBREACH_SOURCE_DIR}")
 include_directories("${PROBREACH_SOURCE_DIR}/util")
 include_directories("${PROBREACH_SOURCE_DIR}/solver")
@@ -88,7 +121,6 @@ include_directories("${PROBREACH_SOURCE_DIR}/parser/csv")
 include_directories("${PROBREACH_SOURCE_DIR}/parser/output")
 include_directories("${PROBREACH_SOURCE_DIR}/parser/pdrh")
 include_directories("${PROBREACH_SOURCE_DIR}/logging")
-include_directories("${PROBREACH_SOURCE_DIR}/pdrh2smt")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 
 # Building ProbReach
@@ -117,7 +149,9 @@ set(PDRH2SMT_SRC
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
-        ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp)
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp
+        ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.cpp
+        ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp)
 
 set(PDRH2SMT_INCLUDE
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.h
@@ -126,11 +160,19 @@ set(PDRH2SMT_INCLUDE
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.h)
 
 add_library(pdrh2smt ${PDRH2SMT_SRC})
-install(FILES ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
+target_link_libraries(pdrh2smt -lfl)
+file(COPY ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
+make_directory(${PROBREACH_BINARY_DIR}/include/pdrh2smt/parser)
+add_custom_command(TARGET pdrh2smt
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.hpp ${PROBREACH_BINARY_DIR}/include/pdrh2smt/parser)
+#install(FILES ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
 
 # adding executable
 add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
+target_compile_options(ProbReach PRIVATE -static)
 target_link_libraries(ProbReach probreach)
+
 
 install(FILES ${PROBREACH_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/probreach)
 install(TARGETS ProbReach DESTINATION ${CMAKE_SOURCE_DIR}/bin)
@@ -156,18 +198,30 @@ if(GTEST_FOUND)
     add_test(box_test ${PROBREACH_BINARY_DIR}/test/box_test)
 
     # unit test for box_factory.cpp
-#    add_executable(box_factory_test ${PROBREACH_TEST_DIR}/util/box_factory_test.cpp
-#            ${PROBREACH_TEST_DIR}/main_test.cpp
-#            ${PROBREACH_SOURCE_DIR}/util/box.cpp
-#            ${PROBREACH_SOURCE_DIR}/util/box_factory.cpp)
-#    target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
-#    add_test(box_factory_test ${PROBREACH_BINARY_DIR}/test/box_factory_test)
+    #add_executable(box_factory_test ${PROBREACH_TEST_DIR}/util/box_factory_test.cpp
+    #        ${PROBREACH_TEST_DIR}/main_test.cpp
+    #        ${PROBREACH_SOURCE_DIR}/util/box.cpp
+    #        ${PROBREACH_SOURCE_DIR}/util/box_factory.cpp)
+    #target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
+    #add_test(box_factory_test ${PROBREACH_BINARY_DIR}/test/box_factory_test)
 
-    # unit test for box.cpp
+    # unit test for node.cpp
     add_executable(node_test ${PROBREACH_TEST_DIR}/pdrh2smt/node_test.cpp
             ${PROBREACH_TEST_DIR}/main_test.cpp
             ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp)
     target_link_libraries(node_test ${DREAL_LIBRARIES} -lgtest)
     add_test(node_test ${PROBREACH_BINARY_DIR}/test/node_test)
+
+    # unit test for pdrhparser.cpp
+    add_executable(pdrhparser_test ${PROBREACH_TEST_DIR}/pdrh2smt/parser/pdrhparser_test.cpp
+            ${PROBREACH_TEST_DIR}/main_test.cpp
+            ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.cpp
+            ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp)
+    target_link_libraries(pdrhparser_test ${DREAL_LIBRARIES} -lgtest -lfl)
+    add_test(pdrhparser_test ${PROBREACH_BINARY_DIR}/test/pdrhparser_test)
 
 endif(GTEST_FOUND)

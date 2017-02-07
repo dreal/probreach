@@ -9,12 +9,19 @@ mode::mode()
 
 }
 
-mode::mode(int id, vector<node> invts, vector<jump> jumps, map<string, node> ode_map)
+mode::mode(int id, vector<node> invts, map<string, node> ode_map, vector<jump> jumps)
 {
     this->id = id;
     this->invts = invts;
-    this->jumps = jumps;
     this->ode_map = ode_map;
+    this->jumps = jumps;
+}
+
+mode::mode(int id, map<string, node> ode_map, vector<jump> jumps)
+{
+    this->id = id;
+    this->ode_map = ode_map;
+    this->jumps = jumps;
 }
 
 int mode::get_id()

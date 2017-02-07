@@ -21,10 +21,10 @@ protected:
     map<string, pair<node, node>> var_map;
 
     // list of initial states
-    map<int, node> init_map;
+    vector<pair<int, node>> inits;
 
     // list of goal states
-    map<int, node> goal_map;
+    vector<pair<int, node>> goals;
 
     // list of modes
     vector<mode> modes;
@@ -56,6 +56,24 @@ public:
 
     // returns true if the variable exists and false otherwise
     bool var_exists(string);
+
+    // overriding operators
+    friend std::ostream& operator<<(std::ostream&, model&);
+
+    // returns list of variables defined for the model
+    map<string, pair<node, node>> get_var_map();
+
+    // returns time bounds
+    pair<node, node> get_time_bounds();
+
+    // returns a list of nodes
+    vector<mode> get_modes();
+
+    // returns list of initial states
+    vector<pair<int, node>> get_inits();
+
+    // returns list of goal states
+    vector<pair<int, node>> get_goals();
 
 
 

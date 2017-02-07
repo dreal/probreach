@@ -37,7 +37,11 @@ public:
 
     // creates a mode given a mode id, a list of invariants,
     // a list of jumps and a list of odes
-    mode(int, vector<node>, vector<jump>, map<string, node>);
+    mode(int, vector<node>, map<string, node>, vector<jump>);
+
+    // creates a mode given a mode id,
+    // a list of jumps and a list of odes
+    mode(int, map<string, node>, vector<jump>);
 
     // returns id of the mode
     int get_id();

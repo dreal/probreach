@@ -7,7 +7,6 @@
 
 
 #include <map>
-#include "node.h"
 #include "jump.h"
 
 class mode
@@ -43,14 +42,20 @@ public:
     // a list of jumps and a list of odes
     mode(int, map<string, node>, vector<jump>);
 
+    // two modes are equal if their ids are the same
+    friend bool operator==(const mode&, const mode&);
+
     // returns id of the mode
-    int get_id();
+    int get_id() const;
 
     // returns a list of invariants
     vector<node> get_invariants();
 
     // returns a list of jumps
     vector<jump> get_jumps();
+
+    // returns successor modes
+    vector<int> get_successors();
 
     // returns a list of odes
     map<string, node> get_odes();

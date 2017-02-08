@@ -150,6 +150,7 @@ set(PDRH2SMT_SRC
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2generator.cpp
         ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.cpp
         ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp)
 
@@ -157,7 +158,8 @@ set(PDRH2SMT_INCLUDE
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.h
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.h
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.h
-        ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.h)
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.h
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2generator.h)
 
 add_library(pdrh2smt ${PDRH2SMT_SRC})
 target_link_libraries(pdrh2smt -lfl)
@@ -220,7 +222,8 @@ if(GTEST_FOUND)
             ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp
             ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
             ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp)
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2generator.cpp)
     target_link_libraries(pdrhparser_test ${DREAL_LIBRARIES} -lgtest -lfl)
     add_test(pdrhparser_test ${PROBREACH_BINARY_DIR}/test/pdrhparser_test)
 

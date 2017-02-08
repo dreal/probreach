@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include "model.h"
+#include <algorithm>
 
 model::model()
 {
@@ -85,6 +86,115 @@ bool model::var_exists(string var)
     return (this->var_map.find(var) != this->var_map.end());
 }
 
+vector<int> model::find_shortest_path()
+{
+    // initializing the set of paths
+    vector<vector<int>> paths;
+    vector<int> path;
+    for (pair<int, node> i : this->inits)
+    {
+        for (pair<int, node> g : this->goals)
+        {
+            if (i.first == g.first)
+            {
+                return vector<int>{ i.first };
+            }
+            else
+            {
+                // pushing the initial mode to the initial path
+                path.push_back(i.first);
+                // pushing the initial path to the set of paths
+                paths.push_back(path);
+                while (!paths.empty())
+                {
+                    // getting the first path in the set of paths
+                    path = paths.front();
+                    paths.erase(paths.begin());
+                    // getting the mode in the path
+                    int mode_id = path.back();
+                    vector<int> successors = get_mode_by_id(mode_id).get_successors();
+                    // proceeding if the current mode has successors
+                    if(!successors.empty())
+                    {
+                        // checking if one of the successors is the end mode
+                        if (find(successors.begin(), successors.end(), g.first) != successors.end())
+                        {
+                            path.push_back(g.first);
+                            paths.clear();
+                            return path;
+                        }
+                        else
+                        {
+                            // iterating through the successors of the current mode
+                            for (int s : successors)
+                            {
+                                // checking if a successor does not appear in the current path
+                                if (find(path.begin(), path.end(), s) == path.end())
+                                {
+                                    vector<int> tmp_path = path;
+                                    tmp_path.push_back(s);
+                                    paths.push_back(tmp_path);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    path.clear();
+    return path;
+}
+
+vector<vector<int>> model::find_all_paths_of_length(int length)
+{
+    // initializing the set of paths
+    vector<vector<int>> paths;
+    for(pair<int, node> i : this->inits)
+    {
+        for(pair<int, node> g : this->goals)
+        {
+            vector<int> path;
+            path.push_back(i.first);
+            // initializing the stack
+            vector<vector<int>> stack;
+            stack.push_back(path);
+            while(!stack.empty())
+            {
+                // getting the first paths from the set of paths
+                path = stack.front();
+                stack.erase(stack.cbegin());
+                // checking if the correct path of the required length is found
+                if((path.back() == g.first) && (path.size() == length + 1))
+                {
+                    // checking if the path already exists
+                    if(find(paths.begin(), paths.end(), path) == paths.end())
+                    {
+                        paths.push_back(path);
+                    }
+                }
+                // proceeding only if the length of the current path is ascending then the required length
+                else if(path.size() < length + 1)
+                {
+                    // getting the last mode in the path
+                    int mode_id = path.back();
+                    // getting the successors of the mode
+                    vector<int> successors = get_mode_by_id(mode_id).get_successors();
+                    for(int s : successors)
+                    {
+                        // appending the successor the current paths
+                        vector<int> new_path = path;
+                        new_path.push_back(s);
+                        // pushing the new path to the set of the paths
+                        stack.push_back(new_path);
+                    }
+                }
+            }
+        }
+    }
+    return paths;
+}
+
 
 std::ostream& operator<<(std::ostream& os, model& m)
 {
@@ -92,8 +202,8 @@ std::ostream& operator<<(std::ostream& os, model& m)
     map<string, pair<node, node>> vars = m.get_var_map();
     for(auto it = vars.begin(); it != vars.end(); it++)
     {
-        os << "|   " << it->first << " [" << it->second.first.to_string_infix() << ", " <<
-        it->second.second.to_string_infix() << "]" << endl;
+        os << "|   " << it->first << " [" << it->second.first.to_infix() << ", " <<
+        it->second.second.to_infix() << "]" << endl;
     }
     /*
     os << "CONTINUOUS RANDOM VARIABLES:" << endl;
@@ -117,7 +227,7 @@ std::ostream& operator<<(std::ostream& os, model& m)
     }
     */
     os << "TIME DOMAIN:" << endl;
-    os << "|   [" << m.get_time_bounds().first.to_string_infix() << ", " << m.get_time_bounds().second.to_string_infix() << "]" << endl;
+    os << "|   [" << m.get_time_bounds().first.to_infix() << ", " << m.get_time_bounds().second.to_infix() << "]" << endl;
     os << "MODES:" << endl;
     for(mode md : m.get_modes())
     {
@@ -125,31 +235,31 @@ std::ostream& operator<<(std::ostream& os, model& m)
         os << "|   INVARIANTS:" << endl;
         for(node n : md.get_invariants())
         {
-            os << "|   |   " << n.to_string_infix() << endl;
+            os << "|   |   " << n.to_infix() << endl;
         }
         os << "|   FLOW_MAP:" << endl;
         map<string, pair<node, node>> flow_map = md.get_vars();
         for(auto it = flow_map.begin(); it != flow_map.end(); it++)
         {
-            os << "|   " << it->first << " " << " [" << it->second.first.to_string_infix() << ", " <<
-            it->second.second.to_string_infix() << "]" << endl;
+            os << "|   " << it->first << " " << " [" << it->second.first.to_infix() << ", " <<
+            it->second.second.to_infix() << "]" << endl;
         }
         os << "|   ODES:" << endl;
         map<string, node> ode_map = md.get_odes();
         for(auto it = ode_map.begin(); it != ode_map.end(); it++)
         {
-            os << "|   |   d[" << it->first << "]/dt = " << it->second.to_string_infix() << endl;
+            os << "|   |   d[" << it->first << "]/dt = " << it->second.to_infix() << endl;
         }
         os << "|   JUMPS:" << endl;
         for(jump j : md.get_jumps())
         {
-            os << "|   |   GUARD: " << j.get_guard().to_string_infix() << endl;
+            os << "|   |   GUARD: " << j.get_guard().to_infix() << endl;
             os << "|   |   SUCCESSOR: " << j.get_id() << endl;
             os << "|   |   RESETS:" << endl;
             map<string, node> reset_map = j.get_reset_map();
             for(auto it = reset_map.begin(); it != reset_map.end(); it++)
             {
-                os << "|   |   |   " << it->first << " := " << it->second.to_string_infix() << endl;
+                os << "|   |   |   " << it->first << " := " << it->second.to_infix() << endl;
             }
         }
     }
@@ -157,7 +267,7 @@ std::ostream& operator<<(std::ostream& os, model& m)
     for(pair<int, node> s : m.get_inits())
     {
         os << "|   MODE: " << s.first << endl;
-        os << "|   PROPOSITION: " << s.second.to_string_infix() << endl;
+        os << "|   PROPOSITION: " << s.second.to_infix() << endl;
     }
     if(m.get_goals().size() > 0)
     {
@@ -165,7 +275,7 @@ std::ostream& operator<<(std::ostream& os, model& m)
         for(pair<int, node> s : m.get_goals())
         {
             os << "|   MODE: " << s.first << endl;
-            os << "|   PROPOSITION: " << s.second.to_string_infix() << endl;
+            os << "|   PROPOSITION: " << s.second.to_infix() << endl;
         }
     }
     else
@@ -180,7 +290,6 @@ std::ostream& operator<<(std::ostream& os, model& m)
     }
     return os;
 }
-
 
 
 // getters and setters
@@ -204,7 +313,47 @@ vector<pair<int, node>> model::get_inits()
     return this->inits;
 }
 
+node model::get_init(int id)
+{
+    vector<node> nodes;
+    for(pair<int, node> i : this->inits)
+    {
+        if(i.first == id)
+        {
+            nodes.push_back(i.second);
+        }
+    }
+    return node("or", nodes);
+}
+
 vector<pair<int, node>> model::get_goals()
 {
     return this->goals;
+}
+
+node model::get_goal(int id)
+{
+    vector<node> nodes;
+    for(pair<int, node> g : this->goals)
+    {
+        if(g.first == id)
+        {
+            nodes.push_back(g.second);
+        }
+    }
+    return node("or", nodes);
+}
+
+mode model::get_mode_by_id(int id)
+{
+    for(mode md : this->modes)
+    {
+        if(md.get_id() == id)
+        {
+            return md;
+        }
+    }
+    stringstream s;
+    s << "mode with id " << id << " has not been defined";
+    throw invalid_argument(s.str());
 }

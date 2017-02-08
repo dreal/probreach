@@ -24,7 +24,7 @@ mode::mode(int id, map<string, node> ode_map, vector<jump> jumps)
     this->jumps = jumps;
 }
 
-int mode::get_id()
+int mode::get_id() const
 {
     return this->id;
 }
@@ -49,3 +49,17 @@ map<string, pair<node, node>> mode::get_vars()
     return this->var_map;
 }
 
+vector<int> mode::get_successors()
+{
+    vector<int> s;
+    for(jump j : jumps)
+    {
+        s.push_back(j.get_id());
+    }
+    return s;
+}
+
+bool operator==(const mode& lhs, const mode& rhs)
+{
+    return (lhs.get_id() == rhs.get_id());
+}

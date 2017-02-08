@@ -5,7 +5,6 @@
 #ifndef PROBREACH_MODEL_H
 #define PROBREACH_MODEL_H
 
-#include "node.h"
 #include "mode.h"
 #include <map>
 
@@ -57,6 +56,15 @@ public:
     // returns true if the variable exists and false otherwise
     bool var_exists(string);
 
+    // computes and returns the shortest path between one of the initial modes and one of the goal modes.
+    // The returned vector is empty if such path does not exist
+    vector<int> find_shortest_path();
+
+    // computes returns all paths of specified length between the initial and the goal states.
+    // The returned vector is empty if such paths do not exist
+    vector<vector<int>> find_all_paths_of_length(int);
+
+
     // overriding operators
     friend std::ostream& operator<<(std::ostream&, model&);
 
@@ -69,15 +77,24 @@ public:
     // returns a list of nodes
     vector<mode> get_modes();
 
+    // returns mode with the specified id. Throws an exception if the corresponding mode
+    // has not been defined
+    mode get_mode_by_id(int);
+
     // returns list of initial states
     vector<pair<int, node>> get_inits();
+
+    // returns disjunction of the predicates of the initial state for the specified id
+    node get_init(int);
 
     // returns list of goal states
     vector<pair<int, node>> get_goals();
 
-
+    // returns disjunction of the predicates of the goal state for the specified id
+    node get_goal(int);
 
 };
 
+extern model parse_pdrh(string);
 
 #endif //PROBREACH_MODEL_H

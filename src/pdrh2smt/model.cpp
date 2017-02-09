@@ -112,7 +112,7 @@ vector<int> model::find_shortest_path()
                     paths.erase(paths.begin());
                     // getting the mode in the path
                     int mode_id = path.back();
-                    vector<int> successors = get_mode_by_id(mode_id).get_successors();
+                    vector<int> successors = get_mode(mode_id).get_successors();
                     // proceeding if the current mode has successors
                     if(!successors.empty())
                     {
@@ -179,7 +179,7 @@ vector<vector<int>> model::find_all_paths_of_length(int length)
                     // getting the last mode in the path
                     int mode_id = path.back();
                     // getting the successors of the mode
-                    vector<int> successors = get_mode_by_id(mode_id).get_successors();
+                    vector<int> successors = get_mode(mode_id).get_successors();
                     for(int s : successors)
                     {
                         // appending the successor the current paths
@@ -238,11 +238,11 @@ std::ostream& operator<<(std::ostream& os, model& m)
             os << "|   |   " << n.to_infix() << endl;
         }
         os << "|   FLOW_MAP:" << endl;
-        map<string, pair<node, node>> flow_map = md.get_vars();
-        for(auto it = flow_map.begin(); it != flow_map.end(); it++)
+        vector<string> flow_map = md.get_vars();
+        for(string var : flow_map)
         {
-            os << "|   " << it->first << " " << " [" << it->second.first.to_infix() << ", " <<
-            it->second.second.to_infix() << "]" << endl;
+            os << "|   " << var << " " << " [" << m.get_var_bounds(var).first.to_infix() << ", " <<
+                    m.get_var_bounds(var).second.to_infix() << "]" << endl;
         }
         os << "|   ODES:" << endl;
         map<string, node> ode_map = md.get_odes();
@@ -298,6 +298,16 @@ map<string, pair<node, node>> model::get_var_map()
     return this->var_map;
 }
 
+pair<node, node> model::get_var_bounds(string var)
+{
+    map<string, pair<node, node>> vars = this->var_map;
+    if(vars.find(var) != vars.end())
+    {
+        return vars[var];
+    }
+    return make_pair(node(), node());
+}
+
 pair<node, node> model::get_time_bounds()
 {
     return this->time;
@@ -344,7 +354,7 @@ node model::get_goal(int id)
     return node("or", nodes);
 }
 
-mode model::get_mode_by_id(int id)
+mode model::get_mode(int id)
 {
     for(mode md : this->modes)
     {

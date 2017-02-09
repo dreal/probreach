@@ -71,6 +71,10 @@ public:
     // returns list of variables defined for the model
     map<string, pair<node, node>> get_var_map();
 
+    // returns bounds for the specified variable.
+    // Returns a pair of empty nodes if the variable does not exist.
+    pair<node, node> get_var_bounds(string);
+
     // returns time bounds
     pair<node, node> get_time_bounds();
 
@@ -79,7 +83,7 @@ public:
 
     // returns mode with the specified id. Throws an exception if the corresponding mode
     // has not been defined
-    mode get_mode_by_id(int);
+    mode get_mode(int);
 
     // returns list of initial states
     vector<pair<int, node>> get_inits();

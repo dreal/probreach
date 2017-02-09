@@ -26,9 +26,6 @@ protected:
     // list of ODEs
     map<string, node> ode_map;
 
-    // list of variables for which the ODEs were defined
-    map<string, pair<node, node>> var_map;
-
 public:
 
     // default constructor
@@ -48,11 +45,20 @@ public:
     // returns id of the mode
     int get_id() const;
 
+    // returns ode for the specified variable
+    node get_ode(string) const;
+
     // returns a list of invariants
     vector<node> get_invariants();
 
+    // returns a conjunction of invariants
+    node get_invariants_conjunction();
+
     // returns a list of jumps
     vector<jump> get_jumps();
+
+    // returns a list of jumps from current mode to the specified mode
+    vector<jump> get_jumps(int);
 
     // returns successor modes
     vector<int> get_successors();
@@ -61,7 +67,7 @@ public:
     map<string, node> get_odes();
 
     // returns a list of variables
-    map<string, pair<node, node>> get_vars();
+    vector<string> get_vars();
 
 };
 

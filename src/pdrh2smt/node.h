@@ -63,12 +63,13 @@ public:
     string to_prefix(string);
 
     friend std::ostream& operator<<(std::ostream&, const node&);
+    friend bool operator==(const node&, const node&);
 
     // returns the node's value
-    string get_value();
+    string get_value() const;
 
     // returns list of node's operands
-    vector<node> get_operands();
+    vector<node> get_operands() const;
 
 };
 

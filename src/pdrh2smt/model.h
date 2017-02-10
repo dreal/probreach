@@ -53,6 +53,21 @@ public:
     // throws invalid_argument exception the mode with the specified id does not exist
     void push_goal(int, node);
 
+    // sets bounds for the specified variable if it exists and throws invalid_argument exception otherwise
+    void set_var_bounds(string, node, node);
+
+    // removes specified variable if it exists and throws invalid_argument exception otherwise
+    void remove_var(string);
+
+    // removes specified mode if it exists and throws invalid_argument exception otherwise
+    void remove_mode(int);
+
+    // removes specified initial state if it exists and throws invalid_argument exception otherwise
+    void remove_init(int, node);
+
+    // removes specified goal state if it exists and throws invalid_argument exception otherwise
+    void remove_goal(int, node);
+
     // returns true if the variable exists and false otherwise
     bool var_exists(string);
 

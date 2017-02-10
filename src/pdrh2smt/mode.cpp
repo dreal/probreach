@@ -96,3 +96,5 @@ node mode::get_invariants_conjunction()
 {
     return node("and", this->invts);
 }
+
+

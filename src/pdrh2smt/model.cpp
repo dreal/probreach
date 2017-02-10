@@ -13,10 +13,12 @@ model::model()
 
 void model::set_time(node lhs, node rhs)
 {
+    /*
     if(!this->time.first.is_empty() || !this->time.second.is_empty())
     {
         throw invalid_argument("time variable should be defined only once");
     }
+    */
     this->time = make_pair(lhs, rhs);
 }
 
@@ -85,6 +87,54 @@ bool model::var_exists(string var)
 {
     return (this->var_map.find(var) != this->var_map.end());
 }
+
+void model::set_var_bounds(string var, node lhs, node rhs)
+{
+    remove_var(var);
+    push_var(var, lhs, rhs);
+}
+
+void model::remove_var(string var)
+{
+    if(!var_exists(var))
+    {
+        stringstream s;
+        s << "could not remove non-existing variable " << var;
+        throw invalid_argument(s.str());
+    }
+    this->var_map.erase(var);
+}
+
+void model::remove_mode(int id)
+{
+    mode md = get_mode(id);
+    this->modes.erase(find(this->modes.begin(), this->modes.end(), md));
+}
+
+void model::remove_init(int id, node prop)
+{
+    auto init_it = find(this->inits.begin(), this->inits.end(), pair<int, node>(id, prop));
+    if(init_it == this->inits.end())
+    {
+        stringstream s;
+        s << "could not remove non-existing init @" << id << ":" << prop.to_infix();
+        throw invalid_argument(s.str());
+    }
+    this->inits.erase(init_it);
+}
+
+void model::remove_goal(int id, node prop)
+{
+    auto goal_it = find(this->goals.begin(), this->goals.end(), pair<int, node>(id, prop));
+    if(goal_it == this->goals.end())
+    {
+        stringstream s;
+        s << "could not remove non-existing init @" << id << ":" << prop.to_infix();
+        throw invalid_argument(s.str());
+    }
+    this->goals.erase(goal_it);
+}
+
 
 vector<int> model::find_shortest_path()
 {

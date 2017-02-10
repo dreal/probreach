@@ -137,12 +137,17 @@ string node::to_prefix(string index)
     return s.str();
 }
 
-string node::get_value()
+string node::get_value() const
 {
     return this->value;
 }
 
-vector<node> node::get_operands()
+vector<node> node::get_operands() const
 {
     return this->operands;
+}
+
+bool operator==(const node& lhs, const node& rhs)
+{
+    return (lhs.get_value() == rhs.get_value()) && (lhs.get_operands() == rhs.get_operands());
 }

@@ -2,7 +2,6 @@
  * Insulin action subsystem kinetics.
  * Sources: Sriram, Hovorka 2002, Hovorka 2004
  */
-model: pha;
 #define w 100 //[kg] weight of the patient
 #define ka1 0.006 //[min^(-1)] deactivation rate constant (Hovorka 2004)
 #define ka2 0.06 //[min^(-1)] deactivation rate constant (Hovorka 2004)
@@ -46,20 +45,23 @@ dist_normal(0.05,0.005) x3_0;
 [-1000,1000]Q1; //[mmol] mass of glucose in the accessible compartments (Hovorka 2004)
 [-1000,1000]Q2; //[mmol] mass of glucose in the non-accessible compartments (Hovorka 2004)
 
-[0,500]tau;
-[0,1000]time;
+[0,1000]tau;
+[0,2000]time;
 
 {
 mode 1;
 
 flow:
+
 //glucose-subsystem
 d/dt[Q1]=- Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
 d/dt[Q2]=x1 * Q1 - (k12 + x2) * Q2;
+
 //insulin-subsystem
 d/dt[S1]=u1 - S1 / tmaxI;
 d/dt[S2]=(S1 - S2) / tmaxI;
 d/dt[I]=S2 / (tmaxI * VI) - ke * I;
+
 //insulin-action-subsystem
 d/dt[x1]=- ka1 * x1 + kb1 * I;
 d/dt[x2]=- ka2 * x2 + kb2 * I;
@@ -67,20 +69,23 @@ d/dt[x3]=- ka3 * x3 + kb3 * I;
 d/dt[tau]=0.5;
 
 jump:
-(G >= 10)==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2));
+(G = 10)==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2));
 }
 
 {
 mode 2;
 
 flow:
+
 //glucose-subsystem
 d/dt[Q1]=- Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
 d/dt[Q2]=x1 * Q1 - (k12 + x2) * Q2;
+
 //insulin-subsystem
 d/dt[S1]=u2 - S1 / tmaxI;
 d/dt[S2]=(S1 - S2) / tmaxI;
 d/dt[I]=S2 / (tmaxI * VI) - ke * I;
+
 //insulin-action-subsystem
 d/dt[x1]=- ka1 * x1 + kb1 * I;
 d/dt[x2]=- ka2 * x2 + kb2 * I;
@@ -96,6 +101,3 @@ init:
 
 goal:
 @2(and (tau = 60) (G <= 10));
-
-//goal_c:
-//@2(and (tau = 60) (G > 10));

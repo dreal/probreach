@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include "model.h"
 //#include "pdrhparser.hpp"
-#include "smt2generator.h"
+#include "smt2_generator.h"
 
 using namespace std;
 

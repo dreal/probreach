@@ -6,11 +6,14 @@
 #include <sstream>
 #include "parser/csv/csvparser.h"
 #include <iomanip>
+#include <pdrh.h>
+#include <model.h>
 #include "pdrh_config.h"
 #include "pdrh.h"
 #include "algorithm.h"
 #include "rnd.h"
 #include "parser/output/outputparser.h"
+
 extern "C"
 {
     #include "pdrhparser.h"

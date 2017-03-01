@@ -2,7 +2,7 @@
 // Created by fedor on 08/02/17.
 //
 
-#include "smt2generator.h"
+#include "smt2_generator.h"
 #include <sstream>
 #include <algorithm>
 

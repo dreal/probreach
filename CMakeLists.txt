@@ -150,7 +150,8 @@ set(PDRH2SMT_SRC
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp
-        ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2generator.cpp
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2_generator.cpp
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/isat_generator.cpp
         ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.cpp
         ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp)
 
@@ -159,7 +160,8 @@ set(PDRH2SMT_INCLUDE
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.h
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.h
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.h
-        ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2generator.h)
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2_generator.h
+        ${PROBREACH_SOURCE_DIR}/pdrh2smt/isat_generator.h)
 
 add_library(pdrh2smt ${PDRH2SMT_SRC})
 target_link_libraries(pdrh2smt -lfl)
@@ -223,8 +225,21 @@ if(GTEST_FOUND)
             ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
             ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp
             ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2generator.cpp)
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2_generator.cpp)
     target_link_libraries(pdrhparser_test ${DREAL_LIBRARIES} -lgtest -lfl)
     add_test(pdrhparser_test ${PROBREACH_BINARY_DIR}/test/pdrhparser_test)
+
+    # unit test for isat_generator.cpp
+    add_executable(isat_generator_test ${PROBREACH_TEST_DIR}/pdrh2smt/isat_generator_test.cpp
+            ${PROBREACH_TEST_DIR}/main_test.cpp
+            ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.cpp
+            ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp
+            ${PROBREACH_SOURCE_DIR}/pdrh2smt/isat_generator.cpp)
+    target_link_libraries(isat_generator_test ${DREAL_LIBRARIES} -lgtest -lfl)
+    add_test(isat_generator_test ${PROBREACH_BINARY_DIR}/test/isat_generator_test)
 
 endif(GTEST_FOUND)

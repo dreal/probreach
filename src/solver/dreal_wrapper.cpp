@@ -82,8 +82,9 @@ int dreal::execute(std::string bin, std::string input, std::string args)
     {
         res = dreal::parse_output(input + ".output");
     }
-        // unrecognized solver output
-    catch (invalid_argument e) {
+    // unrecognized solver output
+    catch (invalid_argument e)
+    {
         cout << e.what() << endl;
         res = -1;
     }
@@ -106,6 +107,7 @@ int dreal::parse_output(string output)
     {
         last_line = line;
     }
+    output_file.close();
     // analyzing the last line of the output
     string res;
     unsigned long pos = last_line.find_first_of(" ");

@@ -242,4 +242,11 @@ if(GTEST_FOUND)
     target_link_libraries(isat_generator_test ${DREAL_LIBRARIES} -lgtest -lfl)
     add_test(isat_generator_test ${PROBREACH_BINARY_DIR}/test/isat_generator_test)
 
+    # unit test for solver_wrapper.cpp
+    add_executable(solver_wrapper_test ${PROBREACH_TEST_DIR}/solver/solver_wrapper_test.cpp
+            ${PROBREACH_TEST_DIR}/main_test.cpp
+            ${PROBREACH_SOURCE_DIR}/solver/solver_wrapper.cpp)
+    target_link_libraries(solver_wrapper_test ${DREAL_LIBRARIES} -lgtest -lfl)
+    add_test(solver_wrapper_test ${PROBREACH_BINARY_DIR}/test/solver_wrapper_test)
+
 endif(GTEST_FOUND)

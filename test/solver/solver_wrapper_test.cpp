@@ -45,4 +45,18 @@ TEST(isat_wrapper, normal)
     out2.close();
     res = solver::evaluate(isat_path, isat_filename, isat_args, solver::type::ISAT);
     EXPECT_EQ(res, solver::output::UNSAT);
+    // insulin infusion
+    pdrh_filename = "/home/fedor/isat/model/insulin-pump/insulin-pump.pdrh";
+    isat_filename = pdrh_filename + ".hys";
+    isat_args = "--verify-sol --start-depth 3 --max-depth 3 --ode-opts=--continue-after-not-reaching-horizon --ode-opts=--detect-independent-ode-groups";
+    m = parse_pdrh(pdrh_filename);
+    //cout << m << endl;
+    isat_model = isat_generator::generate_isat_model(m);
+    ofstream out3(isat_filename);
+    out3 << isat_model;
+    out3.close();
+    res = solver::evaluate(isat_path, isat_filename, isat_args, solver::type::ISAT);
+    EXPECT_EQ(res, solver::output::SAT);
+
+
 }

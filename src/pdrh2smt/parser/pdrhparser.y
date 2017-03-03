@@ -678,6 +678,9 @@ model parse_pdrh(string filename)
         s << "couldn't open " << pdrhnameprep.str();
         throw invalid_argument(s.str());
     }
+    // creating an empty model
+    pdrh_model = model();
+
     // set lex to read from it instead of defaulting to STDIN:
     yyin = pdrhfileprep;
     // parse through the input until there is no more:

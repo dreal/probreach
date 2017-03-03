@@ -8,6 +8,8 @@
 #include <fstream>
 #include <map>
 #include "solver_wrapper.h"
+#include "dreal_wrapper.h"
+#include "isat_wrapper.h"
 
 const string DREAL_NAME = "dReal";
 const string ISAT_NAME = "iSAT";
@@ -60,4 +62,25 @@ solver::type solver::detect_solver(string path)
         }
     }
     return solver::UNKNOWN_SOLVER;
+}
+
+solver::output solver::evaluate(string path, string input, string args, type solver_type)
+{
+    switch(solver_type)
+    {
+        case solver::DREAL:
+            if(dreal::execute(path, input, args) == 0)
+            {
+                return solver::SAT;
+            }
+            return solver::UNSAT;
+
+        case solver::ISAT:
+            return isat::evaluate(path, input, args);
+
+        default:
+            stringstream s;
+            s << "Solver type is not recognized";
+            throw runtime_error(s.str());
+    }
 }

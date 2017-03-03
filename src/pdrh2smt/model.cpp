@@ -123,6 +123,11 @@ void model::remove_init(int id, node prop)
     this->inits.erase(init_it);
 }
 
+void model::remove_inits()
+{
+    this->inits.clear();
+}
+
 void model::remove_goal(int id, node prop)
 {
     auto goal_it = find(this->goals.begin(), this->goals.end(), pair<int, node>(id, prop));
@@ -135,6 +140,10 @@ void model::remove_goal(int id, node prop)
     this->goals.erase(goal_it);
 }
 
+void model::remove_goals()
+{
+    this->goals.clear();
+}
 
 vector<int> model::find_shortest_path()
 {

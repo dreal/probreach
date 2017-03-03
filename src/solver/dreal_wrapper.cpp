@@ -2,96 +2,19 @@
 // Created by fedor on 26/02/16.
 //
 
+#include <fstream>
+#include <stdexcept>
+#include <sstream>
 #include "dreal_wrapper.h"
-#include <system_error>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <logging/easylogging++.h>
-#include <pdrh_config.h>
+#include <algorithm>
 
 using namespace std;
 
-vector<string> dreal::sat_answers = {"sat", "delta-sat"};
-vector<string> dreal::unsat_answers = {"unsat"};
+const vector<string> SAT_ANSWERS = {"sat", "delta-sat"};
+const vector<string> UNSAT_ANSWERS = {"unsat"};
 
-int dreal::execute(std::string bin, std::string input, std::string args)
-{
-    /*
-    int res;
-    pid_t solver_pid = fork();
-    if(solver_pid == 0)
-    {
-        std::stringstream s;
-        s << bin << " " << args << " " << input << " > " << input << ".output";
-        //res = system(s.str().c_str());
-        //res = execl(s.str().c_str(), 0, 0);
-        //res = execv(s.str().c_str(), NULL);
-        int stdout_copy = dup(1);
-        int fd;
-        if((fd = open("hello.output", O_RDWR, S_IRUSR | S_IWUSR)) == -1)
-        {
-            std::cout << "Error opening the output file" << std::endl;
-            return -1;
-        }
-        dup2(fd,STDOUT_FILENO);
-        close(fd);
-        execl("/bin/echo", "/bin/echo", "HELLO");
-        dup2(stdout_copy, STDOUT_FILENO);
-
-        if(res != 0)
-        {
-            std::cout << "Problem making system call: " << s.str() << std::endl;
-            res = -1;
-        }
-        // parsing the output
-        try
-        {
-            res = dreal::parse_output(input + ".output");
-        }
-        // unrecognized solver output
-        catch(std::invalid_argument e)
-        {
-            std::cout << e.what() << std::endl;
-            res = -1;
-        }
-    }
-    else
-    {
-        wait(NULL);
-        //int status;
-        //waitpid(solver_pid, &status, 0);
-        std::cout << "Parent process" << std::endl;
-        //if(WIFEXITED(status))
-        //{
-        //    std::cout << "The child process has exited" << std::endl;
-        //}
-    }
-    */
-    stringstream s;
-    s << bin << " " << args << " " << input << " > " << input << ".output";
-    //LOG(DEBUG) << s.str();
-    int res = system(s.str().c_str());
-    if (res != 0)
-    {
-        cout << "Problem making system call: " << s.str() << endl;
-        res = -1;
-    }
-    // parsing the output
-    try
-    {
-        res = dreal::parse_output(input + ".output");
-    }
-    // unrecognized solver output
-    catch (invalid_argument e)
-    {
-        cout << e.what() << endl;
-        res = -1;
-    }
-    return res;
-}
-
-int dreal::parse_output(string output)
+// parsing output given the name of the file
+int parse_output(string output)
 {
     fstream output_file;
     output_file.open(output.c_str());
@@ -99,7 +22,7 @@ int dreal::parse_output(string output)
     {
         stringstream s;
         s << "Problem opening the file " << output;
-        throw std::invalid_argument(s.str());
+        throw runtime_error(s.str());
     }
     // getting the last line of the file
     string last_line, line;
@@ -120,11 +43,11 @@ int dreal::parse_output(string output)
         res = last_line;
     }
     // checking if the output line is a sat answer
-    if(find(dreal::sat_answers.cbegin(), dreal::sat_answers.cend(), res) != dreal::sat_answers.cend())
+    if(find(SAT_ANSWERS.begin(), SAT_ANSWERS.end(), res) != SAT_ANSWERS.end())
     {
         return 0;
     }
-    else if(find(dreal::unsat_answers.cbegin(), dreal::unsat_answers.cend(), res) != dreal::unsat_answers.cend())
+    else if(find(UNSAT_ANSWERS.begin(), UNSAT_ANSWERS.end(), res) != UNSAT_ANSWERS.end())
     // checking if the output line is an unsat answer
     {
         return 1;
@@ -134,6 +57,21 @@ int dreal::parse_output(string output)
     {
         stringstream s;
         s << "Unrecognized solver output: " << res;
-        throw invalid_argument(s.str());
+        throw runtime_error(s.str());
     }
 }
+
+int dreal::execute(std::string bin, std::string input, std::string args)
+{
+    stringstream s;
+    s << bin << " " << args << " " << input << " > " << input << ".output";
+    int res = system(s.str().c_str());
+    if (res != 0)
+    {
+        stringstream e;
+        e << "Unexpected problem running: " << s.str();
+        throw runtime_error(e.str());
+    }
+    return parse_output(input + ".output");
+}
+

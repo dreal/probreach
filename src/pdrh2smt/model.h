@@ -13,20 +13,32 @@ class model
 
 protected:
 
-    // time bounds
+    // Time bounds
     pair<node, node> time;
 
-    // list of variables with the bounds
+    // List of variables with the bounds
     map<string, pair<node, node>> var_map;
 
-    // list of initial states
+    // List of initial states
     vector<pair<int, node>> inits;
 
-    // list of goal states
+    // List of goal states
     vector<pair<int, node>> goals;
 
-    // list of modes
+    // List of modes
     vector<mode> modes;
+
+    // List of random variables. Key is the name of the variable.
+    // The value: function, left bound, right bound,
+    // point to start integration for bounding random variables with
+    // unbounded support
+    //map<string, tuple<node*, node*, node*, node*>> rv_map;
+
+    //extern map<string, map<node*, node*>> dd_map;
+
+
+
+    //extern map<string, pair<node*, node*>> par_map;
 
 public:
 
@@ -65,8 +77,14 @@ public:
     // removes specified initial state if it exists and throws invalid_argument exception otherwise
     void remove_init(int, node);
 
+    // removes all initial states
+    void remove_inits();
+
     // removes specified goal state if it exists and throws invalid_argument exception otherwise
     void remove_goal(int, node);
+
+    // removes all goal states
+    void remove_goals();
 
     // returns true if the variable exists and false otherwise
     bool var_exists(string);

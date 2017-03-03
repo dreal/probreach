@@ -114,6 +114,7 @@ include_directories("${DREAL_INCLUDE_DIR}")
 include_directories("${DREAL_INCLUDE_DIR}/ibex")
 include_directories("${PROBREACH_SOURCE_DIR}/pdrh2smt")
 include_directories("${PROBREACH_BINARY_DIR}/pdrh2smt/parser")
+include_directories("${PROBREACH_BINARY_DIR}/pdrh2smt/measure")
 include_directories("${PROBREACH_SOURCE_DIR}")
 include_directories("${PROBREACH_SOURCE_DIR}/util")
 include_directories("${PROBREACH_SOURCE_DIR}/solver")
@@ -218,35 +219,24 @@ if(GTEST_FOUND)
 
     # unit test for pdrhparser.cpp
     add_executable(pdrhparser_test ${PROBREACH_TEST_DIR}/pdrh2smt/parser/pdrhparser_test.cpp
-            ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.cpp
-            ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2_generator.cpp)
-    target_link_libraries(pdrhparser_test ${DREAL_LIBRARIES} -lgtest -lfl)
+            ${PROBREACH_TEST_DIR}/main_test.cpp)
+    target_link_libraries(pdrhparser_test ${DREAL_LIBRARIES} -lgtest -lfl pdrh2smt)
     add_test(pdrhparser_test ${PROBREACH_BINARY_DIR}/test/pdrhparser_test)
 
     # unit test for isat_generator.cpp
     add_executable(isat_generator_test ${PROBREACH_TEST_DIR}/pdrh2smt/isat_generator_test.cpp
             ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.cpp
-            ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/mode.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/jump.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/model.cpp
             ${PROBREACH_SOURCE_DIR}/pdrh2smt/isat_generator.cpp)
-    target_link_libraries(isat_generator_test ${DREAL_LIBRARIES} -lgtest -lfl)
+    target_link_libraries(isat_generator_test ${DREAL_LIBRARIES} -lgtest -lfl pdrh2smt)
     add_test(isat_generator_test ${PROBREACH_BINARY_DIR}/test/isat_generator_test)
 
     # unit test for solver_wrapper.cpp
     add_executable(solver_wrapper_test ${PROBREACH_TEST_DIR}/solver/solver_wrapper_test.cpp
             ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_SOURCE_DIR}/solver/solver_wrapper.cpp)
-    target_link_libraries(solver_wrapper_test ${DREAL_LIBRARIES} -lgtest -lfl)
+            ${PROBREACH_SOURCE_DIR}/solver/solver_wrapper.cpp
+            ${PROBREACH_SOURCE_DIR}/solver/isat_wrapper.cpp
+            ${PROBREACH_SOURCE_DIR}/solver/dreal_wrapper.cpp)
+    target_link_libraries(solver_wrapper_test ${DREAL_LIBRARIES} -lgtest -lfl pdrh2smt)
     add_test(solver_wrapper_test ${PROBREACH_BINARY_DIR}/test/solver_wrapper_test)
 
 endif(GTEST_FOUND)

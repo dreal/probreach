@@ -14,6 +14,7 @@
 #include <chrono>
 #include <iomanip>
 #include <omp.h>
+#include <solver/isat_wrapper.h>
 #include "rnd.h"
 
 decision_procedure::result algorithm::evaluate_ha(int depth)
@@ -813,6 +814,7 @@ tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string,
     return std::make_tuple(sat_boxes, undet_boxes, unsat_boxes);
 }
 
+
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes)
 {
     const gsl_rng_type * T;
@@ -974,57 +976,82 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         int undet_counter = 0;
         int timeout_counter = 0;
         bool sat_flag = false;
-        // evaluating all paths
-        for(std::vector<pdrh::mode*> path : paths)
+        // checking solver type
+        if(global_config.solver_type == solver::type::DREAL)
         {
-            std::stringstream p_stream;
-            for(pdrh::mode* m : path)
+            // evaluating all paths
+            for(std::vector<pdrh::mode*> path : paths)
             {
-                p_stream << m->id << " ";
+                std::stringstream p_stream;
+                for(pdrh::mode* m : path)
+                {
+                    p_stream << m->id << " ";
+                }
+                // removing trailing whitespace
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
+                int res;
+                if(global_config.delta_sat)
+                {
+                    res = decision_procedure::evaluate_delta_sat(path, boxes);
+                }
+                else
+                {
+                    res = decision_procedure::evaluate(path, boxes);
+                }
+                #pragma omp critical
+                {
+                    if (res == decision_procedure::SAT)
+                    {
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                        sat++;
+                        sat_flag = true;
+                    }
+                    else if (res == decision_procedure::UNSAT)
+                    {
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                    }
+                    else if (res == decision_procedure::UNDET)
+                    {
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+                        undet_counter++;
+                    }
+                    else if (res == decision_procedure::ERROR)
+                    {
+                        CLOG(ERROR, "algorithm") << "Error occured while calling a solver";
+                        exit(EXIT_FAILURE);
+                    }
+                    else if (res == decision_procedure::SOLVER_TIMEOUT)
+                    {
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
+                        timeout_counter++;
+                    }
+                }
+                if(sat_flag)
+                {
+                    break;
+                }
             }
-            // removing trailing whitespace
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
-            int res;
-            if(global_config.delta_sat)
+        }
+        else if(global_config.solver_type == solver::type::ISAT)
+        {
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating with iSAT:";
+            int res = decision_procedure::evaluate_isat(boxes);
+            if(res == decision_procedure::SAT)
             {
-                res = decision_procedure::evaluate_delta_sat(path, boxes);
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                sat++;
+                sat_flag = true;
             }
-            else
+            else if(res == decision_procedure::UNSAT)
             {
-                res = decision_procedure::evaluate(path, boxes);
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
             }
-            #pragma omp critical
-            {
-                if (res == decision_procedure::SAT)
-                {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                    sat++;
-                    sat_flag = true;
-                }
-                else if (res == decision_procedure::UNSAT)
-                {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                }
-                else if (res == decision_procedure::UNDET)
-                {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-                    undet_counter++;
-                }
-                else if (res == decision_procedure::ERROR)
-                {
-                    CLOG(ERROR, "algorithm") << "Error occured while calling a solver";
-                    exit(EXIT_FAILURE);
-                }
-                else if (res == decision_procedure::SOLVER_TIMEOUT)
-                {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                    timeout_counter++;
-                }
-            }
-            if(sat_flag)
-            {
-                break;
-            }
+        }
+        else
+        {
+            stringstream s;
+            s << "Unrecognized solver";
+            throw runtime_error(s.str().c_str());
         }
         // updating unsat counter
         #pragma omp critical
@@ -1087,6 +1114,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         return capd::interval(post_mean_sat - acc, post_mean_unsat + acc);
     }
 }
+
 
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf)
 {

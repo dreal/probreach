@@ -160,6 +160,8 @@ namespace pdrh
     string reach_c_to_smt2(int, vector<mode*>, vector<box>);
     string reach_c_to_smt2(state, state, int, vector<mode*>, vector<box>);
 
+    string reach_to_isat(vector<box>);
+
     string reach_to_smt2_all_paths(vector<box>);
     string reach_c_to_smt2_all_paths();
 

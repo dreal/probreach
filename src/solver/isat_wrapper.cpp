@@ -26,7 +26,7 @@ solver::output parse_isat_output(string output)
     string first_line;
     getline(output_file, first_line);
     output_file.close();
-    //remove(output.c_str());
+    remove(output.c_str());
     if(first_line.find(UNKNOWN_ANSWER) != string::npos)
     {
         return solver::SAT;

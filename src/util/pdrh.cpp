@@ -1706,6 +1706,169 @@ string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, int depth, vect
     }
 }
 
+// only works for statistical model checking
+string pdrh::reach_to_isat(vector<box> boxes)
+{
+    // Generating variables declarations
+    stringstream s;
+    s << "DECL" << endl;
+    // defining boolean variables
+    s << "boole flow;" << endl;
+    for(pdrh::mode md : pdrh::modes)
+    {
+        s << "boole mode_" << md.id << ";" << endl;
+    }
+    // defining variables
+    map<string, pair<node*, node*>> vars = pdrh::var_map;
+    for(auto it = vars.begin(); it != vars.end(); it++)
+    {
+        // printing only if the variable is not a nondeterministic or random parameter
+        if(pdrh::par_map.find(it->first) == pdrh::par_map.end() &&
+                pdrh::rv_map.find(it->first) == pdrh::rv_map.end() &&
+                    pdrh::dd_map.find(it->first) == pdrh::dd_map.end())
+        {
+            s << "float [" << pdrh::node_to_string_infix(it->second.first) << ", " << pdrh::node_to_string_infix(it->second.second) << "] " << it->first << ";" << endl;
+        }
+    }
+    // Defining the boxes
+    for(box b : boxes)
+    {
+        map<string, capd::interval> edges = b.get_map();
+        for(auto it = edges.begin(); it != edges.end(); it++)
+        {
+            s << "float [" << it->second.leftBound() << ", " << it->second.rightBound() << "] " << it->first << ";" << endl;
+        }
+    }
+
+    // defining time and delta_time
+    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << pdrh::node_to_string_infix(pdrh::time.second) << "] time;" << endl;
+    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << pdrh::node_to_string_infix(pdrh::time.second) << "] delta_time;" << endl;
+
+    // Generating init
+    s << "INIT" << endl;
+    s << "time=0;" << endl;
+    s << "flow;" << endl;
+    // Defining the boxes
+    for(box b : boxes)
+    {
+        map<string, capd::interval> edges = b.get_map();
+        for(auto it = edges.begin(); it != edges.end(); it++)
+        {
+            s << "(" << it->first << ">=" << it->second.leftBound() << ") and (" << it->first << "<=" << it->second.rightBound() << ");" << endl;
+        }
+    }
+    s << "(" << endl;
+    for(unsigned long i = 0; i < pdrh::init.size(); i++)
+    {
+        pdrh::state init = pdrh::init.at(i);
+        // setting the discrete state
+        s << "((mode_" << init.id << ")";
+        for(pdrh::mode md : pdrh::modes)
+        {
+            if(md.id != init.id)
+            {
+                s << "and(!mode_" << md.id << ")";
+            }
+        }
+        // generating assignment for continuous variables
+        s << "and(" << pdrh::node_to_string_infix(init.prop) << "))" << endl;
+        if(i < pdrh::init.size() - 1)
+        {
+            s << "or" << endl;
+        }
+    }
+    s << ");" << endl;
+
+    // Generating transitions
+    s << "TRANS" << endl;
+    // generating time transition
+    s << "time' = time + delta_time;" << endl;
+    // flow is followed by a jump
+    s << "flow -> !flow';" << endl;
+    // flow takes time
+    s << "flow -> delta_time > 0;" << endl;
+    // no mode changing inside the flow
+    s << "flow -> ";
+    for(unsigned long i = 0; i < pdrh::modes.size(); i++)
+    {
+        s << "(mode_" << pdrh::modes.at(i).id << " and mode_" << pdrh::modes.at(i).id << "')";
+        if(i < pdrh::modes.size() - 1)
+        {
+            s << " or ";
+        }
+    }
+    s << ";" << endl;
+    // jump takes no time
+    s << "!flow -> delta_time = 0;" << endl;
+    // jump is followed by a flow
+    s << "!flow -> flow';" << endl;
+
+    // Generating code for modes (no invariants are currently supported)
+    for(pdrh::mode md : pdrh::modes)
+    {
+        // generating odes
+        map<string, node*> odes = md.odes;
+        for(auto it = odes.begin(); it != odes.end(); it++)
+        {
+            s << "flow and mode_" << md.id << " -> (d." << it->first << " / d.time = " << pdrh::node_to_string_infix(it->second) << ");" << endl;
+        }
+        // generating invariants
+        //for(pdrh::node* n : md.invts)
+        //{
+        //    s << n.to_infix("(time)");
+        //}
+        //generating jumps
+        vector<pdrh::mode::jump> jumps = md.jumps;
+        if(!jumps.empty())
+        {
+            s << "!flow and mode_" << md.id << " -> " << endl;
+            s << "(" << endl;
+            for(unsigned long i = 0; i < jumps.size(); i++)
+            {
+                s << "(";
+                s << "(" << pdrh::node_to_string_infix(jumps.at(i).guard) << ") and (mode_" << jumps.at(i).next_id << "')";
+                map<string, node*> reset = jumps.at(i).reset;
+                for(auto it = reset.cbegin(); it != reset.cend(); it++)
+                {
+                    s << " and (" << it->first << "' = " << pdrh::node_to_string_infix(it->second) << ")";
+                }
+                s << ")" << endl;
+                if(i < jumps.size() - 1)
+                {
+                    s << "or" << endl;
+                }
+            }
+            s << ");" << endl;
+        }
+    }
+
+    // Generating target
+    s << "TARGET" << endl;
+    s << "(" << endl;
+    for(unsigned long i = 0; i < pdrh::goal.size(); i++)
+    {
+        pdrh::state goal = pdrh::goal.at(i);
+        // setting the discrete state
+        s << "((mode_" << goal.id << ")";
+        for(pdrh::mode md : pdrh::modes)
+        {
+            if(md.id != goal.id)
+            {
+                s << "and(!mode_" << md.id << ")";
+            }
+        }
+        // generating assignment for continuous variables
+        s << "and(" << pdrh::node_to_string_infix(goal.prop) << "))" << endl;
+        if(i < pdrh::goal.size() - 1)
+        {
+            s << "or" << endl;
+        }
+    }
+    s << ");" << endl;
+
+    return s.str();
+}
+
 // domain of nondeterministic parameters
 box pdrh::get_nondet_domain()
 {

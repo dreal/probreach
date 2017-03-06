@@ -8,6 +8,9 @@
 #include "decision_procedure.h"
 #include "solver/dreal_wrapper.h"
 #include "pdrh_config.h"
+#include "solver_wrapper.h"
+#include "isat_wrapper.h"
+
 
 using namespace std;
 
@@ -120,6 +123,41 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
             }
         }
         return decision_procedure::SAT;
+    }
+}
+
+int decision_procedure::evaluate_isat(vector<box> boxes)
+{
+    int thread_num = 0;
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
+    // getting raw filename here
+    string filename = string(global_config.model_filename);
+    size_t ext_index = filename.find_last_of('.');
+    string raw_filename = filename.substr(0, ext_index);
+    // creating a name for the smt2 file
+    stringstream f_stream;
+    f_stream << raw_filename << "_" << thread_num << ".hys";
+    string isat_filename = f_stream.str();
+    // writing to the file
+    ofstream isat_file;
+    isat_file.open(isat_filename.c_str());
+    isat_file << pdrh::reach_to_isat(boxes);
+    isat_file.close();
+    stringstream solver_opt_stream;
+    solver_opt_stream << global_config.solver_opt << " --start-depth " << (global_config.reach_depth_min * 2 + 1) <<
+                                                        " --max-depth " << (global_config.reach_depth_max * 2 + 1);
+    // calling isat here
+    solver::output res = isat::evaluate(global_config.solver_bin, isat_filename, solver_opt_stream.str());
+    remove(isat_filename.c_str());
+    switch(res)
+    {
+        case solver::output::SAT:
+            return decision_procedure::SAT;
+
+        case solver::output::UNSAT:
+            return decision_procedure::UNSAT;
     }
 }
 
@@ -504,6 +542,8 @@ int decision_procedure::synthesize(pdrh::state init, std::vector<pdrh::mode *> p
     }
 }
 */
+
+
 
 // a single mode only !!!
 int decision_procedure::synthesize(pdrh::state init, pdrh::state goal, std::vector<pdrh::mode *> path, box psy_box)

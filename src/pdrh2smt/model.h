@@ -13,6 +13,9 @@ class model
 
 protected:
 
+    // Type of continuous random variable
+    enum rv_type {NORMAL, UNIFORM, EXP, GAMMA, UNKNOWN};
+
     // Time bounds
     pair<node, node> time;
 
@@ -31,8 +34,10 @@ protected:
     // List of random variables. Key is the name of the variable.
     // The value: function, left bound, right bound,
     // point to start integration for bounding random variables with
-    // unbounded support
-    //map<string, tuple<node*, node*, node*, node*>> rv_map;
+    // unbounded support, type of random variable (normal, exponential, unknown).
+    map<string, tuple<node, node, node, node, rv_type>> rv_map;
+
+
 
     //extern map<string, map<node*, node*>> dd_map;
 
@@ -53,6 +58,21 @@ public:
     // throws invalid_argument exception otherwise
     void push_var(string, node, node);
 
+    // Adds a continuous random parameters
+    void push_rv(string, node, node, node, node, rv_type);
+
+    // Adds a normal random parameter
+    void push_rv_normal(string, string, string);
+
+    // Adds an exponential random parameter
+    void push_rv_exp(string, string);
+
+    // Adds a uniform random parameter
+    void push_rv_uniform(string, string, string);
+
+    // Adds a gamma random parameter
+    void push_rv_gamma(string, string, string);
+
     // adds a mode (id, mode) to the list of modes if a mode
     // has not been defined yet and throws invalid_argument exception otherwise
     void push_mode(mode);
@@ -70,6 +90,9 @@ public:
 
     // removes specified variable if it exists and throws invalid_argument exception otherwise
     void remove_var(string);
+
+    // removes specified continuous random parameter if it exists and throws invalid_argument exception otherwise
+    void remove_rv(string);
 
     // removes specified mode if it exists and throws invalid_argument exception otherwise
     void remove_mode(int);
@@ -89,6 +112,9 @@ public:
     // returns true if the variable exists and false otherwise
     bool var_exists(string);
 
+    // returns true if the continuous random parameter exists and false otherwise
+    bool rv_exists(string);
+
     // computes and returns the shortest path between one of the initial modes and one of the goal modes.
     // The returned vector is empty if such path does not exist
     vector<int> find_shortest_path();
@@ -97,12 +123,14 @@ public:
     // The returned vector is empty if such paths do not exist
     vector<vector<int>> find_all_paths_of_length(int);
 
-
     // overriding operators
     friend std::ostream& operator<<(std::ostream&, model&);
 
     // returns list of variables defined for the model
     map<string, pair<node, node>> get_var_map();
+
+    // returns list of continuous random parameters
+    map<string, tuple<node, node, node, node, rv_type>> get_rv_map();
 
     // returns bounds for the specified variable.
     // Returns a pair of empty nodes if the variable does not exist.
@@ -129,6 +157,8 @@ public:
 
     // returns disjunction of the predicates of the goal state for the specified id
     node get_goal(int);
+
+    tuple<node, node, node, node, rv_type> get_rv(string);
 
 };
 

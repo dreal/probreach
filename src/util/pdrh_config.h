@@ -5,6 +5,7 @@
 #ifndef PROBREACH_PDRH_CONTEXT_H
 #define PROBREACH_PDRH_CONTEXT_H
 #include "config.h"
+#include "solver_wrapper.h"
 #include<capd/capdlib.h>
 
 using namespace std;
@@ -67,6 +68,7 @@ struct pdrh_config
     bool ignore_nondet = false;
     bool debug = false;
     bool sort_rv_flag = false;
+    solver::type solver_type = solver::type::UNKNOWN_SOLVER;
 
 } extern global_config;
 

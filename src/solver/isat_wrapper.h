@@ -10,6 +10,9 @@
 namespace isat
 {
 
+    // Evaluates an iSAT model file specified by the second argument
+    // using the executable defined by the first parameter
+    // with command line arguments defined by the third parameter
     solver::output evaluate(string, string, string);
 
 }

@@ -85,6 +85,15 @@ int main(int argc, char* argv[])
     // setting the model type automatically here
     pdrh::set_model_type();
     CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
+    if(global_config.solver_type == solver::type::DREAL)
+    {
+        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Solver: dReal";
+    }
+    else if(global_config.solver_type == solver::type::ISAT)
+    {
+        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Solver: iSAT";
+    }
+
     //cout << pdrh::model_to_string() << endl;
     switch(pdrh::model_type)
     {

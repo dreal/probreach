@@ -24,13 +24,24 @@ void model::set_time(node lhs, node rhs)
 
 void model::push_var(string var, node lhs, node rhs)
 {
-    if(this->var_map.find(var) != this->var_map.end())
+    if(var_exists(var))
     {
         stringstream s;
         s << "variable " << var << " has already been declared";
         throw invalid_argument(s.str());
     }
     this->var_map.insert(make_pair(var, make_pair(lhs, rhs)));
+}
+
+void model::push_rv(string var, node pdf, node left_bound, node right_bound, node start_point, rv_type type)
+{
+    if(rv_exists(var))
+    {
+        stringstream s;
+        s << "continuous random parameter " << var << " has already been declared";
+        throw invalid_argument(s.str());
+    }
+    this->rv_map.insert(make_pair(var, tuple<node, node, node, node, rv_type>(pdf, left_bound, right_bound, start_point, type)));
 }
 
 void model::push_mode(mode md)
@@ -88,6 +99,11 @@ bool model::var_exists(string var)
     return (this->var_map.find(var) != this->var_map.end());
 }
 
+bool model::rv_exists(string var)
+{
+    return (this->rv_map.find(var) != this->rv_map.end());
+}
+
 void model::set_var_bounds(string var, node lhs, node rhs)
 {
     remove_var(var);
@@ -103,6 +119,17 @@ void model::remove_var(string var)
         throw invalid_argument(s.str());
     }
     this->var_map.erase(var);
+}
+
+void model::remove_rv(string var)
+{
+    if(!rv_exists(var))
+    {
+        stringstream s;
+        s << "could not remove non-existing parameter " << var;
+        throw invalid_argument(s.str());
+    }
+    this->rv_map.erase(var);
 }
 
 void model::remove_mode(int id)
@@ -254,7 +281,6 @@ vector<vector<int>> model::find_all_paths_of_length(int length)
     return paths;
 }
 
-
 std::ostream& operator<<(std::ostream& os, model& m)
 {
     os << "VARIABLES:" << endl;
@@ -264,15 +290,17 @@ std::ostream& operator<<(std::ostream& os, model& m)
         os << "|   " << it->first << " [" << it->second.first.to_infix() << ", " <<
         it->second.second.to_infix() << "]" << endl;
     }
-    /*
     os << "CONTINUOUS RANDOM VARIABLES:" << endl;
-    for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
+    map<string, tuple<node, node, node, node, model::rv_type>> rvs = m.get_rv_map();
+    for(auto it = rvs.begin(); it != rvs.end(); it++)
     {
-        os << "|   pdf(" << it->first << ") = " << pdrh::node_to_string_infix(get<0>(it->second)) << "  | "
-        << pdrh::node_to_string_prefix(get<1>(it->second)) << " |   "
-        << pdrh::node_to_string_prefix(get<2>(it->second)) << "    |   "
-        << pdrh::node_to_string_prefix(get<3>(it->second)) << endl;
+        os << "|   pdf(" << it->first << ") = " << get<0>(it->second).to_infix() << "  | "
+        << get<1>(it->second).to_infix() << " |   "
+        << get<2>(it->second).to_infix() << "    |   "
+        << get<3>(it->second).to_infix() << " | "
+        << get<4>(it->second) << endl;
     }
+    /*
     os << "DISCRETE RANDOM VARIABLES:" << endl;
     for(auto it = pdrh::dd_map.cbegin(); it != pdrh::dd_map.cend(); it++)
     {
@@ -350,7 +378,6 @@ std::ostream& operator<<(std::ostream& os, model& m)
     return os;
 }
 
-
 // getters and setters
 map<string, pair<node, node>> model::get_var_map()
 {
@@ -425,4 +452,18 @@ mode model::get_mode(int id)
     stringstream s;
     s << "mode with id " << id << " has not been defined";
     throw invalid_argument(s.str());
+}
+
+tuple<node, node, node, node, model::rv_type> model::get_rv(string var)
+{
+    if(rv_exists(var))
+    {
+        return this->rv_map[var];
+    }
+    return tuple<node, node, node, node, model::rv_type>(node(), node(), node(), node(), model::rv_type::UNKNOWN);
+}
+
+map<string, tuple<node, node, node, node, model::rv_type>> model::get_rv_map()
+{
+    return this->rv_map;
 }

@@ -19,6 +19,8 @@ namespace decision_procedure
     int evaluate(pdrh::state, pdrh::state, vector<pdrh::mode*>, vector<box>);
     int evaluate_delta_sat(vector<pdrh::mode*>, vector<box>);
 
+    int evaluate_isat(vector<box>);
+
     int synthesize(pdrh::state, vector<pdrh::mode*>, box, int, box);
     int synthesize(pdrh::state, pdrh::state, vector<pdrh::mode*>, box);
 }

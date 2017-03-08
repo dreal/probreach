@@ -1506,7 +1506,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
             {
                 if (!timed_node_neg)
                 {
-                    s << "(forall_t " << depth + 1 << " [0 time_" << depth << "] (not " <<
+                    s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (not " <<
                     pdrh::node_fix_index(j.guard, depth, "t") << "))";
                 }
                 else
@@ -1689,7 +1689,7 @@ string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, int depth, vect
         {
             if(!timed_node_neg)
             {
-                s << "(forall_t " << depth + 1 << " [0 time_" << depth << "] (not " << pdrh::node_fix_index(j.guard, depth, "t") << "))";
+                s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (not " << pdrh::node_fix_index(j.guard, depth, "t") << "))";
             }
             else
             {
@@ -1741,8 +1741,8 @@ string pdrh::reach_to_isat(vector<box> boxes)
     }
 
     // defining time and delta_time
-    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << pdrh::node_to_string_infix(pdrh::time.second) << "] time;" << endl;
-    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << pdrh::node_to_string_infix(pdrh::time.second) << "] delta_time;" << endl;
+    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << (pdrh::node_to_interval(pdrh::time.second) * global_config.reach_depth_max).rightBound() << "] time;" << endl;
+    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << (pdrh::node_to_interval(pdrh::time.second) * global_config.reach_depth_max).rightBound() << "] delta_time;" << endl;
 
     // Generating init
     s << "INIT" << endl;

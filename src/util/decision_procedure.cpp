@@ -14,6 +14,8 @@
 
 using namespace std;
 
+// write an evaluate method for all paths instead of one.
+
 // Used for statistical verification
 int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {

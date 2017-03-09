@@ -392,6 +392,11 @@ void parse_pdrh_config(int argc, char* argv[])
             global_config.verbose = true;
             global_config.verbose_result = true;
         }
+        // show model flag
+        else if(strcmp(argv[i], "--show-model") == 0)
+        {
+            global_config.show_model = true;
+        }
         // ignore nondeterministic parameters termination condition
         else if(strcmp(argv[i], "--ignore-nondet") == 0)
         {

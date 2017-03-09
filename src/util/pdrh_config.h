@@ -68,6 +68,7 @@ struct pdrh_config
     bool ignore_nondet = false;
     bool debug = false;
     bool sort_rv_flag = false;
+    bool show_model = false;
     solver::type solver_type = solver::type::UNKNOWN_SOLVER;
 
 } extern global_config;

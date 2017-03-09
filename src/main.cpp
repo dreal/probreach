@@ -84,6 +84,12 @@ int main(int argc, char* argv[])
     parse_pdrh(global_config.model_filename);
     // setting the model type automatically here
     pdrh::set_model_type();
+
+    if(global_config.show_model)
+    {
+        cout << pdrh::model_to_string() << endl;
+    }
+
     CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
     if(global_config.solver_type == solver::type::DREAL)
     {
@@ -94,7 +100,6 @@ int main(int argc, char* argv[])
         CLOG_IF(global_config.verbose_result, INFO, "parser") << "Solver: iSAT";
     }
 
-    //cout << pdrh::model_to_string() << endl;
     switch(pdrh::model_type)
     {
         // hybrid automata

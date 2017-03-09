@@ -426,6 +426,12 @@ string pdrh::model_to_string()
         out << "|   " << it->first << " [" << pdrh::node_to_string_prefix(it->second.first) << ", " <<
                                                     pdrh::node_to_string_prefix(it->second.second) << "]" << endl;
     }
+    out << "PARAMETERS:" << endl;
+    for(auto it = pdrh::par_map.cbegin(); it != pdrh::par_map.cend(); it++)
+    {
+        out << "|   " << it->first << " [" << pdrh::node_to_string_prefix(it->second.first) << ", " <<
+            pdrh::node_to_string_prefix(it->second.second) << "]" << endl;
+    }
     out << "CONTINUOUS RANDOM VARIABLES:" << endl;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {

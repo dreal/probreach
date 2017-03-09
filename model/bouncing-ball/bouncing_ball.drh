@@ -1,34 +1,31 @@
-[0, 20] x;
-[-9.8] g;
-[-100, 100] v;
+#define D 0.1
+#define g 9.8067
+#define K 0.9
+
+[-1000, 1000] x;
+[-1000, 1000] v;
 [0, 10] time;
 
 {
 mode 1;
-invt:
-   (v <= 0);
-   (x >= 0);
 flow:
     d/dt[x] = v;
-    d/dt[v] = g;
+    d/dt[v] = -g;
 jump:
-    (x = 0) ==> @2(and (x' = x) (v' = -v));
+    (and (x >= 0) (x <= 0)) ==> @2(and (x' = x) (v' = -K*v));
 }
 
 {
 mode 2;
-invt:
-    (v >= 0);
-    (x >= 0);
 flow:
     d/dt[x] = v;
-    d/dt[v] = g;
+    d/dt[v] = -g;
 jump:
-    (v = 0) ==> @1(and (x' = x) (v' = v));
+    (and (v >= 0) (v <= 0)) ==> @1(and (x' = x) (v' = v));
 }
 
 init:
-@1 (and (x = 10) (v = 0));
+@1 (and (x >= 14) (x <= 15) (v = 0));
 
 goal:
-@2 (and (x > 10));
+@2 (and (x >= 10));

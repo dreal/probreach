@@ -1,13 +1,14 @@
 model: pha;
 
-#define g 9.8067 // taken from wikipedia
+//#define g 9.8067 // taken from wikipedia
+#define g 9.8
 #define alpha 0.7854 // angle to horizon
 
-[-100, 100]    Sy; // vertical distance (m)
-[0, 1000] Sx; // horizontal distance (m)
-[0, 5]     tau; // local time
-[0, 5]     time; // local time (required)
-[0, 50]		v; // speed of the ball (m/s)
+[-1000, 1000]    Sy; // vertical distance (m)
+[0, 10000] Sx; // horizontal distance (m)
+[0, 10]     tau; // local time
+[0, 10]     time; // local time (required)
+[0, 500]		v; // speed of the ball (m/s)
 
 // dicrete random parameters
 //dist_discrete(20:5e-1, 30:4.9e-1, 50:1e-2)  v0; // initial velocity
@@ -25,7 +26,7 @@ flow:
     d/dt[tau]   = 1.0;
     d/dt[v] = 0.0;
 jump:
-    (and (tau > 1e-6) (Sy <= 0) (Sy >= 0)) ==> @1(and  (Sx' = Sx)
+    (and (tau > 1e-3) (Sy <= 0) (Sy >= 0)) ==> @1(and  (Sx' = Sx)
                                             (Sy' = 0)
                                             (tau' = 0)
                                             (v' = 0.9 * v)
@@ -36,4 +37,5 @@ init:
 @1(and (Sx = 0) (Sy = 0) (tau = 0) (v = v0));
 
 goal:
-@1(and (Sy >= 5));
+//@1(and (Sy >= 5) (Sy <= 5));
+@1(and (tau = 0) (Sx >= 100));

@@ -4,6 +4,8 @@
 #  DREAL_LIBRARIES - neccessary libraries produced while building dReal
 #  DREAL_EXE - dReal executable
 
+# add /usr/local/ to look for includes, libraries and binaries
+
 # trying different directories
 set(DREAL_DIRS ${DREAL_DIRS} $ENV{HOME}/dreal)
 set(DREAL_DIRS ${DREAL_DIRS} $ENV{HOME}/dreal3)

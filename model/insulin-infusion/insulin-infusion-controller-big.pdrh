@@ -1,0 +1,373 @@
+/**
+ * Insulin action subsystem kinetics.
+ * Sources: Sriram, Hovorka 2002, Hovorka 2004
+ */
+#define w 100 //[kg] weight of the patient
+#define ka1 0.006 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+#define ka2 0.06 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+#define ka3 0.03 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+#define kb1 0.0034 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+#define kb2 0.056 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+#define kb3 0.024 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+
+//#define u1 0.0 //administration (bolus and infusion) of insulin (Hovorka 2004)
+//#define u2 0.36 //administration (bolus and infusion) of insulin (Hovorka 2004)
+//#define u3 0.5 //administration (bolus and infusion) of insulin (Hovorka 2004)
+//#define u4 0.0 //administration (bolus and infusion) of insulin (Hovorka 2004)
+
+#define u_mean 0.5
+#define tmaxI 55 //[min] time-to-maximum insulin absorption (Hovorka 2004)
+#define VI (0.12 * w)//[L * kg^(-1)] insulin distribution volume (Hovorka 2004)
+#define ke 0.138//[min^(-1)] insulin elimination from plasma (Hovorka 2004)
+
+#define k12 0.066 //[min^(-1)] transfer rate constant from the non-accessible to the accessible compartment (Hovorka 2004)
+#define VG (0.16 * w)//[L * kg^(-1)] distribution volume of the accessible compartment (Hovorka 2004)
+#define G (Q1 / VG) //[mmol/L] glucose concentration (Hovorka 2004)
+#define F01 (0.0097 * w) //[mmol * kg^(-1) * min^(-1)] non-insulin-dependent glucose flux (Hovorka 2004)
+#define Fc01 (F01 * G/(G + 1) / 0.85) //total non-insulin-dependent glucose flux corrected for the ambient glucose concentration (Hovorka 2004)
+//#define FR (0.003 * (G - 9) * VG) //renal glucose clearance above the glucose threshold of 9 mmol/L^(-1) (Hovorka 2004)
+#define FR 0
+#define EGP0 (0.0161 * w) //[mmol * kg^(-1) * min^(-1)] endogenous glucose production 
+#define UG1 8 //glucose absorption rate (Hovorka 2004)
+#define UG2 8 //glucose absorption rate (Hovorka 2004)
+#define DG 20 //amount of carbohydrates digested (Hovorka 2004)
+#define AG 0.8 //carbohydrate bioavailability (Hovorka 2004)
+#define tmaxG 40 //[min] time-of-maximum appearance rate of glucose in the accessible glucose compartment (Hovorka 2004)
+
+#define Q1_lower 64
+//#define Q1_upper 160
+#define Q1_unsafe_upper 200
+#define Q1_unsafe_lower 32
+//#define Q1_upper 128
+
+[0,10000] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
+[0,10000] x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
+[0,10000] x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
+[0,10000] I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
+[0,10000] S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[0,10000] S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[0,10000] Q1; //[mmol] mass of glucose in the accessible compartments (Hovorka 2004)
+[0,10000] Q2; //[mmol] mass of glucose in the non-accessible compartments (Hovorka 2004)
+[0,10] u;
+[146, 150] Q1_upper;
+
+dist_normal(0, 0.01) du1;
+dist_normal(0, 0.01) du2;
+dist_normal(0, 0.01) du3;
+dist_normal(0, 0.01) du4;
+dist_normal(0, 0.01) du5;
+dist_normal(0, 0.01) du6;
+
+[0,500]tau;
+[0,500]time;
+
+{
+mode 1;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_upper) (Q1 <= Q1_upper))==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = u_mean + du1) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 2;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_lower) (Q1 <= Q1_lower))==>@3(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = 0) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 3;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_upper) (Q1 <= Q1_upper))==>@4(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = u_mean + du2) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 4;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_lower) (Q1 <= Q1_lower))==>@5(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = 0) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 5;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_upper) (Q1 <= Q1_upper))==>@6(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = u_mean + du3) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 6;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_lower) (Q1 <= Q1_lower))==>@7(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = 0) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 7;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_upper) (Q1 <= Q1_upper))==>@8(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = u_mean + du4) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 8;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_lower) (Q1 <= Q1_lower))==>@9(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = 0) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 9;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_upper) (Q1 <= Q1_upper))==>@10(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = u_mean + du5) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 10;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_lower) (Q1 <= Q1_lower))==>@11(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = 0) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 11;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+(and (Q1 >= Q1_upper) (Q1 <= Q1_upper))==>@12(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (u' = u_mean + du6) (du1' = du1) (du2' = du2) (du3' = du3) (du4' = du4) (du5' = du5) (du6' = du6) (Q1_upper' = Q1_upper));
+}
+
+{
+mode 12;
+
+flow:
+
+//glucose-subsystem
+d/dt[Q1]= - Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[u] = 0;
+
+jump:
+
+}
+
+init:
+@1(and	(I = 0.03) (x1 = 0.03) (x2 = 0.045) (x3 = 0.05) (tau = 0.0) (S1 = 4.2) (S2 = 4.0) (Q1 = 64.0) (Q2 = 40.0) (u = 0));
+
+goal:
+//@2(and (tau = 60) (Q1 <= 160));
+//@2(not (and (Q1 < Q1_unsafe_upper) (Q1 > Q1_unsafe_lower)));
+//@12(not (and (Q1 < Q1_unsafe_upper) (Q1 > Q1_unsafe_lower)));
+//@4(not (and (Q1 < Q1_unsafe_upper) (Q1 > Q1_unsafe_lower)));
+//@4(and (Q1 >= Q1_unsafe_upper) (Q1 <= Q1_unsafe_upper));
+@4(not (and (Q1 <= Q1_unsafe_upper) (Q1 >= Q1_unsafe_lower)));

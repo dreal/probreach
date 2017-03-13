@@ -1155,7 +1155,19 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
         {
             if(!timed_node_neg)
             {
-                s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << "))";
+                // checking if there is a not in front of the goal predicate becuase dReal does not work nicely
+                // with double negation
+                if(st.prop->value == "not")
+                {
+                    pdrh::node *goal_without_negation = new pdrh::node();
+                    pdrh::copy_tree(goal_without_negation, st.prop->operands.front());
+                    s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (" << pdrh::node_fix_index(goal_without_negation, path.size() - 1, "t") << "))";
+                    delete goal_without_negation;
+                }
+                else
+                {
+                    s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << "))";
+                }
             }
             else
             {
@@ -1512,8 +1524,21 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
             {
                 if (!timed_node_neg)
                 {
-                    s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (not " <<
-                    pdrh::node_fix_index(j.guard, depth, "t") << "))";
+                    // checking if there is a not in front of the guard predicate becuase dReal does not work nicely
+                    // with double negation
+                    if(j.guard->value == "not")
+                    {
+                        pdrh::node *guard_without_negation = new pdrh::node();
+                        pdrh::copy_tree(guard_without_negation, j.guard->operands.front());
+                        s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (" <<
+                        pdrh::node_fix_index(guard_without_negation, depth, "t") << "))";
+                        delete guard_without_negation;
+                    }
+                    else
+                    {
+                        s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (not " <<
+                        pdrh::node_fix_index(j.guard, depth, "t") << "))";
+                    }
                 }
                 else
                 {

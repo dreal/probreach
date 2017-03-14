@@ -255,6 +255,13 @@ void parse_pdrh_config(int argc, char* argv[])
             global_config.solver_bin = string(argv[i]);
             global_config.solver_type = solver::detect_solver(global_config.solver_bin);
         }
+        // solver binary
+        else if(strcmp(argv[i], "--secondary-solver") == 0)
+        {
+            i++;
+            global_config.secondary_solver_bin = string(argv[i]);
+            global_config.secondary_solver_type = solver::detect_solver(global_config.secondary_solver_bin);
+        }
         // time variable name
         else if(strcmp(argv[i], "--time-var-name") == 0)
         {

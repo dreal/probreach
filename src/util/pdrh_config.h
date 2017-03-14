@@ -19,6 +19,9 @@ struct pdrh_config
     // solver options
     string solver_bin = SOLVER_BIN;
     string solver_opt = "";
+    solver::type solver_type = solver::type::UNKNOWN_SOLVER;
+    string secondary_solver_bin = "";
+    solver::type secondary_solver_type = solver::type::UNKNOWN_SOLVER;
     // algorithm options
     double precision_prob = 1e-03;
     double precision_prob_single = 1e-03;
@@ -69,7 +72,6 @@ struct pdrh_config
     bool debug = false;
     bool sort_rv_flag = false;
     bool show_model = false;
-    solver::type solver_type = solver::type::UNKNOWN_SOLVER;
 
 } extern global_config;
 

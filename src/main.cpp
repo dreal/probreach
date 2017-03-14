@@ -84,20 +84,46 @@ int main(int argc, char* argv[])
     parse_pdrh(global_config.model_filename);
     // setting the model type automatically here
     pdrh::set_model_type();
-
+    // printing the model if the flag is set
     if(global_config.show_model)
     {
         cout << pdrh::model_to_string() << endl;
     }
-
+    // displaying primary solver
     CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
     if(global_config.solver_type == solver::type::DREAL)
     {
-        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Solver: dReal";
+        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: dReal";
     }
     else if(global_config.solver_type == solver::type::ISAT)
     {
-        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Solver: iSAT";
+        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: iSAT";
+    }
+    else if(global_config.solver_type == solver::type::UNKNOWN_SOLVER)
+    {
+        CLOG(ERROR, "parser") << "Primary solver is not defined";
+        return EXIT_FAILURE;
+    }
+    // displaying secondary solver
+    if(global_config.secondary_solver_bin.empty())
+    {
+        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: not defined";
+    }
+    else
+    {
+        if(global_config.secondary_solver_type == solver::type::DREAL)
+        {
+            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: dReal";
+        }
+        else if(global_config.secondary_solver_type == solver::type::ISAT)
+        {
+            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: iSAT";
+        }
+        else if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
+        {
+            CLOG(ERROR, "parser") << "Secondary solver is not recognized";
+            return EXIT_FAILURE;
+        }
     }
 
     switch(pdrh::model_type)

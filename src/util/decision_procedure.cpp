@@ -11,13 +11,11 @@
 #include "solver_wrapper.h"
 #include "isat_wrapper.h"
 
-
 using namespace std;
 
 // write an evaluate method for all paths instead of one.
 
 // Used for statistical verification
-
 
 int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes)
 {
@@ -156,7 +154,8 @@ int decision_procedure::evaluate_isat(vector<box> boxes)
     isat_file.close();
     stringstream solver_opt_stream;
     solver_opt_stream << global_config.solver_opt << " --start-depth " << (global_config.reach_depth_min * 2 + 1) <<
-                                                        " --max-depth " << (global_config.reach_depth_max * 2 + 1);
+                                                        " --max-depth " << (global_config.reach_depth_max * 2 + 1) <<
+                                                            " --ode-opts=--continue-after-not-reaching-horizon --ode-opts=--detect-independent-ode-groups";
     // calling isat here
     solver::output res = isat::evaluate(global_config.solver_bin, isat_filename, solver_opt_stream.str());
     remove(isat_filename.c_str());

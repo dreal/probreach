@@ -26,7 +26,7 @@ namespace algorithm
     capd::interval evaluate_pha_chernoff_delta_sat(int, int, double, double);
     // evaluating reachability in nondeterministic probabilistic hybrid automata (arg: depth)
     map<box, capd::interval> evaluate_npha(int);
-    // evaluating reachability in nondeterministic probabilistic hybrid automata (arg1: min depth, arg2: max depth)
+    // evaluating reachability in nondeterministic probabilistic hybrid automata l(arg1: min depth, arg2: max depth)
     map<box, capd::interval> evaluate_npha(int, int);
     // evaluating reachability in nondeterministic hybrid automata (arg: depth)
     map<box, decision_procedure::result> evaluate_nha(int);
@@ -40,7 +40,6 @@ namespace algorithm
 
     capd::interval evaluate_pha_chernoff(int, int, double, double, vector<box>);
     capd::interval evaluate_pha_bayesian(int, int, double, double, vector<box>);
-
 
     // the last argument is the sample size for cross entropy method
     pair<box, capd::interval> evaluate_npha_sobol(int, int, int);

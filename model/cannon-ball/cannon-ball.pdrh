@@ -4,8 +4,8 @@ model: pha;
 #define g 9.8
 #define alpha 0.7854 // angle to horizon
 
-[-1000, 1000]    Sy; // vertical distance (m)
 [0, 10000] Sx; // horizontal distance (m)
+[0, 1000]    Sy; // vertical distance (m)
 [0, 10]     tau; // local time
 [0, 10]     time; // local time (required)
 [0, 500]		v; // speed of the ball (m/s)

@@ -370,4 +370,4 @@ goal:
 //@12(not (and (Q1 < Q1_unsafe_upper) (Q1 > Q1_unsafe_lower)));
 //@4(not (and (Q1 < Q1_unsafe_upper) (Q1 > Q1_unsafe_lower)));
 //@4(and (Q1 >= Q1_unsafe_upper) (Q1 <= Q1_unsafe_upper));
-@4(Q1 >= Q1_unsafe_upper);
+@12(Q1 >= Q1_unsafe_upper);

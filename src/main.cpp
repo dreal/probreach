@@ -79,7 +79,8 @@ int main(int argc, char* argv[])
     // parse command line
     parse_pdrh_config(argc, argv);
     // setting precision on the output
-    cout.precision(16);
+    cout.precision(8);
+    cout << scientific;
     // pdrh parser
     parse_pdrh(global_config.model_filename);
     // setting the model type automatically here

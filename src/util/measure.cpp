@@ -473,6 +473,10 @@ box measure::bounds::get_rv_domain()
                                         pdrh::node_to_interval(get<2>(it->second)).rightBound()));
         domain_map.insert(std::make_pair(it->first, tmp));
     }
+    if(domain_map.empty())
+    {
+        return box();
+    }
     std::vector<box> domain = box_factory::cartesian_product(domain_map);
     return domain.front();
 }

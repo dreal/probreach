@@ -490,6 +490,12 @@ void parse_pdrh_config(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
     CLOG_IF(global_config.verbose, INFO, "config") << "OK";
+    // checking secondary solver type
+    if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
+    {
+        global_config.secondary_solver_type = global_config.solver_type;
+        global_config.secondary_solver_bin = global_config.solver_bin;
+    }
 }
 
 void print_usage()

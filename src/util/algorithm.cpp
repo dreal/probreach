@@ -347,6 +347,10 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     // getting partition of domain of continuous random variables
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of domain of continuous random parameters";
     std::vector<box> rv_partition = measure::get_rv_partition();
+    if(rv_partition.empty())
+    {
+        rv_partition.push_back(box());
+    }
     // getting domain of continuous random variables
     box rv_domain = measure::bounds::get_rv_domain();
     // here we start with entire domain instead of partition
@@ -368,7 +372,6 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
         rv_partition = tmp_vector;
         //cout << "rv partition size after extra partition:" << rv_partition.size() << endl;
     }
-
     // sorting boxes by probability value
     if(global_config.sort_rv_flag)
     {
@@ -442,8 +445,6 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
             // iterating through the boxes
             for(box nd : nd_partition)
             {
-                //for(box dd : dd_partition)
-                //{
                 rv_partition = partition_map[nd];
                 vector<box> rv_stack;
 
@@ -472,115 +473,64 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                         }
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "p_box: " << p_box;
                     }
-                    // undetermined answers counter
-                    int undet_counter = 0;
-                    // solver timeout counter
-                    int timeout_counter = 0;
-                    // unsat counter
-                    int unsat_counter = 0;
-                    // sat flag
-                    bool sat_flag = false;
-                    // evaluating all paths for all dd and rv
-                    for (std::vector<pdrh::mode *> path : paths)
+                    std::stringstream s;
+                    std::string solver_opt;
+                    #pragma omp critical
                     {
-                        std::stringstream p_stream;
-                        for (pdrh::mode *m : path)
+                        solver_opt = global_config.solver_opt;
+                        s << solver_opt << " --precision ";
+                        if(!rv.empty())
                         {
-                            p_stream << m->id << " ";
+                            s << rv.min_side_width() * global_config.solver_precision_ratio;
                         }
-                        // removing trailing whitespace
-                        #pragma omp critical
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
-                        // changing solver precision
-                        std::stringstream s;
-                        std::string solver_opt;
-                        #pragma omp critical
+                        else
                         {
-                            solver_opt = global_config.solver_opt;
-                            //s << solver_opt << " --precision " << measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
-                            s << solver_opt << " --precision " << rv.min_side_width() * global_config.solver_precision_ratio;
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solver options: " << s.str();
+                            s << global_config.solver_precision_ratio;
                         }
-                        int res = decision_procedure::evaluate(path, vector<box>{nd, dd, rv}, s.str());
-                        // analyzing the output
-                        switch(res)
-                        {
-                            case decision_procedure::SAT:
-                            #pragma omp critical
-                            {
-                                if(p_box.leftBound() > 0)
-                                {
-                                    p_map[nd]=capd::interval(p_map[nd].leftBound() + p_box.leftBound(), p_map[nd].rightBound());
-                                }
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << p_map[nd];
-                                sat_flag = true;
-                            }
-                                break;
-
-                            case decision_procedure::UNSAT:
-                            #pragma omp critical
-                            {
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                                unsat_counter++;
-                            }
-                                break;
-
-                            case decision_procedure::UNDET:
-                            #pragma omp critical
-                            {
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDEC";
-                                undet_counter++;
-                            }
-                                break;
-
-                            case decision_procedure::ERROR:
-                            #pragma omp critical
-                            {
-                                CLOG(ERROR, "algorithm") << "Error occurred while calling the solver";
-                                exit(EXIT_FAILURE);
-                            }
-                                break;
-
-                            case decision_procedure::SOLVER_TIMEOUT:
-                            #pragma omp critical
-                            {
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                                timeout_counter++;
-                            }
-                                break;
-                        }
-                        // checking if the evaluated path is SAT
-                        if(sat_flag)
-                        {
-                            break;
-                        }
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solver options: " << s.str();
                     }
-                    // checking if there are no sat answers
-                    if(!sat_flag)
+                    switch(decision_procedure::evaluate(paths, vector<box>{nd, dd, rv}, s.str()))
                     {
-                        // if the box is undetermined on either path
-                        if ((undet_counter > 0) || (timeout_counter > 0))
+                        case decision_procedure::result::SAT:
+                        #pragma omp critical
                         {
-                            #pragma omp critical
+                            if (p_box.leftBound() > 0)
                             {
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << rv;
-                                std::vector<box> rv_bisect = box_factory::bisect(rv);
-                                rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
+                                p_map[nd] = capd::interval(p_map[nd].leftBound() + p_box.leftBound(),
+                                                           p_map[nd].rightBound());
+                            }
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << p_map[nd];
+                        }
+                        break;
+
+                        case decision_procedure::result::UNSAT:
+                        #pragma omp critical
+                        {
+                            if (p_box.leftBound() > 0)
+                            {
+                                p_map[nd]=capd::interval(p_map[nd].leftBound(), p_map[nd].rightBound() - p_box.leftBound());
+                            }
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << p_map[nd];
+                        }
+                        break;
+
+                        case decision_procedure::result::UNDET:
+                        #pragma omp critical
+                        {
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << rv;
+                            std::vector<box> rv_bisect = box_factory::bisect(rv);
+                            rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
+                            // updating total partition
+                            auto it = find(total_partition.begin(), total_partition.end(), rv);
+                            if(it != total_partition.end())
+                            {
+                                total_partition.erase(it);
+                                total_partition.insert(total_partition.end(), rv_bisect.begin(), rv_bisect.end());
                             }
                         }
-                        // if the box is unsat for all paths
-                        else if (unsat_counter == paths.size())
-                        {
-                            #pragma omp critical
-                            {
-                                if (p_box.leftBound() > 0)
-                                {
-                                    p_map[nd]=capd::interval(p_map[nd].leftBound(), p_map[nd].rightBound() - p_box.leftBound());
-                                }
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << p_map[nd];
-                            }
-                        }
+                        break;
                     }
                 }
 
@@ -596,10 +546,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Epsilon is satisfied. Updating resulting probability map with " << nd;
                     p_map.erase(nd);
                     partition_map.erase(nd);
-                    //cout << "dd measure: " << dd_measure << endl;
                     res_map[nd] = probability;// * dd_measure;
-                    //cout << "Box " << nd << " Probability: " << res_map[nd] << endl;
-                    //break;
                 }
                 // sorting newly obtained boxes
                 if(global_config.sort_rv_flag)
@@ -670,7 +617,6 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                     partition_map.erase(nd);
                     res_map.erase(nd);
                     final_map.erase(nd);
-
                     // updating probability and partition maps
                     if(tmp_boxes.size() > 1)
                     {
@@ -681,7 +627,6 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                             res_map.insert(make_pair(b, tmp_prob_value));
                             final_map.insert(make_pair(b, tmp_final_prob_value));
                         }
-                        //cout << "------" << endl;
                     }
                     else
                     {
@@ -741,6 +686,12 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
             partition_map.insert(make_pair(it->first, total_partition));
 
         }
+//        cout << "Total partition: " << endl;
+//        for(box b : total_partition)
+//        {
+//            cout << b << endl;
+//        }
+//        exit(EXIT_FAILURE);
 //        cout << "Updated probability map after the end of the loop" << endl;
 //        for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
 //        {
@@ -1175,7 +1126,6 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     }
 }
 
-
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf)
 {
     return evaluate_pha_chernoff(min_depth, max_depth, acc, conf, vector<box>{});
@@ -1280,9 +1230,13 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
     r = gsl_rng_alloc(T);
     // setting the seed
     gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
-    //initializing probability value
-    pair<box, capd::interval> res;
     box domain = pdrh::get_nondet_domain();
+    //initializing probability value
+    pair<box, capd::interval> res(domain, capd::interval(0.0));
+    if(global_config.min_prob)
+    {
+        res = make_pair(domain, capd::interval(1.0));
+    }
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;
     box mean = domain.get_mean();
     box sigma = domain.get_stddev();
@@ -1357,12 +1311,27 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
         }
         vector<pair<box, capd::interval>> elite;
         copy_n(samples.begin(), ceil(samples.size() * global_config.elite_ratio), back_inserter(elite));
+        // getting elite boxes
         vector<box> elite_boxes;
         for(pair<box, capd::interval> p : elite)
         {
             elite_boxes.push_back(p.first);
         }
-        res = samples.front();
+        // updating resulting probability
+        if(global_config.min_prob)
+        {
+            if(samples.front().second.mid().leftBound() < res.second.mid().leftBound())
+            {
+                res = samples.front();
+            }
+        }
+        else
+        {
+            if(samples.front().second.mid().leftBound() > res.second.mid().leftBound())
+            {
+                res = samples.front();
+            }
+        }
         samples.clear();
         mean = box_factory::get_mean(elite_boxes);
         sigma = box_factory::get_stddev(elite_boxes);

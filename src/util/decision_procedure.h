@@ -27,6 +27,7 @@ namespace decision_procedure
     int evaluate_delta_sat(vector<pdrh::mode*>, vector<box>, string, string);
 
     int evaluate_complement(vector<pdrh::mode*>, vector<box>, string, string);
+    int evaluate_complement(vector<pdrh::mode*>, vector<box>, string);
 
     // evaluate a set of boxes using iSAT
     int evaluate_isat(vector<box>);

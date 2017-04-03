@@ -44,21 +44,6 @@ std::vector<box> box_factory::cartesian_product(std::map<std::string, std::vecto
     return product;
 }
 
-/**
- * Dividing the box in all n dimensions producing 2^n boxes of the same size
- */
-std::vector<box> box_factory::bisect(box b)
-{
-    std::map<std::string, capd::interval> e;
-    std::map<std::string, capd::interval> m = b.get_map();
-    for(auto it = m.cbegin(); it != m.cend(); it++)
-    {
-        e.insert(make_pair(it->first, capd::interval(0)));
-    }
-
-    return box_factory::bisect(b,e);
-}
-
 // partitioning a box
 vector<box> box_factory::partition(box b, double e)
 {
@@ -89,19 +74,32 @@ vector<box> box_factory::partition(box b, double e)
     return res;
 }
 
+vector<box> box_factory::partition(box b, int amount)
+{
+    vector<box> res{b};
+    while(res.size() < amount)
+    {
+        box b_tmp = res.front();
+        res.erase(res.begin());
+        vector<box> b_bisect = box_factory::bisect(b_tmp);
+        res.insert(res.end(), b_bisect.begin(), b_bisect.end());
+    }
+    return res;
+}
+
 vector<box> box_factory::partition(box b, map<string, capd::interval> e_map)
 {
+    // checking if precision map is empty
+    if(e_map.empty())
+    {
+        return {b};
+    }
     // checking whether partition map contains does not contain undefined variables
     if(!box_factory::get_keys_diff(box(e_map), b).empty())
     {
         ostringstream s;
         s << "partition map \"" << box(e_map) << "\" contains variables not defined in the box \"" << b << "\"";
         throw std::invalid_argument(s.str());
-    }
-    // checking if precision map is empty
-    if(e_map.empty())
-    {
-        return vector<box>{b};
     }
     // main algorithm
     vector<box> q = {b};
@@ -125,10 +123,29 @@ vector<box> box_factory::partition(box b, map<string, capd::interval> e_map)
 
 /**
  * Dividing the box in all n dimensions producing 2^n boxes of the same size
+ */
+std::vector<box> box_factory::bisect(box b)
+{
+    std::map<std::string, capd::interval> e;
+    std::map<std::string, capd::interval> m = b.get_map();
+    for(auto it = m.cbegin(); it != m.cend(); it++)
+    {
+        e.insert(make_pair(it->first, capd::interval(0)));
+    }
+
+    return box_factory::bisect(b,e);
+}
+
+/**
+ * Dividing the box in all n dimensions producing 2^n boxes of the same size
  * according to the precision vector e
  */
-std::vector<box> box_factory::bisect(box b, std::map<std::string, capd::interval> e)
+vector<box> box_factory::bisect(box b, map<std::string, capd::interval> e)
 {
+    if(e.empty())
+    {
+        return {b};
+    }
     std::map<std::string, std::vector<capd::interval>> tmp_m;
     std::map<std::string, capd::interval> m = b.get_map();
     for(auto it = m.cbegin(); it != m.cend(); it++)

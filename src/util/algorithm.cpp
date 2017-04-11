@@ -33,66 +33,29 @@ decision_procedure::result algorithm::evaluate_ha(int depth)
     }
     else if(global_config.solver_type == solver::type::DREAL)
     {
-        int undet_counter = 0;
-        for(pdrh::state i : pdrh::init)
+        // generating all paths of lengths [min_depth, max_depth]
+        std::vector<std::vector<pdrh::mode*>> paths;
+        for(pdrh::state init : pdrh::init)
         {
-            for(pdrh::state g : pdrh::goal)
+            for (pdrh::state goal : pdrh::goal)
             {
-                std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_paths(pdrh::get_mode(i.id), pdrh::get_mode(g.id), depth);
-                for(std::vector<pdrh::mode*> path : paths)
-                {
-                    std::stringstream p_stream;
-                    for(pdrh::mode* m : path)
-                    {
-                        p_stream << m->id << " ";
-                    }
-                    // removing trailing whitespace
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
-                    std::vector<box> boxes;
-                    int res;
-                    // checking here if the delta-sat flag is enabled
-                    if(global_config.delta_sat)
-                    {
-                        res = decision_procedure::evaluate_delta_sat(path, boxes);
-                    }
-                    else
-                    {
-                        res = decision_procedure::evaluate(path, boxes);
-                    }
-                    // checking the returned value
-                    if(res == decision_procedure::SAT)
-                    {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                        return decision_procedure::SAT;
-                    }
-                    else if(res == decision_procedure::UNSAT)
-                    {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                    }
-                        // never happens when --delta-sat is enabled
-                    else if(res == decision_procedure::UNDET)
-                    {
-                        undet_counter++;
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-                    }
-                    else if(res == decision_procedure::ERROR)
-                    {
-                        return decision_procedure::ERROR;
-                    }
-                    else if(res == decision_procedure::SOLVER_TIMEOUT)
-                    {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEUT";
-                    }
-                }
+                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
+                                                                                 pdrh::get_mode(goal.id),
+                                                                                 depth);
+                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
             }
         }
-        // checking if either of the paths was UNDET
-        // never is returned when --delta-sat is enabled
-        if(undet_counter > 0)
+        switch(decision_procedure::evaluate(paths,{}, global_config.solver_opt))
         {
-            return decision_procedure::UNDET;
+            case decision_procedure::result::SAT:
+                return decision_procedure::result::SAT;
+
+            case decision_procedure::result::UNSAT:
+                return decision_procedure::result::UNSAT;
+
+            case decision_procedure::result::UNDET:
+                return decision_procedure::result::UNDET;
         }
-        return decision_procedure::UNSAT;
     }
 }
 
@@ -395,8 +358,16 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     std::vector<std::vector<pdrh::mode*>> paths;
     for(int i = min_depth; i <= max_depth; i++)
     {
-        std::vector<std::vector<pdrh::mode*>> paths_i = pdrh::get_paths(pdrh::get_mode(pdrh::init.front().id), pdrh::get_mode(pdrh::goal.front().id), i);
-        paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
+        for(pdrh::state init : pdrh::init)
+        {
+            for (pdrh::state goal : pdrh::goal)
+            {
+                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
+                                                                                 pdrh::get_mode(goal.id),
+                                                                                 i);
+                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
+            }
+        }
     }
     // initializing probability map
     std::map<box, capd::interval> p_map;
@@ -519,6 +490,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                         case decision_procedure::result::UNDET:
                         #pragma omp critical
                         {
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << rv;
                             std::vector<box> rv_bisect = box_factory::bisect(rv);
                             rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());

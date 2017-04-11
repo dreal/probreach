@@ -2369,6 +2369,7 @@ void pdrh::set_model_type()
     if(pdrh::rv_map.empty() && pdrh::dd_map.empty() && pdrh::par_map.empty() && pdrh::syn_map.empty())
     {
         pdrh::model_type = pdrh::type::HA;
+        //pdrh::model_type = pdrh::type::NPHA;
     }
     else if(pdrh::rv_map.empty() && pdrh::dd_map.empty() && pdrh::par_map.empty())
     {

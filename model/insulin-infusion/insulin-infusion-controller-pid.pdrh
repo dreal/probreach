@@ -10,10 +10,6 @@
 #define kb2 0.056 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
 #define kb3 0.024 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
 
-#define u1 0.0 //administration (bolus and infusion) of insulin (Hovorka 2004)
-#define u2 0.36 //administration (bolus and infusion) of insulin (Hovorka 2004)
-//#define u3 0.5 //administration (bolus and infusion) of insulin (Hovorka 2004)
-//#define u4 0.0 //administration (bolus and infusion) of insulin (Hovorka 2004)
 #define tmaxI 55 //[min] time-to-maximum insulin absorption (Hovorka 2004)
 #define VI (0.12 * w)//[L * kg^(-1)] insulin distribution volume (Hovorka 2004)
 #define ke 0.138//[min^(-1)] insulin elimination from plasma (Hovorka 2004)
@@ -34,30 +30,61 @@
 #define AG 0.8 //carbohydrate bioavailability (Hovorka 2004)
 #define tmaxG 40 //[min] time-of-maximum appearance rate of glucose in the accessible glucose compartment (Hovorka 2004)
 
-//[-1.0,1.0]u;
-[0,10000]x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
-[0,10000]x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
-[0,10000]x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
-[0,10000]I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
-[0,10000]S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
-[0,10000]S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
-[0,10000]Q1; //[mmol] mass of glucose in the accessible compartments (Hovorka 2004)
-[0,10000]Q2; //[mmol] mass of glucose in the non-accessible compartments (Hovorka 2004)
+#define Q1_upper 130
+#define Q1_lower 100
 
-[0,500]tau;
-[0,500]time;
+#define Kp -0.003
+#define Ki 0
+#define Kd -0.003
+
+// dynamics
+#define r_ode 0
+#define Q1_ode (-Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000)
+
+// error derivative
+#define e_der (r_ode - Q1_ode)
+
+// administration (bolus and infusion) of insulin (Hovorka 2004)
+//#define u 0.36
+#define u Kp * e + Ki * e_int + Kd * e_der
+
+
+//[-1.0,1.0]u;
+[-1e6,1e6]x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
+[-1e6,1e6]x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
+[-1e6,1e6]x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
+[-1e6,1e6]I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
+[-1e6,1e6]S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[-1e6,1e6]S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[-1e6,1e6]Q1; //[mmol] mass of glucose in the accessible compartments (Hovorka 2004)
+[-1e6,1e6]Q2; //[mmol] mass of glucose in the non-accessible compartments (Hovorka 2004)
+[-1e6,1e6]r; // reference trajectory
+[-1e9,1e9]e_int; // error integral
+[-1e6,1e6]e; // error
+
+// initial value for e_int is initial Q1 minus initial r value
+
+[0,250]tau;
+[0,250]time;
 
 {
 mode 1;
 
 flow:
 
+//error
+d/dt[e_int]=r-Q1;
+d/dt[e] = 0 - (- Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000);
+
+//reference trajectory
+d/dt[r] = r_ode;
+
 //glucose-subsystem
-d/dt[Q1]=- Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000;
-d/dt[Q2]=x1 * Q1 - (k12 + x2) * Q2;
+d/dt[Q1]= Q1_ode;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
 
 //insulin-subsystem
-d/dt[S1]=u1 - S1 / tmaxI;
+d/dt[S1]= - S1 / tmaxI;
 d/dt[S2]=(S1 - S2) / tmaxI;
 d/dt[I]=S2 / (tmaxI * VI) - ke * I;
 
@@ -68,7 +95,7 @@ d/dt[x3]=- ka3 * x3 + kb3 * I;
 d/dt[tau]= 1;
 
 jump:
-(and (Q1 <= 160) (Q1 >= 160))==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2));
+(and (Q1 <= Q1_upper) (Q1 >= Q1_upper))==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (r' = r) (e_int' = e_int) (e' = e));
 }
 
 {
@@ -76,12 +103,19 @@ mode 2;
 
 flow:
 
+//error
+d/dt[e_int]=r-Q1;
+d/dt[e] = 0 - (- Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG1 * 180) / 1000);
+
+//reference trajectory
+d/dt[r] = r_ode;
+
 //glucose-subsystem
-d/dt[Q1]=- Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG2 * 180) / 1000;
+d/dt[Q1]=Q1_ode;
 d/dt[Q2]=x1 * Q1 - (k12 + x2) * Q2;
 
 //insulin-subsystem
-d/dt[S1]=u2 - S1 / tmaxI;
+d/dt[S1]=u - S1 / tmaxI;
 d/dt[S2]=(S1 - S2) / tmaxI;
 d/dt[I]=S2 / (tmaxI * VI) - ke * I;
 
@@ -92,15 +126,17 @@ d/dt[x3]=- ka3 * x3 + kb3 * I;
 d/dt[tau]= 1;
 
 jump:
-(and (Q1 >= 64) (Q1 <= 64))==>@1(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2));
+(and (Q1 <= Q1_lower) (Q1 >= Q1_lower) )==>@1(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (r'=0) (e_int' = e_int) (e' = e));
 }
 
 init:
-@1(and	(I = 0.03) (x1 = 0.03) (x2 = 0.045) (x3 = 0.05) (tau = 0.0) (S1 = 4.2) (S2 = 4.0) (Q1 = 64.0) (Q2 = 40.0));
+@1(and	(I = 0.03) (x1 = 0.03) (x2 = 0.045) (x3 = 0.05) (tau = 0.0) (S1 = 4.2) (S2 = 4.0) (Q1 = 64.0) (Q2 = 40.0) (r = 90) (e_int = r-Q1) (e = r-Q1));
 
 goal:
 //@2(and (tau = 60) (Q1 <= 160));
-@2(and (Q1 <= 64));
-//@1(and (Q1 >= 160));
-//@1(and (tau = 1000));
-//@2(and (tau = 0));
+//@2(and (Q1 >= Q1_lower)(Q1 <= Q1_lower));
+//@1(and (Q1 >= Q1_upper)(Q1 <= Q1_upper));
+//@1(not(and (Q1 <= 250) (Q1 >= 30)));
+//@1(and (Q1 <= 30) (Q1 >= 30));
+//@1(and (tau = 200));
+@2(and (tau = 200));

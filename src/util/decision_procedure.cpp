@@ -499,14 +499,29 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
         int undet_counter = 0;
         for(vector<pdrh::mode*> path : paths)
         {
+            if(global_config.verbose)
+            {
+                stringstream s;
+                for(pdrh::mode* m : path)
+                {
+                    s << m->id << " ";
+                }
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str();
+            }
             int res = evaluate(path, boxes, solver_opt);
             if(res == decision_procedure::result::SAT)
             {
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                 return decision_procedure::result::SAT;
             }
             if(res == decision_procedure::result::UNDET)
             {
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
                 undet_counter++;
+            }
+            if(res == decision_procedure::result::UNSAT)
+            {
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
             }
         }
         if(undet_counter > 0)

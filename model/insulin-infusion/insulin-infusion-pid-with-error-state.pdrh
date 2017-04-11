@@ -1,0 +1,185 @@
+/**
+ * Insulin action subsystem kinetics.
+ * Sources: Sriram, Hovorka 2002, Hovorka 2004
+ */
+#define w 85 //[kg] weight of the patient
+#define ka1 0.006 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+#define ka2 0.06 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+#define ka3 0.03 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+
+#define Sf1T 51.2 * 0.0001 //[min^(-1) per mU * L^(-1)] insulin sensitivity of distribution/transport (Hovorka 2004)
+#define Sf1D 8.2 * 0.0001 //[min^(-1) per mU * L^(-1)] insulin sensitivity of disposal (Hovorka 2004)
+#define Sf1E 520 * 0.0001 //[min^(-1) per mU * L^(-1)] insulin sensitivity of EGP (Hovorka 2004)
+
+//#define kb1 Sf1T * ka1 // [min^(-2) / (mU / L)] activation rate constant (Hovorka 2004)
+//#define kb2 Sf1D * ka2 // [min^(-2) / (mU / L)] activation rate constant (Hovorka 2004)
+//#define kb3 Sf1E * ka3 // [min^(-2) / (mU / L)] activation rate constant (Hovorka 2004)
+
+#define kb1 0.0034 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+#define kb2 0.056 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+#define kb3 0.024 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+
+#define tmaxI 55 //[min] time-to-maximum insulin absorption (Hovorka 2004)
+#define VI (0.12 * w)//[L * kg^(-1)] insulin distribution volume (Hovorka 2004)
+#define ke 0.138//[min^(-1)] insulin elimination from plasma (Hovorka 2004)
+
+#define k12 0.066 //[min^(-1)] transfer rate constant from the non-accessible to the accessible compartment (Hovorka 2004)
+#define VG (0.16 * w) //[L * kg^(-1)] distribution volume of the accessible compartment (Hovorka 2004)
+#define G (Q1 / VG) //[mmol/L] glucose concentration (Hovorka 2004)
+#define F01 (0.0097 * w) //[mmol * kg^(-1) * min^(-1)] non-insulin-dependent glucose flux (Hovorka 2004)
+#define Fc01 (F01 * G/(G + 1) / 0.85) //total non-insulin-dependent glucose flux corrected for the ambient glucose concentration (Hovorka 2004)
+//#define FR (0.003 * (G - 9) * VG) //renal glucose clearance above the glucose threshold of 9 mmol/L^(-1) (Hovorka 2004)
+#define FR 0
+#define EGP0 (0.0161 * w) //[mmol * kg^(-1) * min^(-1)] endogenous glucose production 
+
+//#define UG 8*1000/180 //glucose absorption rate (Hovorka 2004)
+
+#define UG (DG/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2) // glucose absorption rate (Hovorka 2004)
+
+#define Gmolar 180.1559 //[g/mol] molar mass of glucose (Google)
+#define DG 2000 //[g] amount of carbohydrates digested (Hovorka 2004)
+#define AG 0.8 //carbohydrate bioavailability (Hovorka 2004)
+#define tmaxG 40 //[min] time-of-maximum appearance rate of glucose in the accessible glucose compartment (Hovorka 2004)
+
+#define G_upper 6
+#define G_lower 5.9
+
+#define G_upper_unsafe 10
+#define G_lower_unsafe 4
+
+#define Kp -0.004
+#define Ki 0
+#define Kd -0.004
+
+// dynamics
+#define r_ode 0
+#define Q1_ode (-Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (UG * 180) / 1000)
+
+// error derivative
+#define e_der (r_ode - Q1_ode)
+
+// administration (bolus and infusion) of insulin (Hovorka 2004)
+//#define u 0.36
+#define u Kp * e + Ki * e_int + Kd * e_der
+
+//[-1.0,1.0]u;
+[-1e6,1e6] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
+[-1e6,1e6] x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
+[-1e6,1e6] x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
+[-1e6,1e6] I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
+[-1e6,1e6] S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[-1e6,1e6] S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[-1e6,1e6] Q1; //[mmol] mass of glucose in the accessible compartment (where the measurements are made) (Hovorka 2004)
+[-1e6,1e6] Q2; //[mmol] mass of glucose in the non-accessible compartment (Hovorka 2004)
+[-1e6,1e6] r; // reference trajectory
+[-1e9,1e9] e_int; // error integral
+[-1e6,1e6] e; // error
+
+// initial value for e_int is initial Q1 minus initial r value
+
+[0,300]tau;
+[0,300]time;
+
+{
+mode 1;
+
+flow:
+
+//error
+d/dt[e_int]=r-Q1;
+d/dt[e] = r_ode - Q1_ode;
+
+//reference trajectory
+d/dt[r] = r_ode;
+
+//glucose-subsystem
+d/dt[Q1]= Q1_ode;
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= - S1 / tmaxI;
+d/dt[S2]=(S1 - S2) / tmaxI;
+d/dt[I]=S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]=- ka1 * x1 + kb1 * I;
+d/dt[x2]=- ka2 * x2 + kb2 * I;
+d/dt[x3]=- ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+
+jump:
+(and (G <= G_upper) (G >= G_upper))==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (r' = r) (e_int' = e_int) (e' = e));
+(and (G < G_lower_unsafe) )==>@3(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (r'=r) (e_int' = e_int) (e' = e));
+}
+
+{
+mode 2;
+
+flow:
+
+//error
+d/dt[e_int]=r-Q1;
+d/dt[e] = r_ode - Q1_ode;
+
+//reference trajectory
+d/dt[r] = r_ode;
+
+//glucose-subsystem
+d/dt[Q1]=Q1_ode;
+d/dt[Q2]=x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]=u - S1 / tmaxI;
+d/dt[S2]=(S1 - S2) / tmaxI;
+d/dt[I]=S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]=- ka1 * x1 + kb1 * I;
+d/dt[x2]=- ka2 * x2 + kb2 * I;
+d/dt[x3]=- ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+
+jump:
+(and (G <= G_lower) (G >= G_lower) )==>@1(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (r'=r) (e_int' = e_int) (e' = e));
+(and (G > G_upper_unsafe) )==>@3(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (r'=r) (e_int' = e_int) (e' = e));
+}
+
+{
+mode 3;
+
+flow:
+
+//error
+d/dt[e_int]=0;
+d/dt[e]=0;
+
+//reference trajectory
+d/dt[r] = 0;
+
+//glucose-subsystem
+d/dt[Q1]= 0;
+d/dt[Q2]= 0;
+
+//insulin-subsystem
+d/dt[S1]= 0;
+d/dt[S2]= 0;
+d/dt[I]= 0;
+
+//insulin-action-subsystem
+d/dt[x1]= 0;
+d/dt[x2]= 0;
+d/dt[x3]= 0;
+d/dt[tau]= 1;
+
+jump:
+(and (tau = 1))==>@3(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (r'=r) (e_int' = e_int) (e' = e));
+}
+
+init:
+@1(and	(I = 0.03) (x1 = 0.03) (x2 = 0.045) (x3 = 0.04) (tau = 0.0) (S1 = 4.2) (S2 = 4.0) (Q1 = 64) (Q2 = 40.0) 
+(r = 5 * VG) (e_int = r-Q1) (e = r-Q1));
+
+goal:
+@1(and (tau = 300));
+//@2(and (tau = 60));
+//@3(and (tau = 100));

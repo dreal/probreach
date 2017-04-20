@@ -98,6 +98,7 @@ namespace pdrh
         vector<jump> jumps;
         map<string, pair<node*, node*>> flow_map;
         map<string, node*> odes;
+        pair<node*, node*> time;
     };
     extern vector<mode> modes;
 

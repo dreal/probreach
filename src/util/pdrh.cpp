@@ -312,6 +312,27 @@ vector<vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::mode* end, 
     return paths;
 }
 
+// comparing two paths alphabetically
+bool compare_paths_ascending(vector<pdrh::mode*> lhs, vector<pdrh::mode*> rhs)
+{
+    stringstream s;
+    for(pdrh::mode* m : lhs)
+    {
+        s << m->id;
+    }
+    string lstring = s.str();
+    s.str("");
+    for(pdrh::mode* m : rhs)
+    {
+        s << m->id;
+    }
+    if(lstring.compare(s.str()) <= 0)
+    {
+        return true;
+    }
+    return false;
+}
+
 // getting all paths of length path_length for all combinations of init and goal modes
 vector<vector<pdrh::mode*>> pdrh::get_all_paths(int path_length)
 {
@@ -324,6 +345,8 @@ vector<vector<pdrh::mode*>> pdrh::get_all_paths(int path_length)
             res.insert(res.end(), paths.begin(), paths.end());
         }
     }
+    // sorting all paths if the ascending order
+    sort(res.begin(), res.end(), compare_paths_ascending);
     return res;
 }
 
@@ -335,6 +358,8 @@ vector<vector<pdrh::mode*>> pdrh::get_all_paths()
         vector<vector<pdrh::mode*>> paths = pdrh::get_all_paths(i);
         res.insert(res.end(), paths.begin(), paths.end());
     }
+    // sorting all paths if the ascending order
+    sort(res.begin(), res.end(), compare_paths_ascending);
     return res;
 }
 
@@ -457,6 +482,7 @@ string pdrh::model_to_string()
     for(pdrh::mode m : pdrh::modes)
     {
         out << "|   MODE: " << m.id << ";" << endl;
+        out << "|   TIME DOMAIN: [" << pdrh::node_to_string_prefix(m.time.first) << ", " << pdrh::node_to_string_prefix(m.time.second) << "]" << endl;
         out << "|   INVARIANTS:" << endl;
         for(pdrh::node* n : m.invts)
         {
@@ -668,8 +694,8 @@ string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     for(int i = 0; i < path.size(); i++)
     {
         s << "(declare-fun time_" << i << " () Real)" << endl;
-        s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.first) << "))" << endl;
-        s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.second) << "))" << endl;
+        s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.first) << "))" << endl;
+        s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.second) << "))" << endl;
     }
     // defining odes
     for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
@@ -757,7 +783,8 @@ string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     return s.str();
 }
 
-// getting a string representation of reachability formula in smt2 format for all combinations of initial and goal modes
+// getting a string representation of reachability formula in smt2 format for the given initial and goal modes
+/*
 string pdrh::reach_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mode*> path, vector<box> boxes)
 {
     stringstream s;
@@ -787,8 +814,8 @@ string pdrh::reach_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mode
     for(int i = 0; i < path.size(); i++)
     {
         s << "(declare-fun time_" << i << " () Real)" << endl;
-        s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.first) << "))" << endl;
-        s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.second) << "))" << endl;
+        s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.first) << "))" << endl;
+        s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.second) << "))" << endl;
     }
     // defining odes
     for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
@@ -861,6 +888,7 @@ string pdrh::reach_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mode
     s << "(exit)" << endl;
     return s.str();
 }
+*/
 
 /*
 string pdrh::reach_to_smt2_all_paths(vector<box> boxes)
@@ -1002,24 +1030,24 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     if (!timed_node_neg)
     {
         s << "(declare-fun local_time () Real)" << endl;
-        for(int i = 0; i < path.size() - 1; i++)
+        for(unsigned long i = 0; i < path.size() - 1; i++)
         {
             s << "(declare-fun local_time_" << i << "_0 () Real)" << endl;
             s << "(declare-fun local_time_" << i << "_t () Real)" << endl;
-            s << "(assert (= local_time_" << i << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) <<
+            s << "(assert (= local_time_" << i << "_0 " << pdrh::node_to_string_prefix(path.at(i)->time.first) <<
             "))" << endl;
-            s << "(assert (>= local_time_" << i << "_t " << pdrh::node_to_string_prefix(pdrh::time.first) <<
+            s << "(assert (>= local_time_" << i << "_t " << pdrh::node_to_string_prefix(path.at(i)->time.first) <<
             "))" << endl;
-            s << "(assert (<= local_time_" << i << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) <<
+            s << "(assert (<= local_time_" << i << "_t " << pdrh::node_to_string_prefix(path.at(i)->time.second) <<
             "))" << endl;
         }
         // last mode
         //s << "(declare-fun local_time () Real)" << endl;
         s << "(declare-fun local_time_" << path.size() - 1 << "_0 () Real)" << endl;
         s << "(declare-fun local_time_" << path.size() - 1 << "_t () Real)" << endl;
-        s << "(assert (= local_time_" << path.size() - 1 << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) <<
+        s << "(assert (= local_time_" << path.size() - 1 << "_0 " << pdrh::node_to_string_prefix(path.back()->time.first) <<
         "))" << endl;
-        s << "(assert (= local_time_" << path.size() - 1 << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) <<
+        s << "(assert (= local_time_" << path.size() - 1 << "_t " << pdrh::node_to_string_prefix(path.back()->time.second) <<
         "))" << endl;
     }
     // declaring variables and defining bounds
@@ -1046,8 +1074,8 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     for(int i = 0; i < path.size(); i++)
     {
         s << "(declare-fun time_" << i << " () Real)" << endl;
-        s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.first) << "))" << endl;
-        s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.second) << "))" << endl;
+        s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.first) << "))" << endl;
+        s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.second) << "))" << endl;
     }
     // defining odes
     for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
@@ -1183,6 +1211,7 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     return s.str();
 }
 
+/*
 string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mode*> path, vector<box> boxes)
 {
     stringstream s;
@@ -1341,6 +1370,7 @@ string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mo
     s << "(exit)" << endl;
     return s.str();
 }
+*/
 
 // USED
 string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> boxes)
@@ -1369,24 +1399,24 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
         {
             s << "(declare-fun local_time () Real)" << endl;
             //cout << "HERE" << endl;
-            for(int i = 0; i < depth; i++)
+            for(unsigned long i = 0; i < depth; i++)
             {
                 s << "(declare-fun local_time_" << i << "_0 () Real)" << endl;
                 s << "(declare-fun local_time_" << i << "_t () Real)" << endl;
-                s << "(assert (= local_time_" << i << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) <<
+                s << "(assert (= local_time_" << i << "_0 " << pdrh::node_to_string_prefix(path.at(i)->time.first) <<
                 "))" << endl;
-                s << "(assert (>= local_time_" << i << "_t " << pdrh::node_to_string_prefix(pdrh::time.first) <<
+                s << "(assert (>= local_time_" << i << "_t " << pdrh::node_to_string_prefix(path.at(i)->time.first) <<
                 "))" << endl;
-                s << "(assert (<= local_time_" << i << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) <<
+                s << "(assert (<= local_time_" << i << "_t " << pdrh::node_to_string_prefix(path.at(i)->time.second) <<
                 "))" << endl;
             }
             // last mode
             //s << "(declare-fun local_time () Real)" << endl;
             s << "(declare-fun local_time_" << depth << "_0 () Real)" << endl;
             s << "(declare-fun local_time_" << depth << "_t () Real)" << endl;
-            s << "(assert (= local_time_" << depth << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) <<
+            s << "(assert (= local_time_" << depth << "_0 " << pdrh::node_to_string_prefix(path.at(depth)->time.first) <<
             "))" << endl;
-            s << "(assert (= local_time_" << depth << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) <<
+            s << "(assert (= local_time_" << depth << "_t " << pdrh::node_to_string_prefix(path.at(depth)->time.second) <<
             "))" << endl;
         }
         // declaring variables and defining bounds
@@ -1413,8 +1443,8 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
         for(int i = 0; i <= depth; i++)
         {
             s << "(declare-fun time_" << i << " () Real)" << endl;
-            s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.first) << "))" << endl;
-            s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.second) << "))" << endl;
+            s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.first) << "))" << endl;
+            s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.second) << "))" << endl;
         }
         // defining odes
         int step = 0;
@@ -1556,6 +1586,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
     }
 }
 
+/*
 string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, int depth, vector<pdrh::mode *> path, vector<box> boxes)
 {
     if(depth == path.size() - 1)
@@ -1736,6 +1767,7 @@ string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, int depth, vect
         return s.str();
     }
 }
+*/
 
 // only works for statistical model checking
 string pdrh::reach_to_isat(vector<box> boxes)

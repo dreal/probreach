@@ -34,17 +34,17 @@ decision_procedure::result algorithm::evaluate_ha(int depth)
     else if(global_config.solver_type == solver::type::DREAL)
     {
         // generating all paths of lengths [min_depth, max_depth]
-        std::vector<std::vector<pdrh::mode*>> paths;
-        for(pdrh::state init : pdrh::init)
-        {
-            for (pdrh::state goal : pdrh::goal)
-            {
-                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
-                                                                                 pdrh::get_mode(goal.id),
-                                                                                 depth);
-                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
-            }
-        }
+        std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_all_paths(depth);
+//        for(pdrh::state init : pdrh::init)
+//        {
+//            for (pdrh::state goal : pdrh::goal)
+//            {
+//                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
+//                                                                                 pdrh::get_mode(goal.id),
+//                                                                                 depth);
+//                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
+//            }
+//        }
         switch(decision_procedure::evaluate(paths,{}, global_config.solver_opt))
         {
             case decision_procedure::result::SAT:
@@ -687,114 +687,114 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
 
 tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string, vector<pair<pdrh::node*, pdrh::node*>>> time_series)
 {
-    // getting the synthesis domain
-    box psy_domain = pdrh::get_psy_domain();
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining domain of synthesized parameters: " << psy_domain;
-    // partition of parameter synthesis domain
-    vector<box> psy_partition { psy_domain };
-    // if flag is enabled the domain is partitioned up to precision_nondet
-    /*
-    if(global_config.partition_psy)
-    {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of parameter synthesis domain";
-        psy_partition.clear();
-        psy_partition = measure::partition(psy_domain, global_config.pre);
-    }
-    */
-    // converting time series to a set of goal boxes
-    //std::vector<std::tuple<int, box>> goals = pdrh::series_to_boxes(time_series);
-    vector<pdrh::state> goals = pdrh::series_to_goals(time_series);
-    // getting parameter synthesis path
-    vector<pdrh::mode*> path = pdrh::get_psy_path(time_series);
-    // defining the boxes
-    vector<box> sat_boxes, undet_boxes, unsat_boxes;
-    // iterating through the goals
-    //cout << "Before parallel" << endl;
-    for(pdrh::state goal : goals)
-    {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating goal: @" << goal.id << " " << pdrh::node_to_string_prefix(goal.prop);
-        // iterating through boxes in psy partition
-        while(!psy_partition.empty())
-        {
-            vector<box> swap_psy_partition;
-            #pragma omp parallel for
-            for(unsigned long i = 0; i < psy_partition.size(); i++)
-            {
-                /*
-                box b = psy_partition.front();
-                psy_partition.erase(psy_partition.cbegin());
-                cout << "In parallel section " << b << endl;
-                */
-                box b = psy_partition.at(i);
-                //cout << "In parallel section " << b << endl;
-                #pragma omp critical
-                {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "psy_box: " << b;
-                }
-                int res = decision_procedure::evaluate(pdrh::init.front(), goal, path, {b});
-                #pragma omp critical
-                {
-                    switch (res)
-                    {
-                        case decision_procedure::SAT:
-                        {
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                            sat_boxes.push_back(b);
-                            //sat_boxes = box_factory::merge(sat_boxes);
-                            break;
-                        }
-                        case decision_procedure::UNSAT:
-                        {
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                            unsat_boxes.push_back(b);
-                            //unsat_boxes = box_factory::merge(unsat_boxes);
-                            break;
-                        }
-                        case decision_procedure::UNDET:
-                        {
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-                            // CHECK FOR BUGS IN BISECT
-                            std::vector<box> tmp_vector = box_factory::bisect(b, pdrh::syn_map);
-                            if (tmp_vector.size() == 0)
-                            {
-                                //cout << b << ": UNDET box" <<endl;
-                                undet_boxes.push_back(b);
-                                //undet_boxes = box_factory::merge(undet_boxes);
-                            }
-                            else
-                            {
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisected";
-                                swap_psy_partition.insert(swap_psy_partition.cend(), tmp_vector.cbegin(), tmp_vector.cend());
-                            }
-                            break;
-                        }
-                        case decision_procedure::SOLVER_TIMEOUT:
-                        {
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                            break;
-                        }
-                        case decision_procedure::ERROR:
-                        {
-                            LOG(ERROR) << "ERROR";
-                            break;
-                        }
-                    }
-                }
-            }
-            psy_partition.clear();
-            psy_partition.insert(psy_partition.cend(), swap_psy_partition.cbegin(), swap_psy_partition.cend());
-        }
-        psy_partition = sat_boxes;
-        sat_boxes.clear();
-        if(psy_partition.empty())
-        {
-            break;
-        }
-    }
-    sat_boxes = box_factory::merge(psy_partition);
-    undet_boxes = box_factory::merge(undet_boxes);
-    unsat_boxes = box_factory::merge(unsat_boxes);
-    return std::make_tuple(sat_boxes, undet_boxes, unsat_boxes);
+    cerr << "Parameter Set synthesis is not yet supported" << endl;
+    exit(EXIT_FAILURE);
+//    // getting the synthesis domain
+//    box psy_domain = pdrh::get_psy_domain();
+//    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining domain of synthesized parameters: " << psy_domain;
+//    // partition of parameter synthesis domain
+//    vector<box> psy_partition { psy_domain };
+//    // if flag is enabled the domain is partitioned up to precision_nondet
+//
+////    if(global_config.partition_psy)
+////    {
+////        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of parameter synthesis domain";
+////        psy_partition.clear();
+////        psy_partition = measure::partition(psy_domain, global_config.pre);
+////    }
+//
+//    // converting time series to a set of goal boxes
+//    //std::vector<std::tuple<int, box>> goals = pdrh::series_to_boxes(time_series);
+//    vector<pdrh::state> goals = pdrh::series_to_goals(time_series);
+//    // getting parameter synthesis path
+//    vector<pdrh::mode*> path = pdrh::get_psy_path(time_series);
+//    // defining the boxes
+//    vector<box> sat_boxes, undet_boxes, unsat_boxes;
+//    // iterating through the goals
+//    //cout << "Before parallel" << endl;
+//    for(pdrh::state goal : goals)
+//    {
+//        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating goal: @" << goal.id << " " << pdrh::node_to_string_prefix(goal.prop);
+//        // iterating through boxes in psy partition
+//        while(!psy_partition.empty())
+//        {
+//            vector<box> swap_psy_partition;
+//            #pragma omp parallel for
+//            for(unsigned long i = 0; i < psy_partition.size(); i++)
+//            {
+////                box b = psy_partition.front();
+////                psy_partition.erase(psy_partition.cbegin());
+////                cout << "In parallel section " << b << endl;
+//                box b = psy_partition.at(i);
+//                //cout << "In parallel section " << b << endl;
+//                #pragma omp critical
+//                {
+//                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "psy_box: " << b;
+//                }
+//                int res = decision_procedure::evaluate(pdrh::init.front(), goal, path, {b});
+//                #pragma omp critical
+//                {
+//                    switch (res)
+//                    {
+//                        case decision_procedure::SAT:
+//                        {
+//                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+//                            sat_boxes.push_back(b);
+//                            //sat_boxes = box_factory::merge(sat_boxes);
+//                            break;
+//                        }
+//                        case decision_procedure::UNSAT:
+//                        {
+//                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+//                            unsat_boxes.push_back(b);
+//                            //unsat_boxes = box_factory::merge(unsat_boxes);
+//                            break;
+//                        }
+//                        case decision_procedure::UNDET:
+//                        {
+//                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+//                            // CHECK FOR BUGS IN BISECT
+//                            std::vector<box> tmp_vector = box_factory::bisect(b, pdrh::syn_map);
+//                            if (tmp_vector.size() == 0)
+//                            {
+//                                //cout << b << ": UNDET box" <<endl;
+//                                undet_boxes.push_back(b);
+//                                //undet_boxes = box_factory::merge(undet_boxes);
+//                            }
+//                            else
+//                            {
+//                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisected";
+//                                swap_psy_partition.insert(swap_psy_partition.cend(), tmp_vector.cbegin(), tmp_vector.cend());
+//                            }
+//                            break;
+//                        }
+//                        case decision_procedure::SOLVER_TIMEOUT:
+//                        {
+//                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
+//                            break;
+//                        }
+//                        case decision_procedure::ERROR:
+//                        {
+//                            LOG(ERROR) << "ERROR";
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//            psy_partition.clear();
+//            psy_partition.insert(psy_partition.cend(), swap_psy_partition.cbegin(), swap_psy_partition.cend());
+//        }
+//        psy_partition = sat_boxes;
+//        sat_boxes.clear();
+//        if(psy_partition.empty())
+//        {
+//            break;
+//        }
+//    }
+//    sat_boxes = box_factory::merge(psy_partition);
+//    undet_boxes = box_factory::merge(undet_boxes);
+//    unsat_boxes = box_factory::merge(unsat_boxes);
+//    return std::make_tuple(sat_boxes, undet_boxes, unsat_boxes);
 }
 
 

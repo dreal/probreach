@@ -88,6 +88,7 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
 }
 
 // used for parameter set synthesis
+/*
 int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector<pdrh::mode *> path, std::vector<box> boxes)
 {
     // default value for the thread number
@@ -188,6 +189,7 @@ int decision_procedure::evaluate(pdrh::state init, pdrh::state goal, std::vector
         return decision_procedure::SAT;
     }
 }
+*/
 
 // evaluating the main reachability formula with dreal (formal verification)
 int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box> boxes, string solver_opt)
@@ -365,6 +367,7 @@ int decision_procedure::synthesize(pdrh::state init, std::vector<pdrh::mode *> p
 */
 
 // a single mode only !!!
+/*
 int decision_procedure::synthesize(pdrh::state init, pdrh::state goal, std::vector<pdrh::mode *> path, box psy_box)
 {
     // default value for the thread number
@@ -469,6 +472,7 @@ int decision_procedure::synthesize(pdrh::state init, pdrh::state goal, std::vect
         }
     }
 }
+*/
 
 // implements evaluate for all paths
 int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_opt)

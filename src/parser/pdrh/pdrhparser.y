@@ -364,6 +364,7 @@ mode:
 	                                                                {
                                                                         cur_dd.clear();
                                                                         cur_mode->id = atoi($3);
+                                                                        cur_mode->time = pdrh::time;
                                                                         pdrh::push_mode(*cur_mode);
                                                                         delete cur_mode;
                                                                         cur_mode = new pdrh::mode;
@@ -380,6 +381,7 @@ mode:
                                                                     {
                                                                         cur_dd.clear();
                                                                         cur_mode->id = atoi($3);
+                                                                        cur_mode->time = pdrh::time;
                                                                         pdrh::push_mode(*cur_mode);
                                                                         delete cur_mode;
                                                                         cur_mode = new pdrh::mode;
@@ -396,6 +398,7 @@ mode:
                                                                     {
                                                                         cur_dd.clear();
                                                                         cur_mode->id = atoi($3);
+                                                                        cur_mode->time = pdrh::time;
                                                                         pdrh::push_mode(*cur_mode);
                                                                         delete cur_mode;
                                                                         cur_mode = new pdrh::mode;
@@ -412,6 +415,43 @@ mode:
                                                                     {
                                                                         cur_dd.clear();
                                                                         cur_mode->id = atoi($3);
+                                                                        cur_mode->time = pdrh::time;
+                                                                        pdrh::push_mode(*cur_mode);
+                                                                        delete cur_mode;
+                                                                        cur_mode = new pdrh::mode;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        std::stringstream s;
+                                                                        s << "multiple declaration of mode \"" << $3 << "\"";
+                                                                        yyerror(s.str().c_str());
+                                                                    }
+                                                                }
+    | '{' MODE number ';' TIME ':' '[' arthm_expr ',' arthm_expr ']' ';' flow jumps_section '}'
+                                                                {
+                                                                    if(pdrh::get_mode(atoi($3)) == NULL)
+                                                                    {
+                                                                        cur_dd.clear();
+                                                                        cur_mode->id = atoi($3);
+                                                                        cur_mode->time = make_pair($8, $10);
+                                                                        pdrh::push_mode(*cur_mode);
+                                                                        delete cur_mode;
+                                                                        cur_mode = new pdrh::mode;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        std::stringstream s;
+                                                                        s << "multiple declaration of mode \"" << $3 << "\"";
+                                                                        yyerror(s.str().c_str());
+                                                                    }
+                                                                }
+    | '{' MODE number ';' TIME ':' '[' arthm_expr ',' arthm_expr ']' ';'  invt flow jumps_section '}'
+                                                                {
+                                                                    if(pdrh::get_mode(atoi($3)) == NULL)
+                                                                    {
+                                                                        cur_dd.clear();
+                                                                        cur_mode->id = atoi($3);
+                                                                        cur_mode->time = make_pair($8, $10);
                                                                         pdrh::push_mode(*cur_mode);
                                                                         delete cur_mode;
                                                                         cur_mode = new pdrh::mode;

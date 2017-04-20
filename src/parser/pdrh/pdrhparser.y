@@ -804,6 +804,30 @@ reset_var:
 reset_state:
 	'@' number reset_prop ';'   {
 	 	                            cur_jump->next_id = atoi($2);
+	 	                            // updating resets
+                                    // variables
+                                    for(auto it = pdrh::var_map.begin(); it != pdrh::var_map.end(); it++)
+                                    {
+                                        if(cur_jump->reset.find(it->first) == cur_jump->reset.end())
+                                        {
+                                            cur_jump->reset.insert(make_pair(it->first, new pdrh::node(it->first)));
+                                        }
+                                    }
+                                    // nondeterministic parameters
+                                    for(auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
+                                    {
+                                        cur_jump->reset.insert(make_pair(it->first, new pdrh::node(it->first)));
+                                    }
+                                    // discrete random parameters
+                                    for(auto it = pdrh::dd_map.begin(); it != pdrh::dd_map.end(); it++)
+                                    {
+                                        cur_jump->reset.insert(make_pair(it->first, new pdrh::node(it->first)));
+                                    }
+                                    // continuous random parameters
+                                    for(auto it = pdrh::rv_map.begin(); it != pdrh::rv_map.end(); it++)
+                                    {
+                                        cur_jump->reset.insert(make_pair(it->first, new pdrh::node(it->first)));
+                                    }
 	 	                        }
 
 jumps_section:

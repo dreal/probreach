@@ -107,9 +107,8 @@ d/dt[tau]= 1;
 d/dt[tau_ins]=1;
 
 jump:
-//(tau = t_meal) ==>@1(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (tau_ins' = 0));
-(and (G <= G_upper) (G >= G_upper))==>@2(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = tau) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (tau_ins' = 0));
-(and (G < G_lower_unsafe))==>@4(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (tau_ins' = tau_ins));
+(and (G <= G_upper) (G >= G_upper)) ==> @2(and (tau_ins' = 0));
+(and (G < G_lower_unsafe)) ==> @4(and (tau' = 0));
 }
 
 // the insulin pump is ON
@@ -139,9 +138,8 @@ d/dt[tau]= 1;
 d/dt[tau_ins]=1;
 
 jump:
-(and (G <= G_lower) (G >= G_lower) )==>@3(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = tau) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (tau_ins' = 0));
-//(tau = t_meal) ==>@1(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (tau_ins' = 0));
-(and (G > G_upper_unsafe) )==>@4(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (tau_ins' = tau_ins));
+(and (G <= G_lower) (G >= G_lower) )==>@3(and (tau_ins' = 0));
+(and (G > G_upper_unsafe) )==>@4(and (tau' = 0));
 }
 
 // the insulin pump is OFF fasting
@@ -168,8 +166,8 @@ d/dt[tau_ins]=1;
 
 jump:
 
-(tau = t_meal) ==>@1(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (tau_ins' = 0));
-(and (G < G_lower_unsafe) )==>@4(and (I' = I) (x1' = x1) (x2' = x2) (x3' = x3) (tau' = 0) (S1' = S1) (S2' = S2) (Q1' = Q1) (Q2' = Q2) (tau_ins' = tau_ins));
+(tau = t_meal) ==>@1(and (tau' = 0) (tau_ins' = 0));
+(and (G < G_lower_unsafe) )==>@4(and (tau' = 0));
 }
 
 // error state - the glucose level is critical

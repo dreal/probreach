@@ -2419,6 +2419,45 @@ void pdrh::set_model_type()
 }
 
 
+//void update_reset(pdrh::mode::jump& j)
+//{
+//    // variables
+//    for(auto it = pdrh::var_map.begin(); it != pdrh::var_map.end(); it++)
+//    {
+//        if(j.reset.find(it->first) == j.reset.end())
+//        {
+//            cout << it->first << " not in reset" << endl;
+//            j.reset.insert(make_pair(it->first, new pdrh::node(it->first)));
+//        }
+//    }
+//    // nondeterministic parameters
+//    for(auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
+//    {
+//        j.reset.insert(make_pair(it->first, new pdrh::node(it->first)));
+//    }
+//    // discrete random parameters
+//    for(auto it = pdrh::dd_map.begin(); it != pdrh::dd_map.end(); it++)
+//    {
+//        j.reset.insert(make_pair(it->first, new pdrh::node(it->first)));
+//    }
+//    // continuous random parameters
+//    for(auto it = pdrh::rv_map.begin(); it != pdrh::rv_map.end(); it++)
+//    {
+//        j.reset.insert(make_pair(it->first, new pdrh::node(it->first)));
+//    }
+//}
+//
+//void pdrh::update_resets()
+//{
+//    for(pdrh::mode m : pdrh::modes)
+//    {
+//        for(pdrh::mode::jump j : m.jumps)
+//        {
+//            update_reset(j);
+//        }
+//    }
+//}
+
 
 
 

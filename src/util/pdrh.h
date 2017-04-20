@@ -142,6 +142,8 @@ namespace pdrh
     bool var_exists(string);
     mode* get_mode(int);
 
+    //void update_resets();
+
     vector<mode*> get_init_modes();
     vector<mode*> get_goal_modes();
     vector<mode*> get_successors(mode*);

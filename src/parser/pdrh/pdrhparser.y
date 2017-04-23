@@ -427,7 +427,7 @@ mode:
                                                                         yyerror(s.str().c_str());
                                                                     }
                                                                 }
-    | '{' MODE number ';' TIME ':' '[' arthm_expr ',' arthm_expr ']' ';' flow jumps_section '}'
+    | '{' MODE number ';' TIME ':' '[' expr ',' expr ']' ';' flow jumps_section '}'
                                                                 {
                                                                     if(pdrh::get_mode(atoi($3)) == NULL)
                                                                     {
@@ -445,7 +445,7 @@ mode:
                                                                         yyerror(s.str().c_str());
                                                                     }
                                                                 }
-    | '{' MODE number ';' TIME ':' '[' arthm_expr ',' arthm_expr ']' ';'  invt flow jumps_section '}'
+    | '{' MODE number ';' TIME ':' '[' expr ',' expr ']' ';'  invt flow jumps_section '}'
                                                                 {
                                                                     if(pdrh::get_mode(atoi($3)) == NULL)
                                                                     {

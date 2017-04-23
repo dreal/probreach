@@ -13,7 +13,7 @@ using namespace std;
 namespace algorithm
 {
     // evaluating reachability in hybrid automata (arg: depth)
-    decision_procedure::result evaluate_ha(int);
+    //decision_procedure::result evaluate_ha(int);
     // evaluating reachability in hybrid automata (arg1: min depth, arg2: max depth)
     decision_procedure::result evaluate_ha(int, int);
     // evaluating reachability in probabilitic hybrid automata (arg: depth)

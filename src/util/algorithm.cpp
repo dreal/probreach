@@ -17,7 +17,7 @@
 #include <solver/isat_wrapper.h>
 #include "rnd.h"
 
-decision_procedure::result algorithm::evaluate_ha(int depth)
+decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth)
 {
     if(global_config.solver_type == solver::type::ISAT)
     {
@@ -34,7 +34,7 @@ decision_procedure::result algorithm::evaluate_ha(int depth)
     else if(global_config.solver_type == solver::type::DREAL)
     {
         // generating all paths of lengths [min_depth, max_depth]
-        std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_all_paths(depth);
+        std::vector<std::vector<pdrh::mode*>> paths = pdrh::get_all_paths();
 //        for(pdrh::state init : pdrh::init)
 //        {
 //            for (pdrh::state goal : pdrh::goal)
@@ -59,34 +59,34 @@ decision_procedure::result algorithm::evaluate_ha(int depth)
     }
 }
 
-decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth)
-{
-    int undet_counter = 0;
-    for(int i = min_depth; i <= max_depth; i++)
-    {
-        decision_procedure::result res = algorithm::evaluate_ha(i);
-        if(res == decision_procedure::SAT)
-        {
-            return res;
-        }
-        // never happens when --delta-sat is enabled
-        else if(res == decision_procedure::UNDET)
-        {
-            undet_counter++;
-        }
-        else if(res == decision_procedure::ERROR)
-        {
-            return res;
-        }
-    }
-    // checking if either of the paths was UNDET
-    // never returned when --delta-sat is enabled
-    if(undet_counter > 0)
-    {
-        return decision_procedure::UNDET;
-    }
-    return decision_procedure::UNSAT;
-}
+//decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth)
+//{
+//    int undet_counter = 0;
+//    for(int i = min_depth; i <= max_depth; i++)
+//    {
+//        decision_procedure::result res = algorithm::evaluate_ha(i);
+//        if(res == decision_procedure::SAT)
+//        {
+//            return res;
+//        }
+//        // never happens when --delta-sat is enabled
+//        else if(res == decision_procedure::UNDET)
+//        {
+//            undet_counter++;
+//        }
+//        else if(res == decision_procedure::ERROR)
+//        {
+//            return res;
+//        }
+//    }
+//    // checking if either of the paths was UNDET
+//    // never returned when --delta-sat is enabled
+//    if(undet_counter > 0)
+//    {
+//        return decision_procedure::UNDET;
+//    }
+//    return decision_procedure::UNSAT;
+//}
 
 capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
 {

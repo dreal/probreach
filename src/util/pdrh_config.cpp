@@ -154,6 +154,7 @@ void parse_pdrh_config(int argc, char* argv[])
         // minimum reachability depth
         else if(strcmp(argv[i], "-l") == 0)
         {
+
             i++;
             istringstream is(argv[i]);
             is >> global_config.reach_depth_min;

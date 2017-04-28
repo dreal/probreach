@@ -2101,6 +2101,7 @@ vector<tuple<int, box>> pdrh::series_to_boxes(map<string, vector<capd::interval>
 }
 */
 
+/*
 vector<pdrh::state> pdrh::series_to_goals(map<string, vector<pair<pdrh::node*, pdrh::node*>>> time_series)
 {
     vector<pdrh::state> res;
@@ -2141,6 +2142,7 @@ vector<pdrh::state> pdrh::series_to_goals(map<string, vector<pair<pdrh::node*, p
     }
     return res;
 }
+*/
 
 vector<pdrh::mode*> pdrh::get_psy_path(map<string, vector<pair<pdrh::node*, pdrh::node*>>> time_series)
 {
@@ -2185,7 +2187,7 @@ pdrh::node* pdrh::get_first_time_node(pdrh::node * root)
         {
             for(pdrh::node* child : root->operands)
             {
-                if(strcmp(child->value.c_str(), global_config.time_var_name.c_str()) == 0)
+                if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end())
                 {
                     return root;
                 }
@@ -2213,7 +2215,7 @@ void pdrh::get_first_time_node(node* root, node* time_node)
     {
         for(pdrh::node* child : root->operands)
         {
-            if(strcmp(child->value.c_str(), global_config.time_var_name.c_str()) == 0)
+            if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end())
             {
                 *time_node = *root;
                 root->value = "true";

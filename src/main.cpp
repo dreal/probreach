@@ -79,6 +79,12 @@ int main(int argc, char* argv[])
     // parse command line
     parse_pdrh_config(argc, argv);
 
+    cout << "Time variables:" << endl;
+    for(string s : global_config.time_var_name)
+    {
+        cout << s << endl;
+    }
+
     // setting precision on the output
     cout.precision(16);
     cout << scientific;

@@ -137,7 +137,7 @@ namespace pdrh
     vector<mode*> get_psy_path(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);
 
     vector<tuple<int, box>> series_to_boxes(map<string, vector<capd::interval>>);
-    vector<state> series_to_goals(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);
+    //vector<state> series_to_goals(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);
 
     bool var_exists(string);
     mode* get_mode(int);

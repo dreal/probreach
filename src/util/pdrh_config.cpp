@@ -267,7 +267,19 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--time-var-name") == 0)
         {
             i++;
-            global_config.time_var_name = string(argv[i]);
+            bool map_end = false;
+            while(!map_end)
+            {
+                if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                {
+                    map_end = true;
+                    i--;
+                }
+                else
+                {
+                    global_config.time_var_name.push_back(argv[i]);
+                }
+            }
         }
         // chernoff bound accuracy
         else if(strcmp(argv[i], "--chernoff-acc") == 0)

@@ -163,11 +163,11 @@ void parse_pdrh_config(int argc, char* argv[])
                 CLOG(ERROR, "config") << "-l cannot be negative";
                 exit(EXIT_FAILURE);
             }
-            else if(global_config.reach_depth_min > global_config.reach_depth_max)
-            {
-                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
-                exit(EXIT_FAILURE);
-            }
+//            else if(global_config.reach_depth_min > global_config.reach_depth_max)
+//            {
+//                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
+//                exit(EXIT_FAILURE);
+//            }
         }
         // maximum reachability depth
         else if(strcmp(argv[i], "-u") == 0)
@@ -180,11 +180,11 @@ void parse_pdrh_config(int argc, char* argv[])
                 CLOG(ERROR, "config") << "-u cannot be negative";
                 exit(EXIT_FAILURE);
             }
-            else if(global_config.reach_depth_min > global_config.reach_depth_max)
-            {
-                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
-                exit(EXIT_FAILURE);
-            }
+//            else if(global_config.reach_depth_min > global_config.reach_depth_max)
+//            {
+//                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
+//                exit(EXIT_FAILURE);
+//            }
         }
         // nondeterministic precision
         else if(strcmp(argv[i], "--precision-nondet") == 0)
@@ -277,7 +277,11 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
                 else
                 {
-                    global_config.time_var_name.push_back(argv[i]);
+                    if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), argv[i]) == global_config.time_var_name.end())
+                    {
+                        global_config.time_var_name.push_back(argv[i]);
+                    }
+                    i++;
                 }
             }
         }

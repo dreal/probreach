@@ -179,7 +179,7 @@ d/dt[tau_ins]=1;
 
 jump:
 (and (G <= G_switch) (G >= G_switch)) ==> @3(and (tau_ins' = 0));
-(or (and (tau = t_meal) (G > G_switch)) (G > G_upper_unsafe) (u < 0)) ==> @4(and (tau' = 0));
+(or (and (tau_ins = t_pid) (G > G_switch)) (G > G_upper_unsafe) (u < 0)) ==> @4(and (tau' = 0));
 }
 
 // the insulin pump is OFF fasting
@@ -263,9 +263,9 @@ init:
 goal:
 //@3(or (G > G_upper_unsafe) (G < G_lower_unsafe) );
 //@1(and (tau = t_meal) (G >= G_goal-0.5) (G <= G_goal+0.5));
-@2(and (tau_ins = t_pid) (G > G_switch));
+//@2(and (tau_ins = t_pid) (G > G_switch));
 //@2(and (tau = t_meal));
 //@3(and (tau = t_meal) (G >= G_goal-0.5) (G <= G_goal+0.5));
 //@3(tau = t_meal);
 //@2(tau_ins = t_pid);
-//@4(and (tau = 1));
+@4(and (tau = 1));

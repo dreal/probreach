@@ -1409,6 +1409,7 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
             timed_node_neg = pdrh::get_time_node_neg(j.guard);
             if(timed_node_neg)
             {
+                //cout << "Found timed node: " << pdrh::node_to_string_prefix(timed_node_neg) << endl;
                 break;
             }
         }
@@ -2258,6 +2259,7 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
     pdrh::copy_tree(root_copy, root);
     pdrh::node* time_node = new pdrh::node;
     pdrh::get_first_time_node(root_copy, time_node);
+    //cout << "Node before removing time node: " << pdrh::node_to_string_prefix(root) << endl;
     if(pdrh::is_node_empty(time_node))
     {
         return NULL;

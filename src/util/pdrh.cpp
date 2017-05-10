@@ -734,10 +734,15 @@ string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     for(box b : boxes)
     {
         map<string, capd::interval> m = b.get_map();
-        for(auto it = m.cbegin(); it != m.cend(); it++)
+        for(int i = 0; i < path.size(); i++)
         {
-            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << endl;
-            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << endl;
+            for (auto it = m.cbegin(); it != m.cend(); it++)
+            {
+                s << "(>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << ")" << endl;
+                s << "(<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << ")" << endl;
+                s << "(>= " << it->first << "_" << i << "_t " << it->second.leftBound() << ")" << endl;
+                s << "(<= " << it->first << "_" << i << "_t " << it->second.rightBound() << ")" << endl;
+            }
         }
     }
     // defining trajectory
@@ -1121,11 +1126,16 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     // defining boxes bounds
     for(box b : boxes)
     {
-        std::map<std::string, capd::interval> m = b.get_map();
-        for(auto it = m.cbegin(); it != m.cend(); it++)
+        map<string, capd::interval> m = b.get_map();
+        for(int i = 0; i < path.size(); i++)
         {
-            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << endl;
-            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << endl;
+            for (auto it = m.cbegin(); it != m.cend(); it++)
+            {
+                s << "(>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << ")" << endl;
+                s << "(<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << ")" << endl;
+                s << "(>= " << it->first << "_" << i << "_t " << it->second.leftBound() << ")" << endl;
+                s << "(<= " << it->first << "_" << i << "_t " << it->second.rightBound() << ")" << endl;
+            }
         }
     }
     // defining trajectory
@@ -1504,11 +1514,16 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
         // defining boxes bounds
         for(box b : boxes)
         {
-            std::map<std::string, capd::interval> m = b.get_map();
-            for(auto it = m.cbegin(); it != m.cend(); it++)
+            map<string, capd::interval> m = b.get_map();
+            for(int i = 0; i <= depth; i++)
             {
-                s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << endl;
-                s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << endl;
+                for (auto it = m.cbegin(); it != m.cend(); it++)
+                {
+                    s << "(>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << ")" << endl;
+                    s << "(<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << ")" << endl;
+                    s << "(>= " << it->first << "_" << i << "_t " << it->second.leftBound() << ")" << endl;
+                    s << "(<= " << it->first << "_" << i << "_t " << it->second.rightBound() << ")" << endl;
+                }
             }
         }
         // defining trajectory

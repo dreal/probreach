@@ -727,7 +727,10 @@ string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     s << "(or ";
     for(pdrh::state st : pdrh::init)
     {
-        s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")";
+        if(st.id == path.front()->id)
+        {
+            s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")" << endl;
+        }
     }
     s << ")" << endl;
     // defining boxes bounds
@@ -790,7 +793,10 @@ string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     s << "(or ";
     for(pdrh::state st : pdrh::goal)
     {
-        s << "(" << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << ")";
+        if(st.id == path.back()->id)
+        {
+            s << "(" << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << ")";
+        }
     }
     s << ")))" << endl;
     // final statements
@@ -1033,15 +1039,15 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     // setting logic
     s << "(set-logic QF_NRA_ODE)" << endl;
     // checking whether either of last jumps have a time node
-    pdrh::node* timed_node_neg;
-    for(pdrh::state st : pdrh::goal)
-    {
-        timed_node_neg = pdrh::get_time_node_neg(st.prop);
-        if(timed_node_neg)
-        {
-            break;
-        }
-    }
+//    pdrh::node* timed_node_neg;
+//    for(pdrh::state st : pdrh::goal)
+//    {
+//        timed_node_neg = pdrh::get_time_node_neg(st.prop);
+//        if(timed_node_neg)
+//        {
+//            break;
+//        }
+//    }
     // declaring variables and defining bounds
     for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
     {
@@ -1070,8 +1076,8 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
         s << "(assert (<= time_" << i << " " << pdrh::node_fix_index(path.at(i)->time.second, i, "0") << "))" << endl;
     }
     // declaring local time and bounds
-    if (!timed_node_neg)
-    {
+    //if (!timed_node_neg)
+    //{
         s << "(declare-fun local_time () Real)" << endl;
         for(unsigned long i = 0; i < path.size() - 1; i++)
         {
@@ -1090,9 +1096,11 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
         s << "(declare-fun local_time_" << path.size() - 1 << "_t () Real)" << endl;
         s << "(assert (= local_time_" << path.size() - 1 << "_0 " << pdrh::node_fix_index(path.back()->time.first, path.size() - 1, "0") <<
         "))" << endl;
-        s << "(assert (= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.second, path.size() - 1, "0") <<
+        s << "(assert (>= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.first, path.size() - 1, "0") <<
         "))" << endl;
-    }
+        s << "(assert (<= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.second, path.size() - 1, "0") <<
+        "))" << endl;
+    //}
     // defining odes
     for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
     {
@@ -1104,10 +1112,10 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
                 s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
             }
             // introducing local time if defined
-            if(!timed_node_neg)
-            {
+            //if(!timed_node_neg)
+            //{
                 s << "(= d/dt[local_time] 1.0)";
-            }
+            //}
             s << "))" << endl;
         }
     }
@@ -1150,10 +1158,10 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
         }
         // defining local time if enabled
         //if((step == path.size() - 1) && (!timed_node_neg))
-        if(!timed_node_neg)
-        {
+        //if(!timed_node_neg)
+        //{
             s << "local_time_" << step << "_t";
-        }
+        //}
         s << "] (integral 0.0 time_" << step << " [";
         for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
         {
@@ -1161,10 +1169,10 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
         }
         // defining local time if enabled
         //if((step == path.size() - 1) && (!timed_node_neg))
-        if(!timed_node_neg)
-        {
+        //if(!timed_node_neg)
+        //{
             s << "local_time_" << step << "_0";
-        }
+        //}
         s << "] flow_" << m->id << "))" << endl;
         // defining invariants
         for(pdrh::node* invt : m->invts)
@@ -1202,10 +1210,13 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     {
         if(path.back()->id == st.id)
         {
+            pdrh::node* timed_node_neg = pdrh::get_time_node_neg(st.prop);
             if(!timed_node_neg)
             {
                 // checking if there is a not in front of the guard predicate because dReal does not work nicely
                 // with double negation
+                s << "(= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.second, path.size() - 1, "0") <<
+                  ")" << endl;
                 if(st.prop->value == "not")
                 {
                     s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (" <<
@@ -1413,16 +1424,16 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
         // setting logic
         s << "(set-logic QF_NRA_ODE)" << endl;
         // checking whether either of last jumps have a time node
-        pdrh::node* timed_node_neg;
-        for(pdrh::mode::jump j : path.at(depth)->jumps)
-        {
-            timed_node_neg = pdrh::get_time_node_neg(j.guard);
-            if(timed_node_neg)
-            {
-                //cout << "Found timed node: " << pdrh::node_to_string_prefix(timed_node_neg) << endl;
-                break;
-            }
-        }
+//        pdrh::node* timed_node_neg;
+//        for(pdrh::mode::jump j : path.at(depth)->jumps)
+//        {
+//            timed_node_neg = pdrh::get_time_node_neg(j.guard);
+//            if(timed_node_neg)
+//            {
+//                //cout << "Found timed node: " << pdrh::node_to_string_prefix(timed_node_neg) << endl;
+//                break;
+//            }
+//        }
         // declaring variables and defining bounds
         for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
         {
@@ -1451,8 +1462,8 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
             s << "(assert (<= time_" << i << " " << pdrh::node_fix_index(path.at(i)->time.second, i, "0") << "))" << endl;
         }
         // declaring local time and bounds
-        if (!timed_node_neg)
-        {
+//        if (!timed_node_neg)
+//        {
             s << "(declare-fun local_time () Real)" << endl;
             //cout << "HERE" << endl;
             for(unsigned long i = 0; i < depth; i++)
@@ -1472,9 +1483,11 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
             s << "(declare-fun local_time_" << depth << "_t () Real)" << endl;
             s << "(assert (= local_time_" << depth << "_0 " << pdrh::node_fix_index(path.at(depth)->time.first, depth, "0") <<
             "))" << endl;
-            s << "(assert (= local_time_" << depth << "_t " << pdrh::node_fix_index(path.at(depth)->time.second, depth, "0") <<
+            s << "(assert (>= local_time_" << depth << "_t " << pdrh::node_fix_index(path.at(depth)->time.first, depth, "0") <<
             "))" << endl;
-        }
+            s << "(assert (<= local_time_" << depth << "_t " << pdrh::node_fix_index(path.at(depth)->time.second, depth, "0") <<
+            "))" << endl;
+//        }
         // defining odes
         int step = 0;
         for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
@@ -1487,10 +1500,10 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
                     s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
                 }
                 // introducing local time if defined
-                if((!timed_node_neg))
-                {
+                //if((!timed_node_neg))
+                //{
                     s << "(= d/dt[local_time] 1.0)";
-                }
+                //}
                 s << "))" << endl;
             }
             if(step >= depth)
@@ -1537,20 +1550,20 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
                 s << ode_it->first << "_" << i << "_t ";
             }
             // defining local time if enabled
-            if(!timed_node_neg)
-            {
+            //if(!timed_node_neg)
+            //{
                 s << "local_time_" << i << "_t";
-            }
+            //}
             s << "] (integral 0.0 time_" << i << " [";
             for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
             {
                 s << ode_it->first << "_" << i << "_0 ";
             }
             // defining local time if enabled
-            if(!timed_node_neg)
-            {
+            //if(!timed_node_neg)
+            //{
                 s << "local_time_" << i << "_0";
-            }
+            //}
             s << "] flow_" << m->id << "))" << endl;
             // defining invariants
             for(pdrh::node* invt : m->invts)
@@ -1586,10 +1599,13 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
         {
             if(j.next_id == path.at(depth+1)->id)
             {
+                pdrh::node* timed_node_neg = pdrh::get_time_node_neg(j.guard);
                 if (!timed_node_neg)
                 {
                     // checking if there is a not in front of the guard predicate because dReal does not work nicely
                     // with double negation
+                    s << "(= local_time_" << depth << "_t " << pdrh::node_fix_index(path.at(depth)->time.second, depth, "0") <<
+                      ")" << endl;
                     if(j.guard->value == "not")
                     {
                         /*

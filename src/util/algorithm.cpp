@@ -414,12 +414,20 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                 //cout << it->first << endl;
             }
             // iterating through the boxes
-            for(box nd : nd_partition)
+            //for(box nd : nd_partition)
+            #pragma omp parallel for schedule (dynamic)
+            for(int j = 0; j < nd_partition.size(); j++)
             {
-                rv_partition = partition_map[nd];
+                box nd = nd_partition.at(j);
+
+                #pragma omp critical
+                {
+                    rv_partition = partition_map[nd];
+                }
+
                 vector<box> rv_stack;
 
-                #pragma omp parallel for schedule (dynamic)
+                //#pragma omp parallel for schedule (dynamic)
                 for(int i = 0; i < rv_partition.size(); i++)
                 {
                     box rv = rv_partition.at(i);
@@ -506,33 +514,35 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                     }
                 }
 
-                if(p_map.find(nd) == p_map.end())
+                #pragma omp critical
                 {
-                    CLOG(ERROR, "algorithm") << "The box " << nd << " is not in the map";
-                    exit(EXIT_FAILURE);
-                }
-                capd::interval probability;
-                probability = p_map[nd];
-                if(capd::intervals::width(probability) <= global_config.precision_prob)
-                {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Epsilon is satisfied. Updating resulting probability map with " << nd;
-                    p_map.erase(nd);
-                    partition_map.erase(nd);
-                    res_map[nd] = probability;// * dd_measure;
-                }
-                // sorting newly obtained boxes
-                if(global_config.sort_rv_flag)
-                {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sorting bisected boxes";
-                    sort(rv_stack.begin(), rv_stack.end(), measure::compare_boxes_by_p_measure);
-                }
-                // updating partition map only in case if probability value does not satisfy the probability precision
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating partition map";
-                if(partition_map.find(nd) != partition_map.cend())
-                {
-                    partition_map[nd] = rv_stack;
-                }
-                //}
+                    if(p_map.find(nd) == p_map.end())
+                    {
+                        CLOG(ERROR, "algorithm") << "The box " << nd << " is not in the map";
+                        exit(EXIT_FAILURE);
+                    }
+                    capd::interval probability;
+                    probability = p_map[nd];
+                    if(capd::intervals::width(probability) <= global_config.precision_prob)
+                    {
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Epsilon is satisfied. Updating resulting probability map with " << nd;
+                        p_map.erase(nd);
+                        partition_map.erase(nd);
+                        res_map[nd] = probability;// * dd_measure;
+                    }
+                    // sorting newly obtained boxes
+                    if(global_config.sort_rv_flag)
+                    {
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sorting bisected boxes";
+                        sort(rv_stack.begin(), rv_stack.end(), measure::compare_boxes_by_p_measure);
+                    }
+                    // updating partition map only in case if probability value does not satisfy the probability precision
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Updating partition map";
+                    if(partition_map.find(nd) != partition_map.cend())
+                    {
+                        partition_map[nd] = rv_stack;
+                    }
+                    //}
 //                cout << "Probability map after " << nd << " was processed" << endl;
 //                for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
 //                {
@@ -544,7 +554,8 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
 //                    std::cout << it2->first << " | " << it2->second << std::endl;
 //                }
 //                cout << "----------------------------------" << endl;
-                //exit(EXIT_FAILURE);
+                    //exit(EXIT_FAILURE);
+                }
             }
 //            cout << "----------------------------------" << endl;
 //            cout << "Probability map after all boxes are processed" << endl;

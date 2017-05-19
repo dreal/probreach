@@ -46,30 +46,23 @@ dist_normal(70,1) DG; //[g] amount of carbohydrates digested (Fedor 2017)
 #define AG 0.8 //carbohydrate bioavailability (Hovorka 2004)
 #define tmaxG 40 //[min] time-of-maximum appearance rate of glucose in the accessible glucose compartment (Hovorka 2004)
 
-#define t_pid 120
+#define t_pid 180
 
-//#define G_upper 8.3
-//#define G_lower 8.0
-
-//#define G_switch 10
-[7,9] G_upper;
-[5,7] G_lower;
+[8,10] G_upper; //[mmol/L] glucose concentration upper shut off bound (Fedor 2017)
+[6,8] G_lower; //[mmol/L] glucose concentration lower shut off bound (Fedor 2017)
 
 #define G_goal 4.5
 
-//[6,10] G_upper; //[mmol/L] glucose concentration upper shut off bound (Fedor 2017)
-//[4,6] G_lower; //[mmol/L] glucose concentration lower shut off bound (Fedor 2017)
-
-#define G_upper_unsafe 10
+#define G_upper_unsafe 16
 #define G_lower_unsafe 4
 
 //#define G_SP 8.0 //[mmol/L] glucose concentration set point (Fedor 2017)
-[4,7] G_SP; //[mmol/L] glucose concentration set point (Fedor 2017)
+[0,4] G_SP; //[mmol/L] glucose concentration set point (Fedor 2017)
 
 //#define Kp -0.02 // proportional component of PID (Fedor 2017)
 //#define Kd -1 // derivative component of PID (Fedor 2017)
-[-0.1, 0] Kp; // proportional component of PID (Fedor 2017)
-[-1, 0] Kd; // derivative component of PID (Fedor 2017)
+[-0.01, -0.001] Kp; // proportional component of PID (Fedor 2017)
+[-0.2, 0] Kd; // derivative component of PID (Fedor 2017)
 
 // dynamics
 #define r_ode 0
@@ -78,7 +71,7 @@ dist_normal(70,1) DG; //[g] amount of carbohydrates digested (Fedor 2017)
 #define e_der (r_ode - Q1_ode)
 
 // administration (bolus and infusion) of insulin (Hovorka 2004)
-// #define u 0.8 //(Fedor 2017)
+//#define u 0.8 //(Fedor 2017)
 
 #define tmaxU 5 // (Fedor 2017)
 #define Kins 60 // (Fedor 2017)
@@ -92,6 +85,24 @@ dist_normal(70,1) DG; //[g] amount of carbohydrates digested (Fedor 2017)
 dist_normal(300,5) t_meal; // [min] time to the next meal (Fedor 2017)
 //#define t_meal 300
 
+dist_normal(64,1) Q1_init;
+dist_normal(40,1) Q2_init;
+dist_normal(0.03,1e-3) I_init;
+dist_normal(4.2,0.1) S1_init;
+dist_normal(4,0.1) S2_init;
+dist_normal(0.03,1e-3) x1_init;
+dist_normal(0.045,1e-3) x2_init;
+dist_normal(0.04,1e-3) x3_init;
+
+//#define Q1_init 128
+//#define Q2_init 80
+//#define I_init 0.03
+//#define S1_init 4.2
+//#define S2_init 4
+//#define x1_init 0.03
+//#define x2_init 0.045
+//#define x3_init 0.04
+
 [-1e6,1e6] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
 [-1e6,1e6] x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
 [-1e6,1e6] x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
@@ -102,6 +113,8 @@ dist_normal(300,5) t_meal; // [min] time to the next meal (Fedor 2017)
 [-1e6,1e6] Q2; //[mmol] mass of glucose in the non-accessible compartment (Hovorka 2004)
 [-1e6,1e6] r; // reference trajectory
 [-1e6,1e6] e; // error
+
+#define range 0.2
 
 [0,500] tau;
 [0,500] time;
@@ -177,6 +190,7 @@ jump:
 //(or (and (G <= G_lower) (G >= G_lower)) (and (u <= 0) (u >= 0))) ==> @3(and (tau' = tau));
 //(or (and (tau_ins >= t_pid) (tau_ins <= t_pid) (G > G_switch)) (G > G_upper_unsafe) (u < 0)) ==> @4(and (tau' = 0));
 //(G > G_upper_unsafe) ==> @4(and (tau' = 0));
+(and (G >= G_upper_unsafe) (G <= G_upper_unsafe)) ==> @4 (and (tau' = 0));
 }
 
 // the insulin pump is OFF fasting
@@ -213,8 +227,8 @@ d/dt[tau]= 1;
 jump:
 
 (tau = t_meal) ==>@1(and (tau' = 0));
-(or (G > G_upper_unsafe) (G < G_lower_unsafe) )==>@4(and (tau' = 0));
-//(G < G_lower_unsafe) ==>@4(and (tau' = 0));
+//(or (G > G_upper_unsafe) (G < G_lower_unsafe) )==>@4(and (tau' = 0));
+(and (G <= G_lower_unsafe) (G >= G_lower_unsafe)) ==>@4(and (tau' = 0));
 }
 
 // error state - the glucose level is critical
@@ -253,16 +267,25 @@ jump:
 }
 
 init:
-@1(and	(I = 0.03) (x1 = 0.03) (x2 = 0.045) (x3 = 0.04) (tau = 0.0) (S1 = 4.2) (S2 = 4.0) (Q1 = 64) (Q2 = 40.0) 
-(r = G_SP * VG) (e = r - Q1));
+@1(and	(I = I_init) (x1 = x1_init) (x2 = x2_init) (x3 = x3_init) (tau = 0.0) (S1 = S1_init) (S2 = S2_init) (Q1 = Q1_init) (Q2 = Q2_init) (r = G_SP * VG) (e = r - Q1));
 
 goal:
-//@3(or (G > G_upper_unsafe) (G < G_lower_unsafe) );
-//@1(and (tau = t_meal) (G >= G_goal-0.5) (G <= G_goal+0.5));
-//@2(and (G >= G_lower) (G <= G_lower));
-//@3(or (and (G <= G_lower) (G >= G_lower)) (and (u <= 0) (u >= 0)));
-//@2(or (and (G <= G_lower) (G >= G_lower)) (and (u <= 0) (u >= 0)));
-@3(and (tau = t_meal) (G >= G_goal-2) (G <= G_goal+2));
-//@3(tau = t_meal);
-//@2(tau_ins = t_pid);
-//@4(and (tau = 1));
+//@3(and (tau = t_meal)
+//(Q1 >= (1-range) * Q1_init) (Q1 <= (1+range) * Q1_init)
+//(Q2 >= (1-range) * Q2_init) (Q2 <= (1+range) * Q2_init)
+//(I >= (1-range) * I_init) (I <= (1+range) * I_init)
+//);
+@4(tau = 1);
+
+
+
+
+
+
+
+
+
+
+
+
+

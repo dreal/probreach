@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 
     // setting precision on the output
     cout.precision(16);
-    cout << scientific;
+    //cout << scientific;
     // pdrh parser
     parse_pdrh(global_config.model_filename);
     // setting the model type automatically here
@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
             {
                 probability.setRightBound(1);
             }
-            std::cout << probability << " | " << capd::intervals::width(probability) << std::endl;
+            std::cout << scientific << probability << " | " << capd::intervals::width(probability) << std::endl;
             break;
         }
         // nondeterministic probabilistic hybrid automata
@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
                     {
                         probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
                     }
-                    cout << probability << " | " << capd::intervals::width(probability) << endl;
+                    cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
                 }
                 else
                 {
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
                                                                                    global_config.reach_depth_max,
                                                                                    global_config.sample_size);
                     }
-                    std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
+                    std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
                 }
             }
             else
@@ -230,7 +230,7 @@ int main(int argc, char* argv[])
                 std::map<box, capd::interval> probability_map = algorithm::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
                 for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
                 {
-                    std::cout << std::scientific << it->first << " | " << it->second << std::endl;
+                    std::cout << scientific << it->first << " | " << it->second << std::endl;
                 }
             }
             break;

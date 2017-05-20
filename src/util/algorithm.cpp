@@ -114,7 +114,7 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
     }
     capd::interval probability(0,1);
     // checking if there are any continuous random variables
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
     // generating all paths of lengths [min_depth, max_depth]
     std::vector<std::vector<pdrh::mode*>> paths;
     for(int i = min_depth; i <= max_depth; i++)
@@ -197,7 +197,7 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                                                                  probability.rightBound());
                                 }
                                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
                                 /*
                                 if(capd::intervals::width(probability) <= global_config.precision_prob)
                                 {
@@ -239,7 +239,7 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                     // if the box is undetermined on either path
                     if ((undet_counter > 0) || (timeout_counter > 0))
                     {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << rv;
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << rv;
                         std::vector<box> rv_bisect = box_factory::bisect(rv);
                         rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
                     }
@@ -251,7 +251,7 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
                             probability = capd::interval(probability.leftBound(),
                                                          probability.rightBound() - p_box.leftBound());
                         }
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << probability;
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
                         /*
                         if (capd::intervals::width(probability) <= global_config.precision_prob)
                         {
@@ -479,7 +479,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                                                            p_map[nd].rightBound());
                             }
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << p_map[nd];
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << p_map[nd];
                         }
                         break;
 
@@ -491,7 +491,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                                 p_map[nd]=capd::interval(p_map[nd].leftBound(), p_map[nd].rightBound() - p_box.leftBound());
                             }
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << std::scientific << p_map[nd];
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << p_map[nd];
                         }
                         break;
 
@@ -499,7 +499,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                         #pragma omp critical
                         {
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << rv;
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << rv;
                             std::vector<box> rv_bisect = box_factory::bisect(rv);
                             rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
                             // updating total partition
@@ -581,7 +581,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
                 if(!nd.empty())
                 {
                     // bisecting the nondeterministic box
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << std::scientific << nd;
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << nd;
                     std::vector<box> tmp_boxes;
                     // checking if the --ignore-nondet flag is up
                     if(global_config.ignore_nondet)

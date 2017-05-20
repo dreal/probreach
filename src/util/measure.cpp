@@ -41,7 +41,6 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
             stack.push_back(capd::interval(i.mid().leftBound(), i.rightBound()));
         }
     }
-
     // turning intervals into boxes
     /*
     vector<box> boxes;
@@ -309,17 +308,18 @@ capd::interval measure::get_sample_prob(box domain, box mean, box sigma)
     if(!box_factory::compatible({domain, mean, sigma}))
     {
         std::stringstream s;
-        s << "Boxes " << domain << " " << mean << " " << sigma << " are not compatible";
         throw std::invalid_argument(s.str());
     }
     map<string, capd::interval> edges = domain.get_map();
     capd::interval res(1.0);
     for(auto it = edges.cbegin(); it != edges.cend(); it++)
     {
+        double prec = 1e-5;
+        //double prec = sigma.get_map()[it->first].leftBound() / 10;
         pair<capd::interval, vector<capd::interval>> itg = measure::integral(it->first,
                                                               measure::distribution::gaussian(it->first,
                                                                    mean.get_map()[it->first], sigma.get_map()[it->first]),
-                                                                        it->second, 1e-5);
+                                                                        it->second, prec);
         res *= itg.first;
     }
     return res;
@@ -396,7 +396,11 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::bounds::pdf(std:
 std::string measure::distribution::gaussian(std::string var, capd::interval mu, capd::interval sigma)
 {
     std::stringstream s;
-    s 	<< "(1 / (" << sigma.leftBound() << " * sqrt(2 * 3.14159265359)) * exp(- (( " << var << " - (" << mu.leftBound()
+    // outputs only 16 numbers. This is a temporary solution. Will need to declare
+    // numbers in scientific notation as parameters
+    s.precision(16);
+    s << fixed;
+    s  << "(1 / (" << sigma.leftBound() << " * sqrt(2 * 3.14159265359)) * exp(- (( " << var << " - (" << mu.leftBound()
     <<	")) * (" << var << " - (" << mu.leftBound() << "))) / (2 * (" << sigma.leftBound() << ") * (" << sigma.leftBound() << "))))";
     return s.str();
 }
@@ -405,6 +409,10 @@ std::string measure::distribution::gaussian(std::string var, capd::interval mu, 
 std::string measure::distribution::exp(std::string var, capd::interval lambda)
 {
     std::stringstream s;
+    // outputs only 16 numbers. This is a temporary solution. Will need to declare
+    // numbers in scientific notation as parameters
+    s.precision(16);
+    s << fixed;
     s << lambda.leftBound() << " * exp(" << "-(" << lambda.leftBound() << ") * " << var << ")";
     return s.str();
 }
@@ -412,6 +420,10 @@ std::string measure::distribution::exp(std::string var, capd::interval lambda)
 std::string measure::distribution::uniform(capd::interval a, capd::interval b)
 {
     std::stringstream s;
+    // outputs only 16 numbers. This is a temporary solution. Will need to declare
+    // numbers in scientific notation as parameters
+    s.precision(16);
+    s << fixed;
     s << "1 / (" << b.leftBound() << " - (" << a.leftBound() << "))";
     return s.str();
 }

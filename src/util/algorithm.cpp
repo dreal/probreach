@@ -808,7 +808,6 @@ tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string,
 //    return std::make_tuple(sat_boxes, undet_boxes, unsat_boxes);
 }
 
-
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes)
 {
     const gsl_rng_type * T;

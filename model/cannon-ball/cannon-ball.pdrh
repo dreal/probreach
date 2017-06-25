@@ -1,41 +1,35 @@
 model: pha;
 
-//#define g 9.8067 // taken from wikipedia
 #define g 9.8
-#define alpha 0.7854 // angle to horizon
-
 [0, 10000] Sx; // horizontal distance (m)
-[0, 1000]    Sy; // vertical distance (m)
-[0, 10]     tau; // local time
-[0, 10]     time; // local time (required)
-[0, 500]		v; // speed of the ball (m/s)
-
-// dicrete random parameters
-//dist_discrete(20:5e-1, 30:4.9e-1, 50:1e-2)  v0; // initial velocity
-//dist_normal(31.31,0.1) v0; // where we reach Sx = 100 at 0 jumps
-dist_normal(20,3) v0;
-//dist_uniform(31,32) v0;
-//dist_discrete(0.7854:9.9e-1, 0.0:1e-2)    alpha; // angle to horizon
-//dist_normal(0.7854, 0.1) alpha;
+[0, 1000] Sy; // vertical distance (m)
+[0, 10] tau; // local time
+[0, 10] time; // local time (required)
+[0, 500] v; // speed of the ball (m/s)
+dist_normal(25,3) v0; // initial speed of the ball (m)
+dist_discrete(0.7854:0.9,1.0472:0.09,0.5236:0.01) alpha; // angle to horizon (rad)
 
 {
 mode 1;
+
 flow:
-    d/dt[Sx]    = v * cos(alpha);
-    d/dt[Sy]    = v * sin(alpha) - g * tau;
-    d/dt[tau]   = 1.0;
+    d/dt[Sx]= v * cos(alpha);
+    d/dt[Sy]= v * sin(alpha) - g * tau;
+    d/dt[tau]= 1.0;
     d/dt[v] = 0.0;
+
+
 jump:
-    (and (tau > 1e-3) (Sy <= 0) (Sy >= 0)) ==> @1(and  (Sx' = Sx)
-                                            (Sy' = 0)
-                                            (tau' = 0)
-                                            (v' = 0.9 * v)
-                                            (v0' = v0));
+(and (tau > 1e-3) (Sy <= 0) (Sy >= 0)) ==> @1(and (Sx' = Sx)
+						(Sy' = 0)
+						(tau' = 0)
+						(v' = 0.7 * v)
+						(v0' = v0)
+						(alpha' = alpha));
 }
 
 init:
 @1(and (Sx = 0) (Sy = 0) (tau = 0) (v = v0));
 
 goal:
-//@1(and (Sy >= 5) (Sy <= 5));
 @1(and (tau = 0) (Sx >= 100));

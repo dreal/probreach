@@ -824,7 +824,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
     long int unsat = 0;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Chernoff-Hoeffding algorithm started";
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Random sample size: " << sample_size;
-    #pragma omp parallel for
+    #pragma omp parallel for schedule (dynamic)
     for(long int ctr = 0; ctr < sample_size; ctr++)
     {
         std::vector<std::vector<pdrh::mode*>> paths;
@@ -882,6 +882,8 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
                 else if (res == decision_procedure::UNDET)
                 {
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+			//cout<< "Undet sample: " << b << endl;
+			//exit(EXIT_FAILURE);
                     undet_counter++;
                 }
                 else if (res == decision_procedure::ERROR)

@@ -18,7 +18,7 @@ using namespace std;
 // used for statistical verification
 int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes)
 {
-    return decision_procedure::evaluate(path, boxes, "");
+    return decision_procedure::evaluate(path, boxes, global_config.solver_opt);
 }
 
 // evaluating the main reachability formula with isat

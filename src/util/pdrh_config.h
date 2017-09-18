@@ -55,7 +55,13 @@ struct pdrh_config
     bool chernoff_flag = false;
     double bayesian_acc = 1e-2;
     double bayesian_conf = 0.99;
-    bool bayesian_flag = true;
+    bool bayesian_flag = false;
+    // qmc flags
+    bool qmc_flag = false;
+    double qmc_conf = 0.99;
+    double qmc_acc = 1e-2;
+    long qmc_sample_size = 10000;
+
     bool delta_sat = false;
     vector<string> time_var_name = {"tau"};
     int sample_size = 10;

@@ -15,7 +15,10 @@ using namespace std;
 namespace rnd
 {
     box get_random_sample(gsl_rng*);
+    box get_randomuni_sample(gsl_rng*); // for RQMC algorithm
     box get_sobol_sample(gsl_qrng*, box);
+    box get_icdf(box);
+   // double find_sample_var(box b);
     // the first argument is a random number generator,
     // the second argument is the mean vector
     // the third argument is the standard deviation vector

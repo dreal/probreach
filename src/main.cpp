@@ -205,6 +205,14 @@ int main(int argc, char* argv[])
                     {
                         probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
                     }
+                    else if(global_config.qmc_flag)
+                    {
+                        probability = algorithm::evaluate_pha_qmc();
+                    } else
+                    {
+                        cout << "Statistical method is not chosen" << endl;
+                        return EXIT_FAILURE;
+                    }
                     cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
                 }
                 else

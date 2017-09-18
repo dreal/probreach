@@ -45,6 +45,7 @@ public:
     box get_keys_diff(box) const;
     box get_mean();
     box get_stddev();
+    box fmod (int);
     double max_coordinate_value();
     double max_side_width();
     double min_side_width();

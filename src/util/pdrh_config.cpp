@@ -343,6 +343,48 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
+        // qmc conf
+        else if(strcmp(argv[i], "--qmc-conf") == 0)
+        {
+            global_config.qmc_flag = true;
+            global_config.stat_flag = true;
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.qmc_conf;
+            if (global_config.qmc_conf <= 0)
+            {
+                CLOG(ERROR, "config") << "confidence for QMC method should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+            // qmc acc
+        else if(strcmp(argv[i], "--qmc-acc") == 0)
+        {
+            global_config.qmc_flag = true;
+            global_config.stat_flag = true;
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.qmc_acc;
+            if (global_config.qmc_acc < 0)
+            {
+                CLOG(ERROR, "config") << "accuracy for QMS simulations should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // qmc sample size
+        else if(strcmp(argv[i], "--qmc-sample-size") == 0)
+        {
+            global_config.qmc_flag = true;
+            global_config.stat_flag = true;
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.qmc_sample_size;
+            if (global_config.qmc_sample_size <= 0)
+            {
+                CLOG(ERROR, "config") << "number of samples for QMC method should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
         // merge flag
         else if(strcmp(argv[i], "--delta-sat") == 0)
         {

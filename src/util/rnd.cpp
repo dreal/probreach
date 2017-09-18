@@ -12,6 +12,7 @@
 #include <logging/easylogging++.h>
 #include <gsl/gsl_vector_double.h>
 #include <gsl/gsl_multiroots.h>
+#include <gsl/gsl_cdf.h>
 
 using namespace std;
 
@@ -251,9 +252,63 @@ pair<double, double> rnd::solve_beta_system(double c1, double c2, double prev_al
     return make_pair(alpha, beta);
 }
 
+box rnd::get_icdf(box b)
+{
+    map<std::string, capd::interval> b_edges, edges;
+    b_edges = b.get_map();
+    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+    {
+        if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
+        {
+            double value = gsl_cdf_flat_Pinv(it->second.leftBound(),pdrh::node_to_interval(pdrh::distribution::uniform[it->first].first).leftBound(),
+                                                             pdrh::node_to_interval(pdrh::distribution::uniform[it->first].second).leftBound());
+            //value += pdrh::node_to_interval(pdrh::distribution::normal[it->first].first).leftBound();
 
+            edges.insert(make_pair(it->first, capd::interval(value,value)));
+        }
+        else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())
+        {
+            double value = gsl_cdf_gaussian_Pinv(it->second.leftBound(),
+                                                 pdrh::node_to_interval(pdrh::distribution::normal[it->first].second).leftBound());
+            value += pdrh::node_to_interval(pdrh::distribution::normal[it->first].first).leftBound();
+            edges.insert(make_pair(it->first, capd::interval(value,value)));
+        }
+        else if(pdrh::distribution::exp.find(it->first) != pdrh::distribution::exp.cend())
+        {
 
+        }
+        else if(pdrh::distribution::gamma.find(it->first) != pdrh::distribution::gamma.cend())
+        {
 
+        }
+        else
+        {
+            CLOG(ERROR, "ran_gen") << "Random number generator for the variable \"" << it->first << "\" is not supported";
+        }
+    }
+    return box(edges);
+}
+
+box rnd::get_randomuni_sample(gsl_rng* r)
+{
+    map<std::string, capd::interval> edges;
+    // continuous distributions
+    for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
+    {
+        edges.insert(make_pair(it->first, gsl_rng_uniform(r)));
+    }
+    return box(edges);
+}
+/*
+double rnd::find_sample_var(box b)
+{
+    map<std::string, capd::interval> b_edges, edges;
+    b_edges = b.get_map();
+    auto it = b_edges.cbegin();
+    double value = it->second.leftBound();
+    return value;
+}
+*/
 
 
 

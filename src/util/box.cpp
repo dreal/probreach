@@ -4,7 +4,7 @@
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include <algorithm>
-
+#include <cmath>
 #include "box.h"
 
 using namespace std;
@@ -396,6 +396,16 @@ box box::get_keys_diff(box b) const
         {
             res.insert(make_pair(it->first, it->second));
         }
+    }
+    return box(res);
+}
+
+box box::fmod(int mod)
+{
+    map<string,capd::interval> res;
+    for (auto it=this->edges.begin(); it!=this->edges.end(); it++)
+    {
+        res.insert(make_pair(it->first, this->edges[it->first].leftBound()-(long)this->edges[it->first].leftBound()));
     }
     return box(res);
 }

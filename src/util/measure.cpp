@@ -477,6 +477,7 @@ std::vector<box> measure::get_dd_partition()
 
 box measure::bounds::get_rv_domain()
 {
+    std::vector<box> init_rv_partition = measure::get_rv_partition();
     map<std::string, vector<capd::interval>> domain_map;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {

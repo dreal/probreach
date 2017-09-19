@@ -20,6 +20,7 @@ map<string, pdrh::node*> pdrh::syn_map;
 vector<pdrh::mode> pdrh::modes;
 vector<pdrh::state> pdrh::init;
 vector<pdrh::state> pdrh::goal;
+vector<vector<pdrh::mode*>> pdrh::paths;
 
 map<string, pair<pdrh::node*, pdrh::node*>> pdrh::distribution::uniform;
 map<string, pair<pdrh::node*, pdrh::node*>> pdrh::distribution::normal;
@@ -171,6 +172,11 @@ void pdrh::push_goal(vector<pdrh::state> s)
     pdrh::goal = s;
 }
 
+void pdrh::push_path(vector<mode *> path)
+{
+    pdrh::paths.push_back(path);
+}
+
 // adding a parameter to synthesize
 void pdrh::push_syn_pair(string var, pdrh::node* precision)
 {
@@ -310,6 +316,19 @@ vector<vector<pdrh::mode*>> pdrh::get_paths(pdrh::mode* begin, pdrh::mode* end, 
         }
     }
     return paths;
+}
+
+// getting all paths specified by the key word "paths:"
+vector<vector<pdrh::mode*>> pdrh::get_paths()
+{
+    if(pdrh::paths.size() > 0)
+    {
+        return pdrh::paths;
+    }
+    else
+    {
+        return get_all_paths();
+    }
 }
 
 // comparing two paths alphabetically

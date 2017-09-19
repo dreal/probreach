@@ -36,7 +36,7 @@ void yyerror(const char *s);
 %token PDF N_DIST U_DIST E_DIST G_DIST DD_DIST
 %token INFTY
 
-%token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE TIME_PREC
+%token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE TIME_PREC PATHS
 %token D_DT TRANS PRIME
 
 %token SQRT EXP LOG SIN COS TAN ASIN ACOS ATAN ABS
@@ -69,6 +69,7 @@ void yyerror(const char *s);
 pdrh::mode *cur_mode = new pdrh::mode;
 pdrh::mode::jump *cur_jump = new pdrh::mode::jump;
 std::vector<pdrh::state> cur_states;
+std::vector<pdrh::mode*> cur_path;
 std::map<pdrh::node*, pdrh::node*> cur_dd;
 %}
 
@@ -77,11 +78,13 @@ pdrh:
 	declarations modes init synthesize  {
 	                                        pdrh::model_type = pdrh::PSY;
 	                                    }
+    | declarations modes init goal paths { ; }
 	| declarations modes init goal      {
 	                                        // we try to identify the model type automatically here
 	                                        //pdrh::model_type = pdrh::HA;
 	                                    }
 	| model declarations modes init goal { ; }
+	| model declarations modes init goal paths { ; }
 
 model:
 	MODEL ':' m_type ';'    {
@@ -859,6 +862,54 @@ goal:
 	                        pdrh::push_goal(cur_states);
                             cur_states.clear();
                         }
+
+
+
+
+paths:
+    PATHS ':' path_list { ; }
+
+path_list:
+    path_list path ';'  {
+                            pdrh::push_path(cur_path);
+                            cur_path.clear();
+                        }
+    | path ';' {
+                    pdrh::push_path(cur_path);
+                    cur_path.clear();
+               }
+    ;
+
+path:
+    path ',' number {
+                        pdrh::mode* m = pdrh::get_mode(atoi($3));
+                        if(m == NULL)
+                        {
+                            std::stringstream s;
+                            s << "mode \"" << $3 << "\" has not been defined";
+                            yyerror(s.str().c_str());
+                        }
+                        else
+                        {
+                            cur_path.push_back(m);
+                        }
+                    }
+    | number {
+                pdrh::mode* m = pdrh::get_mode(atoi($1));
+                if(m == NULL)
+                {
+                    std::stringstream s;
+                    s << "mode \"" << $1 << "\" has not been defined";
+                    yyerror(s.str().c_str());
+                }
+                else
+                {
+                    cur_path.push_back(m);
+                }
+             }
+    ;
+
+
 
 state:
 	'@' number prop ';' {

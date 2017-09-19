@@ -128,6 +128,24 @@ int main(int argc, char* argv[])
         }
     }
 
+//    vector<vector<pdrh::mode*>> paths = pdrh::get_paths();
+//    cout << "Set of paths to check: " << endl;
+//    if(paths.size() > 0)
+//    {
+//        for(vector<pdrh::mode*> path : paths)
+//        {
+//            for(pdrh::mode* m : path)
+//            {
+//                cout << m->id << ", ";
+//            }
+//            cout << endl;
+//        }
+//    }
+//    else
+//    {
+//        cout << "To determine from the command line options" << endl;
+//    }
+
     switch(pdrh::model_type)
     {
         // hybrid automata

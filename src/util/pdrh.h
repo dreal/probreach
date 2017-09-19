@@ -110,6 +110,7 @@ namespace pdrh
     };
     extern vector<state> init;
     extern vector<state> goal;
+    extern vector<vector<mode*>> paths;
     // methods for updating the model
     void push_var(string, node*, node*);
     void push_dd(string, map<node*, node*>);
@@ -124,6 +125,7 @@ namespace pdrh
     void push_reset(mode&, mode::jump&, string, node*);
     void push_init(vector<state>);
     void push_goal(vector<state>);
+    void push_path(vector<mode*>);
     void push_psy_goal(int, box);
     void push_psy_c_goal(int, box);
     void push_syn_pair(string, node*);
@@ -149,6 +151,7 @@ namespace pdrh
     vector<mode*> get_successors(mode*);
     vector<mode*> get_shortest_path(mode*, mode*);
     vector<vector<mode*>> get_paths(mode*, mode*, int);
+    vector<vector<mode*>> get_paths();
     vector<vector<mode*>> get_all_paths(int);
     vector<vector<mode*>> get_all_paths();
 

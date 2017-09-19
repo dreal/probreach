@@ -28,7 +28,7 @@ decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth) 
         }
     } else if (global_config.solver_type == solver::type::DREAL) {
         // generating all paths of lengths [min_depth, max_depth]
-        std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+        std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
 //        for(pdrh::state init : pdrh::init)
 //        {
 //            for (pdrh::state goal : pdrh::goal)
@@ -835,8 +835,7 @@ algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, doubl
                           ((double) (sample_size - unsat) / (double) sample_size) + acc);
 }
 
-capd::interval
-algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes) {
+capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes) {
     const gsl_rng_type *T;
     gsl_rng *r;
     gsl_rng_env_setup();
@@ -868,19 +867,10 @@ algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, doubl
     double post_mean_unsat = ((double) sample_size - unsat + alpha) / ((double) sample_size + alpha + beta);
     double post_prob = 0;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm started";
+    // getting set of all paths
+    std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
 #pragma omp parallel
     while (post_prob < conf) {
-        std::vector<std::vector<pdrh::mode *>> paths;
-        // getting all paths
-        for (pdrh::state i : pdrh::init) {
-            for (pdrh::state g : pdrh::goal) {
-                for (int j = min_depth; j <= max_depth; j++) {
-                    std::vector<std::vector<pdrh::mode *>> paths_j = pdrh::get_paths(pdrh::get_mode(i.id),
-                                                                                     pdrh::get_mode(g.id), j);
-                    paths.insert(paths.cend(), paths_j.cbegin(), paths_j.cend());
-                }
-            }
-        }
         // getting a sample
         box b = rnd::get_random_sample(r);
         //box sample = rnd::get_sobol_sample(q2, sobol_domain2);

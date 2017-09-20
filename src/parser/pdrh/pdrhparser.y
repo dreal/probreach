@@ -71,6 +71,7 @@ pdrh::mode::jump *cur_jump = new pdrh::mode::jump;
 std::vector<pdrh::state> cur_states;
 std::vector<pdrh::mode*> cur_path;
 std::map<pdrh::node*, pdrh::node*> cur_dd;
+std::tuple<std::string, pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*> cur_dist;
 %}
 
 %%
@@ -118,6 +119,7 @@ declaration:
 	var_declaration { ; }
 	| dist_declaration { ; }
 
+
 var_declaration:
 	'[' arthm_expr ',' arthm_expr ']' identifier ';'    {
 	                                                        if(!pdrh::var_exists($6))
@@ -144,6 +146,7 @@ var_declaration:
                                                             }
                                                         }
 	| '[' arthm_expr ',' arthm_expr ']' TIME ';'        { pdrh::push_time_bounds($2, $4); }
+
 
 dist_declaration:
     PDF '(' pdf_expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')' identifier ';'
@@ -239,6 +242,28 @@ dist_declaration:
                                                                                        yyerror(s.str().c_str());
                                                                                     }
                                                                                 }
+
+
+
+dist_rv:
+    PDF '(' pdf_expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')'             {
+                                                                                    cur_dist = make_tuple(std::string("PDF"), $3, $5, $7, $9);
+                                                                                }
+    | G_DIST '(' arthm_expr ',' arthm_expr ')'                                  {
+                                                                                    cur_dist = make_tuple(std::string("GAMMA"), $3, $5, new pdrh::node, new pdrh::node);
+                                                                                }
+    | N_DIST '(' arthm_expr ',' arthm_expr ')'                                  {
+                                                                                    cur_dist = make_tuple(std::string("NORMAL"), $3, $5, new pdrh::node, new pdrh::node);
+                                                                                }
+    | U_DIST '(' arthm_expr ',' arthm_expr ')'                                  {
+                                                                                    cur_dist = make_tuple(std::string("UNIFORM"), $3, $5, new pdrh::node, new pdrh::node);
+                                                                                }
+    | E_DIST '(' arthm_expr ')'                                                 {
+                                                                                    cur_dist = make_tuple(std::string("EXP"), $3, new pdrh::node, new pdrh::node, new pdrh::node);
+                                                                                }
+
+
+
 
 pdf_bound:
     arthm_expr 		{ $$ = $1; }
@@ -680,6 +705,7 @@ expr:
                                 }
     ;
 
+
 arthm_expr:
     number                      {
                                     $$ = pdrh::push_terminal_node($1);
@@ -778,12 +804,25 @@ arthm_expr:
                                 }
     ;
 
+
+
+
 reset_props:
 	reset_props reset_prop { ; }
 	| reset_prop { ; }
 
 reset_prop:
     reset_var EQ expr { pdrh::push_reset(*cur_mode, *cur_jump, $1, $3); }
+    | reset_var EQ dist_rv  {
+                                cur_jump->reset_rv.insert(make_pair($1, cur_dist));
+                            }
+    | reset_var EQ DD_DIST '(' dd_pairs ')' {
+                                                cur_jump->reset_dd.insert(make_pair($1, cur_dd));
+                                                cur_dd.clear();
+                                            }
+    | reset_var EQ '[' arthm_expr ',' arthm_expr ']'    {
+                                                            cur_jump->reset_nondet.insert(make_pair($1, make_pair($4, $6)));
+                                                        }
     | TRUE { ; }
     | FALSE { ; }
     | '(' reset_prop ')' { ; }

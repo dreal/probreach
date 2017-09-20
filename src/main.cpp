@@ -86,6 +86,7 @@ int main(int argc, char* argv[])
     parse_pdrh(global_config.model_filename);
     // setting the model type automatically here
     pdrh::set_model_type();
+
     // printing the model if the flag is set
     if(global_config.show_model)
     {

@@ -539,6 +539,32 @@ string pdrh::model_to_string()
             {
                 out << "|   |   |   " << it->first << " := " << pdrh::node_to_string_prefix(it->second) << endl;
             }
+            out << "|   |   RESETS NONDET:" << endl;
+            for(auto it = j.reset_nondet.cbegin(); it != j.reset_nondet.cend(); it++)
+            {
+                out << "|   |   |   " << it->first << " := [" << pdrh::node_to_string_prefix(it->second.first) << ", "
+                                                              << pdrh::node_to_string_prefix(it->second.second) << "]" << endl;
+            }
+            out << "|   |   RESETS RV:" << endl;
+            for(auto it = j.reset_rv.cbegin(); it != j.reset_rv.cend(); it++)
+            {
+                out << "|   |   " << get<0>(it->second) << "   |   "
+                    << pdrh::node_to_string_infix(get<1>(it->second)) << "  | "
+                    << pdrh::node_to_string_prefix(get<2>(it->second)) << " |   "
+                    << pdrh::node_to_string_prefix(get<3>(it->second)) << "    |   "
+                    << pdrh::node_to_string_prefix(get<4>(it->second)) << endl;
+            }
+            out << "|   |   RESETS DD:" << endl;
+            for(auto it = j.reset_dd.cbegin(); it != j.reset_dd.cend(); it++)
+            {
+                out << "|   |   |   dd(" << it->first << ") = (";
+                for(auto it2 = it->second.cbegin(); it2 != it->second.cend(); it2++)
+                {
+                    cout << pdrh::node_to_string_prefix(it2->first) << " : " << pdrh::node_to_string_prefix(it2->second) << endl;
+                    out << pdrh::node_to_string_prefix(it2->first) << " : " << pdrh::node_to_string_prefix(it2->second) << ", ";
+                }
+                out << ")" << endl;
+            }
         }
     }
     out << "INIT:" << endl;

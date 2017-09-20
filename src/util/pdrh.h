@@ -94,6 +94,9 @@ namespace pdrh
             node* guard;
             int next_id;
             map<string, node*> reset;
+            map<string, tuple<string, pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*>> reset_rv;
+            map<string, map<node*, node*>> reset_dd;
+            map<string, pair<node*, node*>> reset_nondet;
         };
         vector<jump> jumps;
         map<string, pair<node*, node*>> flow_map;

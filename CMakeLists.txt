@@ -140,7 +140,7 @@ set(PROBREACH_INCLUDE ${PROBREACH_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/p
 
 set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
         ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
-        ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
+        ${PROBREACH_BINARY_DIR}/git_sha1.cpp src/util/ap.cpp src/util/ap.h)
 
 # creating a library
 add_library(probreach ${PROBREACH_SRC})

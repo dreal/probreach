@@ -560,7 +560,6 @@ string pdrh::model_to_string()
                 out << "|   |   |   dd(" << it->first << ") = (";
                 for(auto it2 = it->second.cbegin(); it2 != it->second.cend(); it2++)
                 {
-                    cout << pdrh::node_to_string_prefix(it2->first) << " : " << pdrh::node_to_string_prefix(it2->second) << endl;
                     out << pdrh::node_to_string_prefix(it2->first) << " : " << pdrh::node_to_string_prefix(it2->second) << ", ";
                 }
                 out << ")" << endl;

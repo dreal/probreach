@@ -46,43 +46,99 @@ void ap::copy_model()
 void ap::modify_model()
 {
     // removing all non-time variables
+    map<string, pair<pdrh::node*, pdrh::node*>> var_map;
     for(auto it = pdrh::var_map.begin(); it != pdrh::var_map.end(); it++)
     {
-        if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) == global_config.time_var_name.end())
+        if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
         {
-            pdrh::var_map.erase(it);
+            var_map.insert(make_pair(it->first, it->second));
         }
     }
+    pdrh::var_map = var_map;
 
     // removing all non-time parameters
+    map<string, pair<pdrh::node*, pdrh::node*>> par_map;
     for(auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
     {
-        if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) == global_config.time_var_name.end())
+        if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
         {
-            pdrh::par_map.erase(it);
+            par_map.insert(make_pair(it->first, it->second));
         }
     }
+    pdrh::par_map = par_map;
 
     for(int i = 0; i < pdrh::modes.size(); i++)
     {
         // removing non-time variables from the flow map
+        map<string, pair<pdrh::node*, pdrh::node*>> flow_map;
         for(auto it = pdrh::modes.at(i).flow_map.begin(); it != pdrh::modes.at(i).flow_map.end(); it++)
         {
-            if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) == global_config.time_var_name.end())
+            if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
             {
-                pdrh::modes.at(i).flow_map.erase(it);
+                flow_map.insert(make_pair(it->first, it->second));
             }
         }
+        pdrh::modes.at(i).flow_map = flow_map;
 
         // removing non-time variables from the ode map
+        map<string, pdrh::node*> odes;
         for(auto it = pdrh::modes.at(i).odes.begin(); it != pdrh::modes.at(i).odes.end(); it++)
         {
-            if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) == global_config.time_var_name.end())
+            if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
             {
-                pdrh::modes.at(i).odes.erase(it);
+                odes.insert(make_pair(it->first, it->second));
             }
         }
+        pdrh::modes.at(i).odes = odes;
 
+        // removing non-time variables from the resets and the guards
+        for(int j = 0; j < pdrh::modes.at(i).jumps.size(); j++)
+        {
+            // removing non-time variables from the resets
+            map<string, pdrh::node*> reset;
+            for(auto it = pdrh::modes.at(i).jumps.at(j).reset.begin(); it != pdrh::modes.at(i).jumps.at(j).reset.end(); it++)
+            {
+                if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
+                {
+                    reset.insert(make_pair(it->first, it->second));
+                }
+            }
+            pdrh::modes.at(i).jumps.at(j).reset = reset;
+
+            // removing non-time variables from the dd map
+            map<string, map<pdrh::node*, pdrh::node*>> reset_dd;
+            for(auto it = pdrh::modes.at(i).jumps.at(j).reset_dd.begin(); it != pdrh::modes.at(i).jumps.at(j).reset_dd.end(); it++)
+            {
+                if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
+                {
+                    reset_dd.insert(make_pair(it->first, it->second));
+                }
+            }
+            pdrh::modes.at(i).jumps.at(j).reset_dd = reset_dd;
+
+            // removing non-time variables from the rv map
+            map<string, tuple<string, pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*>> reset_rv;
+            for(auto it = pdrh::modes.at(i).jumps.at(j).reset_rv.begin(); it != pdrh::modes.at(i).jumps.at(j).reset_rv.end(); it++)
+            {
+                cout << it->first << endl;
+                if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
+                {
+                    reset_rv.insert(make_pair(it->first, it->second));
+                }
+            }
+            pdrh::modes.at(i).jumps.at(j).reset_rv = reset_rv;
+
+            // removing non-time variables from the nondet map
+            map<string, pair<pdrh::node*, pdrh::node*>> reset_nondet;
+            for(auto it = pdrh::modes.at(i).jumps.at(j).reset_nondet.begin(); it != pdrh::modes.at(i).jumps.at(j).reset_nondet.end(); it++)
+            {
+                if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
+                {
+                    reset_nondet.insert(make_pair(it->first, it->second));
+                }
+            }
+            pdrh::modes.at(i).jumps.at(j).reset_nondet = reset_nondet;
+        }
 
     }
 
@@ -90,6 +146,21 @@ void ap::modify_model()
     // pdrh::init.clear();
     // pdrh::goal.clear();
     // pdrh::paths.clear();
+}
+
+void ap::nullify_odes()
+{
+    for(int i = 0; i < pdrh::modes.size(); i++)
+    {
+        // removing non-time variables from the ode map
+        for(auto it = pdrh::modes.at(i).odes.begin(); it != pdrh::modes.at(i).odes.end(); it++)
+        {
+            if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) == global_config.time_var_name.end())
+            {
+                it->second = new pdrh::node("0");
+            }
+        }
+    }
 }
 
 void ap::revert_model()

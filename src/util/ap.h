@@ -43,6 +43,7 @@ namespace ap
     void copy_model();
     void modify_model();
     void revert_model();
+    void nullify_odes();
 
 }
 

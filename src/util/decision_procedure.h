@@ -39,6 +39,8 @@ namespace decision_procedure
 
     // evaluating all paths
     int evaluate(vector<vector<pdrh::mode*>>, vector<box>, string);
+    int evaluate_time_first(vector<vector<pdrh::mode*>>, vector<box>, string);
+
 }
 
 #endif //PROBREACH_DECISION_PROCEDURE_H

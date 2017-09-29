@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
         // hybrid automata
         case pdrh::HA:
         {
-            decision_procedure::result res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
+            int res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
             if (res == decision_procedure::SAT)
             {
                 std::cout << "sat" << std::endl;

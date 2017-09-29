@@ -92,11 +92,15 @@
 #define x3_init 0.0268115942028984
 
 #define t_sleep 540
-#define t_sample 10
+#define t_sample 60
 
 // breakfast
-#define DG1 84
+#define DG1 80
 #define t_meal1 300
+
+// lunch
+#define DG2 80
+#define t_meal2 300
 
 #define Q1_lower 64
 #define Q1_upper 256
@@ -177,14 +181,66 @@ jump:
 
 (counter = t_sample) ==> @1	(and 	(counter' = 0) (e_int_dis' = e_int_dis + t_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / t_sample) 
-									(e_dis' = r - Q1)
-									(e_dis' = dist_normal(0,1))
-									(e_dis' = [0,1])
-									(e_dis' = dist_discrete(1:0.01, 0:0.99)));
+									(e_dis' = r - Q1));
 
+(tau = t_meal1) ==> @2	(and 	(counter' = 0) (e_int_dis' = e_int_dis + t_sample * (r - Q1)) 
+									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / t_sample) 
+									(e_dis' = r - Q1) (tau' = 0));
 
 }
 
+
+// lunch
+{
+mode 2;
+
+time:
+
+[0,t_sample];
+
+flow:
+
+//error
+d/dt[e_int_dis] = 0;
+d/dt[e_der_dis] = 0;
+d/dt[e_dis] = 0;
+d/dt[Q1_prev] = 0;
+
+// d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2) * Q1_ode;
+// d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2) * Q1_ode;
+
+d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
+d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
+
+//reference trajectory
+d/dt[r] = r_ode;
+
+//glucose-subsystem
+d/dt[Q1]= Q1_ode;
+d/dt[Q2]= Q2_ode;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+d/dt[DG] = 0;
+
+jump:
+
+
+(counter = t_sample) ==> @2	(and 	(counter' = 0) (e_int_dis' = e_int_dis + t_sample * (r - Q1)) 
+									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / t_sample) 
+									(e_dis' = r - Q1));
+
+
+}
 
 init:
 
@@ -211,15 +267,17 @@ init:
 
 goal:
 
-@1(tau = t_meal1);
+//@1(tau = t_meal1);
+
+@2(tau = t_meal2);
 
 //@1((or (u < 0) 
 //	(and (G <= G_lower_unsafe) (G >= G_lower_unsafe))
 //	(and (G <= G_upper_unsafe) (G >= G_upper_unsafe))));
 
 
-paths:
+//paths:
 //1,1,1,1,1,1,1,1,1,1;
-1,1,1,1,1,1;
+//1,1,1,1,1,1;
 //1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1;
 

@@ -18,38 +18,43 @@
 #include "rnd.h"
 
 
-decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth) {
-    if (global_config.solver_type == solver::type::ISAT) {
-        int res = decision_procedure::evaluate_isat(vector<box>{});
-        if (res == decision_procedure::result::SAT) {
-            return decision_procedure::result::SAT;
-        } else if (res == decision_procedure::result::UNSAT) {
-            return decision_procedure::result::UNSAT;
-        }
-    } else if (global_config.solver_type == solver::type::DREAL) {
-        // generating all paths of lengths [min_depth, max_depth]
-        std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
-//        for(pdrh::state init : pdrh::init)
-//        {
-//            for (pdrh::state goal : pdrh::goal)
-//            {
-//                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
-//                                                                                 pdrh::get_mode(goal.id),
-//                                                                                 depth);
-//                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
-//            }
+int algorithm::evaluate_ha(int min_depth, int max_depth)
+{
+    std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
+    //return decision_procedure::evaluate_time_first(paths, {}, global_config.solver_opt);
+    return decision_procedure::evaluate(paths, {}, global_config.solver_opt);
+
+//    if (global_config.solver_type == solver::type::ISAT) {
+//        int res = decision_procedure::evaluate_isat(vector<box>{});
+//        if (res == decision_procedure::result::SAT) {
+//            return decision_procedure::result::SAT;
+//        } else if (res == decision_procedure::result::UNSAT) {
+//            return decision_procedure::result::UNSAT;
 //        }
-        switch (decision_procedure::evaluate(paths, {}, global_config.solver_opt)) {
-            case decision_procedure::result::SAT:
-                return decision_procedure::result::SAT;
-
-            case decision_procedure::result::UNSAT:
-                return decision_procedure::result::UNSAT;
-
-            case decision_procedure::result::UNDET:
-                return decision_procedure::result::UNDET;
-        }
-    }
+//    } else if (global_config.solver_type == solver::type::DREAL) {
+//        // generating all paths of lengths [min_depth, max_depth]
+//        std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
+////        for(pdrh::state init : pdrh::init)
+////        {
+////            for (pdrh::state goal : pdrh::goal)
+////            {
+////                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
+////                                                                                 pdrh::get_mode(goal.id),
+////                                                                                 depth);
+////                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
+////            }
+////        }
+//        switch (decision_procedure::evaluate(paths, {}, global_config.solver_opt)) {
+//            case decision_procedure::result::SAT:
+//                return decision_procedure::result::SAT;
+//
+//            case decision_procedure::result::UNSAT:
+//                return decision_procedure::result::UNSAT;
+//
+//            case decision_procedure::result::UNDET:
+//                return decision_procedure::result::UNDET;
+//        }
+//    }
 }
 
 //decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth)

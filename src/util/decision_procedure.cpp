@@ -68,17 +68,12 @@ int decision_procedure::evaluate_isat(string solver_bin, vector<box> boxes)
 // used for formal verification
 int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box> boxes, string solver_opt)
 {
-    if(global_config.verbose)
+    stringstream s;
+    for(pdrh::mode* m : path)
     {
-        stringstream s;
-        for(pdrh::mode* m : path)
-        {
-            s << m->id << " ";
-        }
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str();
+        s << m->id << " ";
     }
-
-    //cout << pdrh::model_to_string() << endl;
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str();
 
     int first_res = decision_procedure::evaluate_delta_sat(path, boxes, solver_opt);
 
@@ -233,6 +228,13 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     smt_file.open(smt_filename.c_str());
     smt_file << pdrh::reach_to_smt2(path, boxes);
     smt_file.close();
+
+    if(global_config.debug)
+    {
+        cout << "Thread: " << omp_get_thread_num() << endl;
+        cout << "First formula:" << endl;
+        cout << pdrh::reach_to_smt2(path, boxes) << endl;
+    }
 
     // calling dreal here
     int first_res = dreal::execute(solver_bin, smt_filename, solver_opt);
@@ -540,6 +542,25 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
     }
     else if(global_config.secondary_solver_type == solver::type::DREAL)
     {
+//        int undet_counter = 0;
+//        for(vector<pdrh::mode*> path : paths)
+//        {
+//            int res = evaluate(path, boxes, solver_opt);
+//            if(res == decision_procedure::result::SAT)
+//            {
+//                return decision_procedure::result::SAT;
+//            }
+//            if(res == decision_procedure::result::UNDET)
+//            {
+//                undet_counter++;
+//            }
+//        }
+//        if(undet_counter > 0)
+//        {
+//            return decision_procedure::result::UNDET;
+//        }
+//        return decision_procedure::result::UNSAT;
+
         int undet_counter = 0;
         for(vector<pdrh::mode*> path : paths)
         {
@@ -548,11 +569,11 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
             ap::nullify_odes();
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating time-only model";
             int res = evaluate(path, boxes, solver_opt);
+            ap::revert_model();
             //int res = decision_procedure::result::SAT;
             switch (res)
             {
                 case decision_procedure::result::SAT:
-                    ap::revert_model();
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating default model";
                     switch (evaluate(path, boxes, solver_opt))
                     {

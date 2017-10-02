@@ -123,8 +123,8 @@
 [-1e9,1e9] e_dis; // discrete error value
 [0,1e6] Q1_prev;
 
-[-1e3,1e3] FQ1_hyper_int;
-[-1e3,1e3] FQ1_hypo_int;
+[-1e6,1e6] FQ1_hyper_int;
+[-1e6,1e6] FQ1_hypo_int;
 
 
 [0,1440] tau;

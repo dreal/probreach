@@ -4,6 +4,9 @@
 
 #include "ap.h"
 #include "pdrh_config.h"
+#include "model.h"
+#include <capd/capdlib.h>
+#include <capd/intervals/lib.h>
 
 pdrh::type ap::model_type;
 pair<pdrh::node*, pdrh::node*> ap::time;
@@ -182,3 +185,18 @@ void ap::revert_model()
     pdrh::distribution::exp = ap::distribution::exp;
     pdrh::distribution::gamma = ap::distribution::gamma;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

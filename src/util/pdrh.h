@@ -52,6 +52,17 @@ namespace pdrh
             return *this;
         }
 
+        // implement the correct comparison of two vectors
+        inline bool operator ==(const node &rhs)
+        {
+            return (value == rhs.value) && (operands == rhs.operands);
+        }
+
+        inline bool operator !=(const node &rhs)
+        {
+            return !(*this == rhs);
+        }
+
     };
     node* push_terminal_node(string);
     node* push_operation_node(string, vector<node*>);

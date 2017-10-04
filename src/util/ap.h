@@ -45,6 +45,13 @@ namespace ap
     void revert_model();
     void nullify_odes();
 
+
+    capd::interval get_sample_rate(pdrh::mode);
+    capd::interval get_meal_time(pdrh::mode);
+
+
+
+
 }
 
 #endif //PROBREACH_AP_H

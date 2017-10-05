@@ -92,18 +92,19 @@
 #define x3_init 0.0268115942028984
 
 #define t_sleep 540
+#define tau_sample 60
 
 // breakfast
 #define DG1 80
-#define tau_meal_1 300
+#define tau_meal_1 299
 
 // lunch
 #define DG2 80
-#define tau_meal_2 300
+#define tau_meal_2 299
 
 // dinner
 #define DG3 80
-#define tau_meal_3 300
+#define tau_meal_3 299
 
 #define Q1_lower 64
 #define Q1_upper 256
@@ -128,7 +129,7 @@
 
 [-1e6,1e6] FQ1_hyper_int;
 [-1e6,1e6] FQ1_hypo_int;
-[60] tau_sample;
+//[60] tau_sample;
 
 
 [0,1440] tau;
@@ -187,7 +188,7 @@ jump:
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
 									(e_dis' = r - Q1));
 
-(tau = tau_meal_1) ==> @2	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
+(tau = tau_meal_1) ==> @2	(and 	(counter' = counter) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
 									(e_dis' = r - Q1)(DG' = DG2)(tau' = 0));
 
@@ -242,7 +243,7 @@ jump:
 (counter = tau_sample) ==> @2	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
 									(e_dis' = r - Q1));
-(tau = tau_meal_2) ==> @3	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
+(tau = tau_meal_2) ==> @3	(and 	(counter' = counter) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
 									(e_dis' = r - Q1)(DG' = DG3)(tau' = 0));
 
@@ -340,4 +341,5 @@ goal:
 //1,1,1,1,1,1,1,1,1,1;
 //1,1,1,1,1,1;
 //1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1;
+//1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3;
 

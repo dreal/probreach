@@ -186,16 +186,119 @@ void ap::revert_model()
     pdrh::distribution::gamma = ap::distribution::gamma;
 }
 
+capd::interval ap::get_sample_rate(pdrh::node* n)
+{
+    pdrh::node *node_copy = new pdrh::node;
+    pdrh::copy_tree(node_copy, n);
+    pdrh::node* time_node = new pdrh::node;
+    pdrh::get_first_time_node(node_copy, time_node);
+    // checking if the time node is not empty
+    if(!pdrh::is_node_empty(time_node))
+    {
+        // checking if the time node signature is <var>=<value>
+        if(time_node->value == "=")
+        {
+            if(time_node->operands.front()->value == "counter")
+            {
+                return pdrh::node_to_interval(time_node->operands.back());
+            }
+            if(time_node->operands.back()->value == "counter")
+            {
+                return pdrh::node_to_interval(time_node->operands.front());
+            }
+        }
+    }
+    return capd::interval(0.0);
+}
 
 
+capd::interval ap::get_sample_rate(pdrh::mode* m)
+{
+    for(pdrh::mode::jump j : m->jumps)
+    {
+        capd::interval sample_rate = ap::get_sample_rate(j.guard);
+        if(sample_rate != capd::interval(0.0))
+        {
+            return sample_rate;
+        }
+    }
+    return capd::interval(0.0);
+}
 
 
+capd::interval ap::get_meal_time(pdrh::node *n, vector<box> boxes)
+{
+    pdrh::node *node_copy = new pdrh::node();
+    pdrh::copy_tree(node_copy, n);
+    pdrh::node* time_node = new pdrh::node;
+    pdrh::get_first_time_node(node_copy, time_node);
+    // checking if the time node is not empty
+    if(!pdrh::is_node_empty(time_node))
+    {
+        // checking if the time node signature is <var>=<value>
+        if(time_node->value == "=")
+        {
+            if(time_node->operands.front()->value == "tau")
+            {
+                for(box b : boxes)
+                {
+                    for(auto it = b.get_map().begin(); it != b.get_map().end(); it++)
+                    {
+                        if(it->first == time_node->operands.back()->value)
+                        {
+                            return it->second;
+                        }
+                    }
+                }
+                return pdrh::node_to_interval(time_node->operands.back());
+            }
+            if(time_node->operands.back()->value == "tau")
+            {
+                for(box b : boxes)
+                {
+                    for(auto it = b.get_map().begin(); it != b.get_map().end(); it++)
+                    {
+                        if(it->first == time_node->operands.front()->value)
+                        {
+                            return it->second;
+                        }
+                    }
+                }
+                return pdrh::node_to_interval(time_node->operands.front());
+            }
+        }
+    }
+    return capd::interval(0.0);
+}
 
 
+capd::interval ap::get_meal_time(pdrh::mode *m, vector<box> boxes)
+{
+    for(pdrh::mode::jump j : m->jumps)
+    {
+        capd::interval meal_time = ap::get_meal_time(j.guard, boxes);
+        if(meal_time != capd::interval(0.0))
+        {
+            return meal_time;
+        }
+    }
+    return capd::interval(0.0);
+}
 
 
-
-
+int ap::jumps_per_mode(pdrh::mode *m)
+{
+    capd::interval sample_rate = ap::get_sample_rate(m);
+    for(pdrh::state st : pdrh::goal)
+    {
+        if(m->id == st.id)
+        {
+            cout << fmod(ap::get_meal_time(st.prop, {}).rightBound(), sample_rate.rightBound()) << endl;
+            return ceil((ap::get_meal_time(st.prop, {}) / sample_rate).rightBound());
+        }
+    }
+    return ceil((ap::get_meal_time(m, {}) / sample_rate).rightBound());
+}
 
 
 

@@ -46,9 +46,13 @@ namespace ap
     void nullify_odes();
 
 
-    capd::interval get_sample_rate(pdrh::mode);
-    capd::interval get_meal_time(pdrh::mode);
+    capd::interval get_sample_rate(pdrh::node*);
+    capd::interval get_sample_rate(pdrh::mode*);
 
+    capd::interval get_meal_time(pdrh::node*, vector<box>);
+    capd::interval get_meal_time(pdrh::mode*, vector<box>);
+
+    int jumps_per_mode(pdrh::mode*);
 
 
 

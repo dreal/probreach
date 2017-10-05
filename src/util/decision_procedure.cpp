@@ -68,13 +68,6 @@ int decision_procedure::evaluate_isat(string solver_bin, vector<box> boxes)
 // used for formal verification
 int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box> boxes, string solver_opt)
 {
-    stringstream s;
-    for(pdrh::mode* m : path)
-    {
-        s << m->id << " ";
-    }
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str();
-
     int first_res = decision_procedure::evaluate_delta_sat(path, boxes, solver_opt);
 
     if(first_res == decision_procedure::result::UNSAT)
@@ -542,59 +535,62 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
     }
     else if(global_config.secondary_solver_type == solver::type::DREAL)
     {
-//        int undet_counter = 0;
-//        for(vector<pdrh::mode*> path : paths)
-//        {
-//            int res = evaluate(path, boxes, solver_opt);
-//            if(res == decision_procedure::result::SAT)
-//            {
-//                return decision_procedure::result::SAT;
-//            }
-//            if(res == decision_procedure::result::UNDET)
-//            {
-//                undet_counter++;
-//            }
-//        }
-//        if(undet_counter > 0)
-//        {
-//            return decision_procedure::result::UNDET;
-//        }
-//        return decision_procedure::result::UNSAT;
-
         int undet_counter = 0;
         for(vector<pdrh::mode*> path : paths)
         {
-            // evaluating a path here
-            ap::copy_model();
-            ap::nullify_odes();
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating time-only model";
-            int res = evaluate(path, boxes, solver_opt);
-            ap::revert_model();
-            //int res = decision_procedure::result::SAT;
-            switch (res)
+            stringstream s;
+            for(pdrh::mode* m : path)
             {
-                case decision_procedure::result::SAT:
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating default model";
-                    switch (evaluate(path, boxes, solver_opt))
+                s << m->id << " ";
+            }
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str() << " (length " << path.size() - 1 << ")";
+            // removing paths with the wrong number of jumps
+            bool skip_path = false;
+            int pos = 0;
+            while(pos < path.size())
+            {
+                pdrh::mode *m = path.at(pos);
+                int num_reps = 1;
+                for(int i = pos + 1; i < path.size(); i++)
+                {
+                    if(path.at(i)->id == m->id)
                     {
-                        case decision_procedure::result::SAT:
-                            return decision_procedure::result::SAT;
-
-                        case decision_procedure::result::UNDET:
-                            undet_counter++;
-                            break;
-
-                        case decision_procedure::result::UNSAT:
-                            break;
+                        num_reps++;
                     }
+                    else
+                    {
+                        break;
+                    }
+                }
+                if(num_reps != ap::jumps_per_mode(m))
+                {
+                    skip_path = true;
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time UNSAT";
                     break;
+                }
+                pos += num_reps;
+            }
+            if(!skip_path)
+            {
+                // evaluating a path here
+                //ap::copy_model();
+                //ap::nullify_odes();
+                //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating time-only model";
+                //int res = evaluate(path, boxes, solver_opt);
+                //ap::revert_model();
+                switch (evaluate(path, boxes, solver_opt))
+                {
+                    case decision_procedure::result::SAT:
+                        return decision_procedure::result::SAT;
 
-                case decision_procedure::result::UNDET:
-                    undet_counter++;
-                    break;
+                    case decision_procedure::result::UNDET:
+                        undet_counter++;
+                        break;
 
-                case decision_procedure::result::UNSAT:
-                    break;
+                    case decision_procedure::result::UNSAT:
+                        break;
+                }
+                break;
             }
         }
         if(undet_counter > 0)

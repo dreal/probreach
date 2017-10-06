@@ -96,15 +96,15 @@
 
 // breakfast
 #define DG1 80
-#define tau_meal_1 299
+#define tau_meal_1 321
 
 // lunch
 #define DG2 80
-#define tau_meal_2 299
+#define tau_meal_2 257
 
 // dinner
 #define DG3 80
-#define tau_meal_3 299
+#define tau_meal_3 289
 
 #define Q1_lower 64
 #define Q1_upper 256

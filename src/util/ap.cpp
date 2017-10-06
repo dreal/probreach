@@ -286,19 +286,56 @@ capd::interval ap::get_meal_time(pdrh::mode *m, vector<box> boxes)
 }
 
 
-int ap::jumps_per_mode(pdrh::mode *m)
+int ap::jumps_per_mode(pdrh::mode *m, vector<box> boxes)
 {
     capd::interval sample_rate = ap::get_sample_rate(m);
     for(pdrh::state st : pdrh::goal)
     {
         if(m->id == st.id)
         {
-            cout << fmod(ap::get_meal_time(st.prop, {}).rightBound(), sample_rate.rightBound()) << endl;
-            return ceil((ap::get_meal_time(st.prop, {}) / sample_rate).rightBound());
+            return ceil((ap::get_meal_time(st.prop, boxes) / sample_rate).rightBound());
         }
     }
-    return ceil((ap::get_meal_time(m, {}) / sample_rate).rightBound());
+    return ceil((ap::get_meal_time(m, boxes) / sample_rate).rightBound());
 }
+
+
+int ap::jumps_per_mode(pdrh::mode *cur_mode, pdrh::mode *prev_mode, vector<box> boxes)
+{
+    capd::interval sample_rate_prev_mode = ap::get_sample_rate(prev_mode);
+    capd::interval meal_time_prev_mode = ap::get_meal_time(prev_mode, boxes);
+    capd::interval left_over(fmod(meal_time_prev_mode.leftBound(), sample_rate_prev_mode.leftBound()),
+                             fmod(meal_time_prev_mode.rightBound(), sample_rate_prev_mode.rightBound()));
+    capd::interval sample_rate_cur_mode = ap::get_sample_rate(cur_mode);
+    for(pdrh::state st : pdrh::goal)
+    {
+        if(cur_mode->id == st.id)
+        {
+            return ceil(((ap::get_meal_time(st.prop, boxes) + left_over) / sample_rate_cur_mode).rightBound());
+        }
+    }
+    return ceil(((ap::get_meal_time(cur_mode, boxes) + left_over) / sample_rate_cur_mode).rightBound());
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

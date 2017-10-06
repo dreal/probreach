@@ -547,13 +547,16 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
             // removing paths with the wrong number of jumps
             bool skip_path = false;
             int pos = 0;
+            // creating an empty mode
+            pdrh::mode *prev_mode = new pdrh::mode;
+            prev_mode->id = 0;
             while(pos < path.size())
             {
-                pdrh::mode *m = path.at(pos);
+                pdrh::mode *cur_mode = path.at(pos);
                 int num_reps = 1;
                 for(int i = pos + 1; i < path.size(); i++)
                 {
-                    if(path.at(i)->id == m->id)
+                    if(path.at(i)->id == cur_mode->id)
                     {
                         num_reps++;
                     }
@@ -562,13 +565,25 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
                         break;
                     }
                 }
-                if(num_reps != ap::jumps_per_mode(m))
+                int num_jumps = 0;
+                if(prev_mode->id == 0)
+                {
+                    num_jumps = ap::jumps_per_mode(cur_mode, boxes);
+                }
+                else
+                {
+                    num_jumps = ap::jumps_per_mode(cur_mode, prev_mode, boxes);
+                }
+                //cout << "Num reps: " << num_reps << endl;
+                //cout << "Num jumps: " << num_jumps << endl;
+                if(num_reps != num_jumps)
                 {
                     skip_path = true;
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time UNSAT";
                     break;
                 }
                 pos += num_reps;
+                prev_mode = cur_mode;
             }
             if(!skip_path)
             {

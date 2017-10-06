@@ -52,7 +52,10 @@ namespace ap
     capd::interval get_meal_time(pdrh::node*, vector<box>);
     capd::interval get_meal_time(pdrh::mode*, vector<box>);
 
-    int jumps_per_mode(pdrh::mode*);
+    int jumps_per_mode(pdrh::mode*, vector<box>);
+
+    // current and previous mode
+    int jumps_per_mode(pdrh::mode*, pdrh::mode*, vector<box>);
 
 
 

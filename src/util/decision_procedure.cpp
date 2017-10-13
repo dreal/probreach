@@ -229,7 +229,9 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
         cout << pdrh::reach_to_smt2(path, boxes) << endl;
     }
 
+
     // calling dreal here
+    solver_opt.append(" --model");
     int first_res = dreal::execute(solver_bin, smt_filename, solver_opt);
 
     if(first_res == -1)
@@ -239,7 +241,8 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     else if(first_res == 1)
     {
         if((std::remove(smt_filename.c_str()) == 0) &&
-           (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
+           (std::remove(std::string(smt_filename + ".output").c_str()) == 0) &&
+           (std::remove(std::string(smt_filename + ".model").c_str()) == 0))
         {
             //LOG(DEBUG) << "Removed auxiliary files";
             return decision_procedure::UNSAT;
@@ -255,6 +258,16 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
         if((std::remove(smt_filename.c_str()) == 0) &&
            (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
         {
+            box b = dreal::parse_model(string(smt_filename + ".model"));
+            cout << "Solution box: " << b << endl;
+            std::remove(string(smt_filename + ".model").c_str());
+            map<string, pdrh::node*> reset_map = pdrh::modes.front().jumps.front().reset;
+            map<string, capd::interval> init_map;
+            for(auto it = reset_map.begin(); it != reset_map.end(); it++)
+            {
+                init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, b)));
+            }
+            cout << "New init box: " << box(init_map) << endl;
             //LOG(DEBUG) << "Removed auxiliary files";
             return decision_procedure::SAT;
         }
@@ -485,29 +498,6 @@ int decision_procedure::synthesize(pdrh::state init, pdrh::state goal, std::vect
 }
 */
 
-int decision_procedure::evaluate_time_first(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_opt)
-{
-    ap::copy_model();
-    ap::nullify_odes();
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating time-only model";
-    int res = decision_procedure::evaluate(paths, boxes, solver_opt);
-    switch (res)
-    {
-        case decision_procedure::result::SAT:
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time only model is SAT";
-            ap::revert_model();
-            return decision_procedure::evaluate(paths, boxes, solver_opt);
-
-        case decision_procedure::result::UNDET:
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time only model is UNDET";
-            return res;
-
-        case decision_procedure::result::UNSAT:
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time only model is UNSAT";
-            return res;
-    }
-}
-
 
 // implements evaluate for all paths
 int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_opt)
@@ -605,7 +595,7 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
                     case decision_procedure::result::UNSAT:
                         break;
                 }
-                break;
+                // break;
             }
         }
         if(undet_counter > 0)

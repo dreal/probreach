@@ -39,7 +39,6 @@ namespace decision_procedure
 
     // evaluating all paths
     int evaluate(vector<vector<pdrh::mode*>>, vector<box>, string);
-    int evaluate_time_first(vector<vector<pdrh::mode*>>, vector<box>, string);
 
 }
 

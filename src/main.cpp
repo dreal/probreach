@@ -8,12 +8,14 @@
 #include <iomanip>
 #include <pdrh.h>
 #include <model.h>
+#include <solver/dreal_wrapper.h>
 #include "pdrh_config.h"
 #include "pdrh.h"
 #include "algorithm.h"
 #include "rnd.h"
 #include "parser/output/outputparser.h"
 #include "ap.h"
+#include "box.h"
 
 extern "C"
 {
@@ -91,17 +93,9 @@ int main(int argc, char* argv[])
     // printing the model if the flag is set
     if(global_config.show_model)
     {
-//        cout << "Initial model:" << endl;
-//        cout << pdrh::model_to_string() << endl;
-        ap::copy_model();
-        //ap::modify_model();
-        ap::nullify_odes();
-        cout << "Modified model:" << endl;
-        cout << pdrh::model_to_string() << endl;
-        ap::revert_model();
-        cout << "Reverted model:" << endl;
         cout << pdrh::model_to_string() << endl;
     }
+
     // displaying primary solver
     CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
     if(global_config.solver_type == solver::type::DREAL)

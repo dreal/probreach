@@ -48,13 +48,13 @@ namespace pdrh
         {
             value = rhs.value;
             operands = rhs.operands;
-
             return *this;
         }
 
         // implement the correct comparison of two vectors
         inline bool operator ==(const node &rhs)
         {
+
             return (value == rhs.value) && (operands == rhs.operands);
         }
 
@@ -75,6 +75,7 @@ namespace pdrh
     string node_to_string_prefix(node*);
     string node_to_string_infix(node*);
     capd::interval node_to_interval(node*);
+    capd::interval node_to_interval(node*, box);
     string node_fix_index(node*, int, string);
     bool is_node_empty(node*);
 

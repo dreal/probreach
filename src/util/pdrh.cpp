@@ -509,8 +509,11 @@ string pdrh::model_to_string()
         }
         out << ")" << endl;
     }
-    out << "TIME DOMAIN:" << endl;
-    out << "|   [" << pdrh::node_to_string_prefix(pdrh::time.first) << ", " << pdrh::node_to_string_prefix(pdrh::time.second) << "]" << endl;
+//    if(!pdrh::is_node_empty(pdrh::time.first) && !pdrh::is_node_empty(pdrh::time.second))
+//    {
+//        out << "TIME DOMAIN:" << endl;
+//        out << "|   [" << pdrh::node_to_string_prefix(pdrh::time.first) << ", " << pdrh::node_to_string_prefix(pdrh::time.second) << "]" << endl;
+//    }
     out << "MODES:" << endl;
     for(pdrh::mode m : pdrh::modes)
     {
@@ -1780,17 +1783,30 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
     return res_node;
 }
 
+
 // throws exception in case if one of the terminal modes is not a number
 // evaluates the value of arithmetic expression
-capd::interval pdrh::node_to_interval(pdrh::node *expr)
+capd::interval pdrh::node_to_interval(pdrh::node *expr, box b)
 {
     if(expr->operands.size() == 0)
     {
-        return capd::interval(expr->value, expr->value);
+        map<string, capd::interval> b_map = b.get_map();
+        if(b_map.find(expr->value) == b_map.end())
+        {
+            return capd::interval(expr->value, expr->value);
+        }
+        else
+        {
+            return b_map[expr->value];
+        }
     }
     else if(expr->operands.size() > 2)
     {
-        CLOG(ERROR, "model") << "The number of operands can't be descending than 2";
+//        for(node *n : expr->operands)
+//        {
+//            return pdrh::node_to_interval(n);
+//        }
+        CLOG(ERROR, "model") << "The number of operands can't be greater than 2";
         exit(EXIT_FAILURE);
     }
     else
@@ -1799,75 +1815,75 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr)
         {
             if(expr->operands.size() == 1)
             {
-                return pdrh::node_to_interval(expr->operands.front());
+                return pdrh::node_to_interval(expr->operands.front(), b);
             }
             else if(expr->operands.size() == 2)
             {
-                return pdrh::node_to_interval(expr->operands.front()) + pdrh::node_to_interval(expr->operands.back());
+                return pdrh::node_to_interval(expr->operands.front(), b) + pdrh::node_to_interval(expr->operands.back(), b);
             }
         }
         else if(strcmp(expr->value.c_str(), "-") == 0)
         {
             if(expr->operands.size() == 1)
             {
-                return capd::interval(-1.0) * pdrh::node_to_interval(expr->operands.front());
+                return capd::interval(-1.0) * pdrh::node_to_interval(expr->operands.front(), b);
             }
             else if(expr->operands.size() == 2)
             {
-                return pdrh::node_to_interval(expr->operands.front()) - pdrh::node_to_interval(expr->operands.back());
+                return pdrh::node_to_interval(expr->operands.front(), b) - pdrh::node_to_interval(expr->operands.back(), b);
             }
         }
         else if(strcmp(expr->value.c_str(), "*") == 0)
         {
-            return pdrh::node_to_interval(expr->operands.front()) * pdrh::node_to_interval(expr->operands.back());
+            return pdrh::node_to_interval(expr->operands.front(), b) * pdrh::node_to_interval(expr->operands.back(), b);
         }
         else if(strcmp(expr->value.c_str(), "/") == 0)
         {
-            return pdrh::node_to_interval(expr->operands.front()) / pdrh::node_to_interval(expr->operands.back());
+            return pdrh::node_to_interval(expr->operands.front(), b) / pdrh::node_to_interval(expr->operands.back(), b);
         }
         else if(strcmp(expr->value.c_str(), "^") == 0)
         {
-            return capd::intervals::power(pdrh::node_to_interval(expr->operands.front()), pdrh::node_to_interval(expr->operands.back()));
+            return capd::intervals::power(pdrh::node_to_interval(expr->operands.front(), b), pdrh::node_to_interval(expr->operands.back(), b));
         }
         else if(strcmp(expr->value.c_str(), "sqrt") == 0)
         {
-            return capd::intervals::sqrt(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::sqrt(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else if(strcmp(expr->value.c_str(), "abs") == 0)
         {
-            return capd::intervals::iabs(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::iabs(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else if(strcmp(expr->value.c_str(), "exp") == 0)
         {
-            return capd::intervals::exp(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::exp(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else if(strcmp(expr->value.c_str(), "log") == 0)
         {
-            return capd::intervals::log(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::log(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else if(strcmp(expr->value.c_str(), "sin") == 0)
         {
-            return capd::intervals::sin(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::sin(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else if(strcmp(expr->value.c_str(), "cos") == 0)
         {
-            return capd::intervals::cos(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::cos(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else if(strcmp(expr->value.c_str(), "tan") == 0)
         {
-            return capd::intervals::tan(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::tan(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else if(strcmp(expr->value.c_str(), "asin") == 0)
         {
-            return capd::intervals::asin(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::asin(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else if(strcmp(expr->value.c_str(), "acos") == 0)
         {
-            return capd::intervals::acos(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::acos(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else if(strcmp(expr->value.c_str(), "atan") == 0)
         {
-            return capd::intervals::atan(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::atan(pdrh::node_to_interval(expr->operands.front(), b));
         }
         else
         {
@@ -1876,6 +1892,17 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr)
         }
     }
 }
+
+
+
+// throws exception in case if one of the terminal modes is not a number
+// evaluates the value of arithmetic expression
+capd::interval pdrh::node_to_interval(pdrh::node *expr)
+{
+    return pdrh::node_to_interval(expr, box());
+}
+
+
 
 void pdrh::distribution::push_uniform(string var, pdrh::node* a, pdrh::node* b)
 {

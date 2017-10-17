@@ -314,9 +314,9 @@ init:
 
 goal:
 
-@1(tau = tau_sample - 0.00000001);
+//@1(tau = tau_sample - 0.00000001);
 //@2(tau = tau_meal_2);
-//@3(tau = tau_meal_3);
+@3(tau = tau_meal_3);
 
 
 //@1((or (u < 0) 

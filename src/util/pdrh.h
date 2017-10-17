@@ -78,6 +78,8 @@ namespace pdrh
     capd::interval node_to_interval(node*, box);
     string node_fix_index(node*, int, string);
     bool is_node_empty(node*);
+    pdrh::node* box_to_node(box);
+
 
     node* get_first_time_node(node*);
     void get_first_time_node(node*, node*);
@@ -114,6 +116,8 @@ namespace pdrh
         map<string, pair<node*, node*>> flow_map;
         map<string, node*> odes;
         pair<node*, node*> time;
+
+        pdrh::mode::jump get_jump(int);
     };
     extern vector<mode> modes;
 
@@ -122,6 +126,21 @@ namespace pdrh
     {
         int id;
         node* prop;
+
+        inline state(const int id, node* prop)
+                : id(id), prop(prop)
+        {
+        }
+
+        inline state()
+        {
+        }
+
+        friend std::ostream& operator<<(std::ostream &os, const pdrh::state &st)
+        {
+            os << st.id << ":" << pdrh::node_to_string_prefix(st.prop) << ";";
+            return os;
+        }
     };
     extern vector<state> init;
     extern vector<state> goal;
@@ -146,7 +165,6 @@ namespace pdrh
     void push_syn_pair(string, node*);
     void push_time_bounds(node*, node*);
 
-
     void set_model_type();
 
     box get_nondet_domain();
@@ -159,6 +177,7 @@ namespace pdrh
 
     bool var_exists(string);
     mode* get_mode(int);
+
 
     //void update_resets();
 

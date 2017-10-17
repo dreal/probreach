@@ -57,7 +57,10 @@ namespace ap
     // current and previous mode
     int jumps_per_mode(pdrh::mode*, pdrh::mode*, vector<box>);
 
+    bool accept_path(vector<pdrh::mode*>, vector<box>);
 
+    box init_to_box();
+    box solve_odes(map<string, pdrh::node*>, box, capd::interval);
 
 }
 

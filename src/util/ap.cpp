@@ -317,10 +317,121 @@ int ap::jumps_per_mode(pdrh::mode *cur_mode, pdrh::mode *prev_mode, vector<box> 
     return ceil(((ap::get_meal_time(cur_mode, boxes) + left_over) / sample_rate_cur_mode).rightBound());
 }
 
+bool ap::accept_path(vector<pdrh::mode *> path, vector<box> boxes)
+{
+    int pos = 0;
+    // creating an empty mode
+    pdrh::mode *prev_mode = new pdrh::mode;
+    prev_mode->id = 0;
+    while(pos < path.size())
+    {
+        pdrh::mode *cur_mode = path.at(pos);
+        int num_reps = 1;
+        for(int i = pos + 1; i < path.size(); i++)
+        {
+            if(path.at(i)->id == cur_mode->id)
+            {
+                num_reps++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        int num_jumps = 0;
+        if(prev_mode->id == 0)
+        {
+            num_jumps = ap::jumps_per_mode(cur_mode, boxes);
+        }
+        else
+        {
+            num_jumps = ap::jumps_per_mode(cur_mode, prev_mode, boxes);
+        }
+        //cout << "Num reps: " << num_reps << endl;
+        //cout << "Num jumps: " << num_jumps << endl;
+        if(num_reps != num_jumps)
+        {
+            return false;
+        }
+        pos += num_reps;
+        prev_mode = cur_mode;
+    }
+    return true;
+}
 
 
+box ap::init_to_box()
+{
+    map<string, capd::interval> b_map;
+    vector<capd::interval> b_interval = {   capd::interval("-4.390166457000773e-35","-4.390166457000703e-35"),
+                                            capd::interval("4.626459344146126e-08","4.626459344146168e-08"),
+                                            capd::interval("0.03351449275362304","0.03351449275362305"),
+                                            capd::interval("97.77777777777776","97.77777777777777"),
+                                            capd::interval("97.77777777777776","97.77777777777777"),
+                                            capd::interval("19.08024296516837","19.08024296516837"),
+                                            capd::interval("3.0525","3.0525"),
+                                            capd::interval("3.0525","3.0525"),
+                                            capd::interval("0","0"),
+                                            capd::interval("-2.368475785867001e-16","2.368475785867001e-16"),
+                                            capd::interval("-1.4210854715202e-14","1.4210854715202e-14"),
+                                            capd::interval("-8.526512829121202e-13","8.526512829121202e-13"),
+                                            capd::interval("97.77777777777776","97.77777777777777"),
+                                            capd::interval("0","0"),
+                                            capd::interval("0.01899154566043506","0.01899154566043506"),
+                                            capd::interval("0.03128019323671478","0.03128019323671478"),
+                                            capd::interval("0.0268115942028984","0.0268115942028984")};
+    int i = 0;
+    for(auto it = pdrh::modes.front().odes.begin(); it != pdrh::modes.front().odes.end(); it++)
+    {
+        b_map.insert(make_pair(it->first, b_interval.at(i)));
+        i++;
+    }
+    return box(b_map);
+}
 
 
+box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time)
+{
+    // building capd string here
+    string var_string = "var:";
+    string fun_string = "fun:";
+    for(auto it = odes.begin(); it != odes.end(); it++)
+    {
+        var_string += it->first + ',';
+        fun_string += pdrh::node_to_string_infix(it->second) + ',';
+    }
+    var_string.back() = ';';
+    fun_string.back() = ';';
+
+    // creating an ODE solver and setting precision
+    capd::IMap vectorField(var_string + fun_string);
+    capd::IOdeSolver solver(vectorField, 32);
+    solver.setAbsoluteTolerance(1e-16);
+    solver.setRelativeTolerance(1e-16);
+    capd::ITimeMap timeMap(solver);
+
+    // setting initial condition here
+    capd::IVector c(odes.size());
+    map<string, capd::interval> init_map = init.get_map();
+    int i = 0;
+    for(auto it = init_map.begin(); it != init_map.end(); it++)
+    {
+        c[i] = it->second;
+        i++;
+    }
+    capd::C0HORect2Set s(c);
+
+    // solving the ODE system and creating the result
+    capd::IVector result = timeMap(time, s);
+    map<string, capd::interval> res_map;
+    i = 0;
+    for(auto it = odes.begin(); it != odes.end(); it++)
+    {
+        res_map.insert(make_pair(it->first, result[i]));
+        i++;
+    }
+    return box(res_map);
+}
 
 
 

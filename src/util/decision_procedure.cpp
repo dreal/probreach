@@ -68,7 +68,8 @@ int decision_procedure::evaluate_isat(string solver_bin, vector<box> boxes)
 // used for formal verification
 int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box> boxes, string solver_opt)
 {
-    int first_res = decision_procedure::evaluate_delta_sat(path, boxes, solver_opt);
+    //int first_res = decision_procedure::evaluate_delta_sat(path, boxes, solver_opt);
+    int first_res = decision_procedure::evaluate_flow_by_flow(path, boxes, global_config.solver_bin, solver_opt);
 
     if(first_res == decision_procedure::result::UNSAT)
     {
@@ -218,8 +219,10 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     std::string smt_filename = f_stream.str();
     // writing to the file
     std::ofstream smt_file;
+
     smt_file.open(smt_filename.c_str());
-    smt_file << pdrh::reach_to_smt2(path, boxes);
+    // will work for one initial and one state only
+    smt_file << pdrh::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes);
     smt_file.close();
 
     if(global_config.debug)
@@ -231,7 +234,7 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
 
 
     // calling dreal here
-    solver_opt.append(" --model");
+    // solver_opt.append(" --model");
     int first_res = dreal::execute(solver_bin, smt_filename, solver_opt);
 
     if(first_res == -1)
@@ -258,16 +261,21 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
         if((std::remove(smt_filename.c_str()) == 0) &&
            (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
         {
-            box b = dreal::parse_model(string(smt_filename + ".model"));
-            cout << "Solution box: " << b << endl;
-            std::remove(string(smt_filename + ".model").c_str());
-            map<string, pdrh::node*> reset_map = pdrh::modes.front().jumps.front().reset;
-            map<string, capd::interval> init_map;
-            for(auto it = reset_map.begin(); it != reset_map.end(); it++)
-            {
-                init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, b)));
-            }
-            cout << "New init box: " << box(init_map) << endl;
+//            box b = dreal::parse_model(string(smt_filename + ".model"));
+//            cout << "Solution box: " << b << endl;
+//            std::remove(string(smt_filename + ".model").c_str());
+//            map<string, pdrh::node*> reset_map = pdrh::modes.front().jumps.front().reset;
+//            map<string, capd::interval> init_map;
+//            for(auto it = reset_map.begin(); it != reset_map.end(); it++)
+//            {
+//                init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, b)));
+//            }
+//            box init_box(init_map);
+//            cout << "New init box: " << init_box << endl;
+//            pdrh::state new_init_state;
+//            new_init_state.id = pdrh::modes.front().jumps.front().next_id;
+//            new_init_state.prop = pdrh::box_to_node(init_box);
+//            cout << "New init state: " << new_init_state.id << ": " << pdrh::node_to_string_prefix(new_init_state.prop) << endl;
             //LOG(DEBUG) << "Removed auxiliary files";
             return decision_procedure::SAT;
         }
@@ -499,6 +507,99 @@ int decision_procedure::synthesize(pdrh::state init, pdrh::state goal, std::vect
 */
 
 
+
+int decision_procedure::evaluate_flow_by_flow(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
+{
+    // default value for the thread number
+    int thread_num = 0;
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
+
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating \"flow by flow\"";
+
+    // getting raw filename here
+    std::string filename = std::string(global_config.model_filename);
+    size_t ext_index = filename.find_last_of('.');
+    std::string raw_filename = filename.substr(0, ext_index);
+
+    // setting model option for dreal
+    solver_opt.append(" --model");
+
+    // initial initial state
+    pdrh::state init = pdrh::init.front();
+
+    // final solution box
+    box final_sol_box;
+
+    // assumed that there is at least one jump
+    for(size_t i = 0; i < path.size(); i++)
+    {
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Mode " << path.at(i)->id << " at depth = " << i;
+        // creating a name for the smt2 file
+        std::stringstream f_stream;
+        f_stream << raw_filename << "_" << path.size() - 1 << "_" << i << "_" << thread_num << ".smt2";
+        std::string smt_filename = f_stream.str();
+        // writing to the file
+        std::ofstream smt_file;
+        smt_file.open(smt_filename.c_str());
+        // will work for one initial and one goal state only
+
+        // setting current goal here
+        pdrh::state goal;
+        if(i < path.size() - 1)
+        {
+            goal = pdrh::state(path.at(i)->id, path.at(i)->get_jump(path.at(i+1)->id).guard);
+        }
+        else
+        {
+            goal = pdrh::goal.front();
+        }
+
+        smt_file << pdrh::reach_to_smt2(init, goal, {path.at(i)}, boxes);
+        smt_file.close();
+
+        int first_res = dreal::execute(solver_bin, smt_filename, solver_opt);
+
+        // removing all files
+        remove(smt_filename.c_str());
+        remove(std::string(smt_filename + ".output").c_str());
+
+        switch(first_res)
+        {
+            case 0:
+            {
+                box sol_box = dreal::parse_model(string(smt_filename + ".model"));
+                cout << "Solution box: " << sol_box << endl;
+                //final_sol_box = sol_box;
+                std::remove(string(smt_filename + ".model").c_str());
+                if (i < path.size() - 1)
+                {
+                    map<string, pdrh::node*> reset_map = path.at(i)->get_jump(path.at(i + 1)->id).reset;
+                    map<string, capd::interval> init_map;
+                    for (auto it = reset_map.begin(); it != reset_map.end(); it++)
+                    {
+                        init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, sol_box)));
+                    }
+                    init = pdrh::state(path.at(i + 1)->id, pdrh::box_to_node(box(init_map)));
+                }
+            }
+            break;
+
+            case 1:
+                remove(string(smt_filename + ".model").c_str());
+                return decision_procedure::UNSAT;
+
+            case -1:
+                return decision_procedure::ERROR;
+        }
+    }
+    //cout << "Final solution box: " << final_sol_box << endl;
+    return decision_procedure::SAT;
+}
+
+
+
 // implements evaluate for all paths
 int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_opt)
 {
@@ -534,55 +635,9 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
                 s << m->id << " ";
             }
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str() << " (length " << path.size() - 1 << ")";
-            // removing paths with the wrong number of jumps
-            bool skip_path = false;
-            int pos = 0;
-            // creating an empty mode
-            pdrh::mode *prev_mode = new pdrh::mode;
-            prev_mode->id = 0;
-            while(pos < path.size())
-            {
-                pdrh::mode *cur_mode = path.at(pos);
-                int num_reps = 1;
-                for(int i = pos + 1; i < path.size(); i++)
-                {
-                    if(path.at(i)->id == cur_mode->id)
-                    {
-                        num_reps++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                int num_jumps = 0;
-                if(prev_mode->id == 0)
-                {
-                    num_jumps = ap::jumps_per_mode(cur_mode, boxes);
-                }
-                else
-                {
-                    num_jumps = ap::jumps_per_mode(cur_mode, prev_mode, boxes);
-                }
-                //cout << "Num reps: " << num_reps << endl;
-                //cout << "Num jumps: " << num_jumps << endl;
-                if(num_reps != num_jumps)
-                {
-                    skip_path = true;
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time UNSAT";
-                    break;
-                }
-                pos += num_reps;
-                prev_mode = cur_mode;
-            }
-            if(!skip_path)
+            if(ap::accept_path(path, boxes))
             {
                 // evaluating a path here
-                //ap::copy_model();
-                //ap::nullify_odes();
-                //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating time-only model";
-                //int res = evaluate(path, boxes, solver_opt);
-                //ap::revert_model();
                 switch (evaluate(path, boxes, solver_opt))
                 {
                     case decision_procedure::result::SAT:
@@ -595,7 +650,6 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
                     case decision_procedure::result::UNSAT:
                         break;
                 }
-                // break;
             }
         }
         if(undet_counter > 0)

@@ -126,7 +126,7 @@ std::ostream& operator<<(std::ostream& os, const box& b)
     std::map<std::string, capd::interval> e = b.get_map();
     for(auto it = e.cbegin(); it != e.cend(); it++)
     {
-        os << it->first << ":" << it->second << "; ";
+        os << it->first << ":" << it->second << "; " << endl;
     }
     return os;
 }

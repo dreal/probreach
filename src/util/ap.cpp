@@ -390,9 +390,22 @@ box ap::init_to_box()
 }
 
 
-box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time)
+box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time, vector<box> boxes)
 {
-    // building capd string here
+    // creating capd string here
+    // declaring parameters
+    string par_string = "par:";
+    for(box b : boxes)
+    {
+        map<string, capd::interval> b_map = b.get_map();
+        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        {
+            par_string += it->first + ',';
+        }
+    }
+    par_string.back() = ';';
+
+    // declaring variables
     string var_string = "var:";
     string fun_string = "fun:";
     for(auto it = odes.begin(); it != odes.end(); it++)
@@ -409,6 +422,16 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     solver.setAbsoluteTolerance(1e-16);
     solver.setRelativeTolerance(1e-16);
     capd::ITimeMap timeMap(solver);
+
+    //setting parameter values
+    for(box b : boxes)
+    {
+        map<string, capd::interval> b_map = b.get_map();
+        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        {
+            vectorField.setParameter(it->first, it->second);
+        }
+    }
 
     // setting initial condition here
     capd::IVector c(odes.size());
@@ -431,6 +454,65 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
         i++;
     }
     return box(res_map);
+}
+
+
+capd::interval time_to_goal(pdrh::mode *m, vector<box> boxes)
+{
+    for(pdrh::state st : pdrh::goal)
+    {
+        if(m->id == st.id)
+        {
+            return ap::get_meal_time(st.prop, boxes);
+        }
+    }
+}
+
+
+box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
+{
+    // reachability depth == 0
+    if(path.size() == 1)
+    {
+        return solve_odes(path.front()->odes, init, time_to_goal(path.front(), boxes), boxes);
+    }
+    // reachability depth > 0
+    box sol_box;
+    box init_box = init;
+    capd::interval cur_mode_time(0);
+    capd::interval prev_mode_time(0);
+    for(size_t i = 0; i < path.size() - 1; i++)
+    {
+        pdrh::mode *cur_mode = path.at(i);
+        pdrh::mode *next_mode = path.at(i + 1);
+        // solving the odes here
+        if(cur_mode->id == next_mode->id)
+        {
+            capd::interval time = ap::get_sample_rate(cur_mode) - prev_mode_time;
+            sol_box = solve_odes(cur_mode->odes, init_box, time, boxes);
+            cur_mode_time += time;
+            prev_mode_time = capd::interval(0);
+        }
+        else
+        {
+            capd::interval time = ap::get_meal_time(cur_mode, boxes) - cur_mode_time;
+            sol_box = solve_odes(cur_mode->odes, init_box, time, boxes);
+            cur_mode_time = capd::interval(0);
+            prev_mode_time = time;
+        }
+        cout << "Mode = " << cur_mode->id << ". Depth = " << i << ". Solution box: " << sol_box << endl;
+
+        // resetting the initial state for the next mode
+        map<string, pdrh::node*> reset_map = cur_mode->get_jump(next_mode->id).reset;
+        map<string, capd::interval> init_map;
+        for (auto it = reset_map.begin(); it != reset_map.end(); it++)
+        {
+            init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, sol_box)));
+        }
+        init_box = box(init_map);
+    }
+    // the last (goal flow) flow is here
+    return solve_odes(path.back()->odes, init_box, time_to_goal(path.back(), boxes) - cur_mode_time, boxes);
 }
 
 

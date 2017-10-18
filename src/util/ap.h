@@ -60,7 +60,10 @@ namespace ap
     bool accept_path(vector<pdrh::mode*>, vector<box>);
 
     box init_to_box();
-    box solve_odes(map<string, pdrh::node*>, box, capd::interval);
+    box solve_odes(map<string, pdrh::node*>, box, capd::interval, vector<box>);
+
+    box simulate_path(vector<pdrh::mode*>, box, vector<box>);
+
 
 }
 

@@ -92,7 +92,7 @@
 #define x3_init 0.0268115942028984
 
 #define t_sleep 540
-#define tau_sample 60
+#define tau_sample 10
 
 // breakfast
 #define DG1 80

@@ -53,6 +53,7 @@ vector<box> box_factory::partition(box b, double e)
     for(auto it = edges.cbegin(); it != edges.cend(); it++)
     {
         e_map.insert(make_pair(it->first, capd::interval(e)));
+        //e_map.insert(make_pair(it->first, e * capd::intervals::width(it->second)));
     }
     // main algorithm
     vector<box> q = {b};
@@ -62,7 +63,7 @@ vector<box> box_factory::partition(box b, double e)
         box tmp_b = q.front();
         q.erase(q.cbegin());
         vector<box> tmp_v = bisect(tmp_b, e_map);
-        if(tmp_v.empty())
+        if(tmp_v.size() <= 1)
         {
             res.push_back(tmp_b);
         }

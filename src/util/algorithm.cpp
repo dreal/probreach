@@ -16,11 +16,16 @@
 #include <omp.h>
 #include <solver/isat_wrapper.h>
 #include "rnd.h"
+#include "ap.h"
 
+using namespace std;
 
 int algorithm::evaluate_ha(int min_depth, int max_depth)
 {
-    std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
+    //vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
+    vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
+
+
     //return decision_procedure::evaluate_time_first(paths, {}, global_config.solver_opt);
     return decision_procedure::evaluate(paths, {}, global_config.solver_opt);
 

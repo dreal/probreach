@@ -5,6 +5,7 @@
 #include "ap.h"
 #include "pdrh_config.h"
 #include "model.h"
+#include "box_factory.h"
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
 
@@ -302,10 +303,20 @@ int ap::jumps_per_mode(pdrh::mode *m, vector<box> boxes)
 
 int ap::jumps_per_mode(pdrh::mode *cur_mode, pdrh::mode *prev_mode, vector<box> boxes)
 {
-    capd::interval sample_rate_prev_mode = ap::get_sample_rate(prev_mode);
-    capd::interval meal_time_prev_mode = ap::get_meal_time(prev_mode, boxes);
-    capd::interval left_over(fmod(meal_time_prev_mode.leftBound(), sample_rate_prev_mode.leftBound()),
-                             fmod(meal_time_prev_mode.rightBound(), sample_rate_prev_mode.rightBound()));
+    capd::interval left_over;
+    // checking if there is previous mode
+    if(prev_mode->id > 0)
+    {
+        capd::interval sample_rate_prev_mode = ap::get_sample_rate(prev_mode);
+        capd::interval meal_time_prev_mode = ap::get_meal_time(prev_mode, boxes);
+        left_over = capd::interval(fmod(meal_time_prev_mode.leftBound(), sample_rate_prev_mode.leftBound()),
+                fmod(meal_time_prev_mode.rightBound(), sample_rate_prev_mode.rightBound()));
+    }
+    else
+    {
+        left_over = capd::interval(0);
+    }
+
     capd::interval sample_rate_cur_mode = ap::get_sample_rate(cur_mode);
     for(pdrh::state st : pdrh::goal)
     {
@@ -418,9 +429,9 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
 
     // creating an ODE solver and setting precision
     capd::IMap vectorField(var_string + fun_string);
-    capd::IOdeSolver solver(vectorField, 32);
-    solver.setAbsoluteTolerance(1e-16);
-    solver.setRelativeTolerance(1e-16);
+    capd::IOdeSolver solver(vectorField, 20);
+//    solver.setAbsoluteTolerance(1e-6);
+//    solver.setRelativeTolerance(1e-6);
     capd::ITimeMap timeMap(solver);
 
     //setting parameter values
@@ -481,6 +492,7 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
     box init_box = init;
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
+    int branch_num = 0;
     for(size_t i = 0; i < path.size() - 1; i++)
     {
         pdrh::mode *cur_mode = path.at(i);
@@ -500,7 +512,22 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
             cur_mode_time = capd::interval(0);
             prev_mode_time = time;
         }
-        cout << "Mode = " << cur_mode->id << ". Depth = " << i << ". Solution box: " << sol_box << endl;
+        cout << "Mode = " << cur_mode->id << ". Depth = " << i << endl;
+        cout << sol_box << endl;
+
+        vector<box> part_sol_box = box_factory::partition(sol_box, 1e-3);
+        if(part_sol_box.size() > 1)
+        {
+            cout << "Solution box is too big. Obtained " << part_sol_box.size() << " boxes: " << endl;
+//            for(box b : part_sol_box)
+//            {
+//                cout << b << endl;
+//            }
+            branch_num++;
+        }
+        // using only the first box here
+        sol_box = part_sol_box.front();
+        cout << "Number of branchings so far: " << branch_num << endl;
 
         // resetting the initial state for the next mode
         map<string, pdrh::node*> reset_map = cur_mode->get_jump(next_mode->id).reset;
@@ -516,6 +543,59 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
 }
 
 
+
+vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
+{
+    // getting list of shortest paths
+    vector<vector<pdrh::mode*>> paths;
+    vector<vector<pdrh::mode*>> res;
+    for(pdrh::state i : pdrh::init)
+    {
+        for(pdrh::state g : pdrh::goal)
+        {
+            vector<pdrh::mode*> path = pdrh::get_shortest_path(pdrh::get_mode(i.id), pdrh::get_mode(g.id));
+            if(path.size() > 0)
+            {
+                if(path.size() == 1)
+                {
+                    res.push_back(path);
+                }
+                else
+                {
+                    paths.push_back(path);
+                }
+            }
+        }
+    }
+    // inserting self-loops in each path
+    for(vector<pdrh::mode*> path : paths)
+    {
+        vector<pdrh::mode*> new_path;
+        pdrh::mode* prev_mode = new pdrh::mode;
+        prev_mode->id = 0;
+        for(size_t i = 0; i < path.size(); i++)
+        {
+            pdrh::mode* cur_mode = path[i];
+            int num_jumps;
+            if(i < path.size() - 1)
+            {
+                num_jumps = ap::jumps_per_mode(cur_mode, prev_mode, boxes);
+            }
+            else
+            {
+                num_jumps = ap::jumps_per_mode(cur_mode, boxes);
+            }
+            for(int j = 0; j < num_jumps; j++)
+            {
+                new_path.push_back(cur_mode);
+            }
+            prev_mode = cur_mode;
+        }
+        new_path.push_back(path[path.size()-1]);
+        res.push_back(new_path);
+    }
+    return res;
+}
 
 
 

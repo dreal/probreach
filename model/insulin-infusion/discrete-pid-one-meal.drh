@@ -92,7 +92,7 @@
 #define x3_init 0.0268115942028984
 
 #define t_sleep 540
-#define tau_sample 10
+#define tau_sample 5
 
 // breakfast
 #define DG1 80
@@ -317,11 +317,7 @@ goal:
 //@1(tau = tau_sample - 0.00000001);
 //@2(tau = tau_meal_2);
 @3(tau = tau_meal_3);
-
-
-//@1((or (u < 0) 
-//	(and (G <= G_lower_unsafe) (G >= G_lower_unsafe))
-//	(and (G <= G_upper_unsafe) (G >= G_upper_unsafe))));
+//@3(tau = 1440 - tau_meal_1 - tau_meal_2);
 
 
 //paths:

@@ -376,21 +376,40 @@ box ap::init_to_box()
     map<string, capd::interval> b_map;
     vector<capd::interval> b_interval = {   capd::interval("-4.390166457000773e-35","-4.390166457000703e-35"),
                                             capd::interval("4.626459344146126e-08","4.626459344146168e-08"),
-                                            capd::interval("0.03351449275362304","0.03351449275362305"),
-                                            capd::interval("97.77777777777776","97.77777777777777"),
-                                            capd::interval("97.77777777777776","97.77777777777777"),
+                                            capd::interval("0.03351449275362305","0.03351449275362305"),
+                                            capd::interval("97.77777777777777","97.77777777777777"),
+                                            capd::interval("97.77777777777777","97.77777777777777"),
                                             capd::interval("19.08024296516837","19.08024296516837"),
                                             capd::interval("3.0525","3.0525"),
                                             capd::interval("3.0525","3.0525"),
                                             capd::interval("0","0"),
-                                            capd::interval("-2.368475785867001e-16","2.368475785867001e-16"),
-                                            capd::interval("-1.4210854715202e-14","1.4210854715202e-14"),
-                                            capd::interval("-8.526512829121202e-13","8.526512829121202e-13"),
-                                            capd::interval("97.77777777777776","97.77777777777777"),
+                                            capd::interval("0","0"),
+                                            capd::interval("0","0"),
+                                            capd::interval("0","0"),
+                                            capd::interval("97.77777777777777","97.77777777777777"),
                                             capd::interval("0","0"),
                                             capd::interval("0.01899154566043506","0.01899154566043506"),
                                             capd::interval("0.03128019323671478","0.03128019323671478"),
                                             capd::interval("0.0268115942028984","0.0268115942028984")};
+
+//    vector<capd::interval> b_interval = {   capd::interval(-4.390166457000773e-35),
+//                                            capd::interval(4.626459344146126e-08),
+//                                            capd::interval(0.03351449275362305),
+//                                            capd::interval(97.77777777777777),
+//                                            capd::interval(97.77777777777777),
+//                                            capd::interval(19.08024296516837),
+//                                            capd::interval(3.0525),
+//                                            capd::interval(3.0525),
+//                                            capd::interval(0),
+//                                            capd::interval(0),
+//                                            capd::interval(0),
+//                                            capd::interval(0),
+//                                            capd::interval(97.77777777777777),
+//                                            capd::interval(0),
+//                                            capd::interval(0.01899154566043506),
+//                                            capd::interval(0.03128019323671478),
+//                                            capd::interval(0.0268115942028984)};
+
     int i = 0;
     for(auto it = pdrh::modes.front().odes.begin(); it != pdrh::modes.front().odes.end(); it++)
     {
@@ -430,8 +449,8 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     // creating an ODE solver and setting precision
     capd::IMap vectorField(var_string + fun_string);
     capd::IOdeSolver solver(vectorField, 20);
-//    solver.setAbsoluteTolerance(1e-6);
-//    solver.setRelativeTolerance(1e-6);
+    solver.setAbsoluteTolerance(1e-12);
+    solver.setRelativeTolerance(1e-12);
     capd::ITimeMap timeMap(solver);
 
     //setting parameter values
@@ -490,6 +509,11 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
     // reachability depth > 0
     box sol_box;
     box init_box = init;
+    cout << "Init box:" << endl;
+    cout << init_box << endl;
+    cout << "------" << endl;
+//    int dummy;
+//    cin >> dummy;
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
     int branch_num = 0;
@@ -515,19 +539,18 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
         cout << "Mode = " << cur_mode->id << ". Depth = " << i << endl;
         cout << sol_box << endl;
 
-        vector<box> part_sol_box = box_factory::partition(sol_box, 1e-3);
-        if(part_sol_box.size() > 1)
-        {
-            cout << "Solution box is too big. Obtained " << part_sol_box.size() << " boxes: " << endl;
-//            for(box b : part_sol_box)
-//            {
-//                cout << b << endl;
-//            }
-            branch_num++;
-        }
-        // using only the first box here
-        sol_box = part_sol_box.front();
-        cout << "Number of branchings so far: " << branch_num << endl;
+        vector<box> part_sol_box = box_factory::bisect(sol_box, {"Q1"});
+//        cout << "There are " << part_sol_box.size() << " boxes after partitioning" << endl;
+//        cout << "Boxes after partitioning" << endl;
+//        for(box b : part_sol_box)
+//        {
+//            cout << b << endl;
+//            cout << "----------" << endl;
+//        }
+        sol_box = part_sol_box.at(abs(1 - (i % 2)));
+
+//        int dummy;
+//        cin >> dummy;
 
         // resetting the initial state for the next mode
         map<string, pdrh::node*> reset_map = cur_mode->get_jump(next_mode->id).reset;

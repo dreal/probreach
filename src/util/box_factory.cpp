@@ -53,7 +53,6 @@ vector<box> box_factory::partition(box b, double e)
     for(auto it = edges.cbegin(); it != edges.cend(); it++)
     {
         e_map.insert(make_pair(it->first, capd::interval(e)));
-        //e_map.insert(make_pair(it->first, e * capd::intervals::width(it->second)));
     }
     // main algorithm
     vector<box> q = {b};
@@ -120,6 +119,38 @@ vector<box> box_factory::partition(box b, map<string, capd::interval> e_map)
         }
     }
     return res;
+}
+
+/**
+ * Dividing the box in all n dimensions producing 2^n boxes of the same size
+ */
+std::vector<box> box_factory::bisect(box b, vector<string> vars, double prec)
+{
+    std::map<std::string, capd::interval> e;
+    std::map<std::string, capd::interval> m = b.get_map();
+    for(auto it = m.cbegin(); it != m.cend(); it++)
+    {
+        if(find(vars.begin(), vars.end(), it->first) != vars.end())
+        {
+            e.insert(make_pair(it->first, capd::interval(prec)));
+        }
+        else
+        {
+            e.insert(make_pair(it->first, capd::intervals::width(it->second)));
+        }
+
+    }
+
+    return box_factory::bisect(b,e);
+}
+
+
+/**
+ * Dividing the box in all n dimensions producing 2^n boxes of the same size
+ */
+std::vector<box> box_factory::bisect(box b, vector<string> vars)
+{
+    return bisect(b, vars, 0);
 }
 
 /**

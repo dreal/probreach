@@ -1,0 +1,8 @@
+2017-11-03 13:50:07,673 INFO  [config] OK
+2017-11-03 13:50:07,673 INFO  [parser] Model file: discrete-pid-one-meal.drh
+2017-11-03 13:50:07,696 INFO  [parser] OK
+2017-11-03 13:50:07,696 INFO  [parser] Model type: 0
+2017-11-03 13:50:07,696 INFO  [parser] Primary solver: dReal
+2017-11-03 13:50:07,696 INFO  [parser] Secondary solver: dReal
+2017-11-03 13:50:07,696 INFO  [algorithm] Path: 1  (length 0)
+unsat

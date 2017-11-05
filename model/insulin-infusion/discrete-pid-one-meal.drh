@@ -316,9 +316,8 @@ goal:
 
 //@1(tau = tau_sample - 0.00000001);
 //@2(tau = tau_meal_2);
-@3(tau = tau_meal_3);
-//@3(tau = 1440 - tau_meal_1 - tau_meal_2);
-
+//@3(tau = tau_meal_3);
+@3(tau = tau_meal_3 + t_sleep);
 
 //paths:
 //1,1,1,1,1,1,1,1,1,1;

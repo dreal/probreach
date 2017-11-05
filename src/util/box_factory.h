@@ -21,6 +21,8 @@ namespace box_factory
     vector<box> partition(box, int);
     vector<box> bisect(box, map<string, capd::interval>);
     vector<box> bisect(box, map<string, pdrh::node*>);
+    vector<box> bisect(box, vector<string>, double);
+    vector<box> bisect(box, vector<string>);
     vector<box> merge(std::vector<box>);
     box merge(box, box);
     box get_mean(vector<box>);

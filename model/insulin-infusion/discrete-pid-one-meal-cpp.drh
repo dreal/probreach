@@ -1,0 +1,125 @@
+[0,1e6] x1;
+[0,1e6] x2;
+[0,1e6] x3;
+[0,1e6] I;
+[0,1e6] S1;
+[0,1e6] S2;
+[0,1e6] Q1;
+[0,1e6] Q2;
+[0,1e6] r;
+[-1e9,1e9] e_int_dis;
+[-1e9,1e9] e_der_dis;
+[-1e9,1e9] e_dis;
+[0,1e6] Q1_prev;
+[-1e6,1e6] FQ1_hyper_int;
+[-1e6,1e6] FQ1_hypo_int;
+[0,1440] tau;
+[0,5] counter;
+{
+mode 1;
+time:
+[0,5];
+flow:
+d/dt[e_int_dis] = 0;
+d/dt[e_der_dis] = 0;
+d/dt[e_dis] = 0;
+d/dt[Q1_prev] = 0;
+d/dt[FQ1_hyper_int] = - exp((Q1 - 256)/2);
+d/dt[FQ1_hypo_int] = exp((64 - Q1)/2);
+d/dt[r] = 0;
+d/dt[Q1]= (-(0.0097 * 100) - x1 * Q1 + 0.066 * Q2 - 0 + (0.0161 * 100) * (1 - x3) + (80/180.1559)*1000*0.8*tau*exp(-tau/40)/(40^2));
+d/dt[Q2]= x1 * Q1 - (0.066 + x2) * Q2;
+d/dt[S1]= -5.42e-4*e_dis + -6.24e-2*e_der_dis + -7.55e-7*e_int_dis + 5.5500000000000001e-02 - S1 / 55;
+d/dt[S2]= (S1 - S2) / 55;
+d/dt[I]= S2 / (55 * (0.12 * 100)) - 0.138 * I;
+d/dt[x1]= - 0.006 * x1 + 0.0034 * I;
+d/dt[x2]= - 0.06 * x2 + 0.056 * I;
+d/dt[x3]= - 0.03 * x3 + 0.024 * I;
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+jump:
+(counter = 5) ==> @1 (and (counter' = 0) (e_int_dis' = e_int_dis + 5 * (r - Q1))
+         (Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / 5)
+         (e_dis' = r - Q1));
+(tau = 317) ==> @2 (and (counter' = counter) (e_int_dis' = e_int_dis + 5 * (r - Q1))
+         (Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / 5)
+         (e_dis' = r - Q1)(tau' = 0));
+}
+{
+mode 2;
+time:
+[0,5];
+flow:
+d/dt[e_int_dis] = 0;
+d/dt[e_der_dis] = 0;
+d/dt[e_dis] = 0;
+d/dt[Q1_prev] = 0;
+d/dt[FQ1_hyper_int] = - exp((Q1 - 256)/2);
+d/dt[FQ1_hypo_int] = exp((64 - Q1)/2);
+d/dt[r] = 0;
+d/dt[Q1]= (-(0.0097 * 100) - x1 * Q1 + 0.066 * Q2 - 0 + (0.0161 * 100) * (1 - x3) + (80/180.1559)*1000*0.8*tau*exp(-tau/40)/(40^2));
+d/dt[Q2]= x1 * Q1 - (0.066 + x2) * Q2;
+d/dt[S1]= -5.42e-4*e_dis + -6.24e-2*e_der_dis + -7.55e-7*e_int_dis + 5.5500000000000001e-02 - S1 / 55;
+d/dt[S2]= (S1 - S2) / 55;
+d/dt[I]= S2 / (55 * (0.12 * 100)) - 0.138 * I;
+d/dt[x1]= - 0.006 * x1 + 0.0034 * I;
+d/dt[x2]= - 0.06 * x2 + 0.056 * I;
+d/dt[x3]= - 0.03 * x3 + 0.024 * I;
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+jump:
+(counter = 5) ==> @2 (and (counter' = 0) (e_int_dis' = e_int_dis + 5 * (r - Q1))
+         (Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / 5)
+         (e_dis' = r - Q1));
+(tau = 257) ==> @3 (and (counter' = counter) (e_int_dis' = e_int_dis + 5 * (r - Q1))
+         (Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / 5)
+         (e_dis' = r - Q1)(tau' = 0));
+}
+{
+mode 3;
+time:
+[0,5];
+flow:
+d/dt[e_int_dis] = 0;
+d/dt[e_der_dis] = 0;
+d/dt[e_dis] = 0;
+d/dt[Q1_prev] = 0;
+d/dt[FQ1_hyper_int] = - exp((Q1 - 256)/2);
+d/dt[FQ1_hypo_int] = exp((64 - Q1)/2);
+d/dt[r] = 0;
+d/dt[Q1]= (-(0.0097 * 100) - x1 * Q1 + 0.066 * Q2 - 0 + (0.0161 * 100) * (1 - x3) + (80/180.1559)*1000*0.8*tau*exp(-tau/40)/(40^2));
+d/dt[Q2]= x1 * Q1 - (0.066 + x2) * Q2;
+d/dt[S1]= -5.42e-4*e_dis + -6.24e-2*e_der_dis + -7.55e-7*e_int_dis + 5.5500000000000001e-02 - S1 / 55;
+d/dt[S2]= (S1 - S2) / 55;
+d/dt[I]= S2 / (55 * (0.12 * 100)) - 0.138 * I;
+d/dt[x1]= - 0.006 * x1 + 0.0034 * I;
+d/dt[x2]= - 0.06 * x2 + 0.056 * I;
+d/dt[x3]= - 0.03 * x3 + 0.024 * I;
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+jump:
+(counter = 5) ==> @3 (and (counter' = 0) (e_int_dis' = e_int_dis + 5 * (r - Q1))
+         (Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / 5)
+         (e_dis' = r - Q1));
+}
+init:
+@1(and (I = 0.03351449275362304)
+  (x1 = 0.01899154566043506)
+  (x2 = 0.03128019323671478)
+  (x3 = 0.0268115942028984)
+  (S1 = 3.0525)
+  (S2 = 3.0525)
+  (Q1 = (110 * (0.16 * 100)) / 18)
+  (Q2 = 19.08024296516837)
+  (tau = 0.0)
+  (r = (110 * (0.16 * 100)) / 18)
+  (counter = 0)
+  (e_int_dis = 5 * (r - (110 * (0.16 * 100)) / 18))
+  (Q1_prev = (110 * (0.16 * 100)) / 18)
+  (e_der_dis = (Q1_prev - Q1) / 5)
+  (e_dis = r - Q1)
+  (FQ1_hyper_int = - exp((Q1 - 256)/2))
+  (FQ1_hypo_int = exp((64 - Q1)/2))
+  );
+goal:
+@3(tau = 289)

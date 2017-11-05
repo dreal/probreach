@@ -71,29 +71,29 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
     //int first_res = decision_procedure::evaluate_delta_sat(path, boxes, solver_opt);
     //int first_res = decision_procedure::evaluate_flow_by_flow(path, boxes, global_config.solver_bin, solver_opt);
     box sol_box = ap::simulate_path(path, ap::init_to_box(), boxes);
-    cout << "Solution box: " << endl;
-    cout << sol_box << endl;
-    int first_res = decision_procedure::result::SAT;
+//    cout << "Solution box: " << endl;
+//    cout << sol_box << endl;
+    return decision_procedure::result::SAT;
 
-    if(first_res == decision_procedure::result::UNSAT)
-    {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-        return decision_procedure::result::UNSAT;
-    }
-    else if(first_res == decision_procedure::result::SAT)
-    {
-        int second_res = decision_procedure::evaluate_complement(path, boxes, solver_opt);
-        if(second_res == decision_procedure::result::UNSAT)
-        {
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-            return decision_procedure::result::SAT;
-        }
-        else if(second_res == decision_procedure::result::SAT)
-        {
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-            return decision_procedure::result::UNDET;
-        }
-    }
+//    if(first_res == decision_procedure::result::UNSAT)
+//    {
+//        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+//        return decision_procedure::result::UNSAT;
+//    }
+//    else if(first_res == decision_procedure::result::SAT)
+//    {
+//        int second_res = decision_procedure::evaluate_complement(path, boxes, solver_opt);
+//        if(second_res == decision_procedure::result::UNSAT)
+//        {
+//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+//            return decision_procedure::result::SAT;
+//        }
+//        else if(second_res == decision_procedure::result::SAT)
+//        {
+//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+//            return decision_procedure::result::UNDET;
+//        }
+//    }
 }
 
 // used for parameter set synthesis

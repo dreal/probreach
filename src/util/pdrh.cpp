@@ -1922,6 +1922,10 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr, box b)
         map<string, capd::interval> b_map = b.get_map();
         if(b_map.find(expr->value) == b_map.end())
         {
+//            istringstream iss(expr->value);
+//            double bound;
+//            iss >> bound;
+//            return capd::interval(bound);
             return capd::interval(expr->value, expr->value);
         }
         else

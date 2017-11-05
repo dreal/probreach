@@ -473,3 +473,17 @@ bool box_factory::intersect(capd::interval lhs, capd::interval rhs)
     return lhs.contains(rhs.leftBound()) || lhs.contains(rhs.rightBound()) ||
             rhs.contains(lhs.leftBound()) || rhs.contains(lhs.rightBound());
 }
+
+box box_factory::box_hull(vector<box> boxes)
+{
+    map<string, capd::interval> res_map = boxes.front().get_map();
+    for(int i = 1; i < boxes.size(); i++)
+    {
+        map<string, capd::interval> b_map = boxes.at(i).get_map();
+        for(auto it = res_map.begin(); it != res_map.end(); it++)
+        {
+            res_map[it->first] = capd::intervals::intervalHull(res_map[it->first], b_map[it->first]);
+        }
+    }
+    return box(res_map);
+}

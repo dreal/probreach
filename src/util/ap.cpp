@@ -504,11 +504,11 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
     // reachability depth == 0
     if(path.size() == 1)
     {
-        return solve_odes(path.front()->odes, init, time_to_goal(path.front(), boxes), boxes);
+        return {solve_odes(path.front()->odes, init, time_to_goal(path.front(), boxes), boxes)};
     }
     // reachability depth > 0
-    box sol_box;
-    box init_box = init;
+    vector<box> sol_box;
+    vector<box> init_box = {init};
     cout << "Init box:" << endl;
     cout << init_box << endl;
     cout << "------" << endl;
@@ -517,29 +517,45 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
     int branch_num = 0;
-    for(size_t i = 0; i < path.size() - 1; i++)
+    int window_size = 11;
+    for(size_t j = 0; j < path.size() - 1; j = j + window_size)
     {
-        pdrh::mode *cur_mode = path.at(i);
-        pdrh::mode *next_mode = path.at(i + 1);
-        // solving the odes here
-        if(cur_mode->id == next_mode->id)
+        for(size_t i = j; (i < j + window_size) && (i < path.size() - 1); i++)
         {
-            capd::interval time = ap::get_sample_rate(cur_mode) - prev_mode_time;
-            sol_box = solve_odes(cur_mode->odes, init_box, time, boxes);
-            cur_mode_time += time;
-            prev_mode_time = capd::interval(0);
-        }
-        else
-        {
-            capd::interval time = ap::get_meal_time(cur_mode, boxes) - cur_mode_time;
-            sol_box = solve_odes(cur_mode->odes, init_box, time, boxes);
-            cur_mode_time = capd::interval(0);
-            prev_mode_time = time;
-        }
-        cout << "Mode = " << cur_mode->id << ". Depth = " << i << endl;
-        cout << sol_box << endl;
-
-        vector<box> part_sol_box = box_factory::bisect(sol_box, {"Q1"});
+            pdrh::mode *cur_mode = path.at(i);
+            pdrh::mode *next_mode = path.at(i + 1);
+            // solving the odes here
+            if(cur_mode->id == next_mode->id)
+            {
+                capd::interval time = ap::get_sample_rate(cur_mode) - prev_mode_time;
+                for(size_t k = 0; k < init_box.size(); k++)
+                {
+                    sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
+                }
+                cur_mode_time += time;
+                prev_mode_time = capd::interval(0);
+            }
+            else
+            {
+                capd::interval time = ap::get_meal_time(cur_mode, boxes) - cur_mode_time;
+                for(size_t k = 0; k < init_box.size(); k++)
+                {
+                    sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
+                }
+                cur_mode_time = capd::interval(0);
+                prev_mode_time = time;
+            }
+            cout << "Mode = " << cur_mode->id << ". Depth = " << i << endl;
+            cout << "Solution boxes hull:" << endl;
+            cout << box_factory::box_hull(sol_box) << endl;
+            vector<box> part_sol_box;
+            for(box b : sol_box)
+            {
+//            cout << j << ")" << endl;
+//            cout << b << endl;
+                vector<box> part_boxes = box_factory::bisect(b, {"Q1"});
+                part_sol_box.insert(part_sol_box.end(), part_boxes.begin(), part_boxes.end());
+            }
 //        cout << "There are " << part_sol_box.size() << " boxes after partitioning" << endl;
 //        cout << "Boxes after partitioning" << endl;
 //        for(box b : part_sol_box)
@@ -547,22 +563,37 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
 //            cout << b << endl;
 //            cout << "----------" << endl;
 //        }
-        sol_box = part_sol_box.at(abs(1 - (i % 2)));
+            //sol_box = part_sol_box.back();
 
 //        int dummy;
 //        cin >> dummy;
 
-        // resetting the initial state for the next mode
-        map<string, pdrh::node*> reset_map = cur_mode->get_jump(next_mode->id).reset;
-        map<string, capd::interval> init_map;
-        for (auto it = reset_map.begin(); it != reset_map.end(); it++)
-        {
-            init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, sol_box)));
+            // resetting the initial state for the next mode
+            init_box.clear();
+            map<string, pdrh::node*> reset_map = cur_mode->get_jump(next_mode->id).reset;
+            for(box b : part_sol_box)
+            {
+                map<string, capd::interval> init_map;
+                for (auto it = reset_map.begin(); it != reset_map.end(); it++)
+                {
+                    init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, b)));
+                }
+                init_box.push_back(box(init_map));
+            }
+            // clear solution boxes
+            sol_box.clear();
+            part_sol_box.clear();
         }
-        init_box = box(init_map);
+        init_box = { box_factory::box_hull(init_box) };
     }
+
     // the last (goal flow) flow is here
-    return solve_odes(path.back()->odes, init_box, time_to_goal(path.back(), boxes) - cur_mode_time, boxes);
+    for(size_t k = 0; k < init_box.size(); k++)
+    {
+        // cout << "Going through box " << b << endl;
+        sol_box.push_back(solve_odes(path.back()->odes, init_box.at(k), time_to_goal(path.back(), boxes) - cur_mode_time, boxes));
+    }
+    return box_factory::box_hull(sol_box);
 }
 
 

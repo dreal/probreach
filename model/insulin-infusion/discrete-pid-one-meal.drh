@@ -145,6 +145,11 @@ time:
 
 [0,tau_sample];
 
+invt:
+
+(G >= G_lower_unsafe);
+(G <= G_upper_unsafe);
+
 flow:
 
 //error
@@ -197,6 +202,11 @@ time:
 
 [0,tau_sample];
 
+invt:
+
+(G >= G_lower_unsafe);
+(G <= G_upper_unsafe);
+
 flow:
 
 //error
@@ -248,6 +258,11 @@ mode 3;
 time:
 
 [0,tau_sample];
+
+invt:
+
+(G >= G_lower_unsafe);
+(G <= G_upper_unsafe);
 
 flow:
 

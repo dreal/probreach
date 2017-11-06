@@ -8,6 +8,8 @@
 #include "box_factory.h"
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
+#include "generators/smt2_generator.h"
+#include "decision_procedure.h"
 
 pdrh::type ap::model_type;
 pair<pdrh::node*, pdrh::node*> ap::time;
@@ -517,17 +519,42 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
     int branch_num = 0;
-    int window_size = 11;
+    int window_size = 4;
+    size_t sat_num = 0;
+    size_t unsat_num = 0;
+    size_t undet_num = 0;
     for(size_t j = 0; j < path.size() - 1; j = j + window_size)
     {
         for(size_t i = j; (i < j + window_size) && (i < path.size() - 1); i++)
         {
             pdrh::mode *cur_mode = path.at(i);
             pdrh::mode *next_mode = path.at(i + 1);
-            // solving the odes here
+
+            // solving odes and invariants check
             if(cur_mode->id == next_mode->id)
             {
                 capd::interval time = ap::get_sample_rate(cur_mode) - prev_mode_time;
+                // checking the invariants
+                cout << "Checking invariants: ";
+                switch(decision_procedure::check_invariants(cur_mode, time, box_factory::box_hull(init_box), global_config.solver_bin, global_config.solver_opt))
+                {
+                    case decision_procedure::SAT:
+                        cout << "SAT" << endl;
+                        sat_num++;
+                        break;
+
+                    case decision_procedure::UNDET:
+                        cout << "UNDET" << endl;
+                        undet_num++;
+                        break;
+
+                    case decision_procedure::UNSAT:
+                        cout << "UNSAT" << endl;
+                        unsat_num++;
+                        break;
+                }
+                // solving odes
+                cout << "Computing solution for mode = " << cur_mode->id << " @ depth = " << i << endl;
                 for(size_t k = 0; k < init_box.size(); k++)
                 {
                     sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
@@ -538,6 +565,27 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
             else
             {
                 capd::interval time = ap::get_meal_time(cur_mode, boxes) - cur_mode_time;
+                // checking the invariants
+                cout << "Checking invariants: ";
+                switch(decision_procedure::check_invariants(cur_mode, time, box_factory::box_hull(init_box), global_config.solver_bin, global_config.solver_opt))
+                {
+                    case decision_procedure::SAT:
+                        cout << "SAT" << endl;
+                        sat_num++;
+                        break;
+
+                    case decision_procedure::UNDET:
+                        cout << "UNDET" << endl;
+                        undet_num++;
+                        break;
+
+                    case decision_procedure::UNSAT:
+                        cout << "UNSAT" << endl;
+                        unsat_num++;
+                        break;
+                }
+                // solving odes
+                cout << "Computing solution for mode = " << cur_mode->id << " @ depth = " << i << endl;
                 for(size_t k = 0; k < init_box.size(); k++)
                 {
                     sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
@@ -545,7 +593,6 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
                 cur_mode_time = capd::interval(0);
                 prev_mode_time = time;
             }
-            cout << "Mode = " << cur_mode->id << ". Depth = " << i << endl;
             cout << "Solution boxes hull:" << endl;
             cout << box_factory::box_hull(sol_box) << endl;
             vector<box> part_sol_box;
@@ -555,6 +602,12 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
 //            cout << b << endl;
                 vector<box> part_boxes = box_factory::bisect(b, {"Q1"});
                 part_sol_box.insert(part_sol_box.end(), part_boxes.begin(), part_boxes.end());
+            }
+            cout << "Statistics: SAT = " << sat_num << "; UNSAT = " << unsat_num << "; UNDET = " << undet_num << ";" << endl;
+            cout << "----------" << endl;
+            if(unsat_num >= 10)
+            {
+                exit(EXIT_FAILURE);
             }
 //        cout << "There are " << part_sol_box.size() << " boxes after partitioning" << endl;
 //        cout << "Boxes after partitioning" << endl;

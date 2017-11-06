@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <logging/easylogging++.h>
 #include <omp.h>
+#include <util/generators/smt2_generator.h>
 #include "decision_procedure.h"
 #include "solver/dreal_wrapper.h"
 #include "pdrh_config.h"
@@ -727,3 +728,71 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
 {
     return decision_procedure::evaluate_complement(path, boxes, global_config.solver_bin, solver_opt);
 }
+
+
+int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box init, string solver_bin, string solver_opt)
+{
+    // default value for the thread number
+    int thread_num = 0;
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
+    // getting raw filename here
+    std::string filename = std::string(global_config.model_filename);
+    size_t ext_index = filename.find_last_of('.');
+    std::string raw_filename = filename.substr(0, ext_index);
+    // creating a name for the smt2 file
+    std::stringstream f_stream;
+    int res;
+    std::ofstream smt_file;
+    std::string smt_filename;
+
+    // Complement formula
+    f_stream.str("");
+    f_stream << raw_filename << "_0_0_" << thread_num << "_c.smt2";
+    smt_filename = f_stream.str();
+
+    smt_file.open(smt_filename.c_str());
+    // will work for one initial and one state only
+    smt_file << smt2_generator::generate_flow_invt_check_c(m, time, init);
+    smt_file.close();
+
+    // calling dreal here
+    // solver_opt.append(" --model");
+    res = dreal::execute(solver_bin, smt_filename, solver_opt);
+    // removing all generated files
+    std::remove(smt_filename.c_str());
+    std::remove(std::string(smt_filename + ".output").c_str());
+    std::remove(std::string(smt_filename + ".model").c_str());
+    // the result is unsat. Thus, no need for the second formula
+    if(res == 1)
+    {
+        return decision_procedure::SAT;
+    }
+
+    // Exists for all formula
+    f_stream.str("");
+    f_stream << raw_filename << "_0_0_" << thread_num << ".smt2";
+    smt_filename = f_stream.str();
+
+    smt_file.open(smt_filename.c_str());
+    // will work for one initial and one state only
+    smt_file << smt2_generator::generate_flow_invt_check(m, time, init);
+    smt_file.close();
+
+    // calling dreal here
+    // solver_opt.append(" --model");
+    res = dreal::execute(solver_bin, smt_filename, solver_opt);
+    // removing all generated files
+    std::remove(smt_filename.c_str());
+    std::remove(std::string(smt_filename + ".output").c_str());
+    std::remove(std::string(smt_filename + ".model").c_str());
+    // the result is unsat. Thus, no need for the second formula
+    if(res == 1)
+    {
+        return decision_procedure::UNSAT;
+    }
+
+    return decision_procedure::UNDET;
+}
+

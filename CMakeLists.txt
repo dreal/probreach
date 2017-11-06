@@ -126,12 +126,16 @@ include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 
 # Building ProbReach
 # putting all source files together
-file(GLOB PROBREACH_SRC   ${PROBREACH_SOURCE_DIR}/util/*.cpp
+file(GLOB PROBREACH_SRC
+        ${PROBREACH_SOURCE_DIR}/util/*.cpp
+        ${PROBREACH_SOURCE_DIR}/util/generators/*.cpp
         ${PROBREACH_SOURCE_DIR}/parser/csv/*.cpp
         ${PROBREACH_SOURCE_DIR}/parser/output/*.cpp
         ${PROBREACH_SOURCE_DIR}/solver/*.cpp)
 
-file(GLOB PROBREACH_INCLUDE   ${PROBREACH_SOURCE_DIR}/util/*.h
+file(GLOB PROBREACH_INCLUDE
+        ${PROBREACH_SOURCE_DIR}/util/*.h
+        ${PROBREACH_SOURCE_DIR}/util/generators/*.h
         ${PROBREACH_SOURCE_DIR}/parser/csv/*.h
         ${PROBREACH_SOURCE_DIR}/parser/output/*.h
         ${PROBREACH_SOURCE_DIR}/solver/*.h)
@@ -154,7 +158,7 @@ set(PDRH2SMT_SRC
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/smt2_generator.cpp
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/isat_generator.cpp
         ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.cpp
-        ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp)
+        ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp src/util/generators/smt2_generator.cpp src/util/generators/smt2_generator.h)
 
 set(PDRH2SMT_INCLUDE
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.h

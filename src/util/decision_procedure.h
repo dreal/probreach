@@ -38,6 +38,11 @@ namespace decision_procedure
     // evaluating all paths
     int evaluate(vector<vector<pdrh::mode*>>, vector<box>, string);
 
+    // first argument contains the odes to compute and the invariants to check
+    // second arguments is the time horizon for ode integration
+    // third argument is the interval initial condition for the ode system
+    int check_invariants(pdrh::mode*, capd::interval, box, string, string);
+
 }
 
 #endif //PROBREACH_DECISION_PROCEDURE_H

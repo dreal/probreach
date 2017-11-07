@@ -58,17 +58,9 @@
 
 // administration (bolus and infusion) of insulin (Hovorka 2004)
 
-//dist_uniform(300,480) tau_meal; // [min] time to the next meal (Fedor 2017)
-//dist_normal(300,5) tau_meal; // [min] time to the next meal (Fedor 2017)
-
-//#define G_lower 7.36148
-//#define G_upper 8.1472
 
 #define u Kp*e_dis + Kd*e_der_dis + Ki*e_int_dis + u_basal
 
-
-
-//[5.4e-02,5.7e-02] u_basal; // basal insulin infusion rate (Fedor 2017)
 #define u_basal 5.5500000000000001e-02 // basal insulin infusion rate (Fedor 2017)
 
 
@@ -92,19 +84,19 @@
 #define x3_init 0.0268115942028984
 
 #define t_sleep 540
-#define tau_sample 60
+#define tau_sample 5
 
 // breakfast
-#define DG1 80
+dist_normal(40, 10) DG1;
 dist_normal(300, 10) tau_meal_1;
 
 
 // lunch
-#define DG2 80
+dist_normal(90, 10) DG2;
 dist_normal(300, 10) tau_meal_2;
 
 // dinner
-#define DG3 80
+dist_normal(70, 10) DG3
 dist_normal(300, 10) tau_meal_3;
 
 #define Q1_lower 64
@@ -130,7 +122,6 @@ dist_normal(300, 10) tau_meal_3;
 
 [-1e6,1e6] FQ1_hyper_int;
 [-1e6,1e6] FQ1_hypo_int;
-//[60] tau_sample;
 
 
 [0,1440] tau;
@@ -312,18 +303,18 @@ init:
 		(x3 = x3_init) 
 		(S1 = S1_init) 
 		(S2 = S2_init) 
-		(Q1 = Q1_init) 
+		(Q1 = Q1_init)
 		(Q2 = Q2_init) 
 		(tau = 0.0) 
-		(r = Q1_SP) 
+		(r = Q1_init) 
+		(Q1_prev = Q1_init)
 		(counter = 0) 
 		(DG = DG1) 
-		(e_int_dis = tau_sample * (r - Q1_init))
-		(Q1_prev = Q1_init)
-		(e_der_dis = (Q1_prev - Q1) / tau_sample)
-		(e_dis = r - Q1)
-		(FQ1_hyper_int = - exp((Q1 - Q1_upper)/2))
-		(FQ1_hypo_int = exp((Q1_lower - Q1)/2))
+		(e_int_dis = 0)
+		(e_der_dis = 0)
+		(e_dis = 0)
+		(FQ1_hyper_int = - exp((Q1_init - Q1_upper)/2))
+		(FQ1_hypo_int = exp((Q1_lower - Q1_init)/2))
 		);
 
 goal:

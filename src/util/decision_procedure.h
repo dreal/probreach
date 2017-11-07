@@ -41,7 +41,7 @@ namespace decision_procedure
     // first argument contains the odes to compute and the invariants to check
     // second arguments is the time horizon for ode integration
     // third argument is the interval initial condition for the ode system
-    int check_invariants(pdrh::mode*, capd::interval, box, string, string);
+    int check_invariants(pdrh::mode*, capd::interval, box, vector<box>, string, string);
 
 }
 

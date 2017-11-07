@@ -1915,23 +1915,19 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
 
 // throws exception in case if one of the terminal modes is not a number
 // evaluates the value of arithmetic expression
-capd::interval pdrh::node_to_interval(pdrh::node *expr, box b)
+capd::interval pdrh::node_to_interval(pdrh::node *expr, vector<box> boxes)
 {
     if(expr->operands.size() == 0)
     {
-        map<string, capd::interval> b_map = b.get_map();
-        if(b_map.find(expr->value) == b_map.end())
+        for(box b : boxes)
         {
-//            istringstream iss(expr->value);
-//            double bound;
-//            iss >> bound;
-//            return capd::interval(bound);
-            return capd::interval(expr->value, expr->value);
+            map<string, capd::interval> b_map = b.get_map();
+            if(b_map.find(expr->value) != b_map.end())
+            {
+                return b_map[expr->value];
+            }
         }
-        else
-        {
-            return b_map[expr->value];
-        }
+        return capd::interval(expr->value, expr->value);
     }
     else if(expr->operands.size() > 2)
     {
@@ -1948,75 +1944,75 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr, box b)
         {
             if(expr->operands.size() == 1)
             {
-                return pdrh::node_to_interval(expr->operands.front(), b);
+                return pdrh::node_to_interval(expr->operands.front(), boxes);
             }
             else if(expr->operands.size() == 2)
             {
-                return pdrh::node_to_interval(expr->operands.front(), b) + pdrh::node_to_interval(expr->operands.back(), b);
+                return pdrh::node_to_interval(expr->operands.front(), boxes) + pdrh::node_to_interval(expr->operands.back(), boxes);
             }
         }
         else if(strcmp(expr->value.c_str(), "-") == 0)
         {
             if(expr->operands.size() == 1)
             {
-                return capd::interval(-1.0) * pdrh::node_to_interval(expr->operands.front(), b);
+                return capd::interval(-1.0) * pdrh::node_to_interval(expr->operands.front(), boxes);
             }
             else if(expr->operands.size() == 2)
             {
-                return pdrh::node_to_interval(expr->operands.front(), b) - pdrh::node_to_interval(expr->operands.back(), b);
+                return pdrh::node_to_interval(expr->operands.front(), boxes) - pdrh::node_to_interval(expr->operands.back(), boxes);
             }
         }
         else if(strcmp(expr->value.c_str(), "*") == 0)
         {
-            return pdrh::node_to_interval(expr->operands.front(), b) * pdrh::node_to_interval(expr->operands.back(), b);
+            return pdrh::node_to_interval(expr->operands.front(), boxes) * pdrh::node_to_interval(expr->operands.back(), boxes);
         }
         else if(strcmp(expr->value.c_str(), "/") == 0)
         {
-            return pdrh::node_to_interval(expr->operands.front(), b) / pdrh::node_to_interval(expr->operands.back(), b);
+            return pdrh::node_to_interval(expr->operands.front(), boxes) / pdrh::node_to_interval(expr->operands.back(), boxes);
         }
         else if(strcmp(expr->value.c_str(), "^") == 0)
         {
-            return capd::intervals::power(pdrh::node_to_interval(expr->operands.front(), b), pdrh::node_to_interval(expr->operands.back(), b));
+            return capd::intervals::power(pdrh::node_to_interval(expr->operands.front(), boxes), pdrh::node_to_interval(expr->operands.back(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "sqrt") == 0)
         {
-            return capd::intervals::sqrt(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::sqrt(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "abs") == 0)
         {
-            return capd::intervals::iabs(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::iabs(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "exp") == 0)
         {
-            return capd::intervals::exp(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::exp(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "log") == 0)
         {
-            return capd::intervals::log(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::log(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "sin") == 0)
         {
-            return capd::intervals::sin(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::sin(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "cos") == 0)
         {
-            return capd::intervals::cos(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::cos(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "tan") == 0)
         {
-            return capd::intervals::tan(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::tan(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "asin") == 0)
         {
-            return capd::intervals::asin(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::asin(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "acos") == 0)
         {
-            return capd::intervals::acos(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::acos(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "atan") == 0)
         {
-            return capd::intervals::atan(pdrh::node_to_interval(expr->operands.front(), b));
+            return capd::intervals::atan(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else
         {
@@ -2032,7 +2028,7 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr, box b)
 // evaluates the value of arithmetic expression
 capd::interval pdrh::node_to_interval(pdrh::node *expr)
 {
-    return pdrh::node_to_interval(expr, box());
+    return pdrh::node_to_interval(expr, {box()});
 }
 
 

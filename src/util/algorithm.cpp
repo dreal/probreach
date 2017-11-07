@@ -25,7 +25,6 @@ int algorithm::evaluate_ha(int min_depth, int max_depth)
     //vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
     vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
 
-
     //return decision_procedure::evaluate_time_first(paths, {}, global_config.solver_opt);
     return decision_procedure::evaluate(paths, {}, global_config.solver_opt);
 
@@ -869,7 +868,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     double post_prob = 0;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm started";
     // getting set of all paths
-    std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
+    //std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
     #pragma omp parallel
     while (post_prob < conf)
     {
@@ -888,6 +887,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         if (global_config.solver_type == solver::type::DREAL)
         {
             // evaluating all paths
+            vector<vector<pdrh::mode *>> paths = ap::get_all_paths(boxes);
             int res = decision_procedure::evaluate(paths, boxes, "");
             #pragma omp critical
             {
@@ -948,8 +948,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
                 post_prob = gsl_cdf_beta_P(post_mean_unsat + acc, sample_size - unsat + alpha, unsat + beta)
                             - gsl_cdf_beta_P(0, sat + alpha, sample_size - sat + beta);
             }
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(post_mean_sat - acc,
-                                                                                          post_mean_unsat + acc);
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(max(post_mean_sat - acc, 0.0), min(post_mean_unsat + acc, 1.0));
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(SAT) mean: " << post_mean_sat;
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(UNSAT) mean: " << post_mean_unsat;
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample size: " << sample_size;
@@ -960,7 +959,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     // displaying sample size if enabled
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Random sample size: " << sample_size;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm finished";
-    return capd::interval(post_mean_sat - acc, post_mean_unsat + acc);
+    return capd::interval(max(post_mean_sat - acc, 0.0), min(post_mean_unsat + acc, 1.0));
 }
 
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf) {

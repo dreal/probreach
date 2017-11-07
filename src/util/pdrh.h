@@ -64,7 +64,7 @@ namespace pdrh
         }
 
     };
-    node* push_terminal_node(string);
+    node* push_terminal_node(std::string);
     node* push_operation_node(string, vector<node*>);
     node* copy_node(node*);
     void copy_tree(node*&, node*);
@@ -75,7 +75,7 @@ namespace pdrh
     string node_to_string_prefix(node*);
     string node_to_string_infix(node*);
     capd::interval node_to_interval(node*);
-    capd::interval node_to_interval(node*, box);
+    capd::interval node_to_interval(node*, vector<box>);
     string node_fix_index(node*, int, string);
     bool is_node_empty(node*);
     pdrh::node* box_to_node(box);

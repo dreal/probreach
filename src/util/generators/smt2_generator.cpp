@@ -8,7 +8,7 @@ using namespace std;
 using namespace capd;
 using namespace pdrh;
 
-std::string smt2_generator::generate_flow_invt_check(mode *m , interval time, box init)
+std::string smt2_generator::generate_flow_invt_check(mode *m , interval time, box init, vector<box> boxes)
 {
     stringstream s;
     s.precision(16);
@@ -28,10 +28,23 @@ std::string smt2_generator::generate_flow_invt_check(mode *m , interval time, bo
             s << "(assert (>= " << it->first << "_0_0 " << node_to_string_prefix(it->second.first) << "))" << endl;
             s << "(assert (>= " << it->first << "_0_t " << node_to_string_prefix(it->second.first) << "))" << endl;
         }
-        if(it->second.first->value != "infty")
+        if(it->second.second->value != "infty")
         {
             s << "(assert (<= " << it->first << "_0_0 " << node_to_string_prefix(it->second.second) << "))" << endl;
             s << "(assert (<= " << it->first << "_0_t " << node_to_string_prefix(it->second.second) << "))" << endl;
+        }
+    }
+
+    // setting the values for the provided samples
+    for(box b : boxes)
+    {
+        std::map<string, interval> b_map = b.get_map();
+        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        {
+            s << "(assert (>= " << it->first << "_0_0 " << it->second.leftBound() << "))" << endl;
+            s << "(assert (>= " << it->first << "_0_t " << it->second.leftBound() << "))" << endl;
+            s << "(assert (<= " << it->first << "_0_0 " << it->second.rightBound() << "))" << endl;
+            s << "(assert (<= " << it->first << "_0_t " << it->second.rightBound() << "))" << endl;
         }
     }
 
@@ -104,7 +117,7 @@ std::string smt2_generator::generate_flow_invt_check(mode *m , interval time, bo
 
 
 
-std::string smt2_generator::generate_flow_invt_check_c(mode *m , interval time, box init)
+std::string smt2_generator::generate_flow_invt_check_c(mode *m , interval time, box init, vector<box> boxes)
 {
     stringstream s;
     s.precision(16);
@@ -124,7 +137,7 @@ std::string smt2_generator::generate_flow_invt_check_c(mode *m , interval time, 
             s << "(assert (>= " << it->first << "_0_0 " << node_to_string_prefix(it->second.first) << "))" << endl;
             s << "(assert (>= " << it->first << "_0_t " << node_to_string_prefix(it->second.first) << "))" << endl;
         }
-        if(it->second.first->value != "infty")
+        if(it->second.second->value != "infty")
         {
             s << "(assert (<= " << it->first << "_0_0 " << node_to_string_prefix(it->second.second) << "))" << endl;
             s << "(assert (<= " << it->first << "_0_t " << node_to_string_prefix(it->second.second) << "))" << endl;

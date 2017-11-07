@@ -8,6 +8,7 @@
 #include "box_factory.h"
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
+#include <logging/easylogging++.h>
 #include "generators/smt2_generator.h"
 #include "decision_procedure.h"
 
@@ -228,7 +229,7 @@ capd::interval ap::get_sample_rate(pdrh::mode* m)
     return capd::interval(0.0);
 }
 
-
+// using only the fron box here !!!
 capd::interval ap::get_meal_time(pdrh::node *n, vector<box> boxes)
 {
     pdrh::node *node_copy = new pdrh::node();
@@ -243,31 +244,11 @@ capd::interval ap::get_meal_time(pdrh::node *n, vector<box> boxes)
         {
             if(time_node->operands.front()->value == "tau")
             {
-                for(box b : boxes)
-                {
-                    for(auto it = b.get_map().begin(); it != b.get_map().end(); it++)
-                    {
-                        if(it->first == time_node->operands.back()->value)
-                        {
-                            return it->second;
-                        }
-                    }
-                }
-                return pdrh::node_to_interval(time_node->operands.back());
+                return pdrh::node_to_interval(time_node->operands.back(), boxes);
             }
             if(time_node->operands.back()->value == "tau")
             {
-                for(box b : boxes)
-                {
-                    for(auto it = b.get_map().begin(); it != b.get_map().end(); it++)
-                    {
-                        if(it->first == time_node->operands.front()->value)
-                        {
-                            return it->second;
-                        }
-                    }
-                }
-                return pdrh::node_to_interval(time_node->operands.front());
+                return pdrh::node_to_interval(time_node->operands.front(), boxes);
             }
         }
     }
@@ -372,51 +353,39 @@ bool ap::accept_path(vector<pdrh::mode *> path, vector<box> boxes)
     return true;
 }
 
-
-box ap::init_to_box()
+// only the first initial state is taken
+box ap::init_to_box(vector<box> boxes)
 {
-    map<string, capd::interval> b_map;
-    vector<capd::interval> b_interval = {   capd::interval("-4.390166457000773e-35","-4.390166457000703e-35"),
-                                            capd::interval("4.626459344146126e-08","4.626459344146168e-08"),
-                                            capd::interval("0.03351449275362305","0.03351449275362305"),
-                                            capd::interval("97.77777777777777","97.77777777777777"),
-                                            capd::interval("97.77777777777777","97.77777777777777"),
-                                            capd::interval("19.08024296516837","19.08024296516837"),
-                                            capd::interval("3.0525","3.0525"),
-                                            capd::interval("3.0525","3.0525"),
-                                            capd::interval("0","0"),
-                                            capd::interval("0","0"),
-                                            capd::interval("0","0"),
-                                            capd::interval("0","0"),
-                                            capd::interval("97.77777777777777","97.77777777777777"),
-                                            capd::interval("0","0"),
-                                            capd::interval("0.01899154566043506","0.01899154566043506"),
-                                            capd::interval("0.03128019323671478","0.03128019323671478"),
-                                            capd::interval("0.0268115942028984","0.0268115942028984")};
-
-//    vector<capd::interval> b_interval = {   capd::interval(-4.390166457000773e-35),
-//                                            capd::interval(4.626459344146126e-08),
-//                                            capd::interval(0.03351449275362305),
-//                                            capd::interval(97.77777777777777),
-//                                            capd::interval(97.77777777777777),
-//                                            capd::interval(19.08024296516837),
-//                                            capd::interval(3.0525),
-//                                            capd::interval(3.0525),
-//                                            capd::interval(0),
-//                                            capd::interval(0),
-//                                            capd::interval(0),
-//                                            capd::interval(0),
-//                                            capd::interval(97.77777777777777),
-//                                            capd::interval(0),
-//                                            capd::interval(0.01899154566043506),
-//                                            capd::interval(0.03128019323671478),
-//                                            capd::interval(0.0268115942028984)};
-
-    int i = 0;
-    for(auto it = pdrh::modes.front().odes.begin(); it != pdrh::modes.front().odes.end(); it++)
+    pdrh::node *init_node = pdrh::init.front().prop;
+    if(init_node->value != "and")
     {
-        b_map.insert(make_pair(it->first, b_interval.at(i)));
-        i++;
+        cerr << "Invalid initial state format: " << pdrh::init.front() << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    map<string, capd::interval> b_map;
+    for(pdrh::node *n : init_node->operands)
+    {
+        if(n->value != "=")
+        {
+            cerr << "Invalid assignment in the initial state: " << pdrh::node_to_string_infix(n) << endl;
+            exit(EXIT_FAILURE);
+        }
+
+        if((pdrh::var_map.find(n->operands.front()->value) != pdrh::var_map.end()) ||
+            (pdrh::par_map.find(n->operands.front()->value) != pdrh::par_map.end()) ||
+            (pdrh::rv_map.find(n->operands.front()->value) != pdrh::rv_map.end()) ||
+            (pdrh::dd_map.find(n->operands.front()->value) != pdrh::dd_map.end()))
+        {
+            b_map.insert(make_pair(n->operands.front()->value, pdrh::node_to_interval(n->operands.back(), boxes)));
+        }
+        else if((pdrh::var_map.find(n->operands.back()->value) != pdrh::var_map.end()) ||
+                (pdrh::par_map.find(n->operands.back()->value) != pdrh::par_map.end()) ||
+                (pdrh::rv_map.find(n->operands.back()->value) != pdrh::rv_map.end()) ||
+                (pdrh::dd_map.find(n->operands.back()->value) != pdrh::dd_map.end()))
+        {
+            b_map.insert(make_pair(n->operands.back()->value, pdrh::node_to_interval(n->operands.front(), boxes)));
+        }
     }
     return box(b_map);
 }
@@ -426,24 +395,31 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
 {
     // creating capd string here
     // declaring parameters
-    string par_string = "par:";
-    for(box b : boxes)
-    {
-        map<string, capd::interval> b_map = b.get_map();
-        for(auto it = b_map.begin(); it != b_map.end(); it++)
-        {
-            par_string += it->first + ',';
-        }
-    }
-    par_string.back() = ';';
+//    string par_string = "par:";
+//    for(box b : boxes)
+//    {
+//        map<string, capd::interval> b_map = b.get_map();
+//        for(auto it = b_map.begin(); it != b_map.end(); it++)
+//        {
+//            par_string += it->first + ',';
+//        }
+//    }
+//    par_string.back() = ';';
 
     // declaring variables
     string var_string = "var:";
     string fun_string = "fun:";
+    int odes_size = 0;
     for(auto it = odes.begin(); it != odes.end(); it++)
     {
-        var_string += it->first + ',';
-        fun_string += pdrh::node_to_string_infix(it->second) + ',';
+        if((pdrh::par_map.find(it->first) == pdrh::par_map.end()) &&
+            (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
+            (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
+        {
+            var_string += it->first + ',';
+            fun_string += pdrh::node_to_string_infix(it->second) + ',';
+            odes_size++;
+        }
     }
     var_string.back() = ';';
     fun_string.back() = ';';
@@ -456,17 +432,17 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     capd::ITimeMap timeMap(solver);
 
     //setting parameter values
-    for(box b : boxes)
-    {
-        map<string, capd::interval> b_map = b.get_map();
-        for(auto it = b_map.begin(); it != b_map.end(); it++)
-        {
-            vectorField.setParameter(it->first, it->second);
-        }
-    }
+//    for(box b : boxes)
+//    {
+//        map<string, capd::interval> b_map = b.get_map();
+//        for(auto it = b_map.begin(); it != b_map.end(); it++)
+//        {
+//            vectorField.setParameter(it->first, it->second);
+//        }
+//    }
 
     // setting initial condition here
-    capd::IVector c(odes.size());
+    capd::IVector c(odes_size);
     map<string, capd::interval> init_map = init.get_map();
     int i = 0;
     for(auto it = init_map.begin(); it != init_map.end(); it++)
@@ -482,8 +458,13 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     i = 0;
     for(auto it = odes.begin(); it != odes.end(); it++)
     {
-        res_map.insert(make_pair(it->first, result[i]));
-        i++;
+        if((pdrh::par_map.find(it->first) == pdrh::par_map.end()) &&
+           (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
+           (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
+        {
+            res_map.insert(make_pair(it->first, result[i]));
+            i++;
+        }
     }
     return box(res_map);
 }
@@ -501,125 +482,83 @@ capd::interval time_to_goal(pdrh::mode *m, vector<box> boxes)
 }
 
 
-box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
+pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
 {
     // reachability depth == 0
     if(path.size() == 1)
     {
-        return {solve_odes(path.front()->odes, init, time_to_goal(path.front(), boxes), boxes)};
+        return {decision_procedure::check_invariants(path.front(), time_to_goal(path.front(), boxes), init, boxes, global_config.solver_bin, global_config.solver_opt),
+                solve_odes(path.front()->odes, init, time_to_goal(path.front(), boxes), boxes)};
     }
     // reachability depth > 0
     vector<box> sol_box;
     vector<box> init_box = {init};
-    cout << "Init box:" << endl;
-    cout << init_box << endl;
-    cout << "------" << endl;
+
+//    cout << "Init box:" << endl;
+//    cout << init_box << endl;
+//    cout << "------" << endl;
 //    int dummy;
 //    cin >> dummy;
+
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
-    int branch_num = 0;
-    int window_size = 4;
-    size_t sat_num = 0;
-    size_t unsat_num = 0;
-    size_t undet_num = 0;
+    int window_size = 6;
+    //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Window size: " << window_size;
+//    size_t sat_num = 0;
+//    size_t unsat_num = 0;
+//    size_t undet_num = 0;
+
+    // going through all modes in the path
     for(size_t j = 0; j < path.size() - 1; j = j + window_size)
     {
+        // applying the window of size window_size
         for(size_t i = j; (i < j + window_size) && (i < path.size() - 1); i++)
         {
             pdrh::mode *cur_mode = path.at(i);
             pdrh::mode *next_mode = path.at(i + 1);
+            capd::interval time;
 
             // solving odes and invariants check
             if(cur_mode->id == next_mode->id)
             {
-                capd::interval time = ap::get_sample_rate(cur_mode) - prev_mode_time;
-                // checking the invariants
-                cout << "Checking invariants: ";
-                switch(decision_procedure::check_invariants(cur_mode, time, box_factory::box_hull(init_box), global_config.solver_bin, global_config.solver_opt))
-                {
-                    case decision_procedure::SAT:
-                        cout << "SAT" << endl;
-                        sat_num++;
-                        break;
-
-                    case decision_procedure::UNDET:
-                        cout << "UNDET" << endl;
-                        undet_num++;
-                        break;
-
-                    case decision_procedure::UNSAT:
-                        cout << "UNSAT" << endl;
-                        unsat_num++;
-                        break;
-                }
-                // solving odes
-                cout << "Computing solution for mode = " << cur_mode->id << " @ depth = " << i << endl;
-                for(size_t k = 0; k < init_box.size(); k++)
-                {
-                    sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
-                }
+                time = ap::get_sample_rate(cur_mode) - prev_mode_time;
                 cur_mode_time += time;
                 prev_mode_time = capd::interval(0);
             }
             else
             {
-                capd::interval time = ap::get_meal_time(cur_mode, boxes) - cur_mode_time;
-                // checking the invariants
-                cout << "Checking invariants: ";
-                switch(decision_procedure::check_invariants(cur_mode, time, box_factory::box_hull(init_box), global_config.solver_bin, global_config.solver_opt))
-                {
-                    case decision_procedure::SAT:
-                        cout << "SAT" << endl;
-                        sat_num++;
-                        break;
-
-                    case decision_procedure::UNDET:
-                        cout << "UNDET" << endl;
-                        undet_num++;
-                        break;
-
-                    case decision_procedure::UNSAT:
-                        cout << "UNSAT" << endl;
-                        unsat_num++;
-                        break;
-                }
-                // solving odes
-                cout << "Computing solution for mode = " << cur_mode->id << " @ depth = " << i << endl;
-                for(size_t k = 0; k < init_box.size(); k++)
-                {
-                    sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
-                }
+                time = ap::get_meal_time(cur_mode, boxes) - cur_mode_time;
                 cur_mode_time = capd::interval(0);
                 prev_mode_time = time;
             }
-            cout << "Solution boxes hull:" << endl;
-            cout << box_factory::box_hull(sol_box) << endl;
+            // checking the invariants
+            box init_box_hull = box_factory::box_hull(init_box);
+            int invt_check = decision_procedure::check_invariants(cur_mode, time, init_box_hull, boxes, global_config.solver_bin, global_config.solver_opt);
+            switch(invt_check)
+            {
+                case decision_procedure::UNDET:
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is UNDET in mode " << cur_mode->id << " @ depth=" << i;
+                    return make_pair(decision_procedure::UNDET, init_box_hull);
+
+                case decision_procedure::UNSAT:
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is UNSAT in mode " << cur_mode->id << " @ depth=" << i;
+                    return make_pair(decision_procedure::UNSAT, init_box_hull);
+            }
+            // solving odes
+            for(size_t k = 0; k < init_box.size(); k++)
+            {
+                sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
+            }
+
+            //cout << "Solution box hull in mode " << cur_mode->id << " at depth = " << i << endl;
+            //cout << box_factory::box_hull(sol_box) << endl;
+
             vector<box> part_sol_box;
             for(box b : sol_box)
             {
-//            cout << j << ")" << endl;
-//            cout << b << endl;
                 vector<box> part_boxes = box_factory::bisect(b, {"Q1"});
                 part_sol_box.insert(part_sol_box.end(), part_boxes.begin(), part_boxes.end());
             }
-            cout << "Statistics: SAT = " << sat_num << "; UNSAT = " << unsat_num << "; UNDET = " << undet_num << ";" << endl;
-            cout << "----------" << endl;
-            if(unsat_num >= 10)
-            {
-                exit(EXIT_FAILURE);
-            }
-//        cout << "There are " << part_sol_box.size() << " boxes after partitioning" << endl;
-//        cout << "Boxes after partitioning" << endl;
-//        for(box b : part_sol_box)
-//        {
-//            cout << b << endl;
-//            cout << "----------" << endl;
-//        }
-            //sol_box = part_sol_box.back();
-
-//        int dummy;
-//        cin >> dummy;
 
             // resetting the initial state for the next mode
             init_box.clear();
@@ -629,7 +568,14 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
                 map<string, capd::interval> init_map;
                 for (auto it = reset_map.begin(); it != reset_map.end(); it++)
                 {
-                    init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, b)));
+                    if((pdrh::par_map.find(it->first) == pdrh::par_map.end()) &&
+                       (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
+                       (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
+                    {
+                        vector<box> reset_boxes = boxes;
+                        reset_boxes.push_back(b);
+                        init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
+                    }
                 }
                 init_box.push_back(box(init_map));
             }
@@ -639,14 +585,26 @@ box ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
         }
         init_box = { box_factory::box_hull(init_box) };
     }
+    // checking the invariants in the last mode
+    box init_box_hull = box_factory::box_hull(init_box);
+    capd::interval time = time_to_goal(path.back(), boxes) - cur_mode_time;
+    int invt_check = decision_procedure::check_invariants(path.back(), time, init_box_hull, boxes, global_config.solver_bin, global_config.solver_opt);
+    switch(invt_check)
+    {
+        case decision_procedure::UNDET:
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is UNDET in mode " << path.back()->id << " at depth=" << path.size() - 1;
+            return make_pair(decision_procedure::UNDET, init_box_hull);
 
-    // the last (goal flow) flow is here
+        case decision_procedure::UNSAT:
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is UNSAT in mode " << path.back()->id << " at depth=" << path.size() - 1;
+            return make_pair(decision_procedure::UNSAT, init_box_hull);
+    }
+    // computing solution for the goal
     for(size_t k = 0; k < init_box.size(); k++)
     {
-        // cout << "Going through box " << b << endl;
-        sol_box.push_back(solve_odes(path.back()->odes, init_box.at(k), time_to_goal(path.back(), boxes) - cur_mode_time, boxes));
+        sol_box.push_back(solve_odes(path.back()->odes, init_box.at(k), time, boxes));
     }
-    return box_factory::box_hull(sol_box);
+    return make_pair(decision_procedure::SAT, box_factory::box_hull(sol_box));
 }
 
 

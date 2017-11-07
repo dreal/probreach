@@ -71,10 +71,11 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
 {
     //int first_res = decision_procedure::evaluate_delta_sat(path, boxes, solver_opt);
     //int first_res = decision_procedure::evaluate_flow_by_flow(path, boxes, global_config.solver_bin, solver_opt);
-    box sol_box = ap::simulate_path(path, ap::init_to_box(), boxes);
-    cout << "Solution boxes: " << endl;
-    cout << sol_box << endl;
-    return decision_procedure::result::SAT;
+    pair<int, box> res = ap::simulate_path(path, ap::init_to_box(boxes), boxes);
+
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << res.second;
+
+    return res.first;
 
 //    if(first_res == decision_procedure::result::UNSAT)
 //    {
@@ -584,7 +585,7 @@ int decision_procedure::evaluate_flow_by_flow(vector<pdrh::mode *> path, vector<
                     map<string, capd::interval> init_map;
                     for (auto it = reset_map.begin(); it != reset_map.end(); it++)
                     {
-                        init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, sol_box)));
+                        init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, {sol_box})));
                     }
                     init = pdrh::state(path.at(i + 1)->id, pdrh::box_to_node(box(init_map)));
                 }
@@ -640,21 +641,18 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
                 s << m->id << " ";
             }
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str() << " (length " << path.size() - 1 << ")";
-            if(ap::accept_path(path, boxes))
+            // evaluating a path here
+            switch (evaluate(path, boxes, solver_opt))
             {
-                // evaluating a path here
-                switch (evaluate(path, boxes, solver_opt))
-                {
-                    case decision_procedure::result::SAT:
-                        return decision_procedure::result::SAT;
+                case decision_procedure::result::SAT:
+                    return decision_procedure::result::SAT;
 
-                    case decision_procedure::result::UNDET:
-                        undet_counter++;
-                        break;
+                case decision_procedure::result::UNDET:
+                    undet_counter++;
+                    break;
 
-                    case decision_procedure::result::UNSAT:
-                        break;
-                }
+                case decision_procedure::result::UNSAT:
+                    break;
             }
         }
         if(undet_counter > 0)
@@ -730,7 +728,7 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
 }
 
 
-int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box init, string solver_bin, string solver_opt)
+int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box init, vector<box> boxes, string solver_bin, string solver_opt)
 {
     // default value for the thread number
     int thread_num = 0;
@@ -754,7 +752,7 @@ int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box
 
     smt_file.open(smt_filename.c_str());
     // will work for one initial and one state only
-    smt_file << smt2_generator::generate_flow_invt_check_c(m, time, init);
+    smt_file << smt2_generator::generate_flow_invt_check_c(m, time, init, boxes);
     smt_file.close();
 
     // calling dreal here
@@ -777,7 +775,7 @@ int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box
 
     smt_file.open(smt_filename.c_str());
     // will work for one initial and one state only
-    smt_file << smt2_generator::generate_flow_invt_check(m, time, init);
+    smt_file << smt2_generator::generate_flow_invt_check(m, time, init, boxes);
     smt_file.close();
 
     // calling dreal here

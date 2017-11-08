@@ -35,7 +35,8 @@ std::string smt2_generator::generate_flow_invt_check(mode *m , interval time, bo
         }
     }
 
-    // setting the values for the provided samples
+    // assigning the values for the provided samples
+    s << "; assigning the values of the sample" << endl;
     for(box b : boxes)
     {
         std::map<string, interval> b_map = b.get_map();
@@ -141,6 +142,20 @@ std::string smt2_generator::generate_flow_invt_check_c(mode *m , interval time, 
         {
             s << "(assert (<= " << it->first << "_0_0 " << node_to_string_prefix(it->second.second) << "))" << endl;
             s << "(assert (<= " << it->first << "_0_t " << node_to_string_prefix(it->second.second) << "))" << endl;
+        }
+    }
+
+    // assigning the values for the provided samples
+    s << "; assigning the values of the sample" << endl;
+    for(box b : boxes)
+    {
+        std::map<string, interval> b_map = b.get_map();
+        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        {
+            s << "(assert (>= " << it->first << "_0_0 " << it->second.leftBound() << "))" << endl;
+            s << "(assert (>= " << it->first << "_0_t " << it->second.leftBound() << "))" << endl;
+            s << "(assert (<= " << it->first << "_0_0 " << it->second.rightBound() << "))" << endl;
+            s << "(assert (<= " << it->first << "_0_t " << it->second.rightBound() << "))" << endl;
         }
     }
 

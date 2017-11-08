@@ -395,16 +395,16 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
 {
     // creating capd string here
     // declaring parameters
-//    string par_string = "par:";
-//    for(box b : boxes)
-//    {
-//        map<string, capd::interval> b_map = b.get_map();
-//        for(auto it = b_map.begin(); it != b_map.end(); it++)
-//        {
-//            par_string += it->first + ',';
-//        }
-//    }
-//    par_string.back() = ';';
+    string par_string = "par:";
+    for(box b : boxes)
+    {
+        map<string, capd::interval> b_map = b.get_map();
+        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        {
+            par_string += it->first + ',';
+        }
+    }
+    par_string.back() = ';';
 
     // declaring variables
     string var_string = "var:";
@@ -424,22 +424,26 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     var_string.back() = ';';
     fun_string.back() = ';';
 
+//    cout << par_string << endl;
+//    cout << var_string << endl;
+//    cout << fun_string << endl;
+
     // creating an ODE solver and setting precision
-    capd::IMap vectorField(var_string + fun_string);
+    capd::IMap vectorField(par_string + var_string + fun_string);
     capd::IOdeSolver solver(vectorField, 20);
     solver.setAbsoluteTolerance(1e-12);
     solver.setRelativeTolerance(1e-12);
     capd::ITimeMap timeMap(solver);
 
     //setting parameter values
-//    for(box b : boxes)
-//    {
-//        map<string, capd::interval> b_map = b.get_map();
-//        for(auto it = b_map.begin(); it != b_map.end(); it++)
-//        {
-//            vectorField.setParameter(it->first, it->second);
-//        }
-//    }
+    for(box b : boxes)
+    {
+        map<string, capd::interval> b_map = b.get_map();
+        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        {
+            vectorField.setParameter(it->first, it->second);
+        }
+    }
 
     // setting initial condition here
     capd::IVector c(odes_size);
@@ -502,7 +506,7 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
 
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
-    int window_size = 6;
+    int window_size = 7;
     //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Window size: " << window_size;
 //    size_t sat_num = 0;
 //    size_t unsat_num = 0;
@@ -550,8 +554,8 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
                 sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
             }
 
-            //cout << "Solution box hull in mode " << cur_mode->id << " at depth = " << i << endl;
-            //cout << box_factory::box_hull(sol_box) << endl;
+//            cout << "Solution box hull in mode " << cur_mode->id << " at depth = " << i << endl;
+//            cout << box_factory::box_hull(sol_box) << endl;
 
             vector<box> part_sol_box;
             for(box b : sol_box)

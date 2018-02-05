@@ -506,7 +506,7 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
 
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
-    int window_size = 7;
+    int window_size = 6;
     //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Window size: " << window_size;
 //    size_t sat_num = 0;
 //    size_t unsat_num = 0;
@@ -537,6 +537,8 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
             }
             // checking the invariants
             box init_box_hull = box_factory::box_hull(init_box);
+            cout << "Init box for depth " << i << endl;
+            cout << init_box_hull << endl;
             int invt_check = decision_procedure::check_invariants(cur_mode, time, init_box_hull, boxes, global_config.solver_bin, global_config.solver_opt);
             switch(invt_check)
             {
@@ -581,6 +583,7 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
                         init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
                     }
                 }
+                // can add random error here
                 init_box.push_back(box(init_map));
             }
             // clear solution boxes

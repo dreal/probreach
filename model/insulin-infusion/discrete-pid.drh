@@ -95,15 +95,15 @@
 #define tau_sample 5
 
 // breakfast
-#define DG1 80
+#define DG1 50
 #define tau_meal_1 317
 
 // lunch
-#define DG2 80
+#define DG2 85
 #define tau_meal_2 257
 
 // dinner
-#define DG3 80
+#define DG3 85
 #define tau_meal_3 289
 
 #define Q1_lower 64
@@ -323,12 +323,12 @@ init:
 		(tau = 0.0) 
 		(r = Q1_SP) 
 		(counter = 0) 
-		(e_int_dis = tau_sample * (r - Q1_init))
+		(e_int_dis = 0)
 		(Q1_prev = Q1_init)
-		(e_der_dis = (Q1_prev - Q1) / tau_sample)
-		(e_dis = r - Q1)
-		(FQ1_hyper_int = - exp((Q1 - Q1_upper)/2))
-		(FQ1_hypo_int = exp((Q1_lower - Q1)/2))
+		(e_der_dis = 0)
+		(e_dis = 0)
+		(FQ1_hyper_int = - exp((Q1_init - Q1_upper)/2))
+		(FQ1_hypo_int = exp((Q1_lower - Q1_init)/2))
 		);
 
 goal:

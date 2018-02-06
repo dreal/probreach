@@ -75,6 +75,12 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
 
     CLOG_IF(global_config.verbose, INFO, "algorithm") << res.second;
 
+    cout << "<<<<<<<<<<<<<<<<<<<<<<" << endl;
+
+    res = ap::simulate_path_discrete(path, ap::init_to_box(boxes), boxes);
+
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << res.second;
+
     return res.first;
 
 //    if(first_res == decision_procedure::result::UNSAT)

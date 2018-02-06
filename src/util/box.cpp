@@ -86,6 +86,20 @@ box::box(std::map<std::string, capd::interval> e)
     this->edges = e;
 }
 
+box::box(vector<box> boxes)
+{
+    std::map<string, capd::interval> edges;
+    for(box b : boxes)
+    {
+        std::map<string, capd::interval> b_map = b.get_map();
+        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        {
+            edges.insert(make_pair(it->first, it->second));
+        }
+    }
+    this->edges = edges;
+}
+
 box::box(string line)
 {
     // removing whitespaces

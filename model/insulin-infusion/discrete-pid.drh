@@ -92,18 +92,18 @@
 #define x3_init 0.0268115942028984
 
 #define t_sleep 540
-#define tau_sample 5
+#define tau_sample 10
 
 // breakfast
 #define DG1 50
 #define tau_meal_1 317
 
 // lunch
-#define DG2 85
+#define DG2 90
 #define tau_meal_2 257
 
 // dinner
-#define DG3 85
+#define DG3 70
 #define tau_meal_3 289
 
 #define Q1_lower 64

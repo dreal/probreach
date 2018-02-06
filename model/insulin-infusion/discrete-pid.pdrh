@@ -64,13 +64,13 @@
 //#define Ki 0
 //#define Kd 0
 
-//#define Kp -5.42e-4
-//#define Ki -7.55e-7
-//#define Kd -6.24e-2
+#define Kp -5.42e-4
+#define Ki -7.55e-7
+#define Kd -6.24e-2
 
-[-1e-3, 0] Kp;
-[-1e-6, 0] Ki;
-[-1e-1, 0] Kd;
+//[-1e-3, 0] Kp;
+//[-1e-6, 0] Ki;
+//[-1e-1, 0] Kd;
 
 #define Q1_SP (110 * VG) / 18
 

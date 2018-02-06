@@ -40,6 +40,8 @@ namespace ap
         extern map<string, pair<pdrh::node*, pdrh::node*>> gamma;
     }
 
+    extern vector<box> unsat_samples;
+
     void copy_model();
     void modify_model();
     void revert_model();
@@ -62,8 +64,11 @@ namespace ap
 
     box init_to_box(vector<box>);
     box solve_odes(map<string, pdrh::node*>, box, capd::interval, vector<box>);
+    box solve_odes_discrete(map<string, pdrh::node*>, box, capd::interval, vector<box>);
+
 
     pair<int, box> simulate_path(vector<pdrh::mode*>, box, vector<box>);
+    pair<int, box> simulate_path_discrete(vector<pdrh::mode*>, box, vector<box>);
 
 
 }

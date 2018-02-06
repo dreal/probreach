@@ -18,6 +18,7 @@ public:
     box();
     box(std::map<std::string, capd::interval>);
     box(string);
+    box(std::vector<box>);
 
     //friend std::ostream& operator<<(std::ostream&, const box &);
     //inline bool operator< (const X& lhs, const X& rhs){ /* do actual comparison */ }

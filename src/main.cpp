@@ -202,6 +202,11 @@ int main(int argc, char* argv[])
                 probability.setRightBound(1);
             }
             std::cout << scientific << probability << " | " << capd::intervals::width(probability) << std::endl;
+            cout << "UNSAT samples:" << endl;
+            for(box b : ap::unsat_samples)
+            {
+                cout << b << endl;
+            }
             break;
         }
         // nondeterministic probabilistic hybrid automata
@@ -254,6 +259,11 @@ int main(int argc, char* argv[])
                                                                                    global_config.sample_size);
                     }
                     std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
+                }
+                cout << "UNSAT samples:" << endl;
+                for(box b : ap::unsat_samples)
+                {
+                    cout << b << endl;
                 }
             }
             else

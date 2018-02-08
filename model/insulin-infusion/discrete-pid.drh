@@ -72,13 +72,13 @@
 #define u_basal 5.5500000000000001e-02 // basal insulin infusion rate (Fedor 2017)
 
 
-//#define Kp 0
-//#define Ki 0
-//#define Kd 0
+#define Kp 0
+#define Ki 0
+#define Kd 0
 
-#define Kp -5.42e-4
-#define Ki -7.55e-7
-#define Kd -6.24e-2
+//#define Kp -5.42e-4
+//#define Ki -7.55e-7
+//#define Kd -6.24e-2
 
 #define Q1_SP (110 * VG) / 18
 
@@ -92,7 +92,7 @@
 #define x3_init 0.0268115942028984
 
 #define t_sleep 540
-#define tau_sample 10
+#define tau_sample 5
 
 // breakfast
 #define DG1 50
@@ -125,6 +125,7 @@
 [-1e9,1e9] e_der_dis; // discrete derivative value
 [-1e9,1e9] e_dis; // discrete error value
 [0,1e6] Q1_prev;
+[0,1e9] obj;
 
 [-1e6,1e6] FQ1_hyper_int;
 [-1e6,1e6] FQ1_hypo_int;
@@ -158,6 +159,7 @@ d/dt[e_int_dis] = 0;
 d/dt[e_der_dis] = 0;
 d/dt[e_dis] = 0;
 d/dt[Q1_prev] = 0;
+d/dt[obj] = 0;
 
 d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
 d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
@@ -186,11 +188,11 @@ jump:
 
 (counter = tau_sample) ==> @1	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1));
+									(e_dis' = r - Q1) (obj' = obj+(r - Q1)*(r - Q1)));
 
 (tau = tau_meal_1) ==> @2	(and 	(counter' = counter) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(tau' = 0));
+									(e_dis' = r - Q1) (obj' = obj+(r - Q1)*(r - Q1)) (tau' = 0));
 
 }
 
@@ -216,6 +218,7 @@ d/dt[e_int_dis] = 0;
 d/dt[e_der_dis] = 0;
 d/dt[e_dis] = 0;
 d/dt[Q1_prev] = 0;
+d/dt[obj] = 0;
 
 
 d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
@@ -245,10 +248,10 @@ jump:
 
 (counter = tau_sample) ==> @2	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1));
+									(e_dis' = r - Q1)(obj' = obj+(r - Q1)*(r - Q1)));
 (tau = tau_meal_2) ==> @3	(and 	(counter' = counter) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(tau' = 0));
+									(e_dis' = r - Q1)(obj' = obj+(r - Q1)*(r - Q1))(tau' = 0));
 
 }
 
@@ -274,6 +277,7 @@ d/dt[e_int_dis] = 0;
 d/dt[e_der_dis] = 0;
 d/dt[e_dis] = 0;
 d/dt[Q1_prev] = 0;
+d/dt[obj] = 0;
 
 
 d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
@@ -303,7 +307,7 @@ jump:
 
 (counter = tau_sample) ==> @3	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1));
+									(e_dis' = r - Q1)(obj' = obj+(r - Q1)*(r - Q1)));
 
 
 }
@@ -327,6 +331,7 @@ init:
 		(Q1_prev = Q1_init)
 		(e_der_dis = 0)
 		(e_dis = 0)
+		(obj = 0)
 		(FQ1_hyper_int = - exp((Q1_init - Q1_upper)/2))
 		(FQ1_hypo_int = exp((Q1_lower - Q1_init)/2))
 		);

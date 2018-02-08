@@ -64,11 +64,15 @@ namespace ap
 
     box init_to_box(vector<box>);
     box solve_odes(map<string, pdrh::node*>, box, capd::interval, vector<box>);
+    box solve_odes_nonrig(map<string, pdrh::node*>, box, capd::interval, vector<box>);
     box solve_odes_discrete(map<string, pdrh::node*>, box, capd::interval, vector<box>);
 
 
+
     pair<int, box> simulate_path(vector<pdrh::mode*>, box, vector<box>);
-    pair<int, box> simulate_path_discrete(vector<pdrh::mode*>, box, vector<box>);
+
+    // The last argument is the list of variables defining the objective function
+    box compute_objective(vector<pdrh::mode*>, box, vector<box>, vector<string>);
 
 
 }

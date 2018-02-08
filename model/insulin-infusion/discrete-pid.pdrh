@@ -64,13 +64,13 @@
 //#define Ki 0
 //#define Kd 0
 
-#define Kp -5.42e-4
-#define Ki -7.55e-7
-#define Kd -6.24e-2
+//#define Kp -5.42e-4
+//#define Ki -7.55e-7
+//#define Kd -6.24e-2
 
-//[-1e-3, 0] Kp;
-//[-1e-6, 0] Ki;
-//[-1e-1, 0] Kd;
+[-1e-3, 0] Kp;
+[-1e-6, 0] Ki;
+[-1e-1, 0] Kd;
 
 #define Q1_SP (110 * VG) / 18
 
@@ -92,7 +92,7 @@
 #define x2_init 0.031272278675025503090977913569509 // approximation of symbolic MATLAB solution (Fedor 2017)
 #define x3_init 0.026804810292879002649409640202436 // approximation of symbolic MATLAB solution (Fedor 2017)
 
-#define tau_sample 5
+#define tau_sample 10
 
 // breakfast
 dist_normal(40, 10) DG1;
@@ -127,6 +127,7 @@ dist_normal(70, 10) DG3;
 [-1e9,1e9] e_der_dis; // discrete derivative value
 [-1e9,1e9] e_dis; // discrete error value
 [0,1e6] Q1_prev;
+[0,1e9] obj;
 
 [-1e6,1e6] FQ1_hyper_int;
 [-1e6,1e6] FQ1_hypo_int;
@@ -158,6 +159,7 @@ d/dt[e_int_dis] = 0;
 d/dt[e_der_dis] = 0;
 d/dt[e_dis] = 0;
 d/dt[Q1_prev] = 0;
+d/dt[obj] = 0;
 
 //performance indices
 d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
@@ -188,11 +190,9 @@ jump:
 
 (counter = tau_sample) ==> @1	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1));
+									(e_dis' = r - Q1)(obj' = obj+(r - Q1)*(r - Q1)));
 
-(tau = tau_meal_1) ==> @2	(and 	(counter' = counter) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
-									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(DG' = DG2)(tau' = 0));
+(tau = tau_meal_1) ==> @2	(and 	(DG' = DG2)(tau' = 0));
 
 }
 
@@ -215,6 +215,7 @@ d/dt[e_int_dis] = 0;
 d/dt[e_der_dis] = 0;
 d/dt[e_dis] = 0;
 d/dt[Q1_prev] = 0;
+d/dt[obj] = 0;
 
 //performance indices
 d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
@@ -245,10 +246,8 @@ jump:
 
 (counter = tau_sample) ==> @2	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1));
-(tau = tau_meal_2) ==> @3	(and 	(counter' = counter) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
-									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(DG' = DG3)(tau' = 0));
+									(e_dis' = r - Q1)(obj' = obj+(r - Q1)*(r - Q1)));
+(tau = tau_meal_2) ==> @3	(and 	(DG' = DG3)(tau' = 0));
 
 }
 
@@ -271,6 +270,7 @@ d/dt[e_int_dis] = 0;
 d/dt[e_der_dis] = 0;
 d/dt[e_dis] = 0;
 d/dt[Q1_prev] = 0;
+d/dt[obj] = 0;
 
 //performance indices
 d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
@@ -301,7 +301,7 @@ jump:
 
 (counter = tau_sample) ==> @3	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1));
+									(e_dis' = r - Q1)(obj' = obj+(r - Q1)*(r - Q1)));
 
 
 }
@@ -325,6 +325,7 @@ init:
 		(e_int_dis = 0.0)
 		(e_der_dis = 0.0)
 		(e_dis = 0.0)
+		(obj = 0)
 		(FQ1_hyper_int = - exp((Q1_init - Q1_upper)/2))
 		(FQ1_hypo_int = exp((Q1_lower - Q1_init)/2))
 		);

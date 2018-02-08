@@ -156,24 +156,27 @@ int main(int argc, char* argv[])
         // hybrid automata
         case pdrh::HA:
         {
-            int res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
-            if (res == decision_procedure::SAT)
-            {
-                std::cout << "sat" << std::endl;
-            }
-            else if (res == decision_procedure::UNDET)
-            {
-                std::cout << "undet" << std::endl;
-            }
-            else if (res == decision_procedure::UNSAT)
-            {
-                std::cout << "unsat" << std::endl;
-            }
-            else if (res == decision_procedure::ERROR)
-            {
-                std::cout << "error" << std::endl;
-                return EXIT_FAILURE;
-            }
+//            int res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
+//            if (res == decision_procedure::SAT)
+//            {
+//                std::cout << "sat" << std::endl;
+//            }
+//            else if (res == decision_procedure::UNDET)
+//            {
+//                std::cout << "undet" << std::endl;
+//            }
+//            else if (res == decision_procedure::UNSAT)
+//            {
+//                std::cout << "unsat" << std::endl;
+//            }
+//            else if (res == decision_procedure::ERROR)
+//            {
+//                std::cout << "error" << std::endl;
+//                return EXIT_FAILURE;
+//            }
+//            break;
+            pair<box, box> res = algorithm::solve_min_max();
+            cout << res.second << " | " << res.first << endl;
             break;
         }
         // probabilistic hybrid automata
@@ -212,68 +215,71 @@ int main(int argc, char* argv[])
         // nondeterministic probabilistic hybrid automata
         case pdrh::NPHA:
         {
-            if(global_config.sobol_flag)
-            {
-                pair<box, capd::interval> probability = algorithm::evaluate_npha_sobol(global_config.reach_depth_min,
-                                                                                       global_config.reach_depth_max,
-                                                                                       global_config.sample_size);
-                std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
-            }
-            else if(global_config.cross_entropy_flag)
-            {
-                // just a temporary fix. come back to it !!!
-                if(pdrh::par_map.empty())
-                {
-                    capd::interval probability;
-                    if(global_config.chernoff_flag)
-                    {
-                        probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
-                    }
-                    else if(global_config.bayesian_flag)
-                    {
-                        probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
-                    }
-                    else if(global_config.qmc_flag)
-                    {
-                        probability = algorithm::evaluate_pha_qmc();
-                    } else
-                    {
-                        cout << "Statistical method is not chosen" << endl;
-                        return EXIT_FAILURE;
-                    }
-                    cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
-                }
-                else
-                {
-                    pair<box, capd::interval> probability;
-                    if(global_config.cross_entropy_normal)
-                    {
-                        probability = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
-                                                                                     global_config.reach_depth_max,
-                                                                                     global_config.sample_size);
-                    }
-                    else if(global_config.cross_entropy_beta)
-                    {
-                        probability = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
-                                                                                   global_config.reach_depth_max,
-                                                                                   global_config.sample_size);
-                    }
-                    std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
-                }
-                cout << "UNSAT samples:" << endl;
-                for(box b : ap::unsat_samples)
-                {
-                    cout << b << endl;
-                }
-            }
-            else
-            {
-                std::map<box, capd::interval> probability_map = algorithm::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
-                for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
-                {
-                    std::cout << scientific << it->first << " | " << it->second << std::endl;
-                }
-            }
+//            if(global_config.sobol_flag)
+//            {
+//                pair<box, capd::interval> probability = algorithm::evaluate_npha_sobol(global_config.reach_depth_min,
+//                                                                                       global_config.reach_depth_max,
+//                                                                                       global_config.sample_size);
+//                std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
+//            }
+//            else if(global_config.cross_entropy_flag)
+//            {
+//                // just a temporary fix. come back to it !!!
+//                if(pdrh::par_map.empty())
+//                {
+//                    capd::interval probability;
+//                    if(global_config.chernoff_flag)
+//                    {
+//                        probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
+//                    }
+//                    else if(global_config.bayesian_flag)
+//                    {
+//                        probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
+//                    }
+//                    else if(global_config.qmc_flag)
+//                    {
+//                        probability = algorithm::evaluate_pha_qmc();
+//                    } else
+//                    {
+//                        cout << "Statistical method is not chosen" << endl;
+//                        return EXIT_FAILURE;
+//                    }
+//                    cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
+//                }
+//                else
+//                {
+//                    pair<box, capd::interval> probability;
+//                    if(global_config.cross_entropy_normal)
+//                    {
+//                        probability = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
+//                                                                                     global_config.reach_depth_max,
+//                                                                                     global_config.sample_size);
+//                    }
+//                    else if(global_config.cross_entropy_beta)
+//                    {
+//                        probability = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
+//                                                                                   global_config.reach_depth_max,
+//                                                                                   global_config.sample_size);
+//                    }
+//                    std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
+//                }
+//                cout << "UNSAT samples:" << endl;
+//                for(box b : ap::unsat_samples)
+//                {
+//                    cout << b << endl;
+//                }
+//            }
+//            else
+//            {
+//                std::map<box, capd::interval> probability_map = algorithm::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
+//                for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
+//                {
+//                    std::cout << scientific << it->first << " | " << it->second << std::endl;
+//                }
+//            }
+//            break;
+            pair<box, box> res = algorithm::solve_min_max();
+            cout << res.second << " | " << res.first << endl;
             break;
         }
         // parameter synthesis

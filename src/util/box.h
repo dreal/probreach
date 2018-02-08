@@ -17,7 +17,7 @@ protected:
 public:
     box();
     box(std::map<std::string, capd::interval>);
-    box(string);
+    box(std::string);
     box(std::vector<box>);
 
     //friend std::ostream& operator<<(std::ostream&, const box &);
@@ -35,6 +35,7 @@ public:
     friend box operator-(const box&, const box&);
     friend box operator*(const box&, const box&);
     friend box operator/(const box&, const box&);
+    friend box operator/(const box&, double);
 
     std::map<std::string, capd::interval> get_map() const;
     std::vector<capd::interval> get_intervals() const;

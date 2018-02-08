@@ -1037,7 +1037,8 @@ pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_
     return res;
 }
 
-pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_depth, int max_depth, int size) {
+pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_depth, int max_depth, int size)
+{
     // random number generator for cross entropy
     const gsl_rng_type *T;
     gsl_rng *r;
@@ -1519,8 +1520,72 @@ capd::interval algorithm::evaluate_pha_qmc() {
     //--------------------------------------------------------------------g
 }
 
+pair<box, box> algorithm::solve_min_max()
+{
+    const gsl_rng_type *T;
+    gsl_rng *r;
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+    // creating random generator
+    r = gsl_rng_alloc(T);
+    // setting the seed
+    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
 
+    // the first element is the value of the objective function
+    // the second element is the values of the nondet parameters
+    map<box, box> objs;
 
+    box nondet_domain = pdrh::get_nondet_domain();
+    //initializing probability value
+    box mean = nondet_domain.get_mean();
+    box sigma = nondet_domain.get_stddev();
+    box var = sigma * sigma;
+
+    box min_obj("obj:[1e6,1e6];");
+    box min_nondet_box;
+
+    unsigned long sample_size = (unsigned long) ceil(global_config.sample_size / measure::get_sample_prob(nondet_domain, mean, sigma).rightBound());
+
+    #pragma omp parallel for
+    for(int i = 0; i < sample_size; i++)
+    {
+        // taking a sample form the nondeterministic parameter space
+        box nondet_box = rnd::get_normal_random_sample(r, mean, sigma);
+        if(nondet_domain.contains(nondet_box))
+        {
+            box obj("obj:[0,0];");
+            for(int j = 0; j < global_config.sample_size; j++)
+            {
+                box random_box = rnd::get_random_sample(r);
+                vector<vector<pdrh::mode *>> paths = ap::get_all_paths({nondet_box, random_box});
+                // computing an objective function over a set of paths as an average value
+                for(vector<pdrh::mode *> path : paths)
+                {
+                    obj = obj + ap::compute_objective(path, ap::init_to_box({nondet_box, random_box}), {nondet_box, random_box}, {"obj"}) / (double) paths.size();
+                }
+            }
+
+            obj = obj / global_config.sample_size;
+
+            # pragma omp critical
+            if(obj < min_obj)
+            {
+                min_obj = obj;
+                min_nondet_box = nondet_box;
+            }
+            //objs.insert(make_pair(obj, nondet_box));
+        }
+    }
+
+//    cout << "Means of the objective function:" << endl;
+//    for(auto it = objs.begin(); it != objs.end(); it++)
+//    {
+//        cout << it->first << " | " << it->second << endl;
+//    }
+
+    gsl_rng_free(r);
+    return make_pair(min_obj, min_nondet_box);
+}
 
 
 

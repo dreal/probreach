@@ -269,6 +269,23 @@ box operator/(const box& lhs, const box& rhs)
     return box(res);
 }
 
+box operator/(const box& lhs, double rhs)
+{
+    if(rhs == 0)
+    {
+        ostringstream s;
+        s << "cannot devide by 0";
+        throw std::invalid_argument(s.str());
+    }
+    map<string, capd::interval> lhs_map = lhs.get_map();
+    map<string, capd::interval> res;
+    for(auto it = lhs_map.cbegin(); it != lhs_map.cend(); it++)
+    {
+        res.insert(make_pair(it->first, it->second / rhs));
+    }
+    return box(res);
+}
+
 dd_box::dd_box(std::map<std::string, capd::interval> e)
 {
     for(auto it = e.cbegin(); it != e.cend(); it++)

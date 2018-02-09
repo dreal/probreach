@@ -162,7 +162,7 @@ d/dt[Q1_prev] = 0;
 d/dt[obj] = 0;
 
 //performance indices
-d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
+d/dt[FQ1_hyper_int] = exp((Q1 - Q1_upper)/2);
 d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
 
 //reference trajectory
@@ -190,7 +190,7 @@ jump:
 
 (counter = tau_sample) ==> @1	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(obj' = obj+(r - Q1)*(r - Q1)));
+									(e_dis' = r - Q1)(obj' = obj + FQ1_hyper_int + FQ1_hypo_int));
 
 (tau = tau_meal_1) ==> @2	(and 	(DG' = DG2)(tau' = 0));
 
@@ -218,7 +218,7 @@ d/dt[Q1_prev] = 0;
 d/dt[obj] = 0;
 
 //performance indices
-d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
+d/dt[FQ1_hyper_int] = exp((Q1 - Q1_upper)/2);
 d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
 
 //reference trajectory
@@ -246,7 +246,7 @@ jump:
 
 (counter = tau_sample) ==> @2	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(obj' = obj+(r - Q1)*(r - Q1)));
+									(e_dis' = r - Q1)(obj' = obj + FQ1_hyper_int + FQ1_hypo_int));
 (tau = tau_meal_2) ==> @3	(and 	(DG' = DG3)(tau' = 0));
 
 }
@@ -273,7 +273,7 @@ d/dt[Q1_prev] = 0;
 d/dt[obj] = 0;
 
 //performance indices
-d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
+d/dt[FQ1_hyper_int] = exp((Q1 - Q1_upper)/2);
 d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
 
 //reference trajectory
@@ -301,7 +301,7 @@ jump:
 
 (counter = tau_sample) ==> @3	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(obj' = obj+(r - Q1)*(r - Q1)));
+									(e_dis' = r - Q1)(obj' = obj + FQ1_hyper_int + FQ1_hypo_int));
 
 
 }

@@ -581,7 +581,7 @@ box ap::solve_odes_discrete(map<string, pdrh::node *> odes, box init, capd::inte
         {
             par_string += it->first + ',';
         }
-        cout << b << endl;
+//        cout << b << endl;
     }
     par_string.back() = ';';
 
@@ -850,12 +850,14 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
             // solving odes
             sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
 
+
             // printing out the solution box
 //            cout << "Solution (DICRETISED) box for depth " << i << endl;
 //            cout << sol << endl;
 //            cout << "===========" << endl;
 
             map<string, pdrh::node*> reset_map = cur_mode->get_jump(next_mode->id).reset;
+
             map<string, capd::interval> init_map;
             vector<box> reset_boxes = boxes;
             reset_boxes.push_back(sol);

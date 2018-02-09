@@ -1573,7 +1573,8 @@ pair<box, box> algorithm::solve_min_max()
                 min_obj = obj;
                 min_nondet_box = nondet_box;
             }
-            //objs.insert(make_pair(obj, nondet_box));
+//            # pragma omp critical
+//            objs.insert(make_pair(obj, nondet_box));
         }
     }
 

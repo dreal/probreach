@@ -818,6 +818,8 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
     capd::interval prev_mode_time(0);
     int window_size = 1;
 
+    box domain = pdrh::get_domain();
+
     // going through all modes in the path
     for(size_t j = 0; j < path.size() - 1; j = j + window_size)
     {
@@ -849,6 +851,30 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
 
             // solving odes
             sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
+            //sol = solve_odes_discrete(cur_mode->odes, init, time, boxes);
+//            #pragma omp critical
+//            {
+//                cout << "====================" << endl;
+//                cout << "Solution of the ODE system: " << sol << endl;
+//                cout << "--------------------" << endl;
+//                cout << "The domain of system variables: " << domain << endl;
+//                cout << "--------------------" << endl;
+//                if(domain.contains(sol))
+//                {
+//                    cout << "The solution is inside the domain" << endl;
+//                }
+//                else
+//                {
+//                    cout << "The solution is outside the domain" << endl;
+//                }
+//                cout << endl;
+//            }
+
+            if(!domain.contains(sol))
+            {
+                return box();
+            }
+
 
 
             // printing out the solution box

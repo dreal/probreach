@@ -87,6 +87,7 @@ int main(int argc, char* argv[])
     //cout << scientific;
     // pdrh parser
     parse_pdrh(global_config.model_filename);
+
     // setting the model type automatically here
     pdrh::set_model_type();
 

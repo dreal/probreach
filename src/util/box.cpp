@@ -24,12 +24,13 @@ bool box::contains(box b) const
 {
     map<string, capd::interval> edges = get_map();
     map<string, capd::interval> b_edges = b.get_map();
-    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
     {
-        if(b_edges.find(it->first) != b_edges.cend())
+        if(edges.find(it->first) != edges.cend())
         {
-            if(!it->second.contains(b.get_map()[it->first]))
+            if(!edges[it->first].contains(it->second))
             {
+                //cout << "Variable \"" << it->first << "\" " << edges[it->first] << " " << it->second << endl;
                 return false;
             }
         }
@@ -284,45 +285,6 @@ box operator/(const box& lhs, double rhs)
         res.insert(make_pair(it->first, it->second / rhs));
     }
     return box(res);
-}
-
-dd_box::dd_box(std::map<std::string, capd::interval> e)
-{
-    for(auto it = e.cbegin(); it != e.cend(); it++)
-    {
-        if(capd::intervals::width(it->second) > 0)
-        {
-            std::ostringstream s;
-            s << "invalid interval " << it->first << ":" << it->second << " while creating a dd_box";
-            throw std::invalid_argument(s.str());
-        }
-    }
-    this->edges = e;
-}
-
-dd_box::dd_box(box b):box(b.get_map())
-{
-
-}
-
-rv_box::rv_box(std::map<std::string, capd::interval> e):box(e)
-{
-
-}
-
-rv_box::rv_box(box b):box(b.get_map())
-{
-
-}
-
-nd_box::nd_box(std::map<std::string, capd::interval> e):box(e)
-{
-
-}
-
-nd_box::nd_box(box b):box(b.get_map())
-{
-
 }
 
 /**

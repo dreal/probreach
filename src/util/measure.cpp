@@ -41,26 +41,6 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
             stack.push_back(capd::interval(i.mid().leftBound(), i.rightBound()));
         }
     }
-    // turning intervals into boxes
-    /*
-    vector<box> boxes;
-    for(capd::interval i : partition)
-    {
-        map<string, capd::interval> m;
-        m.insert(make_pair(var, i));
-        boxes.push_back(box(m));
-    }
-    // sorting boxes by probability measure
-    sort(boxes.begin(), boxes.end(), measure::compare_boxes_by_p_measure);
-
-    // turning boxes back into intervals
-    partition.clear();
-    for(box b : boxes)
-    {
-        partition.push_back(b.get_intervals().front());
-    }
-    */
-
     return make_pair(value, partition);
 }
 
@@ -84,7 +64,6 @@ double measure::binomial(int k, int n)
     for(int i = 1; i <= k; i++)
     {
         res *= (double) (n + 1 - i) / (double) i;
-        //std::cout << "res (i=" << i << ") and (k=" << k << ") = " << res << std::endl;
     }
     return res;
 }
@@ -94,7 +73,7 @@ double measure::precision(double e, int n)
     std::stringstream s;
     for(int i = 0; i < n; i++)
     {
-        s << measure::binomial(i + 1, n) << "*e^" << i + 1 << "+";
+        s << binomial(i + 1, n) << "*e^" << i + 1 << "+";
     }
     s << "-" << e;
     //std::cout << "expression: " << s.str() << std::endl;
@@ -107,7 +86,7 @@ double measure::precision(double e, int n)
     return b[0].lb();
 }
 
-std::vector<rv_box> measure::partition(rv_box b, double e)
+std::vector<box> measure::partition(box b, double e)
 {
     std::map<std::string, capd::interval> edges = b.get_map();
     std::map<std::string, std::vector<capd::interval>> m;
@@ -119,7 +98,6 @@ std::vector<rv_box> measure::partition(rv_box b, double e)
                                                                                               capd::interval(pdrh::node_to_interval(std::get<1>(pdrh::rv_map[it->first])).leftBound(),
                                                                                                              pdrh::node_to_interval(std::get<2>(pdrh::rv_map[it->first])).rightBound()),
                                                                                                               measure::precision(e, edges.size()));
-            //std::prob_pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size()));
             m.insert(make_pair(it->first, itg.second));
         }
         else
@@ -130,29 +108,8 @@ std::vector<rv_box> measure::partition(rv_box b, double e)
         }
     }
     std::vector<box> p = box_factory::cartesian_product(m);
-    std::vector<rv_box> rv_p(p.cbegin(), p.cend());
+    std::vector<box> rv_p(p.cbegin(), p.cend());
     return rv_p;
-}
-
-capd::interval measure::p_measure(rv_box b, double e)
-{
-    std::map<std::string, capd::interval> edges = b.get_map();
-    capd::interval res(1.0);
-    for(auto it = edges.cbegin(); it != edges.cend(); it++)
-    {
-        if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
-        {
-            res *= measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])), it->second, measure::precision(e, edges.size())).first;
-            //res *= measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size())).first;
-        }
-        else
-        {
-            std::stringstream s;
-            s << "Measure for " << it->first << " is undefined";
-            throw std::invalid_argument(s.str());
-        }
-    }
-    return res;
 }
 
 capd::interval measure::p_measure(box b, double e)
@@ -201,35 +158,6 @@ capd::interval measure::p_measure(box b)
     return p_measure(b, global_config.precision_prob);
 }
 
-std::vector<box> measure::partition(box b, double e)
-{
-    std::map<std::string, capd::interval> edges = b.get_map();
-    std::map<std::string, std::vector<capd::interval>> m;
-    for(auto it = edges.cbegin(); it != edges.cend(); it++)
-    {
-        if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
-        {
-            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])),
-                                                                                              capd::interval(pdrh::node_to_interval(std::get<1>(pdrh::rv_map[it->first])).leftBound(),
-                                                                                                             pdrh::node_to_interval(std::get<2>(pdrh::rv_map[it->first])).rightBound()),
-                                                                                                                 measure::precision(e, edges.size()));
-            m.insert(make_pair(it->first, itg.second));
-        }
-        else
-        {
-            std::stringstream s;
-            s << "Variable " << it->first << " is undefined";
-            throw std::invalid_argument(s.str());
-        }
-    }
-    return box_factory::cartesian_product(m);
-}
-
-capd::interval measure::p_measure(rv_box b)
-{
-    return measure::p_measure(b, global_config.precision_prob);
-}
-
 capd::interval measure::p_dd_measure(box b)
 {
     std::map<std::string, capd::interval> edges = b.get_map();
@@ -263,43 +191,6 @@ capd::interval measure::p_dd_measure(box b)
             throw std::invalid_argument(s.str());
         }
     }
-    return res;
-}
-
-capd::interval measure::p_measure(dd_box b)
-{
-    std::map<std::string, capd::interval> edges = b.get_map();
-    capd::interval res(1.0);
-    for(auto it = edges.cbegin(); it != edges.cend(); it++)
-    {
-        if(pdrh::dd_map.find(it->first) != pdrh::dd_map.cend())
-        {
-            bool measure_exists = false;
-            map<pdrh::node*, pdrh::node*> tmp_map = pdrh::dd_map[it->first];
-            for(auto it2 = tmp_map.cbegin(); it2 != tmp_map.cend(); it2++)
-            {
-                if(it->second == pdrh::node_to_interval(it2->first))
-                {
-                    res *= pdrh::node_to_interval(it2->second);
-                    measure_exists = true;
-                    break;
-                }
-            }
-            if(!measure_exists)
-            {
-                std::stringstream s;
-                s << "Measure for " << it->first << " = " << it->second << " is undefined";
-                throw std::invalid_argument(s.str());
-            }
-        }
-        else
-        {
-            std::stringstream s;
-            s << "Measure for " << it->first << " is undefined";
-            throw std::invalid_argument(s.str());
-        }
-    }
-    //cout << "RETURNING DD MEASURE: " << res << endl;
     return res;
 }
 

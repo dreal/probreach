@@ -168,6 +168,7 @@ namespace pdrh
     void set_model_type();
 
     box get_nondet_domain();
+    box get_domain();
     box get_psy_domain();
     vector<mode*> get_psy_path(map<string, vector<capd::interval>>);
     vector<mode*> get_psy_path(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);

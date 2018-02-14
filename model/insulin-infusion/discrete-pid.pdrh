@@ -35,16 +35,10 @@
 
 // Glucose Absorption
 
-//#define UG 8 * 180 / 1000 // glucose absorption rate (Sriram)
-//#define UG DG*0.01743 // glucose absorption rate (Fedor 2017)
-
-#define UG (DG/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2) // glucose absorption rate (Hovorka 2004)
-#define Gmolar 180.1559 //[g/mol] molar mass of glucose (Google 2017)
-//dist_uniform(40,100) DG; //[g] amount of carbohydrates digested (Fedor 2017)
-//dist_normal(70,1) DG; //[g] amount of carbohydrates digested (Fedor 2017)
-
-#define AG 0.8 //carbohydrate bioavailability (Hovorka 2004)
-#define tmaxG 40 //[min] time-of-maximum appearance rate of glucose in the accessible glucose compartment (Hovorka 2004)
+#define UG (DG/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2) 	// glucose absorption rate (Hovorka 2004)
+#define Gmolar 180.1559 										//[g/mol] molar mass of glucose (Google 2017)
+#define AG 0.8 													//carbohydrate bioavailability (Hovorka 2004)
+#define tmaxG 40 												//[min] time-of-maximum appearance rate of glucose in the accessible glucose compartment (Hovorka 2004)
 
 #define t_pid 180
 
@@ -57,32 +51,24 @@
 #define Q2_ode x1 * Q1 - (k12 + x2) * Q2
 
 #define u Kp*e_dis + Kd*e_der_dis + Ki*e_int_dis + u_basal
-#define u_basal 0.055485957306259535484277955219043 // basal insulin infusion rate (Fedor 2017). Approximation of symbolic MATLAB solution
-//#define u_basal 5.5500000000000001e-02 // basal insulin infusion rate (Fedor 2017)
+#define u_basal 0.055485957306259535484277955219043 			// basal insulin infusion rate (Fedor 2017). Approximation of symbolic MATLAB solution
+
 
 //#define Kp 0
 //#define Ki 0
 //#define Kd 0
 
-//#define Kp -5.42e-4
-//#define Ki -7.55e-7
-//#define Kd -6.24e-2
+[-1e-3, 1e-3] Kp;
+[-1e-6, 1e-6] Ki;
+[-1e-1, 1e-1] Kd;
 
-[-1e-3, 0] Kp;
-[-1e-6, 0] Ki;
-[-1e-1, 0] Kd;
+//[-1e-3, 0] Kp;
+//[-1e-6, 0] Ki;
+//[-1e-1, 0] Kd;
+
 
 #define Q1_SP (110 * VG) / 18
 
-//#define Q1_init Q1_SP
-//#define Q2_init 19.08024296516837
-//#define S1_init 3.0525
-//#define S2_init 3.0525
-//#define I_init 0.03351449275362304
-//#define x1_init 0.01899154566043506
-//#define x2_init 0.03128019323671478
-//#define x3_init 0.0268115942028984
- 
 #define Q1_init 97.777777777777777777777777777778 // approximation of symbolic MATLAB solution (Fedor 2017)
 #define Q2_init 19.085409849110653871810249291894 // approximation of symbolic MATLAB solution (Fedor 2017)
 #define S1_init 3.0517276518442744516352875370474 // approximation of symbolic MATLAB solution (Fedor 2017)
@@ -92,7 +78,7 @@
 #define x2_init 0.031272278675025503090977913569509 // approximation of symbolic MATLAB solution (Fedor 2017)
 #define x3_init 0.026804810292879002649409640202436 // approximation of symbolic MATLAB solution (Fedor 2017)
 
-#define tau_sample 10
+#define tau_sample 5
 
 // breakfast
 dist_normal(40, 10) DG1;
@@ -113,30 +99,29 @@ dist_normal(70, 10) DG3;
 #define n_coeff 16
 
 
-[0,1e6] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
-[0,1e6] x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
-[0,1e6] x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
-[0,1e6] I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
-[0,1e6] S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
-[0,1e6] S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
-[0,1e6] Q1; //[mmol] mass of glucose in the accessible compartment (where the measurements are made) (Hovorka 2004)
-[0,1e6] Q2; //[mmol] mass of glucose in the non-accessible compartment (Hovorka 2004)
-[0,1e6] r; // reference trajectory
+[0,1e3] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
+[0,1e3] x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
+[0,1e3] x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
+[0,1e3] I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
+[0,1e3] S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[0,1e3] S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[0,1e3] Q1; //[mmol] mass of glucose in the accessible compartment (where the measurements are made) (Hovorka 2004)
+[0,1e3] Q2; //[mmol] mass of glucose in the non-accessible compartment (Hovorka 2004)
+[0,1e3] r; // reference trajectory
 [0,120] DG; // [g] the amount of consumed carbohydrates
 [-1e9,1e9] e_int_dis; // discrete integral value
 [-1e9,1e9] e_der_dis; // discrete derivative value
 [-1e9,1e9] e_dis; // discrete error value
-[0,1e6] Q1_prev;
+[0,1e3] Q1_prev;
 [0,1e9] obj;
 
-[-1e6,1e6] FQ1_hyper_int;
-[-1e6,1e6] FQ1_hypo_int;
-//[60] tau_sample;
+//[-1e0,1e9] FQ1_hyper_int;
+//[-1e0,1e9] FQ1_hypo_int;
 
 
 [0,1440] tau;
 
-[0,tau_sample] counter;
+[0,1440] counter;
 
 
 
@@ -162,8 +147,8 @@ d/dt[Q1_prev] = 0;
 d/dt[obj] = 0;
 
 //performance indices
-d/dt[FQ1_hyper_int] = exp((Q1 - Q1_upper)/2);
-d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
+//d/dt[FQ1_hyper_int] = exp((Q1 - Q1_upper)/2);
+//d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
 
 //reference trajectory
 d/dt[r] = r_ode;
@@ -190,7 +175,7 @@ jump:
 
 (counter = tau_sample) ==> @1	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(obj' = obj + FQ1_hyper_int + FQ1_hypo_int));
+									(e_dis' = r - Q1)(obj' = obj+exp((Q1-Q1_upper)/10)+exp((Q1_lower-Q1)/10)+exp(-10*u-2)));
 
 (tau = tau_meal_1) ==> @2	(and 	(DG' = DG2)(tau' = 0));
 
@@ -218,8 +203,8 @@ d/dt[Q1_prev] = 0;
 d/dt[obj] = 0;
 
 //performance indices
-d/dt[FQ1_hyper_int] = exp((Q1 - Q1_upper)/2);
-d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
+//d/dt[FQ1_hyper_int] = exp((Q1 - Q1_upper)/2);
+//d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
 
 //reference trajectory
 d/dt[r] = r_ode;
@@ -246,7 +231,7 @@ jump:
 
 (counter = tau_sample) ==> @2	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(obj' = obj + FQ1_hyper_int + FQ1_hypo_int));
+									(e_dis' = r - Q1)(obj' = obj+exp((Q1-Q1_upper)/10)+exp((Q1_lower-Q1)/10)+exp(-10*u-2)));
 (tau = tau_meal_2) ==> @3	(and 	(DG' = DG3)(tau' = 0));
 
 }
@@ -273,8 +258,8 @@ d/dt[Q1_prev] = 0;
 d/dt[obj] = 0;
 
 //performance indices
-d/dt[FQ1_hyper_int] = exp((Q1 - Q1_upper)/2);
-d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
+//d/dt[FQ1_hyper_int] = exp((Q1 - Q1_upper)/2);
+//d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
 
 //reference trajectory
 d/dt[r] = r_ode;
@@ -301,7 +286,7 @@ jump:
 
 (counter = tau_sample) ==> @3	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
 									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
-									(e_dis' = r - Q1)(obj' = obj + FQ1_hyper_int + FQ1_hypo_int));
+									(e_dis' = r - Q1)(obj' = obj+exp((Q1-Q1_upper)/10)+exp((Q1_lower-Q1)/10)+exp(-10*u-2)));
 
 
 }
@@ -326,8 +311,6 @@ init:
 		(e_der_dis = 0.0)
 		(e_dis = 0.0)
 		(obj = 0)
-		(FQ1_hyper_int = - exp((Q1_init - Q1_upper)/2))
-		(FQ1_hypo_int = exp((Q1_lower - Q1_init)/2))
 		);
 
 goal:

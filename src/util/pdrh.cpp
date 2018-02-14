@@ -1616,6 +1616,20 @@ box pdrh::get_nondet_domain()
     return box(m);
 }
 
+
+// domain of system variables
+box pdrh::get_domain()
+{
+    map<std::string, capd::interval> m;
+    for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
+    {
+        m.insert(make_pair(it->first, capd::interval(pdrh::node_to_interval(it->second.first).leftBound(),
+                                                         pdrh::node_to_interval(it->second.second).rightBound())));
+    }
+    return box(m);
+}
+
+
 // domain of parameters to synthesize
 box pdrh::get_psy_domain()
 {
@@ -1917,6 +1931,7 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
 // evaluates the value of arithmetic expression
 capd::interval pdrh::node_to_interval(pdrh::node *expr, vector<box> boxes)
 {
+    // terminal node
     if(expr->operands.size() == 0)
     {
         for(box b : boxes)
@@ -1926,6 +1941,14 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr, vector<box> boxes)
             {
                 return b_map[expr->value];
             }
+        }
+        if(expr->value == "-infty")
+        {
+            return capd::interval(-numeric_limits<double>::max(), -numeric_limits<double>::max());
+        }
+        else if(expr->value == "infty")
+        {
+            return capd::interval(numeric_limits<double>::max(), numeric_limits<double>::max());
         }
         return capd::interval(expr->value, expr->value);
     }

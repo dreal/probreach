@@ -1541,9 +1541,6 @@ pair<box, box> algorithm::solve_min_max()
     box sigma = nondet_domain.get_stddev();
     box var = sigma * sigma;
 
-    box min_obj("obj:[1e6,1e6];");
-    box min_nondet_box;
-
     unsigned long sample_size = (unsigned long) ceil(global_config.sample_size / measure::get_sample_prob(nondet_domain, mean, sigma).rightBound());
 
     #pragma omp parallel for
@@ -1556,36 +1553,42 @@ pair<box, box> algorithm::solve_min_max()
             box obj("obj:[0,0];");
             for(int j = 0; j < global_config.sample_size; j++)
             {
+                //cout << "i = " << i << " j = " << j << endl;
                 box random_box = rnd::get_random_sample(r);
                 vector<vector<pdrh::mode *>> paths = ap::get_all_paths({nondet_box, random_box});
                 // computing an objective function over a set of paths as an average value
                 for(vector<pdrh::mode *> path : paths)
                 {
-                    obj = obj + ap::compute_objective(path, ap::init_to_box({nondet_box, random_box}), {nondet_box, random_box}, {"obj"}) / (double) paths.size();
+                    box local_obj = ap::compute_objective(path, ap::init_to_box({nondet_box, random_box}), {nondet_box, random_box}, {"obj"}) / (double) paths.size();
+                    if(local_obj.empty())
+                    {
+                        stringstream ss;
+                        ss << "obj:[" << numeric_limits<double>::max() << "," << numeric_limits<double>::max() << "];";
+                        local_obj = box(ss.str());
+                    }
+                    # pragma omp critical
+                    {
+                        obj = obj + local_obj;
+                    }
                 }
             }
-
+            // computing the statistical mean of the objective function
             obj = obj / global_config.sample_size;
-
+            // adding to the list of objective functions
             # pragma omp critical
-            if(obj < min_obj)
-            {
-                min_obj = obj;
-                min_nondet_box = nondet_box;
-            }
-//            # pragma omp critical
-//            objs.insert(make_pair(obj, nondet_box));
+            objs.insert(make_pair(obj, nondet_box));
         }
     }
 
-//    cout << "Means of the objective function:" << endl;
-//    for(auto it = objs.begin(); it != objs.end(); it++)
-//    {
-//        cout << it->first << " | " << it->second << endl;
-//    }
+    cout << "Means of the objective function:" << endl;
+    for(auto it = objs.begin(); it != objs.end(); it++)
+    {
+        cout << it->first << " | " << it->second << endl;
+    }
 
     gsl_rng_free(r);
-    return make_pair(min_obj, min_nondet_box);
+//    return make_pair(min_obj, min_nondet_box);
+    return make_pair(objs.begin()->first, objs.begin()->second);
 }
 
 

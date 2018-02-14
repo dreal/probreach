@@ -20,14 +20,6 @@ public:
     box(std::string);
     box(std::vector<box>);
 
-    //friend std::ostream& operator<<(std::ostream&, const box &);
-    //inline bool operator< (const X& lhs, const X& rhs){ /* do actual comparison */ }
-    //inline bool operator> (const X& lhs, const X& rhs){ return rhs < lhs; }
-    //inline bool operator<=(const X& lhs, const X& rhs){ return !(lhs > rhs); }
-    //inline bool operator>=(const X& lhs, const X& rhs){ return !(lhs < rhs); }
-    //inline bool operator==(const X& lhs, const X& rhs){ /* do actual comparison */ }
-    //inline bool operator!=(const X& lhs, const X& rhs){ return !(lhs == rhs); }
-
     friend std::ostream& operator<<(std::ostream&, const box&);
     friend bool operator<(const box&, const box&);
     friend bool operator==(const box&, const box&);
@@ -52,27 +44,6 @@ public:
     double max_side_width();
     double min_side_width();
 
-};
-
-class dd_box : public box
-{
-public:
-    dd_box(std::map<std::string, capd::interval>);
-    dd_box(box);
-};
-
-class rv_box : public box
-{
-public:
-    rv_box(std::map<std::string, capd::interval>);
-    rv_box(box);
-};
-
-class nd_box : public box
-{
-public:
-    nd_box(std::map<std::string, capd::interval>);
-    nd_box(box);
 };
 
 #endif //PROBREACH_BOX_H

@@ -65,46 +65,46 @@
 //#define G_upper 8.1472
 
 #define u Kp*e_dis + Kd*e_der_dis + Ki*e_int_dis + u_basal
+#define u_basal 0.055485957306259535484277955219043 			// basal insulin infusion rate (Fedor 2017). Approximation of symbolic MATLAB solution
 
 
-
-//[5.4e-02,5.7e-02] u_basal; // basal insulin infusion rate (Fedor 2017)
-#define u_basal 5.5500000000000001e-02 // basal insulin infusion rate (Fedor 2017)
-
-
-#define Kp 0
-#define Ki 0
-#define Kd 0
+//#define Kp 0
+//#define Ki 0
+//#define Kd 0
 
 //#define Kp -5.42e-4
 //#define Ki -7.55e-7
 //#define Kd -6.24e-2
 
+#define Kd -0.0416271
+#define Ki -2.10174e-07
+#define Kp -0.000675393
+
 #define Q1_SP (110 * VG) / 18
 
-#define Q1_init Q1_SP
-#define Q2_init 19.08024296516837
-#define S1_init 3.0525
-#define S2_init 3.0525
-#define I_init 0.03351449275362304
-#define x1_init 0.01899154566043506
-#define x2_init 0.03128019323671478
-#define x3_init 0.0268115942028984
+#define Q1_init 97.777777777777777777777777777778 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define Q2_init 19.085409849110653871810249291894 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define S1_init 3.0517276518442744516352875370474 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define S2_init 3.0517276518442744516352875370474 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define I_init 0.033506012866098753311762050253045 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define x1_init 0.018986740624122626876665161810059 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define x2_init 0.031272278675025503090977913569509 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define x3_init 0.026804810292879002649409640202436 // approximation of symbolic MATLAB solution (Fedor 2017)
 
 #define t_sleep 540
 #define tau_sample 5
 
 // breakfast
 #define DG1 50
-#define tau_meal_1 317
+#define tau_meal_1 300
 
 // lunch
-#define DG2 90
-#define tau_meal_2 257
+#define DG2 100
+#define tau_meal_2 300
 
 // dinner
 #define DG3 70
-#define tau_meal_3 289
+#define tau_meal_3 300
 
 #define Q1_lower 64
 #define Q1_upper 256
@@ -148,8 +148,8 @@ time:
 
 invt:
 
-(G >= G_lower_unsafe);
-(G <= G_upper_unsafe);
+(G - G_lower_unsafe >= 0);
+(G_upper_unsafe - G >=0);
 (u >= 0);
 
 flow:
@@ -207,8 +207,8 @@ time:
 
 invt:
 
-(G >= G_lower_unsafe);
-(G <= G_upper_unsafe);
+(G - G_lower_unsafe >= 0);
+(G_upper_unsafe - G >=0);
 (u >= 0);
 
 flow:
@@ -266,8 +266,8 @@ time:
 
 invt:
 
-(G >= G_lower_unsafe);
-(G <= G_upper_unsafe);
+(G - G_lower_unsafe >= 0);
+(G_upper_unsafe - G >=0);
 (u >= 0);
 
 flow:

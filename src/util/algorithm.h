@@ -51,7 +51,8 @@ namespace algorithm
     pair<box, capd::interval> evaluate_npha_cross_entropy_normal(int, int, int);
     pair<box, capd::interval> evaluate_npha_cross_entropy_beta(int, int, int);
 
-    pair<box, box> solve_min_max();
+    pair<capd::interval, box> solve_min_max();
+    capd::interval compute_robustness();
 
 }
 

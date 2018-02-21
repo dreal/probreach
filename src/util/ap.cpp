@@ -916,6 +916,156 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
     return box(obj_map);
 }
 
+
+capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vector<box> boxes)
+{
+    // overall robustness over the path
+    capd::interval min_rob(numeric_limits<double>::max());
+
+    // reachability depth == 0
+    if(path.size() == 1)
+    {
+        box sol = solve_odes_nonrig(path.front()->odes, init, time_to_goal(path.front(), boxes), boxes);
+
+//        cout << "Solution @ 0: " << sol << endl;
+//        cout << "----------" << endl;
+//
+//        cout << "There are " << path.front()->invts.size() << " invariants to check:" << endl;
+        for(pdrh::node* n : path.front()->invts)
+        {
+//            cout << "Evaluating invariant : " << pdrh::node_to_string_infix(n) << endl;
+            if(n->value != ">=" || n->operands.size() > 2 || n->operands.back()->value != "0")
+            {
+                ostringstream s;
+                s << "Please rewrite the invariant \"" << pdrh::node_to_string_infix(n) << "\" in supported format";
+                throw invalid_argument(s.str());
+            }
+//            cout << "Representation: OK" << endl;
+            capd::interval rob = pdrh::node_to_interval(n->operands.front(), {sol, boxes});
+//            cout << "Invariant robustness: " << rob << endl;
+            if(rob < min_rob)
+            {
+                min_rob = rob;
+            }
+        }
+//        cout << "Overall mode robustness: " << min_rob << endl;
+//        cout << "==========" << endl << endl;
+        return min_rob;
+    }
+
+    box sol;
+    capd::interval cur_mode_time(0);
+    capd::interval prev_mode_time(0);
+    int window_size = 1;
+
+    // going through all modes in the path
+    for(size_t j = 0; j < path.size() - 1; j = j + window_size)
+    {
+        // applying the window of size window_size
+        for(size_t i = j; (i < j + window_size) && (i < path.size() - 1); i++)
+        {
+            pdrh::mode *cur_mode = path.at(i);
+            pdrh::mode *next_mode = path.at(i + 1);
+            capd::interval time;
+
+            // solving odes and invariants check
+            if(cur_mode->id == next_mode->id)
+            {
+                time = ap::get_sample_rate(cur_mode) - prev_mode_time;
+                cur_mode_time += time;
+                prev_mode_time = capd::interval(0);
+            }
+            else
+            {
+                time = ap::get_meal_time(cur_mode, boxes) - cur_mode_time;
+                cur_mode_time = capd::interval(0);
+                prev_mode_time = time;
+            }
+
+            // solving odes
+            sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
+
+//            cout << "Solution @ " << i << ": " << sol << endl;
+//            cout << "----------" << endl;
+//
+//            cout << "There are " << cur_mode->invts.size() << " invariants to check:" << endl;
+            for(pdrh::node* n : cur_mode->invts)
+            {
+//                cout << "Evaluating invariant : " << pdrh::node_to_string_infix(n) << endl;
+                if(n->value != ">=" || n->operands.size() > 2 || n->operands.back()->value != "0")
+                {
+                    ostringstream s;
+                    s << "Please rewrite the invariant \"" << pdrh::node_to_string_infix(n) << "\" in supported format";
+                    throw invalid_argument(s.str());
+                }
+//                cout << "Representation: OK" << endl;
+                capd::interval rob = pdrh::node_to_interval(n->operands.front(), {sol, boxes});
+//                cout << "Invariant robustness: " << rob << endl;
+                if(rob < min_rob)
+                {
+                    min_rob = rob;
+                }
+            }
+//            cout << "Overall mode robustness: " << min_rob << endl;
+//            cout << "==========" << endl << endl;
+
+
+
+
+            // printing out the solution box
+//            cout << "Solution (DICRETISED) box for depth " << i << endl;
+//            cout << sol << endl;
+//            cout << "===========" << endl;
+
+            map<string, pdrh::node*> reset_map = cur_mode->get_jump(next_mode->id).reset;
+
+            map<string, capd::interval> init_map;
+            vector<box> reset_boxes = boxes;
+            reset_boxes.push_back(sol);
+            for (auto it = reset_map.begin(); it != reset_map.end(); it++)
+            {
+                if((pdrh::par_map.find(it->first) == pdrh::par_map.end()) &&
+                   (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
+                   (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
+                {
+                    init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
+                }
+            }
+            // can add random error here
+            init = box(init_map);
+        }
+    }
+    // checking the invariants in the last mode
+    capd::interval time = time_to_goal(path.back(), boxes) - cur_mode_time;
+    // computing solution for the goal
+    sol = solve_odes_nonrig(path.back()->odes, init, time, boxes);
+//    cout << "Solution @ " << path.size() << ": " << sol << endl;
+//    cout << "----------" << endl;
+
+//    cout << "There are " << path.back()->invts.size() << " invariants to check:" << endl;
+    for(pdrh::node* n : path.back()->invts)
+    {
+//        cout << "Evaluating invariant : " << pdrh::node_to_string_infix(n) << endl;
+        if(n->value != ">=" || n->operands.size() > 2 || n->operands.back()->value != "0")
+        {
+            ostringstream s;
+            s << "Please rewrite the invariant \"" << pdrh::node_to_string_infix(n) << "\" in supported format";
+            throw invalid_argument(s.str());
+        }
+//        cout << "Representation: OK" << endl;
+        capd::interval rob = pdrh::node_to_interval(n->operands.front(), {sol, boxes});
+//        cout << "Invariant robustness: " << rob << endl;
+        if(rob < min_rob)
+        {
+            min_rob = rob;
+        }
+    }
+//    cout << "Overall mode robustness: " << min_rob << endl;
+//    cout << "==========" << endl << endl;
+    return min_rob;
+}
+
+
 vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
 {
     // getting list of shortest paths

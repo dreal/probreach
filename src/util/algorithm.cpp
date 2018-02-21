@@ -1520,7 +1520,7 @@ capd::interval algorithm::evaluate_pha_qmc() {
     //--------------------------------------------------------------------g
 }
 
-pair<box, box> algorithm::solve_min_max()
+pair<capd::interval, box> algorithm::solve_min_max()
 {
     const gsl_rng_type *T;
     gsl_rng *r;
@@ -1533,7 +1533,7 @@ pair<box, box> algorithm::solve_min_max()
 
     // the first element is the value of the objective function
     // the second element is the values of the nondet parameters
-    map<box, box> objs;
+    std::map<capd::interval, box> rob_map;
 
     box nondet_domain = pdrh::get_nondet_domain();
     //initializing probability value
@@ -1543,6 +1543,8 @@ pair<box, box> algorithm::solve_min_max()
 
     unsigned long sample_size = (unsigned long) ceil(global_config.sample_size / measure::get_sample_prob(nondet_domain, mean, sigma).rightBound());
 
+    pair<capd::interval, box> res = make_pair(capd::interval(-numeric_limits<double>::max()), box());
+
     #pragma omp parallel for
     for(int i = 0; i < sample_size; i++)
     {
@@ -1550,7 +1552,7 @@ pair<box, box> algorithm::solve_min_max()
         box nondet_box = rnd::get_normal_random_sample(r, mean, sigma);
         if(nondet_domain.contains(nondet_box))
         {
-            box obj("obj:[0,0];");
+            capd::interval rob(0);
             for(int j = 0; j < global_config.sample_size; j++)
             {
                 //cout << "i = " << i << " j = " << j << endl;
@@ -1559,39 +1561,49 @@ pair<box, box> algorithm::solve_min_max()
                 // computing an objective function over a set of paths as an average value
                 for(vector<pdrh::mode *> path : paths)
                 {
-                    box local_obj = ap::compute_objective(path, ap::init_to_box({nondet_box, random_box}), {nondet_box, random_box}, {"obj"}) / (double) paths.size();
-                    if(local_obj.empty())
-                    {
-                        stringstream ss;
-                        ss << "obj:[" << numeric_limits<double>::max() << "," << numeric_limits<double>::max() << "];";
-                        local_obj = box(ss.str());
-                    }
+                    capd::interval sample_rob = ap::compute_robustness(path, ap::init_to_box({nondet_box, random_box}), {nondet_box, random_box}) / (double) paths.size();
                     # pragma omp critical
                     {
-                        obj = obj + local_obj;
+                        rob = rob + sample_rob;
                     }
                 }
             }
-            // computing the statistical mean of the objective function
-            obj = obj / global_config.sample_size;
-            // adding to the list of objective functions
             # pragma omp critical
-            objs.insert(make_pair(obj, nondet_box));
+            {
+                // computing the statistical mean of the objective function
+                rob = rob / global_config.sample_size;
+                // updating the result here
+                if(rob.leftBound() > res.first.rightBound())
+                {
+                    res = make_pair(rob, nondet_box);
+                }
+                // adding to the list of objective functions
+                rob_map.insert(make_pair(rob, nondet_box));
+            }
         }
     }
 
-    cout << "Means of the objective function:" << endl;
-    for(auto it = objs.begin(); it != objs.end(); it++)
+    cout << "Means of robustness values:" << endl;
+    for(auto it = rob_map.begin(); it != rob_map.end(); it++)
     {
         cout << it->first << " | " << it->second << endl;
     }
 
     gsl_rng_free(r);
-//    return make_pair(min_obj, min_nondet_box);
-    return make_pair(objs.begin()->first, objs.begin()->second);
+    return res;
 }
 
-
+capd::interval algorithm::compute_robustness()
+{
+    vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
+    // computing an objective function over a set of paths as an average value
+    capd::interval rob(-numeric_limits<double>::max());
+    for(vector<pdrh::mode *> path : paths)
+    {
+        rob = ap::compute_robustness(path, ap::init_to_box({}), {});
+    }
+    return rob;
+}
 
 
 

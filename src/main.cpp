@@ -176,8 +176,7 @@ int main(int argc, char* argv[])
 //                return EXIT_FAILURE;
 //            }
 //            break;
-            pair<box, box> res = algorithm::solve_min_max();
-            cout << res.second << " | " << res.first << endl;
+            cout << "Robustness: " << algorithm::compute_robustness() << endl;
             break;
         }
         // probabilistic hybrid automata
@@ -279,7 +278,7 @@ int main(int argc, char* argv[])
 //                }
 //            }
 //            break;
-            pair<box, box> res = algorithm::solve_min_max();
+            pair<capd::interval, box> res = algorithm::solve_min_max();
             cout << res.second << " | " << res.first << endl;
             break;
         }

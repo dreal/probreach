@@ -73,6 +73,7 @@ namespace ap
 
     // The last argument is the list of variables defining the objective function
     box compute_objective(vector<pdrh::mode*>, box, vector<box>, vector<string>);
+    capd::interval compute_robustness(vector<pdrh::mode*>, box, vector<box>);
 
 
 }

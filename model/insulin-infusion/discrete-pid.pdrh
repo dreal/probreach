@@ -58,13 +58,13 @@
 //#define Ki 0
 //#define Kd 0
 
-[-1e-3, 1e-3] Kp;
-[-1e-6, 1e-6] Ki;
-[-1e-1, 1e-1] Kd;
-
 //[-1e-3, 0] Kp;
 //[-1e-6, 0] Ki;
 //[-1e-1, 0] Kd;
+
+[-6.76185e-4, -6.6323e-4] Kp;
+[-2.48981e-7, -1.83113e-7] Ki;
+[-4.16306e-2, -4.01904e-2] Kd;
 
 
 #define Q1_SP (110 * VG) / 18
@@ -134,8 +134,8 @@ time:
 [0,tau_sample];
 
 invt:
-(G >= G_lower_unsafe);
-(G <= G_upper_unsafe);
+(G - G_lower_unsafe >= 0);
+(G_upper_unsafe - G >=0);
 (u >= 0);
 
 flow:
@@ -190,8 +190,8 @@ time:
 [0,tau_sample];
 
 invt:
-(G >= G_lower_unsafe);
-(G <= G_upper_unsafe);
+(G - G_lower_unsafe >= 0);
+(G_upper_unsafe - G >=0);
 (u >= 0);
 
 flow:
@@ -245,8 +245,8 @@ time:
 [0,tau_sample];
 
 invt:
-(G >= G_lower_unsafe);
-(G <= G_upper_unsafe);
+(G - G_lower_unsafe >= 0);
+(G_upper_unsafe - G >=0);
 (u >= 0);
 
 flow:

@@ -40,6 +40,7 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
             stack.push_back(capd::interval(i.leftBound(), i.mid().rightBound()));
             stack.push_back(capd::interval(i.mid().leftBound(), i.rightBound()));
         }
+        //cout << "Computing the value of the integral: " << value << endl;
     }
     return make_pair(value, partition);
 }

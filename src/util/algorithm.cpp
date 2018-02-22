@@ -888,7 +888,17 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         {
             // evaluating all paths
             vector<vector<pdrh::mode *>> paths = ap::get_all_paths(boxes);
-            int res = decision_procedure::evaluate(paths, boxes, "");
+            //int res = decision_procedure::evaluate(paths, boxes, "");
+            capd::interval rob = ap::compute_max_robustness(paths, ap::init_to_box(boxes), boxes);
+            int res = decision_procedure::UNDET;
+            if(rob.leftBound() > 0)
+            {
+                res = decision_procedure::SAT;
+            }
+            else if(rob.rightBound() < 0)
+            {
+                res = decision_procedure::UNSAT;
+            }
             #pragma omp critical
             {
                 switch(res)
@@ -1059,14 +1069,19 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
     box sigma = domain.get_stddev();
     box var = sigma * sigma;
     vector<pair<box, capd::interval>> samples;
+    capd::interval size_correction_coef(1e-32);
     //#pragma omp parallel
     while (var.max_coordinate_value() > global_config.cross_entropy_term_arg) {
         var = sigma * sigma;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Mean: " << mean;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Standard deviation: " << sigma;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Variance: " << var;
-        unsigned long new_size = (unsigned long) ceil(
-                size / measure::get_sample_prob(domain, mean, sigma).rightBound());
+        // correct the sample size only if the probability of sampling outside the domain is still greater than 0.99999
+        if(size_correction_coef.leftBound() < 0.99999)
+        {
+            size_correction_coef = measure::get_sample_prob(domain, mean, sigma);
+        }
+        unsigned long new_size = (unsigned long) ceil(size / size_correction_coef.leftBound());
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << new_size;
         int outliers = 0;
         //#pragma omp parallel for

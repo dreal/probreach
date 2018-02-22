@@ -851,6 +851,8 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
 
             // solving odes
             sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
+            //sol = solve_odes(cur_mode->odes, init, time, boxes);
+            cout << "Solution @ step " << i << ": " << endl << sol << endl;
             //sol = solve_odes_discrete(cur_mode->odes, init, time, boxes);
 //            #pragma omp critical
 //            {
@@ -904,6 +906,8 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
     capd::interval time = time_to_goal(path.back(), boxes) - cur_mode_time;
     // computing solution for the goal
     sol = solve_odes_nonrig(path.back()->odes, init, time, boxes);
+    //sol = solve_odes(path.back()->odes, init, time, boxes);
+    cout << "Solution: " << path.size() << ": " << endl << sol << endl;
     map<string, capd::interval> obj_map, b_map;
     b_map = sol.get_map();
     for(auto it = b_map.begin(); it != b_map.end(); it++)
@@ -1009,9 +1013,6 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
 //            cout << "Overall mode robustness: " << min_rob << endl;
 //            cout << "==========" << endl << endl;
 
-
-
-
             // printing out the solution box
 //            cout << "Solution (DICRETISED) box for depth " << i << endl;
 //            cout << sol << endl;
@@ -1064,6 +1065,37 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
 //    cout << "==========" << endl << endl;
     return min_rob;
 }
+
+// maximum robustenss over a set of paths
+capd::interval ap::compute_max_robustness(vector<vector<pdrh::mode *>> paths, box init, vector<box> boxes)
+{
+    capd::interval max_rob = compute_robustness(paths.front(), init, boxes);
+    for(int i = 1; i < paths.size(); i++)
+    {
+        capd::interval rob = compute_robustness(paths.at(i), init, boxes);
+        if(rob.rightBound() > max_rob.rightBound())
+        {
+            max_rob = rob;
+        }
+    }
+    return max_rob;
+}
+
+// minimum robustness over a set of paths
+capd::interval ap::compute_min_robustness(vector<vector<pdrh::mode *>> paths, box init, vector<box> boxes)
+{
+    capd::interval min_rob = compute_robustness(paths.front(), init, boxes);
+    for(int i = 1; i < paths.size(); i++)
+    {
+        capd::interval rob = compute_robustness(paths.at(i), init, boxes);
+        if(rob.leftBound() < min_rob.leftBound())
+        {
+            min_rob = rob;
+        }
+    }
+    return min_rob;
+}
+
 
 
 vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)

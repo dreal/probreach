@@ -405,7 +405,7 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
         {
             par_string += it->first + ',';
         }
-        cout << b << endl;
+        //cout << b << endl;
     }
     par_string.back() = ';';
 
@@ -682,7 +682,7 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
 
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
-    int window_size = 1;
+    int window_size = 10;
     //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Window size: " << window_size;
 //    size_t sat_num = 0;
 //    size_t unsat_num = 0;
@@ -713,11 +713,11 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
             }
             // checking the invariants
             box init_box_hull = box_factory::box_hull(init_box);
-            cout << "Init box (VERIFIED) for depth " << i << endl;
-            cout << init_box_hull << endl;
-            cout << "----------" << endl;
-            //int invt_check = decision_procedure::check_invariants(cur_mode, time, init_box_hull, boxes, global_config.solver_bin, global_config.solver_opt);
-            int invt_check = decision_procedure::SAT;
+//            cout << "Init box (VERIFIED) for depth " << i << endl;
+//            cout << init_box_hull << endl;
+//            cout << "----------" << endl;
+            int invt_check = decision_procedure::check_invariants(cur_mode, time, init_box_hull, boxes, global_config.solver_bin, global_config.solver_opt);
+            //int invt_check = decision_procedure::SAT;
             switch(invt_check)
             {
                 case decision_procedure::UNDET:
@@ -733,9 +733,9 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
             {
                 sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
             }
-            cout << "Solution (VERIFIED) box for depth " << i << endl;
-            cout << box_factory::box_hull(sol_box) << endl;
-            cout << "===========" << endl;
+//            cout << "Solution (VERIFIED) box for depth " << i << endl;
+//            cout << box_factory::box_hull(sol_box) << endl;
+//            cout << "===========" << endl;
 
 //            cout << "Solution box hull in mode " << cur_mode->id << " at depth = " << i << endl;
 //            cout << box_factory::box_hull(sol_box) << endl;

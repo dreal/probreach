@@ -12,6 +12,8 @@ using namespace std;
 
 namespace algorithm
 {
+    extern bool use_verified;
+
     // evaluating reachability in hybrid automata (arg: depth)
     //decision_procedure::result evaluate_ha(int);
     // evaluating reachability in hybrid automata (arg1: min depth, arg2: max depth)

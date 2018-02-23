@@ -248,20 +248,31 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                    pair<box, capd::interval> probability;
+                    // cross entropy algorithm is used here
+                    pair<box, capd::interval> opt_res;
                     if(global_config.cross_entropy_normal)
                     {
-                        probability = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
+                        algorithm::use_verified = false;
+                        cout << "Solving optimisation problem for the discretised system" << endl;
+                        opt_res = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
                                                                                      global_config.reach_depth_max,
                                                                                      global_config.sample_size);
+                        cout << "Optimisation result: " << endl;
+                        cout << opt_res.first << "   |   " << opt_res.second << endl;
+                        algorithm::use_verified = true;
+                        cout << "Computing confidence interval with guarantees:" << endl;
+                        capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
+                                                                               global_config.bayesian_conf, {opt_res.first});
+                        cout << "The verification result:" << endl;
+                        cout << opt_res.first << "   |   " << prob << endl;
                     }
                     else if(global_config.cross_entropy_beta)
                     {
-                        probability = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
+                        opt_res = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
                                                                                    global_config.reach_depth_max,
                                                                                    global_config.sample_size);
                     }
-                    std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
+                    //std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
                 }
 //                cout << "UNSAT samples:" << endl;
 //                for(box b : ap::unsat_samples)

@@ -20,6 +20,8 @@
 
 using namespace std;
 
+bool algorithm::use_verified = true;
+
 int algorithm::evaluate_ha(int min_depth, int max_depth)
 {
     //vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
@@ -888,17 +890,26 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         {
             // evaluating all paths
             vector<vector<pdrh::mode *>> paths = ap::get_all_paths(boxes);
-            //int res = decision_procedure::evaluate(paths, boxes, "");
-            capd::interval rob = ap::compute_max_robustness(paths, ap::init_to_box(boxes), boxes);
             int res = decision_procedure::UNDET;
-            if(rob.leftBound() > 0)
+            // checking what verification method is chosen
+            if(algorithm::use_verified)
             {
-                res = decision_procedure::SAT;
+                res = decision_procedure::evaluate(paths, boxes, "");
             }
-            else if(rob.rightBound() < 0)
+            else
             {
-                res = decision_procedure::UNSAT;
+                // computing maximum robustness for the set of paths
+                capd::interval rob = ap::compute_max_robustness(paths, ap::init_to_box(boxes), boxes);
+                if(rob.leftBound() > 0)
+                {
+                    res = decision_procedure::SAT;
+                }
+                else if(rob.rightBound() < 0)
+                {
+                    res = decision_procedure::UNSAT;
+                }
             }
+            // updating the counters
             #pragma omp critical
             {
                 switch(res)
@@ -1061,7 +1072,8 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
     box domain = pdrh::get_nondet_domain();
     //initializing probability value
     pair<box, capd::interval> res(domain, capd::interval(0.0));
-    if (global_config.min_prob) {
+    if (global_config.min_prob)
+    {
         res = make_pair(domain, capd::interval(1.0));
     }
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;

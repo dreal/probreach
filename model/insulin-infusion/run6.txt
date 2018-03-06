@@ -1,0 +1,541 @@
+2018-01-31 16:28:21,932 INFO  [parser] Model type: 3
+2018-01-31 16:28:21,932 INFO  [parser] Primary solver: dReal
+2018-01-31 16:28:21,932 INFO  [parser] Secondary solver: dReal
+2018-01-31 16:28:21,932 INFO  [algorithm] Domain of nondeterministic parameters: Kd:[-0.1,4.94066e-324]; Ki:[-1e-06,4.94066e-324]; Kp:[-0.001,4.94066e-324]; 
+2018-01-31 16:28:21,932 INFO  [algorithm] Mean: Kd:[-0.05,-0.05]; Ki:[-5e-07,-5e-07]; Kp:[-0.0005,-0.0005]; 
+2018-01-31 16:28:21,932 INFO  [algorithm] Standard deviation: Kd:[0.05,0.05]; Ki:[5e-07,5e-07]; Kp:[0.0005,0.0005]; 
+2018-01-31 16:28:21,932 INFO  [algorithm] Variance: Kd:[0.0025,0.0025]; Ki:[2.5e-13,2.5e-13]; Kp:[2.5e-07,2.5e-07]; 
+2018-01-31 16:28:21,944 INFO  [algorithm] Sample size: 63
+2018-01-31 16:28:21,944 INFO  [algorithm] Quasi-random sample: Kd:[-0.0194006,-0.0194006]; Ki:[-8.82821e-07,-8.82821e-07]; Kp:[-0.000769327,-0.000769327]; 
+2018-01-31 16:28:21,944 INFO  [algorithm] The sample is inside the domain
+2018-01-31 16:28:21,944 INFO  [algorithm] Bayesian estimations algorithm started
+2018-01-31 16:51:31,616 INFO  [algorithm] Random sample size: 280
+2018-01-31 16:51:31,616 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-01-31 16:51:31,616 INFO  [algorithm] Probability: [0,0.0712766]
+
+2018-01-31 16:51:31,616 INFO  [algorithm] Quasi-random sample: Kd:[-0.0611636,-0.0611636]; Ki:[-7.29413e-07,-7.29413e-07]; Kp:[-1.27298e-05,-1.27298e-05]; 
+2018-01-31 16:51:31,616 INFO  [algorithm] The sample is inside the domain
+2018-01-31 16:51:31,617 INFO  [algorithm] Bayesian estimations algorithm started
+2018-01-31 17:13:32,081 INFO  [algorithm] Random sample size: 277
+2018-01-31 17:13:32,081 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-01-31 17:13:32,081 INFO  [algorithm] Probability: [0,0.0679211]
+
+2018-01-31 17:13:32,081 INFO  [algorithm] Quasi-random sample: Kd:[-0.0461655,-0.0461655]; Ki:[-6.30794e-07,-6.30794e-07]; Kp:[0.000457993,0.000457993]; 
+2018-01-31 17:13:32,081 INFO  [algorithm] The sample is outside the domain
+2018-01-31 17:13:32,081 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 17:13:32,081 INFO  [algorithm] Quasi-random sample: Kd:[-0.126464,-0.126464]; Ki:[-7.49216e-07,-7.49216e-07]; Kp:[-0.000438955,-0.000438955]; 
+2018-01-31 17:13:32,081 INFO  [algorithm] The sample is outside the domain
+2018-01-31 17:13:32,081 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 17:13:32,081 INFO  [algorithm] Quasi-random sample: Kd:[0.0237255,0.0237255]; Ki:[-5.45144e-07,-5.45144e-07]; Kp:[-0.000415039,-0.000415039]; 
+2018-01-31 17:13:32,081 INFO  [algorithm] The sample is outside the domain
+2018-01-31 17:13:32,081 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 17:13:32,081 INFO  [algorithm] Quasi-random sample: Kd:[-0.0274224,-0.0274224]; Ki:[-1.04249e-06,-1.04249e-06]; Kp:[-0.000726716,-0.000726716]; 
+2018-01-31 17:13:32,081 INFO  [algorithm] The sample is outside the domain
+2018-01-31 17:13:32,081 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 17:13:32,081 INFO  [algorithm] Quasi-random sample: Kd:[-0.104877,-0.104877]; Ki:[-8.31452e-07,-8.31452e-07]; Kp:[0.000501665,0.000501665]; 
+2018-01-31 17:13:32,081 INFO  [algorithm] The sample is outside the domain
+2018-01-31 17:13:32,081 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 17:13:32,081 INFO  [algorithm] Quasi-random sample: Kd:[-0.0200682,-0.0200682]; Ki:[-1.24876e-06,-1.24876e-06]; Kp:[-0.00092435,-0.00092435]; 
+2018-01-31 17:13:32,082 INFO  [algorithm] The sample is outside the domain
+2018-01-31 17:13:32,082 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 17:13:32,082 INFO  [algorithm] Quasi-random sample: Kd:[-0.106529,-0.106529]; Ki:[-3.37758e-07,-3.37758e-07]; Kp:[-0.000830514,-0.000830514]; 
+2018-01-31 17:13:32,082 INFO  [algorithm] The sample is outside the domain
+2018-01-31 17:13:32,082 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 17:13:32,082 INFO  [algorithm] Quasi-random sample: Kd:[-0.150987,-0.150987]; Ki:[-5.54872e-07,-5.54872e-07]; Kp:[0.000436168,0.000436168]; 
+2018-01-31 17:13:32,082 INFO  [algorithm] The sample is outside the domain
+2018-01-31 17:13:32,082 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 17:13:32,082 INFO  [algorithm] Quasi-random sample: Kd:[-0.0199725,-0.0199725]; Ki:[-2.88227e-07,-2.88227e-07]; Kp:[-0.000442023,-0.000442023]; 
+2018-01-31 17:13:32,082 INFO  [algorithm] The sample is inside the domain
+2018-01-31 17:13:32,082 INFO  [algorithm] Bayesian estimations algorithm started
+2018-01-31 18:53:54,546 INFO  [algorithm] Random sample size: 595
+2018-01-31 18:53:54,546 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-01-31 18:53:54,546 INFO  [algorithm] Probability: [0.620017,0.723367]
+
+2018-01-31 18:53:54,546 INFO  [algorithm] Quasi-random sample: Kd:[-0.0186201,-0.0186201]; Ki:[-9.09545e-07,-9.09545e-07]; Kp:[-0.00164059,-0.00164059]; 
+2018-01-31 18:53:54,546 INFO  [algorithm] The sample is outside the domain
+2018-01-31 18:53:54,546 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 18:53:54,546 INFO  [algorithm] Quasi-random sample: Kd:[-0.0897825,-0.0897825]; Ki:[-2.47148e-07,-2.47148e-07]; Kp:[-0.000778349,-0.000778349]; 
+2018-01-31 18:53:54,546 INFO  [algorithm] The sample is inside the domain
+2018-01-31 18:53:54,547 INFO  [algorithm] Bayesian estimations algorithm started
+2018-01-31 19:07:00,093 INFO  [algorithm] Random sample size: 270
+2018-01-31 19:07:00,093 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-01-31 19:07:00,093 INFO  [algorithm] Probability: [0,0.0573529]
+
+2018-01-31 19:07:00,093 INFO  [algorithm] Quasi-random sample: Kd:[0.00753977,0.00753977]; Ki:[-2.99668e-07,-2.99668e-07]; Kp:[0.000322642,0.000322642]; 
+2018-01-31 19:07:00,093 INFO  [algorithm] The sample is outside the domain
+2018-01-31 19:07:00,093 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 19:07:00,093 INFO  [algorithm] Quasi-random sample: Kd:[-0.0673867,-0.0673867]; Ki:[-5.44937e-07,-5.44937e-07]; Kp:[-0.00010401,-0.00010401]; 
+2018-01-31 19:07:00,093 INFO  [algorithm] The sample is inside the domain
+2018-01-31 19:07:00,093 INFO  [algorithm] Bayesian estimations algorithm started
+2018-01-31 19:27:15,491 INFO  [algorithm] Random sample size: 306
+2018-01-31 19:27:15,491 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-01-31 19:27:15,491 INFO  [algorithm] Probability: [0,0.101948]
+
+2018-01-31 19:27:15,491 INFO  [algorithm] Quasi-random sample: Kd:[-0.0185272,-0.0185272]; Ki:[4.48883e-07,4.48883e-07]; Kp:[-0.000126482,-0.000126482]; 
+2018-01-31 19:27:15,491 INFO  [algorithm] The sample is outside the domain
+2018-01-31 19:27:15,491 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 19:27:15,491 INFO  [algorithm] Quasi-random sample: Kd:[-0.0277567,-0.0277567]; Ki:[-5.14038e-07,-5.14038e-07]; Kp:[-0.000580436,-0.000580436]; 
+2018-01-31 19:27:15,491 INFO  [algorithm] The sample is inside the domain
+2018-01-31 19:27:15,491 INFO  [algorithm] Bayesian estimations algorithm started
+2018-01-31 20:43:21,991 INFO  [algorithm] Random sample size: 512
+2018-01-31 20:43:21,991 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-01-31 20:43:21,991 INFO  [algorithm] Probability: [0.195136,0.3107]
+
+2018-01-31 20:43:21,991 INFO  [algorithm] Quasi-random sample: Kd:[-0.0732268,-0.0732268]; Ki:[5.98938e-07,5.98938e-07]; Kp:[-0.000821527,-0.000821527]; 
+2018-01-31 20:43:21,991 INFO  [algorithm] The sample is outside the domain
+2018-01-31 20:43:21,991 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 20:43:21,991 INFO  [algorithm] Quasi-random sample: Kd:[-0.0237537,-0.0237537]; Ki:[-7.91346e-08,-7.91346e-08]; Kp:[-0.000616182,-0.000616182]; 
+2018-01-31 20:43:21,991 INFO  [algorithm] The sample is inside the domain
+2018-01-31 20:43:21,991 INFO  [algorithm] Bayesian estimations algorithm started
+2018-01-31 22:22:35,363 INFO  [algorithm] Random sample size: 514
+2018-01-31 22:22:35,363 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-01-31 22:22:35,363 INFO  [algorithm] Probability: [0.70969,0.815504]
+
+2018-01-31 22:22:35,363 INFO  [algorithm] Quasi-random sample: Kd:[-0.0869529,-0.0869529]; Ki:[-1.06751e-06,-1.06751e-06]; Kp:[-0.00127199,-0.00127199]; 
+2018-01-31 22:22:35,363 INFO  [algorithm] The sample is outside the domain
+2018-01-31 22:22:35,363 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 22:22:35,363 INFO  [algorithm] Quasi-random sample: Kd:[-0.123168,-0.123168]; Ki:[-3.29591e-07,-3.29591e-07]; Kp:[-0.000127765,-0.000127765]; 
+2018-01-31 22:22:35,363 INFO  [algorithm] The sample is outside the domain
+2018-01-31 22:22:35,363 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 22:22:35,363 INFO  [algorithm] Quasi-random sample: Kd:[-0.0123454,-0.0123454]; Ki:[-8.73291e-07,-8.73291e-07]; Kp:[-0.00108224,-0.00108224]; 
+2018-01-31 22:22:35,363 INFO  [algorithm] The sample is outside the domain
+2018-01-31 22:22:35,364 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 22:22:35,364 INFO  [algorithm] Quasi-random sample: Kd:[-0.0550165,-0.0550165]; Ki:[-4.5579e-07,-4.5579e-07]; Kp:[-0.000939893,-0.000939893]; 
+2018-01-31 22:22:35,364 INFO  [algorithm] The sample is inside the domain
+2018-01-31 22:22:35,364 INFO  [algorithm] Bayesian estimations algorithm started
+2018-01-31 22:47:40,095 INFO  [algorithm] Random sample size: 283
+2018-01-31 22:47:40,095 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-01-31 22:47:40,095 INFO  [algorithm] Probability: [0,0.0745614]
+
+2018-01-31 22:47:40,095 INFO  [algorithm] Quasi-random sample: Kd:[0.000161223,0.000161223]; Ki:[-6.5906e-07,-6.5906e-07]; Kp:[-7.22737e-05,-7.22737e-05]; 
+2018-01-31 22:47:40,095 INFO  [algorithm] The sample is outside the domain
+2018-01-31 22:47:40,095 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 22:47:40,095 INFO  [algorithm] Quasi-random sample: Kd:[-0.080724,-0.080724]; Ki:[-6.87883e-07,-6.87883e-07]; Kp:[0.000281087,0.000281087]; 
+2018-01-31 22:47:40,095 INFO  [algorithm] The sample is outside the domain
+2018-01-31 22:47:40,095 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-01-31 22:47:40,095 INFO  [algorithm] Quasi-random sample: Kd:[-0.0345648,-0.0345648]; Ki:[-4.11931e-07,-4.11931e-07]; Kp:[-0.000228651,-0.000228651]; 
+2018-01-31 22:47:40,095 INFO  [algorithm] The sample is inside the domain
+2018-01-31 22:47:40,096 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 00:08:33,376 INFO  [algorithm] Random sample size: 621
+2018-02-01 00:08:33,376 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 00:08:33,377 INFO  [algorithm] Probability: [0.328812,0.432022]
+
+2018-02-01 00:08:33,377 INFO  [algorithm] Quasi-random sample: Kd:[-0.0701537,-0.0701537]; Ki:[-5.9716e-07,-5.9716e-07]; Kp:[-0.000422925,-0.000422925]; 
+2018-02-01 00:08:33,377 INFO  [algorithm] The sample is inside the domain
+2018-02-01 00:08:33,377 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 00:38:43,455 INFO  [algorithm] Random sample size: 344
+2018-02-01 00:38:43,455 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 00:38:43,455 INFO  [algorithm] Probability: [0,0.156936]
+
+2018-02-01 00:38:43,455 INFO  [algorithm] Quasi-random sample: Kd:[-0.0120983,-0.0120983]; Ki:[1.22561e-08,1.22561e-08]; Kp:[-4.04618e-05,-4.04618e-05]; 
+2018-02-01 00:38:43,455 INFO  [algorithm] The sample is outside the domain
+2018-02-01 00:38:43,455 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 00:38:43,455 INFO  [algorithm] Quasi-random sample: Kd:[-0.0755814,-0.0755814]; Ki:[-1.03363e-06,-1.03363e-06]; Kp:[-0.000886884,-0.000886884]; 
+2018-02-01 00:38:43,455 INFO  [algorithm] The sample is outside the domain
+2018-02-01 00:38:43,455 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 00:38:43,455 INFO  [algorithm] Quasi-random sample: Kd:[-0.0363687,-0.0363687]; Ki:[2.66238e-07,2.66238e-07]; Kp:[-0.000463691,-0.000463691]; 
+2018-02-01 00:38:43,455 INFO  [algorithm] The sample is outside the domain
+2018-02-01 00:38:43,455 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 00:38:43,455 INFO  [algorithm] Quasi-random sample: Kd:[-0.02055,-0.02055]; Ki:[-7.35613e-07,-7.35613e-07]; Kp:[-0.000527111,-0.000527111]; 
+2018-02-01 00:38:43,455 INFO  [algorithm] The sample is inside the domain
+2018-02-01 00:38:43,455 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 01:17:36,002 INFO  [algorithm] Random sample size: 301
+2018-02-01 01:17:36,002 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 01:17:36,002 INFO  [algorithm] Probability: [0,0.102805]
+
+2018-02-01 01:17:36,002 INFO  [algorithm] Quasi-random sample: Kd:[-0.19283,-0.19283]; Ki:[-9.13725e-08,-9.13725e-08]; Kp:[-0.000546015,-0.000546015]; 
+2018-02-01 01:17:36,002 INFO  [algorithm] The sample is outside the domain
+2018-02-01 01:17:36,002 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 01:17:36,002 INFO  [algorithm] Quasi-random sample: Kd:[-0.10804,-0.10804]; Ki:[-5.51257e-07,-5.51257e-07]; Kp:[-0.000867965,-0.000867965]; 
+2018-02-01 01:17:36,002 INFO  [algorithm] The sample is outside the domain
+2018-02-01 01:17:36,002 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 01:17:36,003 INFO  [algorithm] Quasi-random sample: Kd:[-0.0944649,-0.0944649]; Ki:[-4.26891e-07,-4.26891e-07]; Kp:[0.000372765,0.000372765]; 
+2018-02-01 01:17:36,003 INFO  [algorithm] The sample is outside the domain
+2018-02-01 01:17:36,003 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 01:17:36,003 INFO  [algorithm] Quasi-random sample: Kd:[-0.0248221,-0.0248221]; Ki:[-9.68996e-07,-9.68996e-07]; Kp:[-0.000493395,-0.000493395]; 
+2018-02-01 01:17:36,003 INFO  [algorithm] The sample is inside the domain
+2018-02-01 01:17:36,003 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 01:52:03,581 INFO  [algorithm] Random sample size: 283
+2018-02-01 01:52:03,581 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 01:52:03,581 INFO  [algorithm] Probability: [0,0.0745614]
+
+2018-02-01 01:52:03,581 INFO  [algorithm] Quasi-random sample: Kd:[-0.0350392,-0.0350392]; Ki:[-7.24356e-08,-7.24356e-08]; Kp:[0.00054678,0.00054678]; 
+2018-02-01 01:52:03,581 INFO  [algorithm] The sample is outside the domain
+2018-02-01 01:52:03,581 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 01:52:03,581 INFO  [algorithm] Quasi-random sample: Kd:[-0.0421091,-0.0421091]; Ki:[5.91263e-07,5.91263e-07]; Kp:[0.000181295,0.000181295]; 
+2018-02-01 01:52:03,581 INFO  [algorithm] The sample is outside the domain
+2018-02-01 01:52:03,581 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 01:52:03,581 INFO  [algorithm] Quasi-random sample: Kd:[0.00233206,0.00233206]; Ki:[-9.65043e-07,-9.65043e-07]; Kp:[-5.92914e-05,-5.92914e-05]; 
+2018-02-01 01:52:03,581 INFO  [algorithm] The sample is outside the domain
+2018-02-01 01:52:03,581 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 01:52:03,581 INFO  [algorithm] Quasi-random sample: Kd:[-0.159954,-0.159954]; Ki:[-1.43317e-07,-1.43317e-07]; Kp:[-0.00178519,-0.00178519]; 
+2018-02-01 01:52:03,581 INFO  [algorithm] The sample is outside the domain
+2018-02-01 01:52:03,581 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 01:52:03,581 INFO  [algorithm] Quasi-random sample: Kd:[-0.075885,-0.075885]; Ki:[-2.46864e-07,-2.46864e-07]; Kp:[-0.000488214,-0.000488214]; 
+2018-02-01 01:52:03,581 INFO  [algorithm] The sample is inside the domain
+2018-02-01 01:52:03,581 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 02:10:49,457 INFO  [algorithm] Random sample size: 273
+2018-02-01 02:10:49,457 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 02:10:49,457 INFO  [algorithm] Probability: [0,0.0609091]
+
+2018-02-01 02:10:49,457 INFO  [algorithm] Quasi-random sample: Kd:[0.0096375,0.0096375]; Ki:[-1.2653e-07,-1.2653e-07]; Kp:[-7.22341e-05,-7.22341e-05]; 
+2018-02-01 02:10:49,457 INFO  [algorithm] The sample is outside the domain
+2018-02-01 02:10:49,457 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 02:10:49,457 INFO  [algorithm] Quasi-random sample: Kd:[-0.00918083,-0.00918083]; Ki:[-5.4997e-07,-5.4997e-07]; Kp:[-0.000712776,-0.000712776]; 
+2018-02-01 02:10:49,457 INFO  [algorithm] The sample is inside the domain
+2018-02-01 02:10:49,457 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 02:45:16,101 INFO  [algorithm] Random sample size: 309
+2018-02-01 02:45:16,101 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 02:45:16,101 INFO  [algorithm] Probability: [0,0.104662]
+
+2018-02-01 02:45:16,101 INFO  [algorithm] Quasi-random sample: Kd:[-0.08419,-0.08419]; Ki:[-1.19624e-06,-1.19624e-06]; Kp:[-0.00111351,-0.00111351]; 
+2018-02-01 02:45:16,101 INFO  [algorithm] The sample is outside the domain
+2018-02-01 02:45:16,101 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 02:45:16,101 INFO  [algorithm] Quasi-random sample: Kd:[-0.0112065,-0.0112065]; Ki:[-8.40981e-07,-8.40981e-07]; Kp:[-0.00130065,-0.00130065]; 
+2018-02-01 02:45:16,101 INFO  [algorithm] The sample is outside the domain
+2018-02-01 02:45:16,101 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 02:45:16,101 INFO  [algorithm] Quasi-random sample: Kd:[0.0449499,0.0449499]; Ki:[-1.95624e-06,-1.95624e-06]; Kp:[-0.000292063,-0.000292063]; 
+2018-02-01 02:45:16,101 INFO  [algorithm] The sample is outside the domain
+2018-02-01 02:45:16,101 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 02:45:16,101 INFO  [algorithm] Quasi-random sample: Kd:[-0.0488417,-0.0488417]; Ki:[-9.64911e-07,-9.64911e-07]; Kp:[-0.000727751,-0.000727751]; 
+2018-02-01 02:45:16,101 INFO  [algorithm] The sample is inside the domain
+2018-02-01 02:45:16,102 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 03:13:21,058 INFO  [algorithm] Random sample size: 289
+2018-02-01 03:13:21,058 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 03:13:21,058 INFO  [algorithm] Probability: [0,0.0809278]
+
+2018-02-01 03:13:21,058 INFO  [algorithm] Quasi-random sample: Kd:[-0.0819813,-0.0819813]; Ki:[-6.90734e-07,-6.90734e-07]; Kp:[0.000191024,0.000191024]; 
+2018-02-01 03:13:21,058 INFO  [algorithm] The sample is outside the domain
+2018-02-01 03:13:21,058 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 03:13:21,058 INFO  [algorithm] Quasi-random sample: Kd:[-0.136201,-0.136201]; Ki:[-4.66444e-07,-4.66444e-07]; Kp:[-0.000697756,-0.000697756]; 
+2018-02-01 03:13:21,058 INFO  [algorithm] The sample is outside the domain
+2018-02-01 03:13:21,058 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 03:13:21,058 INFO  [algorithm] Quasi-random sample: Kd:[0.0634224,0.0634224]; Ki:[-6.598e-07,-6.598e-07]; Kp:[-0.000176089,-0.000176089]; 
+2018-02-01 03:13:21,058 INFO  [algorithm] The sample is outside the domain
+2018-02-01 03:13:21,058 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 03:13:21,058 INFO  [algorithm] Quasi-random sample: Kd:[-0.0620822,-0.0620822]; Ki:[-1.32697e-06,-1.32697e-06]; Kp:[-0.00096386,-0.00096386]; 
+2018-02-01 03:13:21,058 INFO  [algorithm] The sample is outside the domain
+2018-02-01 03:13:21,058 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 03:13:21,058 INFO  [algorithm] Quasi-random sample: Kd:[0.00310131,0.00310131]; Ki:[-8.99081e-07,-8.99081e-07]; Kp:[-0.000674302,-0.000674302]; 
+2018-02-01 03:13:21,058 INFO  [algorithm] The sample is outside the domain
+2018-02-01 03:13:21,058 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 03:13:21,058 INFO  [algorithm] Quasi-random sample: Kd:[-0.041768,-0.041768]; Ki:[-7.38282e-07,-7.38282e-07]; Kp:[-0.000609193,-0.000609193]; 
+2018-02-01 03:13:21,058 INFO  [algorithm] The sample is inside the domain
+2018-02-01 03:13:21,059 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 04:04:04,901 INFO  [algorithm] Random sample size: 368
+2018-02-01 04:04:04,901 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 04:04:04,901 INFO  [algorithm] Probability: [0.0689189,0.187838]
+
+2018-02-01 04:04:04,901 INFO  [algorithm] Quasi-random sample: Kd:[0.0634205,0.0634205]; Ki:[-7.02814e-07,-7.02814e-07]; Kp:[-8.22365e-05,-8.22365e-05]; 
+2018-02-01 04:04:04,901 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,901 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,901 INFO  [algorithm] Quasi-random sample: Kd:[-0.0179702,-0.0179702]; Ki:[6.9319e-07,6.9319e-07]; Kp:[-0.000371766,-0.000371766]; 
+2018-02-01 04:04:04,901 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,901 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,901 INFO  [algorithm] Quasi-random sample: Kd:[-0.0548167,-0.0548167]; Ki:[-1.43014e-06,-1.43014e-06]; Kp:[-0.00100573,-0.00100573]; 
+2018-02-01 04:04:04,902 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,902 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,902 INFO  [algorithm] Quasi-random sample: Kd:[-0.0767789,-0.0767789]; Ki:[-1.66758e-06,-1.66758e-06]; Kp:[0.000237186,0.000237186]; 
+2018-02-01 04:04:04,902 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,902 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,902 INFO  [algorithm] Quasi-random sample: Kd:[0.00977412,0.00977412]; Ki:[-1.50618e-06,-1.50618e-06]; Kp:[0.000401943,0.000401943]; 
+2018-02-01 04:04:04,902 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,902 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,902 INFO  [algorithm] Quasi-random sample: Kd:[-0.104698,-0.104698]; Ki:[-4.13294e-07,-4.13294e-07]; Kp:[-0.000636968,-0.000636968]; 
+2018-02-01 04:04:04,902 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,902 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,902 INFO  [algorithm] Quasi-random sample: Kd:[-0.0320044,-0.0320044]; Ki:[-1.23108e-07,-1.23108e-07]; Kp:[0.000695009,0.000695009]; 
+2018-02-01 04:04:04,902 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,902 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,902 INFO  [algorithm] Quasi-random sample: Kd:[0.0104256,0.0104256]; Ki:[-2.59192e-07,-2.59192e-07]; Kp:[0.000223314,0.000223314]; 
+2018-02-01 04:04:04,902 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,902 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,902 INFO  [algorithm] Quasi-random sample: Kd:[-0.149476,-0.149476]; Ki:[-8.42543e-07,-8.42543e-07]; Kp:[-0.000640283,-0.000640283]; 
+2018-02-01 04:04:04,902 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,902 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,902 INFO  [algorithm] Quasi-random sample: Kd:[-0.0637163,-0.0637163]; Ki:[2.17548e-07,2.17548e-07]; Kp:[-0.00152935,-0.00152935]; 
+2018-02-01 04:04:04,902 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,902 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,902 INFO  [algorithm] Quasi-random sample: Kd:[-0.0384751,-0.0384751]; Ki:[-8.4874e-07,-8.4874e-07]; Kp:[-0.00113978,-0.00113978]; 
+2018-02-01 04:04:04,902 INFO  [algorithm] The sample is outside the domain
+2018-02-01 04:04:04,902 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 04:04:04,902 INFO  [algorithm] Number of outliers: 47
+
+2018-02-01 04:04:04,903 INFO  [algorithm] Mean: Kd:[-0.03245,-0.03245]; Ki:[-4.54106e-07,-4.54106e-07]; Kp:[-0.000516026,-0.000516026]; 
+2018-02-01 04:04:04,903 INFO  [algorithm] Standard deviation: Kd:[0.0181567,0.0181567]; Ki:[2.01388e-07,2.01388e-07]; Kp:[0.00015038,0.00015038]; 
+2018-02-01 04:04:04,903 INFO  [algorithm] Variance: Kd:[0.000329666,0.000329666]; Ki:[4.05572e-14,4.05572e-14]; Kp:[2.26142e-08,2.26142e-08]; 
+2018-02-01 04:04:04,915 INFO  [algorithm] Sample size: 22
+2018-02-01 04:04:04,915 INFO  [algorithm] Quasi-random sample: Kd:[-0.0362767,-0.0362767]; Ki:[-6.84869e-07,-6.84869e-07]; Kp:[-0.000510969,-0.000510969]; 
+2018-02-01 04:04:04,915 INFO  [algorithm] The sample is inside the domain
+2018-02-01 04:04:04,915 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 05:02:34,259 INFO  [algorithm] Random sample size: 384
+2018-02-01 05:02:34,259 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 05:02:34,259 INFO  [algorithm] Probability: [0.0665803,0.189896]
+
+2018-02-01 05:02:34,260 INFO  [algorithm] Quasi-random sample: Kd:[-0.0282547,-0.0282547]; Ki:[-4.57178e-07,-4.57178e-07]; Kp:[-0.000642984,-0.000642984]; 
+2018-02-01 05:02:34,260 INFO  [algorithm] The sample is inside the domain
+2018-02-01 05:02:34,260 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 06:22:12,927 INFO  [algorithm] Random sample size: 515
+2018-02-01 06:22:12,928 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 06:22:12,928 INFO  [algorithm] Probability: [0.193714,0.316925]
+
+2018-02-01 06:22:12,928 INFO  [algorithm] Quasi-random sample: Kd:[0.00793271,0.00793271]; Ki:[-3.85355e-07,-3.85355e-07]; Kp:[-0.000431487,-0.000431487]; 
+2018-02-01 06:22:12,928 INFO  [algorithm] The sample is outside the domain
+2018-02-01 06:22:12,928 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-01 06:22:12,928 INFO  [algorithm] Quasi-random sample: Kd:[-0.0336986,-0.0336986]; Ki:[-9.25279e-08,-9.25279e-08]; Kp:[-0.000430911,-0.000430911]; 
+2018-02-01 06:22:12,928 INFO  [algorithm] The sample is inside the domain
+2018-02-01 06:22:12,928 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 08:15:42,379 INFO  [algorithm] Random sample size: 649
+2018-02-01 08:15:42,379 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 08:15:42,379 INFO  [algorithm] Probability: [0.513748,0.618356]
+
+2018-02-01 08:15:42,379 INFO  [algorithm] Quasi-random sample: Kd:[-0.0427516,-0.0427516]; Ki:[-3.52922e-07,-3.52922e-07]; Kp:[-0.000689271,-0.000689271]; 
+2018-02-01 08:15:42,379 INFO  [algorithm] The sample is inside the domain
+2018-02-01 08:15:42,379 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 10:18:50,210 INFO  [algorithm] Random sample size: 617
+2018-02-01 10:18:50,210 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 10:18:50,210 INFO  [algorithm] Probability: [0.588126,0.689742]
+
+2018-02-01 10:18:50,210 INFO  [algorithm] Quasi-random sample: Kd:[-0.0316862,-0.0316862]; Ki:[-3.71891e-07,-3.71891e-07]; Kp:[-0.000481756,-0.000481756]; 
+2018-02-01 10:18:50,210 INFO  [algorithm] The sample is inside the domain
+2018-02-01 10:18:50,210 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 12:14:04,031 INFO  [algorithm] Random sample size: 539
+2018-02-01 12:14:04,031 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 12:14:04,031 INFO  [algorithm] Probability: [0.678281,0.781978]
+
+2018-02-01 12:14:04,031 INFO  [algorithm] Quasi-random sample: Kd:[-0.0447014,-0.0447014]; Ki:[-3.2836e-07,-3.2836e-07]; Kp:[-0.0006499,-0.0006499]; 
+2018-02-01 12:14:04,031 INFO  [algorithm] The sample is inside the domain
+2018-02-01 12:14:04,031 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 14:09:36,231 INFO  [algorithm] Random sample size: 531
+2018-02-01 14:09:36,231 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 14:09:36,231 INFO  [algorithm] Probability: [0.694841,0.796717]
+
+2018-02-01 14:09:36,231 INFO  [algorithm] Quasi-random sample: Kd:[-0.00207976,-0.00207976]; Ki:[-4.0073e-07,-4.0073e-07]; Kp:[-0.000554394,-0.000554394]; 
+2018-02-01 14:09:36,231 INFO  [algorithm] The sample is inside the domain
+2018-02-01 14:09:36,231 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 15:10:53,553 INFO  [algorithm] Random sample size: 364
+2018-02-01 15:10:53,553 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 15:10:53,553 INFO  [algorithm] Probability: [0.0592896,0.172951]
+
+2018-02-01 15:10:53,553 INFO  [algorithm] Quasi-random sample: Kd:[-0.0328124,-0.0328124]; Ki:[-5.43822e-07,-5.43822e-07]; Kp:[-0.000762441,-0.000762441]; 
+2018-02-01 15:10:53,553 INFO  [algorithm] The sample is inside the domain
+2018-02-01 15:10:53,553 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 15:47:58,863 INFO  [algorithm] Random sample size: 312
+2018-02-01 15:47:58,863 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 15:47:58,863 INFO  [algorithm] Probability: [0,0.113694]
+
+2018-02-01 15:47:58,863 INFO  [algorithm] Quasi-random sample: Kd:[-0.0334154,-0.0334154]; Ki:[-5.20435e-07,-5.20435e-07]; Kp:[-0.00045072,-0.00045072]; 
+2018-02-01 15:47:58,863 INFO  [algorithm] The sample is inside the domain
+2018-02-01 15:47:58,864 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 18:01:42,360 INFO  [algorithm] Random sample size: 655
+2018-02-01 18:01:42,360 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 18:01:42,360 INFO  [algorithm] Probability: [0.482725,0.593379]
+
+2018-02-01 18:01:42,360 INFO  [algorithm] Quasi-random sample: Kd:[-0.0212122,-0.0212122]; Ki:[-3.36384e-07,-3.36384e-07]; Kp:[-0.000405668,-0.000405668]; 
+2018-02-01 18:01:42,360 INFO  [algorithm] The sample is inside the domain
+2018-02-01 18:01:42,360 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 20:08:37,413 INFO  [algorithm] Random sample size: 611
+2018-02-01 20:08:37,413 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 20:08:37,413 INFO  [algorithm] Probability: [0.594372,0.696003]
+
+2018-02-01 20:08:37,414 INFO  [algorithm] Quasi-random sample: Kd:[-0.0147532,-0.0147532]; Ki:[-4.84993e-09,-4.84993e-09]; Kp:[-0.000568901,-0.000568901]; 
+2018-02-01 20:08:37,414 INFO  [algorithm] The sample is inside the domain
+2018-02-01 20:08:37,414 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-01 22:03:40,091 INFO  [algorithm] Random sample size: 476
+2018-02-01 22:03:40,091 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-01 22:03:40,091 INFO  [algorithm] Probability: [0.747071,0.847071]
+
+2018-02-01 22:03:40,091 INFO  [algorithm] Quasi-random sample: Kd:[-0.0400007,-0.0400007]; Ki:[-6.36537e-07,-6.36537e-07]; Kp:[-0.0004836,-0.0004836]; 
+2018-02-01 22:03:40,091 INFO  [algorithm] The sample is inside the domain
+2018-02-01 22:03:40,091 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 00:10:06,300 INFO  [algorithm] Random sample size: 625
+2018-02-02 00:10:06,300 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 00:10:06,300 INFO  [algorithm] Probability: [0.329585,0.447129]
+
+2018-02-02 00:10:06,300 INFO  [algorithm] Quasi-random sample: Kd:[-0.0467437,-0.0467437]; Ki:[-4.8541e-07,-4.8541e-07]; Kp:[-0.00040606,-0.00040606]; 
+2018-02-02 00:10:06,301 INFO  [algorithm] The sample is inside the domain
+2018-02-02 00:10:06,301 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 02:22:12,388 INFO  [algorithm] Random sample size: 610
+2018-02-02 02:22:12,388 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 02:22:12,388 INFO  [algorithm] Probability: [0.600327,0.701961]
+
+2018-02-02 02:22:12,388 INFO  [algorithm] Quasi-random sample: Kd:[-0.0170753,-0.0170753]; Ki:[-6.2217e-07,-6.2217e-07]; Kp:[-0.000580515,-0.000580515]; 
+2018-02-02 02:22:12,388 INFO  [algorithm] The sample is inside the domain
+2018-02-02 02:22:12,388 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 03:05:22,223 INFO  [algorithm] Random sample size: 286
+2018-02-02 03:05:22,223 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 03:05:22,224 INFO  [algorithm] Probability: [0,0.0777778]
+
+2018-02-02 03:05:22,224 INFO  [algorithm] Quasi-random sample: Kd:[-0.02838,-0.02838]; Ki:[-2.43052e-07,-2.43052e-07]; Kp:[-0.000640086,-0.000640086]; 
+2018-02-02 03:05:22,224 INFO  [algorithm] The sample is inside the domain
+2018-02-02 03:05:22,225 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 05:18:17,776 INFO  [algorithm] Random sample size: 542
+2018-02-02 05:18:17,776 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 05:18:17,776 INFO  [algorithm] Probability: [0.677941,0.787132]
+
+2018-02-02 05:18:17,776 INFO  [algorithm] Quasi-random sample: Kd:[-0.0181723,-0.0181723]; Ki:[-2.37444e-07,-2.37444e-07]; Kp:[-0.000722122,-0.000722122]; 
+2018-02-02 05:18:17,776 INFO  [algorithm] The sample is inside the domain
+2018-02-02 05:18:17,777 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 06:48:24,823 INFO  [algorithm] Random sample size: 504
+2018-02-02 06:48:24,823 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 06:48:24,823 INFO  [algorithm] Probability: [0.199012,0.314822]
+
+2018-02-02 06:48:24,823 INFO  [algorithm] Quasi-random sample: Kd:[-0.0435396,-0.0435396]; Ki:[-3.99147e-07,-3.99147e-07]; Kp:[-0.000239763,-0.000239763]; 
+2018-02-02 06:48:24,823 INFO  [algorithm] The sample is inside the domain
+2018-02-02 06:48:24,824 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 08:37:39,335 INFO  [algorithm] Random sample size: 630
+2018-02-02 08:37:39,335 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 08:37:39,335 INFO  [algorithm] Probability: [0.343987,0.447152]
+
+2018-02-02 08:37:39,335 INFO  [algorithm] Quasi-random sample: Kd:[-0.032611,-0.032611]; Ki:[-5.12866e-07,-5.12866e-07]; Kp:[-0.00039732,-0.00039732]; 
+2018-02-02 08:37:39,335 INFO  [algorithm] The sample is inside the domain
+2018-02-02 08:37:39,335 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 11:03:12,238 INFO  [algorithm] Random sample size: 648
+2018-02-02 11:03:12,238 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 11:03:12,238 INFO  [algorithm] Probability: [0.508462,0.620769]
+
+2018-02-02 11:03:12,238 INFO  [algorithm] Quasi-random sample: Kd:[-0.0552192,-0.0552192]; Ki:[-7.48164e-07,-7.48164e-07]; Kp:[-0.000206573,-0.000206573]; 
+2018-02-02 11:03:12,238 INFO  [algorithm] The sample is inside the domain
+2018-02-02 11:03:12,240 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 11:52:16,224 INFO  [algorithm] Random sample size: 317
+2018-02-02 11:52:16,224 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 11:52:16,225 INFO  [algorithm] Probability: [0,0.109561]
+
+2018-02-02 11:52:16,225 INFO  [algorithm] Quasi-random sample: Kd:[-0.0439734,-0.0439734]; Ki:[-5.96331e-07,-5.96331e-07]; Kp:[-0.000570823,-0.000570823]; 
+2018-02-02 11:52:16,225 INFO  [algorithm] The sample is inside the domain
+2018-02-02 11:52:16,225 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 14:27:41,902 INFO  [algorithm] Random sample size: 657
+2018-02-02 14:27:41,902 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 14:27:41,902 INFO  [algorithm] Probability: [0.475038,0.57959]
+
+2018-02-02 14:27:41,902 INFO  [algorithm] Quasi-random sample: Kd:[-0.0401904,-0.0401904]; Ki:[-1.83113e-07,-1.83113e-07]; Kp:[-0.00066323,-0.00066323]; 
+2018-02-02 14:27:41,902 INFO  [algorithm] The sample is inside the domain
+2018-02-02 14:27:41,903 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 16:35:48,741 INFO  [algorithm] Random sample size: 471
+2018-02-02 16:35:48,741 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 16:35:48,741 INFO  [algorithm] Probability: [0.749154,0.851268]
+
+2018-02-02 16:35:48,741 INFO  [algorithm] Number of outliers: 1
+
+2018-02-02 16:35:48,742 INFO  [algorithm] Mean: Kd:[-0.033215,-0.033215]; Ki:[-1.72107e-07,-1.72107e-07]; Kp:[-0.000627344,-0.000627344]; 
+2018-02-02 16:35:48,742 INFO  [algorithm] Standard deviation: Kd:[0.0131837,0.0131837]; Ki:[1.32301e-07,1.32301e-07]; Kp:[4.16823e-05,4.16823e-05]; 
+2018-02-02 16:35:48,742 INFO  [algorithm] Variance: Kd:[0.000173811,0.000173811]; Ki:[1.75037e-14,1.75037e-14]; Kp:[1.73741e-09,1.73741e-09]; 
+2018-02-02 16:35:48,778 INFO  [algorithm] Sample size: 23
+2018-02-02 16:35:48,778 INFO  [algorithm] Quasi-random sample: Kd:[-0.0284443,-0.0284443]; Ki:[-4.98838e-07,-4.98838e-07]; Kp:[-0.00061015,-0.00061015]; 
+2018-02-02 16:35:48,778 INFO  [algorithm] The sample is inside the domain
+2018-02-02 16:35:48,778 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 18:14:04,725 INFO  [algorithm] Random sample size: 490
+2018-02-02 18:14:04,725 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 18:14:04,725 INFO  [algorithm] Probability: [0.181707,0.302033]
+
+2018-02-02 18:14:04,726 INFO  [algorithm] Quasi-random sample: Kd:[-0.035701,-0.035701]; Ki:[-2.20123e-07,-2.20123e-07]; Kp:[-0.00059501,-0.00059501]; 
+2018-02-02 18:14:04,726 INFO  [algorithm] The sample is inside the domain
+2018-02-02 18:14:04,726 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 20:26:56,444 INFO  [algorithm] Random sample size: 484
+2018-02-02 20:26:56,444 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 20:26:56,444 INFO  [algorithm] Probability: [0.733951,0.840123]
+
+2018-02-02 20:26:56,444 INFO  [algorithm] Quasi-random sample: Kd:[-0.0519494,-0.0519494]; Ki:[-1.94596e-07,-1.94596e-07]; Kp:[-0.000667151,-0.000667151]; 
+2018-02-02 20:26:56,444 INFO  [algorithm] The sample is inside the domain
+2018-02-02 20:26:56,444 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-02 22:50:22,451 INFO  [algorithm] Random sample size: 540
+2018-02-02 22:50:22,451 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-02 22:50:22,451 INFO  [algorithm] Probability: [0.686162,0.788007]
+
+2018-02-02 22:50:22,452 INFO  [algorithm] Quasi-random sample: Kd:[-0.0357771,-0.0357771]; Ki:[-1.38917e-07,-1.38917e-07]; Kp:[-0.000606759,-0.000606759]; 
+2018-02-02 22:50:22,452 INFO  [algorithm] The sample is inside the domain
+2018-02-02 22:50:22,452 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-03 01:14:48,738 INFO  [algorithm] Random sample size: 535
+2018-02-03 01:14:48,738 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-03 01:14:48,738 INFO  [algorithm] Probability: [0.685568,0.789292]
+
+2018-02-03 01:14:48,738 INFO  [algorithm] Quasi-random sample: Kd:[-0.0149416,-0.0149416]; Ki:[-1.77883e-07,-1.77883e-07]; Kp:[-0.0006624,-0.0006624]; 
+2018-02-03 01:14:48,738 INFO  [algorithm] The sample is inside the domain
+2018-02-03 01:14:48,739 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-03 03:57:25,585 INFO  [algorithm] Random sample size: 658
+2018-02-03 03:57:25,586 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-03 03:57:25,586 INFO  [algorithm] Probability: [0.44697,0.559091]
+
+2018-02-03 03:57:25,586 INFO  [algorithm] Quasi-random sample: Kd:[-0.0425878,-0.0425878]; Ki:[-7.23728e-08,-7.23728e-08]; Kp:[-0.000620697,-0.000620697]; 
+2018-02-03 03:57:25,586 INFO  [algorithm] The sample is inside the domain
+2018-02-03 03:57:25,586 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-03 06:24:10,321 INFO  [algorithm] Random sample size: 532
+2018-02-03 06:24:10,322 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-03 06:24:10,322 INFO  [algorithm] Probability: [0.68221,0.787828]
+
+2018-02-03 06:24:10,322 INFO  [algorithm] Quasi-random sample: Kd:[-0.027591,-0.027591]; Ki:[-1.69037e-07,-1.69037e-07]; Kp:[-0.00067636,-0.00067636]; 
+2018-02-03 06:24:10,322 INFO  [algorithm] The sample is inside the domain
+2018-02-03 06:24:10,322 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-03 09:03:55,825 INFO  [algorithm] Random sample size: 571
+2018-02-03 09:03:55,825 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-03 09:03:55,826 INFO  [algorithm] Probability: [0.641099,0.749825]
+
+2018-02-03 09:03:55,826 INFO  [algorithm] Quasi-random sample: Kd:[-0.0308746,-0.0308746]; Ki:[5.10167e-08,5.10167e-08]; Kp:[-0.00053483,-0.00053483]; 
+2018-02-03 09:03:55,826 INFO  [algorithm] The sample is outside the domain
+2018-02-03 09:03:55,826 INFO  [algorithm] Probability: [-inf,-inf]
+
+2018-02-03 09:03:55,826 INFO  [algorithm] Quasi-random sample: Kd:[-0.0177291,-0.0177291]; Ki:[-2.62395e-07,-2.62395e-07]; Kp:[-0.000660197,-0.000660197]; 
+2018-02-03 09:03:55,826 INFO  [algorithm] The sample is inside the domain
+2018-02-03 09:03:55,826 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-03 11:36:08,401 INFO  [algorithm] Random sample size: 633
+2018-02-03 11:36:08,401 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-03 11:36:08,401 INFO  [algorithm] Probability: [0.343701,0.459449]
+
+2018-02-03 11:36:08,402 INFO  [algorithm] Quasi-random sample: Kd:[-0.0318684,-0.0318684]; Ki:[-1.5722e-07,-1.5722e-07]; Kp:[-0.000626886,-0.000626886]; 
+2018-02-03 11:36:08,402 INFO  [algorithm] The sample is inside the domain
+2018-02-03 11:36:08,402 INFO  [algorithm] Bayesian estimations algorithm started
+2018-02-03 14:08:09,165 INFO  [algorithm] Random sample size: 523
+2018-02-03 14:08:09,165 INFO  [algorithm] Bayesian estimations algorithm finished
+2018-02-03 14:08:09,165 INFO  [algorithm] Probability: [0.704286,0.804286]
+
+2018-02-03 14:08:09,165 INFO  [algorithm] Quasi-random sample: Kd:[-0.022799,-0.022799]; Ki:[-3.54791e-07,-3.54791e-07]; Kp:[-0.000619978,-0.000619978]; 
+2018-02-03 14:08:09,165 INFO  [algorithm] The sample is inside the domain
+2018-02-03 14:08:09,165 INFO  [algorithm] Bayesian estimations algorithm started

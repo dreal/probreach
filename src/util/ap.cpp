@@ -682,7 +682,9 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
 
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
-    int window_size = 10;
+    int window_size = 6;
+//    #pragma omp critical
+//    cout << "Window size: " << window_size << endl;
     //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Window size: " << window_size;
 //    size_t sat_num = 0;
 //    size_t unsat_num = 0;
@@ -732,6 +734,7 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
             for(size_t k = 0; k < init_box.size(); k++)
             {
                 sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
+                //sol_box.push_back(solve_odes_nonrig(cur_mode->odes, init_box.at(k), time, boxes));
             }
 //            cout << "Solution (VERIFIED) box for depth " << i << endl;
 //            cout << box_factory::box_hull(sol_box) << endl;
@@ -740,10 +743,12 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
 //            cout << "Solution box hull in mode " << cur_mode->id << " at depth = " << i << endl;
 //            cout << box_factory::box_hull(sol_box) << endl;
 
+//            #pragma omp critical
+//            cout << "Total number of boxes so far: " << sol_box.size() << endl;
             vector<box> part_sol_box;
             for(box b : sol_box)
             {
-                vector<box> part_boxes = box_factory::bisect(b, {"Q1"});
+                vector<box> part_boxes = box_factory::bisect(b, vector<string>{"Q1"});
                 part_sol_box.insert(part_sol_box.end(), part_boxes.begin(), part_boxes.end());
             }
 
@@ -791,6 +796,7 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
     for(size_t k = 0; k < init_box.size(); k++)
     {
         sol_box.push_back(solve_odes(path.back()->odes, init_box.at(k), time, boxes));
+        //sol_box.push_back(solve_odes_nonrig(path.back()->odes, init_box.at(k), time, boxes));
     }
     return make_pair(decision_procedure::SAT, box_factory::box_hull(sol_box));
 }

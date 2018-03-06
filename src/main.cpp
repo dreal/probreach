@@ -248,30 +248,37 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
+                    // getting the domain of nondeterministic parameters
+                    box nondet_domain = pdrh::get_nondet_domain();
+                    cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
+                    // changing the domain to start with the simplest controller
+                    cout << "Changing the domain of nondeterministic parameters" << endl;
+                    pdrh::par_map["Ki"] = make_pair(new pdrh::node("0"), new pdrh::node("0"));
+                    pdrh::par_map["Kd"] = make_pair(new pdrh::node("0"), new pdrh::node("0"));
+                    nondet_domain = pdrh::get_nondet_domain();
+                    cout << "New domain of nondeterministic parameters: " << nondet_domain << endl;
+
                     // cross entropy algorithm is used here
-                    pair<box, capd::interval> opt_res;
-                    if(global_config.cross_entropy_normal)
-                    {
-                        algorithm::use_verified = false;
-                        cout << "Solving optimisation problem for the discretised system" << endl;
-                        opt_res = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
-                                                                                     global_config.reach_depth_max,
-                                                                                     global_config.sample_size);
-                        cout << "Optimisation result: " << endl;
-                        cout << opt_res.first << "   |   " << opt_res.second << endl;
-                        algorithm::use_verified = true;
-                        cout << "Computing confidence interval with guarantees:" << endl;
-                        capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
-                                                                               global_config.bayesian_conf, {opt_res.first});
-                        cout << "The verification result:" << endl;
-                        cout << opt_res.first << "   |   " << prob << endl;
-                    }
-                    else if(global_config.cross_entropy_beta)
-                    {
-                        opt_res = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
-                                                                                   global_config.reach_depth_max,
-                                                                                   global_config.sample_size);
-                    }
+                    algorithm::use_verified = false;
+                    cout << "Solving optimisation problem for the discretised system" << endl;
+                    pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
+                                                                                 global_config.reach_depth_max,
+                                                                                 global_config.sample_size);
+                    cout << "Optimisation result: " << endl;
+                    cout << opt_res.first << "   |   " << opt_res.second << endl;
+                    algorithm::use_verified = true;
+                    cout << "Computing confidence interval with guarantees:" << endl;
+                    capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
+                                                                           global_config.bayesian_conf, {opt_res.first});
+                    cout << "The verification result:" << endl;
+                    cout << opt_res.first << "   |   " << prob << endl;
+
+//                    if(global_config.cross_entropy_beta)
+//                    {
+//                        opt_res = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
+//                                                                                   global_config.reach_depth_max,
+//                                                                                   global_config.sample_size);
+//                    }
                     //std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
                 }
 //                cout << "UNSAT samples:" << endl;

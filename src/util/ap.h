@@ -65,7 +65,7 @@ namespace ap
     box init_to_box(vector<box>);
     box solve_odes(map<string, pdrh::node*>, box, capd::interval, vector<box>);
     box solve_odes_nonrig(map<string, pdrh::node*>, box, capd::interval, vector<box>);
-    box solve_odes_discrete(map<string, pdrh::node*>, box, capd::interval, vector<box>);
+    box solve_odes_discrete(map<string, pdrh::node*>, box, capd::interval, size_t, vector<box>);
 
 
 

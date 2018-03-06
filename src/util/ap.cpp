@@ -569,7 +569,7 @@ box ap::solve_odes_nonrig(map<string, pdrh::node *> odes, box init, capd::interv
 
 
 // boxes - vector of parameter boxes, init - initial box, time - time horizon
-box ap::solve_odes_discrete(map<string, pdrh::node *> odes, box init, capd::interval time, vector<box> boxes)
+box ap::solve_odes_discrete(map<string, pdrh::node *> odes, box init, capd::interval time, size_t num_points, vector<box> boxes)
 {
     // creating capd string here
     // declaring parameters
@@ -623,13 +623,19 @@ box ap::solve_odes_discrete(map<string, pdrh::node *> odes, box init, capd::inte
     // setting initial condition here
     capd::DVector init_vector(odes_size), res_vector(odes_size);
     map<string, capd::interval> init_map = init.get_map();
-    int i = 0;
+    size_t i = 0;
     for(auto it = init_map.begin(); it != init_map.end(); it++)
     {
         init_vector[i] = it->second.rightBound();
         i++;
     }
-    res_vector = odes_rhs(init_vector) * time.rightBound();
+
+    // solving the ode system using discretisation over num_points time points
+    for(size_t i = 0; i < num_points; i++)
+    {
+        res_vector = odes_rhs(init_vector) * time.rightBound() / num_points;
+        init_vector = init_vector + res_vector;
+    }
 
     // solving the ODE system and creating the result
     map<string, capd::interval> res_map;
@@ -640,13 +646,13 @@ box ap::solve_odes_discrete(map<string, pdrh::node *> odes, box init, capd::inte
            (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
            (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
         {
-            res_map.insert(make_pair(it->first, res_vector[i]));
+            res_map.insert(make_pair(it->first, init_vector[i]));
             i++;
         }
     }
 //    cout << "ODE Solution (Discretised)" << endl;
 //    cout << init + box(res_map) << endl;
-    return init + box(res_map);
+    return box(res_map);
 }
 
 
@@ -859,9 +865,9 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
             sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
             //sol = solve_odes(cur_mode->odes, init, time, boxes);
             cout << "Solution @ step " << i << ": " << endl << sol << endl;
-            //sol = solve_odes_discrete(cur_mode->odes, init, time, boxes);
-//            #pragma omp critical
-//            {
+            //sol = solve_odes_discrete(cur_mode->odes, init, time, 100, boxes);
+            #pragma omp critical
+            {
 //                cout << "====================" << endl;
 //                cout << "Solution of the ODE system: " << sol << endl;
 //                cout << "--------------------" << endl;
@@ -876,14 +882,12 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
 //                    cout << "The solution is outside the domain" << endl;
 //                }
 //                cout << endl;
-//            }
+            }
 
             if(!domain.contains(sol))
             {
                 return box();
             }
-
-
 
             // printing out the solution box
 //            cout << "Solution (DICRETISED) box for depth " << i << endl;
@@ -913,7 +917,7 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
     // computing solution for the goal
     sol = solve_odes_nonrig(path.back()->odes, init, time, boxes);
     //sol = solve_odes(path.back()->odes, init, time, boxes);
-    cout << "Solution: " << path.size() << ": " << endl << sol << endl;
+    cout << "Final solution: " << endl << sol << endl;
     map<string, capd::interval> obj_map, b_map;
     b_map = sol.get_map();
     for(auto it = b_map.begin(); it != b_map.end(); it++)
@@ -993,7 +997,8 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
             }
 
             // solving odes
-            sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
+            //sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
+            sol = solve_odes_discrete(cur_mode->odes, init, time, 1, boxes);
 
 //            cout << "Solution @ " << i << ": " << sol << endl;
 //            cout << "----------" << endl;
@@ -1101,7 +1106,6 @@ capd::interval ap::compute_min_robustness(vector<vector<pdrh::mode *>> paths, bo
     }
     return min_rob;
 }
-
 
 
 vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)

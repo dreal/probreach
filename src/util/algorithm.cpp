@@ -922,7 +922,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
                     case decision_procedure::UNSAT:
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
                         unsat++;
-                        ap::unsat_samples.push_back(b);
+                        //ap::unsat_samples.push_back(b);
                         break;
 
                     case decision_procedure::UNDET:

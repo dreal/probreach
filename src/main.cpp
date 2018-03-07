@@ -249,14 +249,14 @@ int main(int argc, char* argv[])
                 else
                 {
                     // getting the domain of nondeterministic parameters
-                    box nondet_domain = pdrh::get_nondet_domain();
-                    cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
-                    // changing the domain to start with the simplest controller
-                    cout << "Changing the domain of nondeterministic parameters" << endl;
-                    pdrh::par_map["Ki"] = make_pair(new pdrh::node("0"), new pdrh::node("0"));
-                    pdrh::par_map["Kd"] = make_pair(new pdrh::node("0"), new pdrh::node("0"));
-                    nondet_domain = pdrh::get_nondet_domain();
-                    cout << "New domain of nondeterministic parameters: " << nondet_domain << endl;
+//                    box nondet_domain = pdrh::get_nondet_domain();
+//                    cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
+//                    // changing the domain to start with the simplest controller
+//                    cout << "Changing the domain of nondeterministic parameters" << endl;
+//                    pdrh::par_map["Ki"] = make_pair(new pdrh::node("0"), new pdrh::node("0"));
+//                    pdrh::par_map["Kd"] = make_pair(new pdrh::node("0"), new pdrh::node("0"));
+//                    nondet_domain = pdrh::get_nondet_domain();
+//                    cout << "New domain of nondeterministic parameters: " << nondet_domain << endl;
 
                     // cross entropy algorithm is used here
                     algorithm::use_verified = false;

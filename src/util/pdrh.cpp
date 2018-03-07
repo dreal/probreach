@@ -1902,6 +1902,16 @@ void pdrh::copy_tree(pdrh::node * &copy, pdrh::node * origin)
     }
 }
 
+// getting a string representation of the node in prefix notation
+void pdrh::delete_node(pdrh::node* n)
+{
+    for(pdrh::node* op : n->operands)
+    {
+        delete_node(op);
+    }
+    delete n;
+}
+
 bool pdrh::is_node_empty(node* n)
 {
     return n->value.empty() && n->operands.empty();

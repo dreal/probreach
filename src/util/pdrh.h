@@ -68,6 +68,7 @@ namespace pdrh
     node* push_operation_node(string, vector<node*>);
     node* copy_node(node*);
     void copy_tree(node*&, node*);
+    void delete_node(node*);
 
     node* push_terminal_node(double);
     node* push_operation_node(double, vector<node*>);

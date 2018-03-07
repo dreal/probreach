@@ -196,8 +196,10 @@ capd::interval ap::get_sample_rate(pdrh::node* n)
 {
     pdrh::node *node_copy = new pdrh::node;
     pdrh::copy_tree(node_copy, n);
-    pdrh::node* time_node = new pdrh::node;
+    pdrh::node *time_node = new pdrh::node;
     pdrh::get_first_time_node(node_copy, time_node);
+    pdrh::delete_node(node_copy);
+    capd::interval result(0);
     // checking if the time node is not empty
     if(!pdrh::is_node_empty(time_node))
     {
@@ -206,14 +208,19 @@ capd::interval ap::get_sample_rate(pdrh::node* n)
         {
             if(time_node->operands.front()->value == "counter")
             {
-                return pdrh::node_to_interval(time_node->operands.back());
+                result = pdrh::node_to_interval(time_node->operands.back());
+                pdrh::delete_node(time_node);
+                return result;
             }
             if(time_node->operands.back()->value == "counter")
             {
-                return pdrh::node_to_interval(time_node->operands.front());
+                result = pdrh::node_to_interval(time_node->operands.front());
+                pdrh::delete_node(time_node);
+                return result;
             }
         }
     }
+    pdrh::delete_node(time_node);
     return capd::interval(0.0);
 }
 
@@ -238,6 +245,8 @@ capd::interval ap::get_meal_time(pdrh::node *n, vector<box> boxes)
     pdrh::copy_tree(node_copy, n);
     pdrh::node* time_node = new pdrh::node;
     pdrh::get_first_time_node(node_copy, time_node);
+    pdrh::delete_node(node_copy);
+    capd::interval result(0);
     // checking if the time node is not empty
     if(!pdrh::is_node_empty(time_node))
     {
@@ -246,14 +255,19 @@ capd::interval ap::get_meal_time(pdrh::node *n, vector<box> boxes)
         {
             if(time_node->operands.front()->value == "tau")
             {
-                return pdrh::node_to_interval(time_node->operands.back(), boxes);
+                result = pdrh::node_to_interval(time_node->operands.back(), boxes);
+                pdrh::delete_node(time_node);
+                return result;
             }
             if(time_node->operands.back()->value == "tau")
             {
-                return pdrh::node_to_interval(time_node->operands.front(), boxes);
+                result = pdrh::node_to_interval(time_node->operands.front(), boxes);
+                pdrh::delete_node(time_node);
+                return result;
             }
         }
     }
+    pdrh::delete_node(time_node);
     return capd::interval(0.0);
 }
 
@@ -352,6 +366,7 @@ bool ap::accept_path(vector<pdrh::mode *> path, vector<box> boxes)
         pos += num_reps;
         prev_mode = cur_mode;
     }
+    delete prev_mode;
     return true;
 }
 
@@ -972,6 +987,8 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
     capd::interval prev_mode_time(0);
     int window_size = 1;
 
+    //capd::interval sample_rate(5);
+
     // going through all modes in the path
     for(size_t j = 0; j < path.size() - 1; j = j + window_size)
     {
@@ -986,12 +1003,14 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
             if(cur_mode->id == next_mode->id)
             {
                 time = ap::get_sample_rate(cur_mode) - prev_mode_time;
+                //time = sample_rate - prev_mode_time;
                 cur_mode_time += time;
                 prev_mode_time = capd::interval(0);
             }
             else
             {
                 time = ap::get_meal_time(cur_mode, boxes) - cur_mode_time;
+                //time = sample_rate - cur_mode_time;
                 cur_mode_time = capd::interval(0);
                 prev_mode_time = time;
             }
@@ -999,7 +1018,7 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
             // solving odes
             //sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
             sol = solve_odes_discrete(cur_mode->odes, init, time, 1, boxes);
-
+            //sol = init;
 //            cout << "Solution @ " << i << ": " << sol << endl;
 //            cout << "----------" << endl;
 //
@@ -1132,11 +1151,11 @@ vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
         }
     }
     // inserting self-loops in each path
+    pdrh::mode* prev_mode = new pdrh::mode;
+    prev_mode->id = 0;
     for(vector<pdrh::mode*> path : paths)
     {
         vector<pdrh::mode*> new_path;
-        pdrh::mode* prev_mode = new pdrh::mode;
-        prev_mode->id = 0;
         for(size_t i = 0; i < path.size(); i++)
         {
             pdrh::mode* cur_mode = path[i];
@@ -1158,6 +1177,8 @@ vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
         new_path.push_back(path[path.size()-1]);
         res.push_back(new_path);
     }
+    prev_mode = NULL;
+    delete prev_mode;
     return res;
 }
 

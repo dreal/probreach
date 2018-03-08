@@ -258,20 +258,31 @@ int main(int argc, char* argv[])
 //                    nondet_domain = pdrh::get_nondet_domain();
 //                    cout << "New domain of nondeterministic parameters: " << nondet_domain << endl;
 
-                    // cross entropy algorithm is used here
-                    algorithm::use_verified = false;
-                    cout << "Solving optimisation problem for the discretised system" << endl;
-                    pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
-                                                                                 global_config.reach_depth_max,
-                                                                                 global_config.sample_size);
-                    cout << "Optimisation result: " << endl;
-                    cout << opt_res.first << "   |   " << opt_res.second << endl;
-                    algorithm::use_verified = true;
-                    cout << "Computing confidence interval with guarantees:" << endl;
-                    capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
-                                                                           global_config.bayesian_conf, {opt_res.first});
-                    cout << "The verification result:" << endl;
-                    cout << opt_res.first << "   |   " << prob << endl;
+                    capd::interval conf_intersection(0);
+                    // adjusting discretisation until both intervals intersect by more than 80%
+                    while(capd::intervals::width(conf_intersection) < 1.6 * global_config.bayesian_acc)
+                    {
+                        // cross entropy algorithm is used here
+                        algorithm::use_verified = false;
+                        cout << "Solving optimisation problem for the discretised system" << endl;
+                        cout << "Discretisation using " << global_config.ode_discretisation << " points" << endl;
+                        pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
+                                                                                                           global_config.reach_depth_max,
+                                                                                                           global_config.sample_size);
+                        cout << "Optimisation result: " << endl;
+                        cout << opt_res.first << "   |   " << opt_res.second << endl;
+                        algorithm::use_verified = true;
+                        cout << "Computing confidence interval with guarantees:" << endl;
+                        capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
+                                                                               global_config.bayesian_conf, {opt_res.first});
+                        cout << "The verification result:" << endl;
+                        cout << opt_res.first << "   |   " << prob << endl;
+                        capd::intervals::intersection(opt_res.second, prob, conf_intersection);
+                        cout << "Intersection of the two confidence intervals: " << conf_intersection << endl;
+                        // increasing the number of points used for odes discretisation
+                        global_config.ode_discretisation *= 2;
+                    }
+
 
 //                    if(global_config.cross_entropy_beta)
 //                    {

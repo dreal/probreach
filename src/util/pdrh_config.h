@@ -79,6 +79,8 @@ struct pdrh_config
     bool sort_rv_flag = false;
     bool show_model = false;
 
+    size_t ode_discretisation = 1;
+
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

@@ -1017,7 +1017,7 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
 
             // solving odes
             //sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
-            sol = solve_odes_discrete(cur_mode->odes, init, time, 1, boxes);
+            sol = solve_odes_discrete(cur_mode->odes, init, time, global_config.ode_discretisation, boxes);
             //sol = init;
 //            cout << "Solution @ " << i << ": " << sol << endl;
 //            cout << "----------" << endl;

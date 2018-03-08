@@ -282,6 +282,59 @@ jump:
                                         (Q1_prev' = Q1)(u' = Kp*e + Kd*e_der + Ki*e_int));
 
 
+(tau = 1440 - tau_meal_2 - tau_meal_1) ==> @4 (and (tau' = 0));
+
+}
+
+// dinner
+{
+mode 4;
+
+time:
+[0,tau_sample];
+
+invt:
+(G - (Q1_init / VG) + 0.5 >= 0);
+((Q1_init / VG) - G + 0.5 >= 0);
+
+flow:
+
+// controller
+d/dt[e_int] = 0;
+d/dt[e_der] = 0;
+d/dt[e] = 0;
+d/dt[Q1_prev] = 0;
+d/dt[u] = 0;
+
+// reference trajectory
+d/dt[r] = 0;
+
+// glucose-subsystem
+d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
+d/dt[Q2] = x1 * Q1 - (k12 + x2) * Q2;
+
+// insulin-subsystem
+d/dt[S1] = u + u_basal - S1 / tmaxI;
+d/dt[S2] = (S1 - S2) / tmaxI;
+d/dt[I] = S2 / (tmaxI * VI) - ke * I;
+
+// insulin-action-subsystem
+d/dt[x1] = - ka1 * x1 + kb1 * I;
+d/dt[x2] = - ka2 * x2 + kb2 * I;
+d/dt[x3] = - ka3 * x3 + kb3 * I;
+
+// food absorption
+d/dt[G1] = - G1 / tmaxG;
+d/dt[G2] = (G1 - G2) / tmaxG;
+
+// counters
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+
+jump:
+
+
+
 }
 
 
@@ -309,4 +362,4 @@ init:
 
 goal:
 
-@3(tau = 1440 - tau_meal_2 - tau_meal_1);
+@4(tau = 0);

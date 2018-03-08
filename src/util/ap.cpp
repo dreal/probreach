@@ -879,7 +879,7 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
             // solving odes
             sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
             //sol = solve_odes(cur_mode->odes, init, time, boxes);
-            cout << "Solution @ step " << i << ": " << endl << sol << endl;
+            cout << "Solution @ step " << i << " in mode " << cur_mode->id << ": " << endl << sol << endl;
             //sol = solve_odes_discrete(cur_mode->odes, init, time, 100, boxes);
             #pragma omp critical
             {
@@ -932,7 +932,7 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
     // computing solution for the goal
     sol = solve_odes_nonrig(path.back()->odes, init, time, boxes);
     //sol = solve_odes(path.back()->odes, init, time, boxes);
-    cout << "Final solution: " << endl << sol << endl;
+    cout << "Final solution at mode " << path.back()->id << ": " << endl << sol << endl;
     map<string, capd::interval> obj_map, b_map;
     b_map = sol.get_map();
     for(auto it = b_map.begin(); it != b_map.end(); it++)

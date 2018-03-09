@@ -1083,7 +1083,8 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
     vector<pair<box, capd::interval>> samples;
     capd::interval size_correction_coef(1e-32);
     //#pragma omp parallel
-    while (var.max_coordinate_value() > global_config.cross_entropy_term_arg) {
+    while (var.max_coordinate_value() > global_config.cross_entropy_term_arg)
+    {
         var = sigma * sigma;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Mean: " << mean;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Standard deviation: " << sigma;

@@ -113,7 +113,7 @@ box rnd::get_normal_random_sample(gsl_rng* r, box mu, box sigma)
         }
         else
         {
-            edges.insert(make_pair(it->first, pdrh::node_to_interval(it->second.first)));
+            edges.insert(make_pair(it->first, pdrh::node_to_interval(it->second.first).mid().leftBound()));
         }
     }
     return box(edges);

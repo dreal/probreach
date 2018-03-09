@@ -41,6 +41,7 @@
 
 #define G_upper_unsafe 16 // [mmol/L] glucose concentration upper shut off bound (Fedor 2017)
 #define G_lower_unsafe 4 // [mmol/L] glucose concentration upper shut off bound (Fedor 2017)
+#define sp_thresh 0.5
 
 #define u_basal 0.055485957306259535484277955219043 			// basal insulin infusion rate (Fedor 2017). Approximation of symbolic MATLAB solution
 
@@ -85,6 +86,7 @@ dist_normal(70, 10) DG3;
 #define Q1_upper 256
 
 #define n_coeff 16
+
 
 
 [0,1e3] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
@@ -294,8 +296,8 @@ time:
 [0,tau_sample];
 
 invt:
-(G - (Q1_init / VG) + 0.5 >= 0);
-((Q1_init / VG) - G + 0.5 >= 0);
+(G - (Q1_init / VG) + sp_thresh >= 0);
+((Q1_init / VG) - G + sp_thresh >= 0);
 
 flow:
 

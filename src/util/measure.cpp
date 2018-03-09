@@ -204,15 +204,18 @@ capd::interval measure::get_sample_prob(box domain, box mean, box sigma)
     }
     map<string, capd::interval> edges = domain.get_map();
     capd::interval res(1.0);
-    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    for(auto it = edges.begin(); it != edges.end(); it++)
     {
-        double prec = 1e-5;
-        //double prec = sigma.get_map()[it->first].leftBound() / 10;
-        pair<capd::interval, vector<capd::interval>> itg = measure::integral(it->first,
-                                                              measure::distribution::gaussian(it->first,
-                                                                   mean.get_map()[it->first], sigma.get_map()[it->first]),
-                                                                        it->second, prec);
-        res *= itg.first;
+        // considering only the parameters which domain is not a single point
+        if(pdrh::par_map[it->first].first->value != pdrh::par_map[it->first].second->value)
+        {
+            double prec = 1e-5;
+            //double prec = sigma.get_map()[it->first].leftBound() / 10;
+            pair<capd::interval, vector<capd::interval>> itg = measure::integral(it->first, measure::distribution::gaussian(it->first,
+                                                                                 mean.get_map()[it->first], sigma.get_map()[it->first]),
+                                                                                 it->second, prec);
+            res *= itg.first;
+        }
     }
     return res;
 }

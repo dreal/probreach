@@ -249,40 +249,59 @@ int main(int argc, char* argv[])
                 else
                 {
                     // getting the domain of nondeterministic parameters
-//                    box nondet_domain = pdrh::get_nondet_domain();
-//                    cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
-//                    // changing the domain to start with the simplest controller
-//                    cout << "Changing the domain of nondeterministic parameters" << endl;
-//                    pdrh::par_map["Ki"] = make_pair(new pdrh::node("0"), new pdrh::node("0"));
-//                    pdrh::par_map["Kd"] = make_pair(new pdrh::node("0"), new pdrh::node("0"));
-//                    nondet_domain = pdrh::get_nondet_domain();
-//                    cout << "New domain of nondeterministic parameters: " << nondet_domain << endl;
-
-                    capd::interval conf_intersection(0);
-                    // adjusting discretisation until both intervals intersect by more than 80%
-                    while(capd::intervals::width(conf_intersection) < 1.6 * global_config.bayesian_acc)
+                    box nondet_domain = pdrh::get_nondet_domain();
+                    cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
+                    // copying the parameter map
+                    map<string, pair<pdrh::node*, pdrh::node*>> init_par_map;
+                    for(auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
                     {
-                        // cross entropy algorithm is used here
-                        algorithm::use_verified = false;
-                        cout << "Solving optimisation problem for the discretised system" << endl;
-                        cout << "Discretisation using " << global_config.ode_discretisation << " points" << endl;
-                        pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
-                                                                                                           global_config.reach_depth_max,
-                                                                                                           global_config.sample_size);
-                        cout << "Optimisation result: " << endl;
-                        cout << opt_res.first << "   |   " << opt_res.second << endl;
-                        algorithm::use_verified = true;
-                        cout << "Computing confidence interval with guarantees:" << endl;
-                        capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
-                                                                               global_config.bayesian_conf, {opt_res.first});
-                        cout << "The verification result:" << endl;
-                        cout << opt_res.first << "   |   " << prob << endl;
-                        capd::intervals::intersection(opt_res.second, prob, conf_intersection);
-                        cout << "Intersection of the two confidence intervals: " << conf_intersection << endl;
-                        // increasing the number of points used for odes discretisation
-                        global_config.ode_discretisation *= 2;
+                        init_par_map[it->first] = make_pair(pdrh::copy_node(it->second.first), pdrh::copy_node(it->second.second));
                     }
-
+                    // nondeterministic parameters names
+                    vector<string> param_names = {"Kp", "Ki", "Kd"};
+                    // changing the domain to start with the simplest controller
+                    pdrh::node *zero_node = new pdrh::node("0");
+                    for(string param : param_names)
+                    {
+                        pdrh::par_map[param] = make_pair(zero_node, zero_node);
+                    }
+                    // iterating through all parameter values
+                    for(string param : param_names)
+                    {
+                        // increasing complexity of the controller
+                        pdrh::par_map[param] = init_par_map[param];
+                        cout << "Domain of nondeterministic parameters: " << pdrh::get_nondet_domain() << endl;
+                        capd::interval conf_intersection(0);
+                        // adjusting discretisation until both intervals intersect by more than 80%
+                        while(capd::intervals::width(conf_intersection) < 1.6 * global_config.bayesian_acc)
+                        {
+                            // cross entropy algorithm is used here
+                            algorithm::use_verified = false;
+                            cout << "Solving optimisation problem for the discretised system" << endl;
+                            cout << "Discretisation using " << global_config.ode_discretisation << " points" << endl;
+                            pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
+                                                                                                               global_config.reach_depth_max,
+                                                                                                               global_config.sample_size);
+                            cout << "Optimisation result: " << endl;
+                            cout << opt_res.first << "   |   " << opt_res.second << endl;
+                            algorithm::use_verified = true;
+                            cout << "Computing confidence interval with guarantees:" << endl;
+                            capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
+                                                                                   global_config.bayesian_conf, {opt_res.first});
+                            //capd::interval prob = opt_res.second;
+                            cout << "The verification result:" << endl;
+                            cout << opt_res.first << "   |   " << prob << endl;
+                            capd::intervals::intersection(opt_res.second, prob, conf_intersection);
+                            cout << "Intersection of the two confidence intervals: " << conf_intersection << endl;
+                            // increasing the number of points used for odes discretisation
+                            if(capd::intervals::width(conf_intersection) < 1.6 * global_config.bayesian_acc)
+                            {
+                                global_config.ode_discretisation *= 2;
+                            }
+                        }
+                    }
+                    // removing zero node
+                    delete zero_node;
 
 //                    if(global_config.cross_entropy_beta)
 //                    {

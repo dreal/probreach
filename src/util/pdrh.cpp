@@ -1902,6 +1902,13 @@ void pdrh::copy_tree(pdrh::node * &copy, pdrh::node * origin)
     }
 }
 
+pdrh::node * pdrh::copy_node(node * origin)
+{
+    pdrh::node *copy = new pdrh::node();
+    copy_tree(copy, origin);
+    return copy;
+}
+
 // getting a string representation of the node in prefix notation
 void pdrh::delete_node(pdrh::node* n)
 {

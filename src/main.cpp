@@ -313,8 +313,10 @@ int main(int argc, char* argv[])
                                 // comparing probability intervals by their mid points
                                 if(prob.mid() >= res.second.mid()) res = make_pair(opt_res.first, prob);
                             }
+                            cout << "Best result so far:" << endl;
+                            cout << res.first << "   |   " << res.second << endl;
                         }
-                        cout << "=============================" << endl << endl;
+                        cout << "Updating controller's complexity" << endl << endl;
                     }
                     // removing zero node
                     delete zero_node;

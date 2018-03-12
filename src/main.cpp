@@ -265,6 +265,8 @@ int main(int argc, char* argv[])
                     {
                         pdrh::par_map[param] = make_pair(zero_node, zero_node);
                     }
+                    pair<box, capd::interval> res = make_pair(box(), capd::interval(0.0));
+                    if(global_config.min_prob) res.second = capd::interval(1.0);
                     // iterating through all parameter values
                     for(string param : param_names)
                     {
@@ -288,7 +290,7 @@ int main(int argc, char* argv[])
                             cout << "Computing confidence interval with guarantees:" << endl;
                             capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
                                                                                    global_config.bayesian_conf, {opt_res.first});
-                            //capd::interval prob = opt_res.second;
+//                            capd::interval prob = opt_res.second;
                             cout << "The verification result:" << endl;
                             cout << opt_res.first << "   |   " << prob << endl;
                             capd::intervals::intersection(opt_res.second, prob, conf_intersection);
@@ -298,10 +300,26 @@ int main(int argc, char* argv[])
                             {
                                 global_config.ode_discretisation *= 2;
                             }
+                            // updating the result
+                            // the case of minimising the probability value
+                            if(global_config.min_prob)
+                            {
+                                // comparing probability intervals by their mid points
+                                if(prob.mid() <= res.second.mid()) res = make_pair(opt_res.first, prob);
+                            }
+                            // maximising the probability
+                            else
+                            {
+                                // comparing probability intervals by their mid points
+                                if(prob.mid() >= res.second.mid()) res = make_pair(opt_res.first, prob);
+                            }
                         }
+                        cout << "=============================" << endl << endl;
                     }
                     // removing zero node
                     delete zero_node;
+                    cout << "Final verdict:" << endl;
+                    cout << res.first << "   |   " << res.second << endl;
 
 //                    if(global_config.cross_entropy_beta)
 //                    {

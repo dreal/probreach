@@ -20,6 +20,7 @@ extern "C"
 }
 
 #include "easylogging++.h"
+#include "translator/translator.h"
 
 extern "C" int yyparse();
 extern "C" FILE *yyin;
@@ -317,6 +318,8 @@ int main(int argc, char* argv[])
 //    capd::interval lower_bound = sqrt( (Sx * g) / (sin(2 * alpha) * (0.7*0.7 + 1)) );
 //    cout << setprecision(16) << lower_bound << endl;
 
+    //TODO: remove this test code
+    translator::parse_tree();
     // unregister the loggers
     el::Loggers::unregisterLogger("parser");
     el::Loggers::unregisterLogger("algorithm");

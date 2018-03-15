@@ -3,10 +3,13 @@
 //
 
 #include "engine.h"
+#include "MatlabEngine.hpp"
+#include "MatlabDataArray.hpp"
 #include "translator.h"
 #include "../util/pdrh.h"
 
 using namespace std;
+//using namespace matlab::engine;
 
 void print_map(map<string, pair<pdrh::node*, pdrh::node*>>& map1){
     for (auto& t : map1)
@@ -15,12 +18,36 @@ void print_map(map<string, pair<pdrh::node*, pdrh::node*>>& map1){
                   << t.second.second << "\n";
 }
 
+int model_creation_test(){
+    // Start the Matlab Engine
+    unique_ptr<matlab::engine::MATLABEngine> engine = matlab::engine::startMATLAB();
+
+    matlab::data::ArrayFactory factory;
+
+    engine->eval(matlab::engine::convertUTF8StringToUTF16String("figureHandle = figure;"));
+    cout<<"Created system handler"<<endl;
+
+    matlab::data::Array systemHandler = engine->
+            getVariable(matlab::engine::convertUTF8StringToUTF16String("figureHandle"));
+
+    matlab::data::CharArray units = engine->
+            getProperty(systemHandler, matlab::engine::convertUTF8StringToUTF16String("Units"));
+
+    // Display property value
+    cout << "Units property: " << units.toAscii() << std::endl;
+
+
+    return 0;
+}
+
 void translator::parse_tree(){
     cout<<pdrh::model_to_string();
     print_map(pdrh::var_map);
     print_map(pdrh::par_map);
+    model_creation_test();
     test_engine_call();
 }
+
 
 double translator::test_engine_call() {
     // Create arrays of Matlab type

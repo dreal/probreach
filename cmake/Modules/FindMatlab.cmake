@@ -40,6 +40,16 @@ ELSE("$ENV{MATLAB_ROOT}" STREQUAL "" )
                       PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib 
                       PATH_SUFFIXES glnxa64 glnx86)
 
+        FIND_LIBRARY( MATLAB_ENGINE_LIBRARY
+                      NAMES libMatlabEngine MatlabEngine
+                      PATHS $ENV{MATLAB_ROOT}/extern/bin/glnxa64
+                      PATHS SUFFIXES libMatlabEngine)
+
+        FIND_LIBRARY( MATLAB_DATA_ARRAY_LIBRARY
+                      NAMES libMatlabDataArray MatlabDataArray
+                      PATHS $ENV{MATLAB_ROOT}/extern/bin/glnxa64
+                      PATHS SUFFIXES libMatlabDataArray)
+
     MESSAGE (STATUS "MATLAB_ROOT: $ENV{MATLAB_ROOT}")
 
 ENDIF("$ENV{MATLAB_ROOT}" STREQUAL "" )
@@ -49,6 +59,8 @@ SET(MATLAB_LIBRARIES
   ${MATLAB_MEX_LIBRARY}
   ${MATLAB_MX_LIBRARY}
   ${MATLAB_ENG_LIBRARY}
+  ${MATLAB_ENGINE_LIBRARY}
+  ${MATLAB_DATA_ARRAY_LIBRARY}
 )
 
 IF(MATLAB_INCLUDE_DIR AND MATLAB_LIBRARIES)
@@ -61,6 +73,8 @@ MARK_AS_ADVANCED(
   MATLAB_ENG_LIBRARY
   MATLAB_MEX_LIBRARY
   MATLAB_MX_LIBRARY
+  MATLAB_ENGINE_LIBRARY
+  MATLAB_DATA_ARRAY_LIBRARY
   MATLAB_INCLUDE_DIR
   MATLAB_FOUND
   MATLAB_ROOT

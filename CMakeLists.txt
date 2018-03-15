@@ -191,7 +191,7 @@ IF(MATLAB_FOUND)
     message(STATUS "LD_LIBRARY: $ENV{LD_LIBRARY_PATH}")
 
     add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp )
-    target_compile_options(ProbReach PRIVATE -static)
+    target_compile_options(ProbReach PRIVATE)
     target_link_libraries(ProbReach probreach ${MATLAB_LIBRARIES})
 ELSE(MATLAB_FOUND)
     MESSAGE("MATLAB not found... just ProbReach will be built.")

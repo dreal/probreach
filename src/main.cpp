@@ -176,7 +176,11 @@ int main(int argc, char* argv[])
 //                return EXIT_FAILURE;
 //            }
 //            break;
-            cout << "Simulating a path: " << ap::compute_objective(ap::get_all_paths({}).front(), ap::init_to_box({}), {}, {}) << endl;
+            //cout << "Simulating a path: " << ap::compute_objective(ap::get_all_paths({}).front(), ap::init_to_box({}), {}, {}) << endl;
+            //cout << global_config.global_time << endl;
+            //cout << global_config.sample_time << endl;
+            cout << "Verification: " << ap::verify({}) << endl;
+            //cout << "Simulation: " << ap::simulate({}) << endl;
             break;
         }
         // probabilistic hybrid automata

@@ -80,6 +80,8 @@ struct pdrh_config
     bool show_model = false;
 
     size_t ode_discretisation = 1;
+    std::string global_time = "tau";
+    std::string sample_time = "counter";
 
 } extern global_config;
 

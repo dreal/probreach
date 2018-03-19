@@ -675,7 +675,7 @@ int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box
     smt_file.close();
 
     // calling dreal here
-    // solver_opt.append(" --model");
+    solver_opt.append(" --model");
     res = dreal::execute(solver_bin, smt_filename, solver_opt);
     // removing all generated files
     std::remove(smt_filename.c_str());
@@ -688,5 +688,106 @@ int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box
     }
 
     return decision_procedure::UNDET;
+}
+
+// getting the time of the jump
+capd::interval decision_procedure::get_jump_time(pdrh::mode *m, box init, vector<box> boxes)
+{
+    // default value for the thread number
+    int thread_num = 0;
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
+    // getting raw filename here
+    std::string filename = std::string(global_config.model_filename);
+    size_t ext_index = filename.find_last_of('.');
+    std::string raw_filename = filename.substr(0, ext_index);
+    // creating a name for the smt2 file
+    std::stringstream f_stream;
+    int res;
+    std::ofstream smt_file;
+    std::string smt_filename;
+
+    f_stream.str("");
+    f_stream << raw_filename << "_0_0_" << thread_num << ".smt2";
+    smt_filename = f_stream.str();
+
+    smt_file.open(smt_filename.c_str());
+    // will work for one initial and one state only
+    smt_file << smt2_generator::generate_jump_check(m, m->jumps, init, boxes);
+    smt_file.close();
+
+    // calling dreal here
+    global_config.solver_opt.append(" --model --precision 1e-9");
+    res = dreal::execute(global_config.solver_bin, smt_filename, global_config.solver_opt);
+    capd::interval jump_time(-1);
+    if(res == 0)
+    {
+        box sol_box = dreal::parse_model(string(smt_filename + ".model"));
+        cout << "Witness produced by the solver: " << sol_box << endl;
+        jump_time = sol_box.get_map()["time"];
+    }
+    // removing all generated files
+    std::remove(smt_filename.c_str());
+    std::remove(std::string(smt_filename + ".output").c_str());
+    std::remove(std::string(smt_filename + ".model").c_str());
+
+    return jump_time;
+}
+
+// getting the time of the jump
+pair<capd::interval, box> decision_procedure::get_jump_time(pdrh::mode *m, pdrh::mode::jump jump, box init, vector<box> boxes)
+{
+    // default value for the thread number
+    int thread_num = 0;
+#ifdef _OPENMP
+    thread_num = omp_get_thread_num();
+#endif
+    // getting raw filename here
+    std::string filename = std::string(global_config.model_filename);
+    size_t ext_index = filename.find_last_of('.');
+    std::string raw_filename = filename.substr(0, ext_index);
+    // creating a name for the smt2 file
+    std::stringstream f_stream;
+    int res;
+    std::ofstream smt_file;
+    std::string smt_filename;
+
+    f_stream.str("");
+    f_stream << raw_filename << "_0_0_" << thread_num << ".smt2";
+    smt_filename = f_stream.str();
+
+    smt_file.open(smt_filename.c_str());
+    // will work for one initial and one state only
+    smt_file << smt2_generator::generate_jump_check(m, {jump}, init, boxes);
+    smt_file.close();
+
+    // calling dreal here
+    //global_config.solver_opt.append(" --model");
+    res = dreal::execute(global_config.solver_bin, smt_filename, global_config.solver_opt + " --model ");
+    capd::interval jump_time(-1);
+    box sol_box;
+    if(res == 0)
+    {
+        sol_box = dreal::parse_model(string(smt_filename + ".model"));
+        //cout << "Witness produced by the solver: " << sol_box << endl;
+        jump_time = sol_box.get_map()["time"];
+    }
+    // removing all generated files
+    std::remove(smt_filename.c_str());
+    std::remove(std::string(smt_filename + ".output").c_str());
+    std::remove(std::string(smt_filename + ".model").c_str());
+    map<string, capd::interval> sol_map = sol_box.get_map();
+    for(box b : boxes)
+    {
+        map<string, capd::interval> b_map = b.get_map();
+        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        {
+            sol_box.erase(it->first);
+        }
+    }
+    sol_box.erase("time");
+    sol_box.erase("time_mock");
+    return make_pair(jump_time, sol_box);
 }
 

@@ -77,6 +77,14 @@ namespace ap
     capd::interval compute_max_robustness(vector<vector<pdrh::mode*>>, box, vector<box>);
     capd::interval compute_min_robustness(vector<vector<pdrh::mode*>>, box, vector<box>);
 
+    bool check_invariants(pdrh::mode*, box, vector<box>);
+
+    int verify(vector<box>);
+    int simulate(vector<box>);
+
+    bool is_sample_jump(pdrh::mode::jump);
+    box apply_reset(map<string, pdrh::node*>, box, vector<box>);
+
 
 }
 

@@ -77,9 +77,11 @@ namespace pdrh
     string node_to_string_infix(node*);
     capd::interval node_to_interval(node*);
     capd::interval node_to_interval(node*, vector<box>);
+    bool node_to_boolean(node*, vector<box>);
     string node_fix_index(node*, int, string);
     bool is_node_empty(node*);
     pdrh::node* box_to_node(box);
+    bool check_zero_crossing(node*, vector<box>, box, box);
 
 
     node* get_first_time_node(node*);

@@ -1842,7 +1842,8 @@ pdrh::node* pdrh::get_first_time_node(pdrh::node * root)
         {
             for(pdrh::node* child : root->operands)
             {
-                if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end())
+                if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end() ||
+                        child->value == global_config.sample_time || child->value == global_config.global_time)
                 {
                     return root;
                 }
@@ -1870,7 +1871,8 @@ void pdrh::get_first_time_node(node* root, node* time_node)
     {
         for(pdrh::node* child : root->operands)
         {
-            if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end())
+            if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end() ||
+               child->value == global_config.sample_time || child->value == global_config.global_time)
             {
                 *time_node = *root;
                 root->value = "true";
@@ -1942,6 +1944,100 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
     //cout << "RES TIME NODE: " << pdrh::node_to_string_prefix(res_node) << endl;
     return res_node;
 }
+
+
+// throws exception in case if one of the terminal modes is not a number
+// evaluates the value of arithmetic expression
+bool pdrh::node_to_boolean(pdrh::node *expr, vector<box> boxes)
+{
+    // comparison operators
+    if(expr->value == ">=")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) >= pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == ">")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) > pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == "=")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) == pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == "<")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) < pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == "<=")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) <= pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == "and")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res && pdrh::node_to_boolean(n, boxes);
+        }
+    }
+    else if(expr->value == "or")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res || pdrh::node_to_boolean(n, boxes);
+        }
+    }
+    else
+    {
+        CLOG(ERROR, "model") << "Unrecognised or unsupported operation \"" << expr->value << "\"";
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+
+// throws exception in case if one of the terminal modes is not a number
+// evaluates the value of arithmetic expression
+bool pdrh::check_zero_crossing(pdrh::node *expr, vector<box> boxes, box first, box last)
+{
+    // comparison operators
+    if(expr->value == ">=" || expr->value == ">" || expr->value == "=" || expr->value == "<" || expr->value == "<=")
+    {
+//        cout << "Beginning left: " << pdrh::node_to_interval(expr->operands.front(), {boxes, first}) << endl;
+//        cout << "Beginning right: " << pdrh::node_to_interval(expr->operands.back(), {boxes, first}) << endl;
+//        cout << "Beginning left-right: " << pdrh::node_to_interval(expr->operands.front(), {boxes, first}) -
+//                                            pdrh::node_to_interval(expr->operands.back(), {boxes, first}) << endl;
+//        cout << "End left: " << pdrh::node_to_interval(expr->operands.front(), {boxes, last}) << endl;
+//        cout << "End right: " << pdrh::node_to_interval(expr->operands.back(), {boxes, last}) << endl;
+//        cout << "End left-right: " << pdrh::node_to_interval(expr->operands.front(), {boxes, last}) -
+//                                           pdrh::node_to_interval(expr->operands.back(), {boxes, last}) << endl;
+        return (pdrh::node_to_interval(expr->operands.front(), {boxes, first}) - pdrh::node_to_interval(expr->operands.back(), {boxes, first})) *
+                (pdrh::node_to_interval(expr->operands.front(), {boxes, last}) - pdrh::node_to_interval(expr->operands.back(), {boxes, last})) < 0;
+    }
+    else if(expr->value == "and")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res && pdrh::check_zero_crossing(n, boxes, first, last);
+        }
+    }
+    else if(expr->value == "or")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res || pdrh::check_zero_crossing(n, boxes, first, last);
+        }
+    }
+    else
+    {
+        CLOG(ERROR, "model") << "Unrecognised or unsupported operation \"" << expr->value << "\"";
+        exit(EXIT_FAILURE);
+    }
+}
+
+
 
 
 // throws exception in case if one of the terminal modes is not a number

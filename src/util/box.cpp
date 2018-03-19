@@ -403,3 +403,8 @@ box box::fmod(int mod)
     }
     return box(res);
 }
+
+void box::erase(string var)
+{
+    this->edges.erase(var);
+}

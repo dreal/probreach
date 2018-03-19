@@ -43,6 +43,16 @@ namespace decision_procedure
     // third argument is the interval initial condition for the ode system
     int check_invariants(pdrh::mode*, capd::interval, box, vector<box>, string, string);
 
+    // first argument is the mode
+    // second argument is the initial condition
+    // third argument is parameter values
+    capd::interval get_jump_time(pdrh::mode*, box, vector<box>);
+
+    // first argument is the mode
+    // second argument is the initial condition
+    // third argument is parameter values
+    std::pair<capd::interval, box> get_jump_time(pdrh::mode*, pdrh::mode::jump, box, vector<box>);
+
 }
 
 #endif //PROBREACH_DECISION_PROCEDURE_H

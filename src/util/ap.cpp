@@ -206,13 +206,13 @@ capd::interval ap::get_sample_rate(pdrh::node* n)
         // checking if the time node signature is <var>=<value>
         if(time_node->value == "=")
         {
-            if(time_node->operands.front()->value == "counter")
+            if(time_node->operands.front()->value == global_config.sample_time)
             {
                 result = pdrh::node_to_interval(time_node->operands.back());
                 pdrh::delete_node(time_node);
                 return result;
             }
-            if(time_node->operands.back()->value == "counter")
+            if(time_node->operands.back()->value == global_config.sample_time)
             {
                 result = pdrh::node_to_interval(time_node->operands.front());
                 pdrh::delete_node(time_node);
@@ -441,7 +441,7 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     }
     var_string.back() = ';';
     fun_string.back() = ';';
-    //cout << par_string + var_string + fun_string << endl;
+//    cout << "Solving ODEs: " << par_string + var_string + fun_string << endl;
 
 
 //    cout << par_string << endl;
@@ -490,8 +490,6 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
             i++;
         }
     }
-//    cout << "ODE Solution" << endl;
-//    cout << box(res_map) << endl;
     return box(res_map);
 }
 
@@ -703,7 +701,7 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
 
     capd::interval cur_mode_time(0);
     capd::interval prev_mode_time(0);
-    int window_size = 6;
+    int window_size = 1;
 //    #pragma omp critical
 //    cout << "Window size: " << window_size << endl;
     //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Window size: " << window_size;
@@ -757,9 +755,9 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
                 sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
                 //sol_box.push_back(solve_odes_nonrig(cur_mode->odes, init_box.at(k), time, boxes));
             }
-//            cout << "Solution (VERIFIED) box for depth " << i << endl;
-//            cout << box_factory::box_hull(sol_box) << endl;
-//            cout << "===========" << endl;
+            cout << "Solution (VERIFIED) box for depth " << i << endl;
+            cout << box_factory::box_hull(sol_box) << endl;
+            cout << "===========" << endl;
 
 //            cout << "Solution box hull in mode " << cur_mode->id << " at depth = " << i << endl;
 //            cout << box_factory::box_hull(sol_box) << endl;
@@ -827,7 +825,7 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
     // reachability depth == 0
     if(path.size() == 1)
     {
-        box sol = solve_odes_nonrig(path.front()->odes, init, time_to_goal(path.front(), boxes), boxes);
+        box sol = solve_odes(path.front()->odes, init, time_to_goal(path.front(), boxes), boxes);
         map<string, capd::interval> obj_map, b_map;
         b_map = sol.get_map();
         for(auto it = b_map.begin(); it != b_map.end(); it++)
@@ -871,15 +869,25 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
                 prev_mode_time = time;
             }
 
+
+
+
             // printing out the initial box
 //            cout << "Init box (DICRETISED) for depth " << i << endl;
 //            cout << init << endl;
 //            cout << "----------" << endl;
 
             // solving odes
-            sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
-            //sol = solve_odes(cur_mode->odes, init, time, boxes);
+            //sol = solve_odes_nonrig(cur_mode->odes, init, time, boxes);
+            sol = solve_odes(cur_mode->odes, init, time, boxes);
             cout << "Solution @ step " << i << " in mode " << cur_mode->id << ": " << endl << sol << endl;
+//            capd::interval jump_time  = decision_procedure::get_jump_time(cur_mode, init, boxes);
+//            if(jump_time.leftBound() != -1)
+//            {
+//                cout << "Jump time: " << decision_procedure::get_jump_time(cur_mode, init, boxes) << endl;
+//                exit(EXIT_SUCCESS);
+//            }
+//            cout << "====================" << endl;
             //sol = solve_odes_discrete(cur_mode->odes, init, time, 100, boxes);
             #pragma omp critical
             {
@@ -930,8 +938,8 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
     // checking the invariants in the last mode
     capd::interval time = time_to_goal(path.back(), boxes) - cur_mode_time;
     // computing solution for the goal
-    sol = solve_odes_nonrig(path.back()->odes, init, time, boxes);
-    //sol = solve_odes(path.back()->odes, init, time, boxes);
+    //sol = solve_odes_nonrig(path.back()->odes, init, time, boxes);
+    sol = solve_odes(path.back()->odes, init, time, boxes);
     cout << "Final solution at mode " << path.back()->id << ": " << endl << sol << endl;
     map<string, capd::interval> obj_map, b_map;
     b_map = sol.get_map();
@@ -1127,6 +1135,17 @@ capd::interval ap::compute_min_robustness(vector<vector<pdrh::mode *>> paths, bo
 }
 
 
+bool ap::check_invariants(pdrh::mode *m, box b, vector<box> boxes)
+{
+    bool res = true;
+    for(pdrh::node *n : m->invts)
+    {
+        res = res && pdrh::node_to_boolean(n, {boxes, b});
+    }
+    return res;
+}
+
+
 vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
 {
     // getting list of shortest paths
@@ -1183,9 +1202,264 @@ vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
 }
 
 
+bool ap::is_sample_jump(pdrh::mode::jump jump)
+{
+    return jump.guard->value == "=" &&
+            jump.guard->operands.size() == 2 &&
+            (jump.guard->operands.front()->value == global_config.sample_time ||
+              jump.guard->operands.back()->value == global_config.sample_time);
+}
+
+int ap::verify(vector<box> boxes)
+{
+    // the initial value of the continuous dynamics
+    box init = ap::init_to_box(boxes);
+    // list of all evaluated paths, where each path consists is a sequence of pairs (<mode_id>, <init_value>)
+    vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, init)}};
+    // global time
+    //capd::interval global_time = init.get_map()[global_config.global_time];
+    vector<vector<pair<int, box>>> good_paths = {{make_pair(pdrh::init.front().id, init)}};
+    // just several iterations here
+    while(paths.size() > 0)
+    {
+        // copying the first path from the list
+        vector<pair<int, box>> path = paths.front();
+        //cout << "Number of jumps: " << path.size()-1 << endl;
+        // removing the first path in the list
+        paths.erase(paths.begin());
+        // getting the current mode
+        pdrh::mode* cur_mode = pdrh::get_mode(path.back().first);
+        // iterating through the jumps in the current mode and
+        // recording all possible jumps with their times
+        map<int, pair<capd::interval, box>> jumps_times;
+        for(pdrh::mode::jump jump : cur_mode->jumps)
+        {
+//                cout << "---------------" << endl;
+//                cout << "Considering jump to mode " << jump.next_id << endl;
+            // finding out the time of the jump with the delta-sat witness from dReal
+            //cout << "Initial value: " << path.back().second << endl;
+            pair<capd::interval, box> jump_time = decision_procedure::get_jump_time(cur_mode, jump, path.back().second, boxes);
+            //cout << "Time of the jump to mode " << jump.next_id <<" : " << jump_time.first << "; witness: " << jump_time.second << endl;
+            //cout << "===============" << endl;
+            // adding only those jumps which are enabled within the mode
+            if(jump_time.first != capd::interval(-1))
+            {
+                //cout << "Checking invariants: ";
+                int invt_check = decision_procedure::check_invariants(cur_mode, jump_time.first, init, boxes, global_config.solver_bin, global_config.solver_opt);
+                switch(invt_check)
+                {
+                    case decision_procedure::SAT:
+                        //cout << "SAT" << endl;
+                        break;
+                    case decision_procedure::UNDET:
+                        //cout << "UNDET" << endl;
+                        return decision_procedure::UNDET;
+
+                    case decision_procedure::UNSAT:
+                        //cout << "UNSAT" << endl;
+                        return decision_procedure::UNSAT;
+                }
+                //cout << "===============" << endl;
+                jumps_times.insert(make_pair(jump.next_id, jump_time));
+            }
+            // check global time here !!!
+        }
+        // removing the sampling jumps if there are other which are enabled in this mode
+        int sample_jump_id = 0;
+        if(jumps_times.size() > 1)
+        {
+            for(auto it = jumps_times.begin(); it != jumps_times.end(); it++)
+            {
+                if(is_sample_jump(cur_mode->get_jump(it->first)))
+                {
+                    sample_jump_id = it->first;
+                    jumps_times.erase(it->first);
+                    break;
+                }
+            }
+        }
+        // need to apply sample reset somewhere here!!!
+        // for each obtained jump finding the value when the jumps takes place
+        for(auto it = jumps_times.begin(); it != jumps_times.end(); it++)
+        {
+            //capd::interval global_time = path.back().second.get_map()[global_config.global_time];
+            //box sol = solve_odes_discrete(cur_mode->odes, init, it->second, global_config.ode_discretisation, boxes);
+            //box sol = solve_odes_nonrig(cur_mode->odes, init, it->second.leftBound(), boxes);
+            //box sol = solve_odes(cur_mode->odes, init, it->second.first, boxes);
+            box sol = it->second.second;
+            //cout << "Solution box for the jump to mode " << it->first << endl;
+            //cout << sol << endl;
+            //cout << "===============" << endl;
+            capd::interval global_time = sol.get_map()[global_config.global_time];
+            //cout << "Path global time: " << global_time << endl;
+            // applying a sampling reset here
+            if(sample_jump_id != 0) sol = ap::apply_reset(cur_mode->get_jump(sample_jump_id).reset, sol, boxes);
+            // applying the corresponding reset here
+            init = ap::apply_reset(cur_mode->get_jump(it->first).reset, sol, boxes);
+            vector<pair<int, box>> new_path = path;
+            new_path.push_back(make_pair(it->first, init));
+            if(new_path.size() <= global_config.reach_depth_max) paths.push_back(new_path);
+        }
+    }
+    //cout << "Found " << paths.size() << " paths" << endl;
+    return decision_procedure::SAT;
+}
+
+box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> boxes)
+{
+    map<string, capd::interval> init_map;
+    vector<box> reset_boxes = boxes;
+    reset_boxes.push_back(sol);
+    for (auto it = reset_map.begin(); it != reset_map.end(); it++)
+    {
+        if((pdrh::par_map.find(it->first) == pdrh::par_map.end()) &&
+           (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
+           (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
+        {
+            init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
+        }
+    }
+    // can add random error here
+    return box(init_map);
+}
 
 
+int ap::simulate(vector<box> boxes)
+{
+    // list of all evaluated paths, where each path consists is a sequence of pairs (<mode_id>, <init_value>)
+    vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, ap::init_to_box(boxes))}};
+    vector<vector<pair<int, box>>> good_paths;
+    // continuing until there are no paths to simulate
+    while(paths.size() > 0)
+    {
+        // copying the first path from the list
+        vector<pair<int, box>> path = paths.front();
+        //cout << "Number of steps in the path: " << path.size()-1 << endl;
+        // removing the first path in the list
+        paths.erase(paths.begin());
+        // getting the current mode
+        pdrh::mode* cur_mode = pdrh::get_mode(path.back().first);
+        // getting the initial condition for the current mode
+        box init = path.back().second;
+        // will be iterating through the jumps in the current mode and
+        // recording all possible jumps with their times
+        // I MIGHT NOT NEED THE TIMES OF THE JUMPS
+        map<int, pair<capd::interval, box>> jumps_times;
+        //capd::interval sample_rate = ap::get_sample_rate(cur_mode);
+        //cout << "Sampling rate: " << sample_rate << endl;
+        capd::interval integration_step = pdrh::node_to_interval(cur_mode->time.second).rightBound()/global_config.ode_discretisation;
+        //cout << "Integration step: " << integration_step << endl;
+        // represents a jump due to sampling
+        pair<int, pair<capd::interval, box>> sample_jump = make_pair(0, make_pair(capd::interval(0.0), box()));
+        for(size_t i = 0; i < global_config.ode_discretisation; i++)
+        {
+            // checking invariants
+            if(ap::check_invariants(cur_mode, init, boxes))
+            {
+                //cout << "Invariants: SAT" << endl;
+            }
+            else
+            {
+                //cout << "Invariants: UNSAT" << endl;
+                return decision_procedure::UNSAT;
+            }
+            // checking if the time horizon is reached
+            if(init.get_map()[global_config.global_time].leftBound() >= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second).rightBound() ||
+                    path.size() >= global_config.reach_depth_max)
+            {
+                vector<pair<int, box>> new_path = path;
+                new_path.push_back(make_pair(cur_mode->id, init));
+                good_paths.push_back(new_path);
+                //cout << "Global time limit has been reached in mode " << cur_mode->id << endl;
+                return decision_procedure::SAT;
+            }
+            // computing the solution here
+            //cout << "Before solving ODEs" << endl;
+            box sol = solve_odes_discrete(cur_mode->odes, init, integration_step, 1, boxes);
+            //box sol = solve_odes_nonrig(cur_mode->odes, init, integration_step, boxes);
+            capd::interval cur_time = integration_step*(i+1);
+            //cout << "Solution at time " << cur_time << ": " << sol << endl;
+            //cout << "====================" << endl;
+            // checking the jumps here
+            //cout << "Evaluating jumps now" << endl;
+            // processing the sample jump first if it exists
+            for(pdrh::mode::jump jump : cur_mode->jumps)
+            {
+                if(ap::is_sample_jump(jump))
+                {
+                    if(pdrh::check_zero_crossing(jump.guard, boxes, init, sol))
+                    {
+                        sample_jump = make_pair(jump.next_id, make_pair(cur_time, ap::apply_reset(jump.reset, sol, boxes)));
+                    }
+                    else
+                    {
+                        sample_jump = make_pair(0, make_pair(capd::interval(0.0), box()));
+                    }
+                    break;
+                }
+            }
+            // evaluating the rest of the jumps
+            for(pdrh::mode::jump jump : cur_mode->jumps)
+            {
+                // checking zero crossing only if the jump didn't take place
+                if(jumps_times.find(jump.next_id) == jumps_times.end() && !ap::is_sample_jump(jump))
+                {
+                    //cout << "Checking jump to mode " << jump.next_id;
+                    // checking if either of the jumps is enabled
+                    if(pdrh::check_zero_crossing(jump.guard, boxes, init, sol))
+                    {
+                        // if sample jump is enabled as well then we apply the sampling reset first
+                        if(sample_jump.first != 0)
+                        {
+                            sol = ap::apply_reset(cur_mode->get_jump(sample_jump.first).reset, sol, boxes);
+                        }
+                        // applying the corresponding reset
+                        jumps_times.insert(make_pair(jump.next_id, make_pair(cur_time, ap::apply_reset(jump.reset, sol, boxes))));
+                        //cout << ". Enabled at or before " << cur_time << endl;
+                    }
+                    else
+                    {
+                        //cout << ". Does not happen before or at " << cur_time << endl;
+                    }
+                }
+            }
+            //cout << "====================" << endl;
+            // compute robustness only at sampling points
+            init = sol;
+        }
+        // checking if any jumps apart from the sampling one are available
+        if(jumps_times.empty())
+        {
+            // adding a sampling jump only if it has been enabled
+            if(sample_jump.first != 0) jumps_times.insert(sample_jump);
+        }
+        //cout << "Total number of enabled jumps: " << jumps_times.size() << endl;
+        // adding the paths to the set of all paths
+        for(auto it = jumps_times.begin(); it != jumps_times.end(); it++)
+        {
+            //cout << "To mode " << it->first << " at time " << it->second.first << " with the initial condition: " << it->second.second << endl;
+            // updating the set of paths
+            vector<pair<int, box>> new_path = path;
+            new_path.push_back(make_pair(it->first, it->second.second));
+            paths.push_back(new_path);
+        }
+        //cout << "====================" << endl;
+    }
 
+//    cout << "There are " << good_paths.size() << " good paths" << endl;
+//    for(vector<pair<int, box>> path : good_paths)
+//    {
+//        cout << "=================" << endl;
+//        for(pair<int, box> p : path)
+//        {
+//            cout << p.first << " ";
+//        }
+//        cout << endl;
+//        cout << path.back().second << endl;
+//    }
+//
+//    cout << "The end" << endl;
+}
 
 
 

@@ -285,6 +285,18 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
             }
         }
+        // global_time variable
+        else if(strcmp(argv[i], "--global-time") == 0)
+        {
+            i++;
+            global_config.global_time = argv[i];
+        }
+        // sample_time variable
+        else if(strcmp(argv[i], "--sample-time") == 0)
+        {
+            i++;
+            global_config.sample_time = argv[i];
+        }
         // chernoff bound accuracy
         else if(strcmp(argv[i], "--chernoff-acc") == 0)
         {

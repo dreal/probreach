@@ -132,6 +132,7 @@ box dreal::parse_model(string filename)
             b_map.insert(make_pair(var.first, it->second));
         }
     }
+    b_map["time"] = entire_map["time"];
     return box(b_map);
 }
 

@@ -43,6 +43,7 @@ public:
     double max_coordinate_value();
     double max_side_width();
     double min_side_width();
+    void erase(string);
 
 };
 

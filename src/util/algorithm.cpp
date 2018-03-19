@@ -894,20 +894,22 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
             // checking what verification method is chosen
             if(algorithm::use_verified)
             {
-                res = decision_procedure::evaluate(paths, boxes, "");
+                //res = decision_procedure::evaluate(paths, boxes, "");
+                res = ap::verify(boxes);
             }
             else
             {
-                // computing maximum robustness for the set of paths
-                capd::interval rob = ap::compute_max_robustness(paths, ap::init_to_box(boxes), boxes);
-                if(rob.leftBound() > 0)
-                {
-                    res = decision_procedure::SAT;
-                }
-                else if(rob.rightBound() < 0)
-                {
-                    res = decision_procedure::UNSAT;
-                }
+                res = ap::simulate(boxes);
+//                // computing maximum robustness for the set of paths
+//                capd::interval rob = ap::compute_max_robustness(paths, ap::init_to_box(boxes), boxes);
+//                if(rob.leftBound() > 0)
+//                {
+//                    res = decision_procedure::SAT;
+//                }
+//                else if(rob.rightBound() < 0)
+//                {
+//                    res = decision_procedure::UNSAT;
+//                }
             }
             // updating the counters
             #pragma omp critical

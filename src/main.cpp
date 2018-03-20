@@ -179,8 +179,9 @@ int main(int argc, char* argv[])
             //cout << "Simulating a path: " << ap::compute_objective(ap::get_all_paths({}).front(), ap::init_to_box({}), {}, {}) << endl;
             //cout << global_config.global_time << endl;
             //cout << global_config.sample_time << endl;
+            global_config.ode_discretisation = 5;
+            cout << "Simulation: " << ap::simulate({}) << endl;
             cout << "Verification: " << ap::verify({}) << endl;
-            //cout << "Simulation: " << ap::simulate({}) << endl;
             break;
         }
         // probabilistic hybrid automata

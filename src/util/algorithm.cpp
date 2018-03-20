@@ -892,6 +892,18 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
             vector<vector<pdrh::mode *>> paths = ap::get_all_paths(boxes);
             int res = decision_procedure::UNDET;
             // checking what verification method is chosen
+//            int sim_res = ap::simulate(boxes);
+//            int ver_res = ap::verify(boxes);
+//            if(sim_res != ver_res)
+//            {
+//                cout << "Sim: " << sim_res << " Ver: " << ver_res << " Boxes:" << endl;
+//                for(box b : boxes)
+//                {
+//                    cout << b << endl;
+//                }
+//                exit(EXIT_FAILURE);
+//            }
+
             if(algorithm::use_verified)
             {
                 //res = decision_procedure::evaluate(paths, boxes, "");

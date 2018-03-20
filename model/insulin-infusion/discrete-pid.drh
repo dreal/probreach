@@ -50,7 +50,7 @@
 
 //#define Kd -0.00616271
 //#define Ki -2.10174e-07
-#define Kp -0.000675393
+#define Kp -0.0006881978954076776
 
 #define Q1_SP (110 * VG) / 18
 
@@ -64,26 +64,34 @@
 #define x3_init 0.026804810292879002649409640202436 // approximation of symbolic MATLAB solution (Fedor 2017)
 
 
+#define DG1 9.73760980706146
+#define DG2 101.6114772255007
+#define DG3 64.54891864277992
+#define tau_meal_1 306.3347086453083
+#define tau_meal_2 290.26318998138 
+
 // PID controller sampling rate
 #define tau_sample 5
 
 // breakfast
-#define DG1 50
-#define tau_meal_1 300
+//#define DG1 50
+//#define tau_meal_1 300
 
 
 // lunch
-#define DG2 100
-#define tau_meal_2 300
+//#define DG2 100
+//#define tau_meal_2 300
 
 // dinner
-#define DG3 70
+//#define DG3 70
 
 
 #define Q1_lower 64
 #define Q1_upper 256
 
 #define n_coeff 16
+
+#define sp_thresh 0.5
 
 
 [0,1e3] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
@@ -294,9 +302,8 @@ time:
 [0,tau_sample];
 
 invt:
-(G - G_lower_unsafe >= 0);
-(G_upper_unsafe - G >=0);
-(u + u_basal >= 0);
+(G - (Q1_init / VG) + sp_thresh >= 0);
+((Q1_init / VG) - G + sp_thresh >= 0);
 
 flow:
 

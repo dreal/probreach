@@ -1212,13 +1212,11 @@ bool ap::is_sample_jump(pdrh::mode::jump jump)
 
 int ap::verify(vector<box> boxes)
 {
-    // the initial value of the continuous dynamics
-    box init = ap::init_to_box(boxes);
     // list of all evaluated paths, where each path consists is a sequence of pairs (<mode_id>, <init_value>)
-    vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, init)}};
+    vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, ap::init_to_box(boxes))}};
     // global time
     //capd::interval global_time = init.get_map()[global_config.global_time];
-    vector<vector<pair<int, box>>> good_paths = {{make_pair(pdrh::init.front().id, init)}};
+    vector<vector<pair<int, box>>> good_paths;
     // just several iterations here
     while(paths.size() > 0)
     {
@@ -1229,22 +1227,58 @@ int ap::verify(vector<box> boxes)
         paths.erase(paths.begin());
         // getting the current mode
         pdrh::mode* cur_mode = pdrh::get_mode(path.back().first);
+        //cout << "Current mode: " << cur_mode->id << endl;
+        // getting the initial condition for the current mode
+        box init = path.back().second;
+        //cout << "====================" << endl;
+        //cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
+        //cout << init << endl;
         // iterating through the jumps in the current mode and
         // recording all possible jumps with their times
         map<int, pair<capd::interval, box>> jumps_times;
+        // getting global time
+        capd::interval global_time = init.get_map()[global_config.global_time];
+        //cout << "Path global time: " << global_time << endl;
+        // the case when no jumps can be made here
+        if(cur_mode->jumps.size() == 0)
+        {
+            //cout << "Checking invariants in terminal mode " << cur_mode->id << endl;
+            // getting the time bound for the current mode
+            capd::interval time_bound = pdrh::node_to_interval(cur_mode->time.second);
+            if(global_time + time_bound > pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second))
+            {
+                time_bound = pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second) - global_time;
+            }
+            //cout << "Time bound: " << time_bound << endl;
+            //cout << "Initial condition: " << init << endl;
+            int invt_check = decision_procedure::check_invariants(cur_mode, time_bound, init, boxes, global_config.solver_bin, global_config.solver_opt);
+            switch(invt_check)
+            {
+                case decision_procedure::SAT:
+                    //cout << "SAT" << endl;
+                    break;
+                case decision_procedure::UNDET:
+                    //cout << "UNDET" << endl;
+                    return decision_procedure::UNDET;
+
+                case decision_procedure::UNSAT:
+                    //cout << "UNSAT" << endl;
+                    return decision_procedure::UNSAT;
+            }
+        }
+        // the case when there jumps in the current mode
         for(pdrh::mode::jump jump : cur_mode->jumps)
         {
-//                cout << "---------------" << endl;
-//                cout << "Considering jump to mode " << jump.next_id << endl;
             // finding out the time of the jump with the delta-sat witness from dReal
             //cout << "Initial value: " << path.back().second << endl;
-            pair<capd::interval, box> jump_time = decision_procedure::get_jump_time(cur_mode, jump, path.back().second, boxes);
+            pair<capd::interval, box> jump_time = decision_procedure::get_jump_time(cur_mode, jump, init, boxes);
             //cout << "Time of the jump to mode " << jump.next_id <<" : " << jump_time.first << "; witness: " << jump_time.second << endl;
             //cout << "===============" << endl;
             // adding only those jumps which are enabled within the mode
             if(jump_time.first != capd::interval(-1))
             {
-                //cout << "Checking invariants: ";
+                //cout << "Checking invariants in mode " << cur_mode->id << endl;
+                //cout << "Initial condition: " << init << endl;
                 int invt_check = decision_procedure::check_invariants(cur_mode, jump_time.first, init, boxes, global_config.solver_bin, global_config.solver_opt);
                 switch(invt_check)
                 {
@@ -1264,20 +1298,22 @@ int ap::verify(vector<box> boxes)
             }
             // check global time here !!!
         }
+        //cout << "====================" << endl;
+        pair<int, pair<capd::interval, box>> sample_jump;
         // removing the sampling jumps if there are other which are enabled in this mode
-        int sample_jump_id = 0;
         if(jumps_times.size() > 1)
         {
             for(auto it = jumps_times.begin(); it != jumps_times.end(); it++)
             {
                 if(is_sample_jump(cur_mode->get_jump(it->first)))
                 {
-                    sample_jump_id = it->first;
+                    sample_jump = make_pair(it->first, it->second);
                     jumps_times.erase(it->first);
                     break;
                 }
             }
         }
+        //cout << "Applying the resets" << endl;
         // need to apply sample reset somewhere here!!!
         // for each obtained jump finding the value when the jumps takes place
         for(auto it = jumps_times.begin(); it != jumps_times.end(); it++)
@@ -1290,10 +1326,13 @@ int ap::verify(vector<box> boxes)
             //cout << "Solution box for the jump to mode " << it->first << endl;
             //cout << sol << endl;
             //cout << "===============" << endl;
-            capd::interval global_time = sol.get_map()[global_config.global_time];
-            //cout << "Path global time: " << global_time << endl;
-            // applying a sampling reset here
-            if(sample_jump_id != 0) sol = ap::apply_reset(cur_mode->get_jump(sample_jump_id).reset, sol, boxes);
+            // checking if sampling and another jump happen at the same time
+            capd::interval intersection;
+            if(capd::intervals::intersection(sample_jump.second.second.get_map()[global_config.global_time], sol.get_map()[global_config.global_time], intersection))
+            {
+                // considering box hull here then
+                sol = ap::apply_reset(cur_mode->get_jump(sample_jump.first).reset, box_factory::box_hull({sol, sample_jump.second.second}), boxes);
+            }
             // applying the corresponding reset here
             init = ap::apply_reset(cur_mode->get_jump(it->first).reset, sol, boxes);
             vector<pair<int, box>> new_path = path;
@@ -1339,8 +1378,13 @@ int ap::simulate(vector<box> boxes)
         paths.erase(paths.begin());
         // getting the current mode
         pdrh::mode* cur_mode = pdrh::get_mode(path.back().first);
+        //cout << "Current mode: " << cur_mode->id << endl;
         // getting the initial condition for the current mode
         box init = path.back().second;
+//        cout << "====================" << endl;
+//        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
+//        cout << init << endl;
+//        cout << "====================" << endl;
         // will be iterating through the jumps in the current mode and
         // recording all possible jumps with their times
         // I MIGHT NOT NEED THE TIMES OF THE JUMPS
@@ -1353,14 +1397,16 @@ int ap::simulate(vector<box> boxes)
         pair<int, pair<capd::interval, box>> sample_jump = make_pair(0, make_pair(capd::interval(0.0), box()));
         for(size_t i = 0; i < global_config.ode_discretisation; i++)
         {
+//            cout << "Checking invariants in mode " << cur_mode->id << " Step " << path.size() << endl;
+//            cout << "Initial condition: " << init << endl;
             // checking invariants
             if(ap::check_invariants(cur_mode, init, boxes))
             {
-                //cout << "Invariants: SAT" << endl;
+//                cout << "Invariants: SAT" << endl;
             }
             else
             {
-                //cout << "Invariants: UNSAT" << endl;
+//                cout << "Invariants: UNSAT" << endl;
                 return decision_procedure::UNSAT;
             }
             // checking if the time horizon is reached
@@ -1387,13 +1433,15 @@ int ap::simulate(vector<box> boxes)
             {
                 if(ap::is_sample_jump(jump))
                 {
+//                    cout << "Checking (sampling) jump to mode " << jump.next_id;
                     if(pdrh::check_zero_crossing(jump.guard, boxes, init, sol))
                     {
                         sample_jump = make_pair(jump.next_id, make_pair(cur_time, ap::apply_reset(jump.reset, sol, boxes)));
+//                        cout << ". Enabled at or before " << cur_time << endl;
                     }
                     else
                     {
-                        sample_jump = make_pair(0, make_pair(capd::interval(0.0), box()));
+//                        cout << ". Does not happen before or at " << cur_time << endl;
                     }
                     break;
                 }
@@ -1404,7 +1452,7 @@ int ap::simulate(vector<box> boxes)
                 // checking zero crossing only if the jump didn't take place
                 if(jumps_times.find(jump.next_id) == jumps_times.end() && !ap::is_sample_jump(jump))
                 {
-                    //cout << "Checking jump to mode " << jump.next_id;
+//                    cout << "Checking jump to mode " << jump.next_id;
                     // checking if either of the jumps is enabled
                     if(pdrh::check_zero_crossing(jump.guard, boxes, init, sol))
                     {
@@ -1415,11 +1463,11 @@ int ap::simulate(vector<box> boxes)
                         }
                         // applying the corresponding reset
                         jumps_times.insert(make_pair(jump.next_id, make_pair(cur_time, ap::apply_reset(jump.reset, sol, boxes))));
-                        //cout << ". Enabled at or before " << cur_time << endl;
+//                        cout << ". Enabled at or before " << cur_time << endl;
                     }
                     else
                     {
-                        //cout << ". Does not happen before or at " << cur_time << endl;
+//                        cout << ". Does not happen before or at " << cur_time << endl;
                     }
                 }
             }

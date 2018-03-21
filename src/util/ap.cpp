@@ -1217,6 +1217,7 @@ int ap::verify(vector<box> boxes)
     // global time
     //capd::interval global_time = init.get_map()[global_config.global_time];
     vector<vector<pair<int, box>>> good_paths;
+    bool undet_flag = false;
     // just several iterations here
     while(paths.size() > 0)
     {
@@ -1230,15 +1231,23 @@ int ap::verify(vector<box> boxes)
         //cout << "Current mode: " << cur_mode->id << endl;
         // getting the initial condition for the current mode
         box init = path.back().second;
-        //cout << "====================" << endl;
-        //cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
-        //cout << init << endl;
+//        cout << "====================" << endl;
+//        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
+//        cout << init << endl;
         // iterating through the jumps in the current mode and
         // recording all possible jumps with their times
         map<int, pair<capd::interval, box>> jumps_times;
         // getting global time
         capd::interval global_time = init.get_map()[global_config.global_time];
         //cout << "Path global time: " << global_time << endl;
+        // check global time here. could be changed to goal statement later
+        capd::interval glob_time_intersection;
+        if(global_time >= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
+                capd::intervals::intersection(global_time, pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
+                    path.size() - 1 >= global_config.reach_depth_max)
+        {
+            return decision_procedure::SAT;
+        }
         // the case when no jumps can be made here
         if(cur_mode->jumps.size() == 0)
         {
@@ -1254,16 +1263,26 @@ int ap::verify(vector<box> boxes)
             int invt_check = decision_procedure::check_invariants(cur_mode, time_bound, init, boxes, global_config.solver_bin, global_config.solver_opt);
             switch(invt_check)
             {
+                // returning SAT if global time is reached for the current path
                 case decision_procedure::SAT:
-                    //cout << "SAT" << endl;
+                    if(global_time + time_bound>= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
+                       capd::intervals::intersection(global_time + time_bound, pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
+                            path.size() - 1 >= global_config.reach_depth_max)
+                    {
+                        return decision_procedure::SAT;
+                    }
                     break;
+
                 case decision_procedure::UNDET:
                     //cout << "UNDET" << endl;
-                    return decision_procedure::UNDET;
+                    undet_flag = true;
+                    //return decision_procedure::UNDET;
+                    break;
 
                 case decision_procedure::UNSAT:
                     //cout << "UNSAT" << endl;
-                    return decision_procedure::UNSAT;
+                    //return decision_procedure::UNSAT;
+                    break;
             }
         }
         // the case when there jumps in the current mode
@@ -1280,21 +1299,25 @@ int ap::verify(vector<box> boxes)
                 //cout << "Checking invariants in mode " << cur_mode->id << endl;
                 //cout << "Initial condition: " << init << endl;
                 int invt_check = decision_procedure::check_invariants(cur_mode, jump_time.first, init, boxes, global_config.solver_bin, global_config.solver_opt);
+                // updating the jump times only if invariants hold
                 switch(invt_check)
                 {
                     case decision_procedure::SAT:
                         //cout << "SAT" << endl;
+                        jumps_times.insert(make_pair(jump.next_id, jump_time));
                         break;
                     case decision_procedure::UNDET:
                         //cout << "UNDET" << endl;
-                        return decision_procedure::UNDET;
+                        //return decision_procedure::UNDET;
+                        undet_flag = true;
+                        break;
 
                     case decision_procedure::UNSAT:
                         //cout << "UNSAT" << endl;
-                        return decision_procedure::UNSAT;
+                        //return decision_procedure::UNSAT;
+                        break;
                 }
                 //cout << "===============" << endl;
-                jumps_times.insert(make_pair(jump.next_id, jump_time));
             }
             // check global time here !!!
         }
@@ -1318,7 +1341,6 @@ int ap::verify(vector<box> boxes)
         // for each obtained jump finding the value when the jumps takes place
         for(auto it = jumps_times.begin(); it != jumps_times.end(); it++)
         {
-            //capd::interval global_time = path.back().second.get_map()[global_config.global_time];
             //box sol = solve_odes_discrete(cur_mode->odes, init, it->second, global_config.ode_discretisation, boxes);
             //box sol = solve_odes_nonrig(cur_mode->odes, init, it->second.leftBound(), boxes);
             //box sol = solve_odes(cur_mode->odes, init, it->second.first, boxes);
@@ -1340,8 +1362,12 @@ int ap::verify(vector<box> boxes)
             if(new_path.size() <= global_config.reach_depth_max) paths.push_back(new_path);
         }
     }
-    //cout << "Found " << paths.size() << " paths" << endl;
-    return decision_procedure::SAT;
+    // returning undet if there are no SAT paths and there is at least one UNDET
+    if(undet_flag)
+    {
+        return decision_procedure::UNDET;
+    }
+    return decision_procedure::UNSAT;
 }
 
 box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> boxes)
@@ -1400,14 +1426,16 @@ int ap::simulate(vector<box> boxes)
 //            cout << "Checking invariants in mode " << cur_mode->id << " Step " << path.size() << endl;
 //            cout << "Initial condition: " << init << endl;
             // checking invariants
+            // NEED TO ACCOUNT FOR MULTIPLE PATHS DURING SIMULATION
             if(ap::check_invariants(cur_mode, init, boxes))
             {
-//                cout << "Invariants: SAT" << endl;
+                //cout << "Invariants: SAT" << endl;
             }
             else
             {
-//                cout << "Invariants: UNSAT" << endl;
-                return decision_procedure::UNSAT;
+                //cout << "Invariants: UNSAT" << endl;
+                break;
+                //return decision_procedure::UNSAT;
             }
             // checking if the time horizon is reached
             if(init.get_map()[global_config.global_time].leftBound() >= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second).rightBound() ||
@@ -1423,6 +1451,7 @@ int ap::simulate(vector<box> boxes)
             //cout << "Before solving ODEs" << endl;
             box sol = solve_odes_discrete(cur_mode->odes, init, integration_step, 1, boxes);
             //box sol = solve_odes_nonrig(cur_mode->odes, init, integration_step, boxes);
+            //box sol = solve_odes(cur_mode->odes, init, integration_step, boxes);
             capd::interval cur_time = integration_step*(i+1);
             //cout << "Solution at time " << cur_time << ": " << sol << endl;
             //cout << "====================" << endl;
@@ -1433,15 +1462,15 @@ int ap::simulate(vector<box> boxes)
             {
                 if(ap::is_sample_jump(jump))
                 {
-//                    cout << "Checking (sampling) jump to mode " << jump.next_id;
+                    //cout << "Checking (sampling) jump to mode " << jump.next_id;
                     if(pdrh::check_zero_crossing(jump.guard, boxes, init, sol))
                     {
                         sample_jump = make_pair(jump.next_id, make_pair(cur_time, ap::apply_reset(jump.reset, sol, boxes)));
-//                        cout << ". Enabled at or before " << cur_time << endl;
+                        //cout << ". Enabled at or before " << cur_time << endl;
                     }
                     else
                     {
-//                        cout << ". Does not happen before or at " << cur_time << endl;
+                        //cout << ". Does not happen before or at " << cur_time << endl;
                     }
                     break;
                 }
@@ -1452,7 +1481,7 @@ int ap::simulate(vector<box> boxes)
                 // checking zero crossing only if the jump didn't take place
                 if(jumps_times.find(jump.next_id) == jumps_times.end() && !ap::is_sample_jump(jump))
                 {
-//                    cout << "Checking jump to mode " << jump.next_id;
+                    //cout << "Checking jump to mode " << jump.next_id;
                     // checking if either of the jumps is enabled
                     if(pdrh::check_zero_crossing(jump.guard, boxes, init, sol))
                     {
@@ -1463,11 +1492,11 @@ int ap::simulate(vector<box> boxes)
                         }
                         // applying the corresponding reset
                         jumps_times.insert(make_pair(jump.next_id, make_pair(cur_time, ap::apply_reset(jump.reset, sol, boxes))));
-//                        cout << ". Enabled at or before " << cur_time << endl;
+                        //cout << ". Enabled at or before " << cur_time << endl;
                     }
                     else
                     {
-//                        cout << ". Does not happen before or at " << cur_time << endl;
+                        //cout << ". Does not happen before or at " << cur_time << endl;
                     }
                 }
             }
@@ -1493,6 +1522,7 @@ int ap::simulate(vector<box> boxes)
         }
         //cout << "====================" << endl;
     }
+    return decision_procedure::UNSAT;
 
 //    cout << "There are " << good_paths.size() << " good paths" << endl;
 //    for(vector<pair<int, box>> path : good_paths)

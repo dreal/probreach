@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
             //cout << "Simulating a path: " << ap::compute_objective(ap::get_all_paths({}).front(), ap::init_to_box({}), {}, {}) << endl;
             //cout << global_config.global_time << endl;
             //cout << global_config.sample_time << endl;
-            global_config.ode_discretisation = 5;
+            global_config.ode_discretisation = 10;
             cout << "Simulation: " << ap::simulate({}) << endl;
             cout << "Verification: " << ap::verify({}) << endl;
             break;
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
                             capd::intervals::intersection(opt_res.second, prob, conf_intersection);
                             cout << "Intersection of the two confidence intervals: " << conf_intersection << endl;
                             // increasing the number of points used for odes discretisation
-                            if(capd::intervals::width(conf_intersection) < 1.6 * global_config.bayesian_acc)
+                            if(capd::intervals::width(conf_intersection) < global_config.bayesian_acc)
                             {
                                 global_config.ode_discretisation *= 2;
                             }

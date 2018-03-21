@@ -64,7 +64,7 @@
 #define x3_init 0.026804810292879002649409640202436 // approximation of symbolic MATLAB solution (Fedor 2017)
 
 
-#define DG1 9.73760980706146
+#define DG1 39.73760980706146
 #define DG2 101.6114772255007
 #define DG3 64.54891864277992
 #define tau_meal_1 306.3347086453083

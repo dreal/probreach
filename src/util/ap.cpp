@@ -11,6 +11,7 @@
 #include <logging/easylogging++.h>
 #include "generators/smt2_generator.h"
 #include "decision_procedure.h"
+#include "stability.h"
 
 pdrh::type ap::model_type;
 pair<pdrh::node*, pdrh::node*> ap::time;
@@ -1404,7 +1405,9 @@ int ap::simulate(vector<box> boxes)
         paths.erase(paths.begin());
         // getting the current mode
         pdrh::mode* cur_mode = pdrh::get_mode(path.back().first);
-        //cout << "Current mode: " << cur_mode->id << endl;
+        cout << "Current mode: " << cur_mode->id << endl;
+        stability::get_char_poly(cur_mode->odes, 5, path.back().second, {});
+        exit(EXIT_SUCCESS);
         // getting the initial condition for the current mode
         box init = path.back().second;
 //        cout << "====================" << endl;

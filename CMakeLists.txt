@@ -148,7 +148,7 @@ set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhpa
 
 # creating a library
 add_library(probreach ${PROBREACH_SRC})
-target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas)
+target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas -larmadillo)
 
 set(PDRH2SMT_SRC
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp

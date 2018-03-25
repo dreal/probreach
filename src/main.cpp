@@ -180,6 +180,7 @@ int main(int argc, char* argv[])
             //cout << global_config.global_time << endl;
             //cout << global_config.sample_time << endl;
             global_config.ode_discretisation = 10;
+            cout << "Noise variance: " << global_config.noise_var << endl;
             cout << "Simulation: " << ap::simulate({}) << endl;
             cout << "Verification: " << ap::verify({}) << endl;
             break;

@@ -9,6 +9,8 @@
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
 #include <logging/easylogging++.h>
+#include <gsl/gsl_randist.h>
+#include <chrono>
 #include "generators/smt2_generator.h"
 #include "decision_procedure.h"
 #include "stability.h"
@@ -1373,6 +1375,28 @@ int ap::verify(vector<box> boxes)
 
 box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> boxes)
 {
+    // getting a random value here
+    const gsl_rng_type *T;
+    gsl_rng *r;
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+    // creating random generator
+    r = gsl_rng_alloc(T);
+    // setting the seed
+    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
+    double noise = gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+    gsl_rng_free(r);
+    // adding noise to the right hand
+//    cout << "Solution before noise: " << sol << endl;
+//    cout << "--------------------" << endl;
+    map<string, capd::interval> sol_map = sol.get_map();
+    sol_map["e"] += noise;
+//    cout << "Noise: " << noise << endl;
+//    cout << "--------------------" << endl;
+    sol = box(sol_map);
+//    cout << "Solution after noise: " << sol << endl;
+//    cout << "====================" << endl;
+    // applying the reset here
     map<string, capd::interval> init_map;
     vector<box> reset_boxes = boxes;
     reset_boxes.push_back(sol);
@@ -1385,7 +1409,6 @@ box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> box
             init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
         }
     }
-    // can add random error here
     return box(init_map);
 }
 
@@ -1405,9 +1428,9 @@ int ap::simulate(vector<box> boxes)
         paths.erase(paths.begin());
         // getting the current mode
         pdrh::mode* cur_mode = pdrh::get_mode(path.back().first);
-        cout << "Current mode: " << cur_mode->id << endl;
-        stability::get_char_poly(cur_mode->odes, 5, path.back().second, {});
-        exit(EXIT_SUCCESS);
+//        cout << "Current mode: " << cur_mode->id << endl;
+//        stability::get_char_poly(cur_mode->odes, 5, path.back().second, {});
+//        exit(EXIT_SUCCESS);
         // getting the initial condition for the current mode
         box init = path.back().second;
 //        cout << "====================" << endl;

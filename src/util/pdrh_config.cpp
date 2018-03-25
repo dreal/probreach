@@ -297,6 +297,18 @@ void parse_pdrh_config(int argc, char* argv[])
             i++;
             global_config.sample_time = argv[i];
         }
+        // noise variance
+        else if(strcmp(argv[i], "--noise-variance") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.noise_var;
+            if (global_config.noise_var <= 0)
+            {
+                CLOG(ERROR, "config") << "noise variance should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
         // chernoff bound accuracy
         else if(strcmp(argv[i], "--chernoff-acc") == 0)
         {

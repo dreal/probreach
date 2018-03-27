@@ -1,19 +1,21 @@
 //constants
-#define pi 3.14
+#define pi	3.14
 #define L 0.23
-//#define kd 7.5e-7
+//#define kd  7.5e-7
 #define kd 0.00000075
-#define k 5.2
+#define k       5.2
 #define m 0.650
-//#define b 3.13e-5
+//#define b       3.13e-5
 #define b 0.0000313
-#define g 9.8
+#define g       9.8
 
 
 // NICOLA: define here the PD law for gamma_i
 // PD constants
-#define KD 4
-#define KP 3
+#define KD 10
+#define KP 6
+//#define KD 4
+//#define KP 3
 #define phi_dot (omegax + (sin(phi)*sin(the)/ ((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay + (sin(the)/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz)
 #define the_dot ((-sin(phi)^2*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)^2) + 1/cos(phi))*omegay + (-sin(phi)*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegaz)
 #define psi_dot ((sin(phi)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay + (1/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz)
@@ -26,6 +28,7 @@
 #define gamma4 (m*g/(4*k*cos(the)*cos(phi)) + e_psi*Izz/(4*b) + e_the*Iyy/(2*k*L))
 
 // NICOLA: we don't use w_i^2 = gamma_i, but directly gamma_i
+//#define wsqsum  ((w1)^2 + (w2)^2 + (w3)^2 + (w4)^2)
 #define wsqsum  (gamma1 + gamma2 + gamma3 + gamma4)
 
 //inertia
@@ -39,36 +42,45 @@
 #define taupsi		b*(gamma1 - gamma2 + gamma3 - gamma4)
 
 // position of quadcopter
-[-300, 300] x;
-[-300, 300] y;
+// we don't need x and y
 [-1000, 1000] z;
 
-[-200, 200] xdot;
-[-200, 200] ydot;
-[-200, 2000] zdot;
+// NICOLA: I've increased the range for zdot (on the left side) because we have free fall
+// [-200, 2000] zdot;
+[-2000, 2000] zdot;
 
+// but we do need angular velocities for all components
 // angular velocities of quadcopter
 [-100, 100] omegax;
 [-100, 100] omegay;
 [-100, 100] omegaz;
 
+// angular velocities of the four motors
+// we won't need explicit ODEs for these, as they are controlled by the PD
+//[0, 1] w1;
+//[0, 1] w2;
+//[0, 1] w3;
+//[0, 1] w4;
+
 
 // roll angle
 [-1, 1] phi;
-// pitch angle
+// pitch  
 [-1, 1] the;
 // yaw angle
 [-1, 1] psi;
 
-#define tau_sample 0.1
 
+#define tau_sample 0.1
+#define tau_stab 5
 
 [0,20] time;
 [0,20] tau;
-[0,tau_sample] counter;
+[0, tau_sample] counter;
 
+
+// normal mode
 {
-
 mode 1;
 
 time:
@@ -76,42 +88,31 @@ time:
 [0,tau_sample];
 
 invt:
-               (900-z >= 0);
-               (z >= 0);
+   (z <= 1000);
+   (z >= -1000);
 flow:
-                d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
-                d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
-                d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+    d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+    d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+    d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
 
-                d/dt[phi] = phi_dot;
+    d/dt[phi] = phi_dot;
+    d/dt[the] = the_dot;
+    d/dt[psi] = psi_dot;
 
-                d/dt[the] = the_dot;
+    d/dt[zdot] = -g + (1/m)*(cos(the)*k*wsqsum - kd*zdot);
+    d/dt[z] = zdot;
 
-                d/dt[psi] = psi_dot;
+    d/dt[tau] = 1;
+    d/dt[counter] = 1;
 
-                d/dt[xdot] = (1/m)*(sin(the)*sin(psi)*k*wsqsum - kd*xdot);
-                d/dt[ydot] = (1/m)*(-cos(psi)*sin(the)*k*wsqsum - kd*ydot);
-                d/dt[zdot] = (1/m)*(+g+cos(the)*k*wsqsum + kd*zdot);
+jump:
 
-                d/dt[x] = xdot;
-                d/dt[y] = ydot;
-                d/dt[z] = zdot;
-
-                d/dt[tau] = 1;
-                d/dt[counter] = 1;
-
-// we can make this jump determinstic at z=500
-jump: 
-
-(counter = tau_sample) ==> @1 (and (counter' = 0));
-
-(z = 500) ==> @2 (and (tau' = tau));
-
+	(counter = tau_sample) ==> @1 (and (phi' = phi) (the' = the) (psi' = psi) (counter' = 0));
+	(tau = tau_stab) ==> @2 (and (phi' = phi) (the' = the) (psi' = psi));
 }
 
 
-
-
+// free fall mode
 {
 mode 2;
 
@@ -120,61 +121,61 @@ time:
 [0,tau_sample];
 
 invt:
-               (900-z >= 0);
-               (z >= 0);
+    (phi + 1e-3 >= 0);
+    (-phi + 1e-3 >= 0);
+    (the + 1e-3 >= 0);
+    (-the + 1e-3 >= 0);
+    (psi + 1e-3 >= 0);
+    (-psi + 1e-3 >= 0);
+    (phi_dot + 1e-3 >= 0);
+    (-phi_dot + 1e-3 >= 0);
+    (the_dot + 1e-3 >= 0);
+    (-the_dot + 1e-3 >= 0);
+    (psi_dot + 1e-3 >= 0);
+    (-psi_dot + 1e-3 >= 0);
+
 flow:
-                d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
-                d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
-                d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+    d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+    d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+    d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
 
-                d/dt[phi] = phi_dot;
+    d/dt[phi] = phi_dot;
+    d/dt[the] = the_dot;
+    d/dt[psi] = psi_dot;
 
-                d/dt[the] = the_dot;
+    d/dt[zdot] = -g + (1/m)*(cos(the)*k*wsqsum - kd*zdot);
+    d/dt[z] = zdot;
 
-                d/dt[psi] = psi_dot;
+    d/dt[tau] = 1;
+    d/dt[counter] = 1;
 
-                d/dt[xdot] = (1/m)*(sin(the)*sin(psi)*k*wsqsum - kd*xdot);
-                d/dt[ydot] = (1/m)*(-cos(psi)*sin(the)*k*wsqsum - kd*ydot);
-                d/dt[zdot] = (1/m)*(-g-cos(the)*k*wsqsum - kd*zdot);
-
-                d/dt[x] = xdot;
-                d/dt[y] = ydot;
-                d/dt[z] = zdot;
-
-                d/dt[tau] = 1;
-                d/dt[counter] = 1;
-
-// we can make this jump deterministic at z=200
 jump: 
-
-(counter = tau_sample) ==> @2 (and (counter' = 0));
-
-(z = 200) ==> @1 (and (tau' = tau));
+        (counter = tau_sample) ==> @2 (and (counter' = 0));
 
 }
 
 
-// maybe init condition must be changed
-init: 
-@1 (and (phi = 0.1) 
-        (the = -0.1) 
-        (psi = 0.1)
-        (omegax = 0.00)
-        (omegay = 0.01)
-        (omegaz = 0.02)
-        (x = 0)
-        (y = 0)
-        (z = 220)
-        (xdot = 5) 
-        (ydot = 5) 
-        (zdot = 10)
-        (tau = 0)
-        (counter = 0));
+init: @1 (and 
+
+              // angles are initially set to 0
+              (phi = 0.01) 
+              (the = -0.01) 
+              (psi = 0.01)
+              // TODO: we might want to set random angular velocities of the quadcopter,
+              // as they affect derivatives of the angles and thus they would break the 
+              // initial equilibrium        
+              (omegax = 0.00)
+              (omegay = 0.01)
+              (omegaz = 0.02)
+
+              // initial height
+              (z = 0)
+              // zdot should be zero initially
+              (zdot = 0)
+
+              (tau = 0)
+              (counter = 0));
 
 // here, they want to see if they can reach a crash (z=0).
-//goal: @1 (and (tau >= 15.0)
-//             (z = 0)
-//         );
-
-goal: 
-@1(tau = 15.0);
+// change tau accordingly
+goal: @2 (and (tau = 20));

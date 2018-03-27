@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
             //cout << "Simulating a path: " << ap::compute_objective(ap::get_all_paths({}).front(), ap::init_to_box({}), {}, {}) << endl;
             //cout << global_config.global_time << endl;
             //cout << global_config.sample_time << endl;
-            global_config.ode_discretisation = 10;
+            global_config.ode_discretisation = 1;
             cout << "Noise variance: " << global_config.noise_var << endl;
             cout << "Simulation: " << ap::simulate({}) << endl;
             cout << "Verification: " << ap::verify({}) << endl;

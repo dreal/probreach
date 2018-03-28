@@ -4,12 +4,11 @@
 
 #include "stability.h"
 #include "pdrh.h"
+#include "pdrh_config.h"
 #include <cmath>
 #include <algorithm>
 #include <engine.h>
 #include <cstring>
-
-#define  BUFSIZE 256
 
 using namespace std;
 
@@ -74,8 +73,10 @@ bool stability::jury_test(std::vector<double> poly)
     return true;
 }
 
-std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *> odes, double Tt, box init, vector<box> boxes)
+std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *> odes, double T, box init, vector<box> boxes)
 {
+
+
     // creating capd string here
     // declaring parameters
 //    string par_string = "par:";
@@ -121,8 +122,8 @@ std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *>
     fun_string.back() = ';';
 
 //    cout << par_string << endl;
-//    cout << var_string << endl;
-//    cout << fun_string << endl;
+    cout << var_string << endl;
+    cout << fun_string << endl;
 
     // creating an ODE solver and setting precision
     //capd::DMap odes_rhs(par_string + var_string + fun_string);
@@ -141,18 +142,41 @@ std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *>
     cout << "Init: " << init << endl;
 
     // setting initial condition here
-    capd::DVector init_vector(odes_size), res_vector(odes_size);
+    capd::DVector init_vector(odes_size-1), res_vector(odes_size-1);
     map<string, capd::interval> init_map = init.get_map();
     size_t i = 0;
     for(auto it = init_map.begin(); it != init_map.end(); it++)
     {
-        init_vector[i] = it->second.rightBound();
-        i++;
+        if(it->first == "u")
+        {
+            init_vector[i] = it->second.rightBound();
+            i++;
+        }
+        else
+        {
+            // only those whose ODEs are not 0 or 1 will go in
+            if((pdrh::node_to_string_infix(odes[it->first]) != "0") &&
+               (pdrh::node_to_string_infix(odes[it->first]) != "1"))
+            {
+                init_vector[i] = it->second.rightBound();
+                i++;
+            }
+        }
     }
+
+    cout << "Init vector: " << init_vector << endl;
+
+//    capd::DVector coeff;
+//    odes_rhs.computeODECoefficients(coeff, 1);
+
+    cout << "Map degree: " << odes_rhs.degree() << endl;
+    cout << "Map order: " << odes_rhs.getOrder() << endl;
+
 
     cout << "Obtaining a big matrix: " << endl;
     capd::DMatrix Df = odes_rhs.derivative(init_vector);
     cout << Df << endl;
+
 
     for(string var : vars)
     {
@@ -165,194 +189,161 @@ std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *>
     size_t i_index = 0;
     size_t j_index = 0;
 
-    capd::DMatrix A(Df.numberOfRows()-1, Df.numberOfColumns()-1);
-    capd::DMatrix B(Df.numberOfRows()-1, 1);
+    int n = Df.numberOfRows()-1;
+    int m = Df.numberOfColumns()-1;
 
-    for(size_t i = 0; i < A.numberOfRows(); i++)
+    // from here we are working with arrays of doubles
+    double A[n][m];
+    double B[n][1];
+    double C[1][m];
+    double D[1][1];
+
+    for(size_t i = 0; i < n; i++)
+    {
+        for(size_t j = 0; j < m; j++)
+        {
+            A[i][j] = 0;
+        }
+        B[i][0] = 0;
+        C[0][i] = 0;
+    }
+    D[0][0] = 0;
+
+    for(size_t i = 0; i < n; i++)
     {
         if(vars.at(i) == "u") i_index = 1;
-        for(size_t j = 0; j < A.numberOfColumns(); j++)
+        for(size_t j = 0; j < m; j++)
         {
             if(vars.at(j) == "u")
             {
                 B[i][0] = Df[i][j];
                 j_index = 1;
             }
-            A[i][j] = Df[i+i_index][j+j_index];
+            A[j][i] = Df[i+i_index][j+j_index];
+        }
+        if(vars.at(i) == "Q1")
+        {
+            C[0][i] = 1;
         }
         j_index = 0;
     }
 
     cout << "Matrix A:" << endl;
-    cout << A << endl;
+    for(size_t i = 0; i < n; i++)
+    {
+        for(size_t j = 0; j < m; j++)
+        {
+            cout << A[i][j] << " ";
+        }
+        cout << endl;
+    }
 
     cout << "Matrix B:" << endl;
-    cout << B << endl;
+    for(size_t i = 0; i < n; i++)
+    {
+        cout << B[i][0] << endl;
+    }
 
-//    cout << "Matrix A*T:" << endl;
-//    cout << A*T << endl;
-//
-//    arma::mat matA(A.numberOfRows(), A.numberOfColumns());
-//    arma::mat matB(B.numberOfRows(), 1);
-//
-//    for(size_t i = 0; i < A.numberOfRows(); i++)
-//    {
-//        for(size_t j = 0; j < A.numberOfColumns(); j++)
-//        {
-//            matA(i,j) = A[i][j];
-//        }
-//        matB(i,0) = B[i][0];
-//    }
-//
-//    cout << "Matrix A*T arma:" << endl;
-//    cout << matA*T << endl;
-//
-//    arma::mat matG = arma::expmat(matA*T);
-//    cout << "Matrix G:" << endl;
-//    cout << matG << endl;
-//
-//    cout << "Matrix B arma:" << endl;
-//    cout << matB << endl;
-//
-//    // computing integral integral
-//    arma::mat matH(B.numberOfRows(), 1);
-//    size_t n = 1000;
-//    for(size_t i = 0; i < n; i++)
-//    {
-//        matH += arma::expmat(matA*(T*i/n))*matB*(T/n);
-//    }
-//    cout << "Matrix H arma:" << endl;
-//    cout << matH << endl;
-//
-//    arma::mat matC(1, A.numberOfColumns());
-//    matC(0, A.numberOfColumns()-1) = 1;
-//    cout << "Matrix C arma:" << endl;
-//    cout << matC << endl;
-//
-//    arma::mat matD(1,1);
-//    matD(0,0) = 0;
-//
-//    arma::mat matI = arma::eye<arma::mat>(A.numberOfRows(), A.numberOfColumns());
-//    arma::mat matSS2TF = matC*arma::inv(matI-matG)*matH+matD;
-//    cout << "SS2TF:" << endl;
-//    cout << matSS2TF << endl;
+    cout << "Matrix C:" << endl;
+    for(size_t i = 0; i < n; i++)
+    {
+        cout << C[0][i] << " ";
+    }
+    cout << endl;
 
-    Engine *ep;
-    mxArray *T = NULL, *result = NULL;
-    char buffer[BUFSIZE+1];
-    double time[10] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 };
+    cout << "Matrix D:" << endl;
+    cout << D[0][0] << endl;
+
 
     /*
      * Call engOpen with a NULL string. This starts a MATLAB process
      * on the current host using the command "matlab".
      */
+    Engine *ep;
     if (!(ep = engOpen(""))) {
         fprintf(stderr, "\nCan't start MATLAB engine\n");
         exit(EXIT_FAILURE);
     }
 
-    /*
-     * PART I
-     *
-     * For the first half of this demonstration, we will send data
-     * to MATLAB, analyze the data, and plot the result.
-     */
+    mxArray *matA = NULL, *matB = NULL, *matC = NULL, *matD = NULL, *result = NULL, *res = NULL;
 
-    /*
-     * Create a variable for our data
-     */
-    T = mxCreateDoubleMatrix(1, 10, mxREAL);
-    memcpy((void *)mxGetPr(T), (void *)time, sizeof(time));
-    /*
-     * Place the variable T into the MATLAB workspace
-     */
-    engPutVariable(ep, "T", T);
+    matA = mxCreateDoubleMatrix(n, m, mxREAL);
+    memcpy((void *)mxGetPr(matA), (void *)A, sizeof(A));
+    engPutVariable(ep, "A", matA);
 
-    /*
-     * Evaluate a function of time, distance = (1/2)g.*t.^2
-     * (g is the acceleration due to gravity)
-     */
-    engEvalString(ep, "D = .5.*(-9.8).*T.^2;");
+    matB = mxCreateDoubleMatrix(n, 1, mxREAL);
+    memcpy((void *)mxGetPr(matB), (void *)B, sizeof(B));
+    engPutVariable(ep, "B", matB);
 
-    /*
-     * Plot the result
-     */
-    engEvalString(ep, "plot(T,D);");
-    engEvalString(ep, "title('Position vs. Time for a falling object');");
-    engEvalString(ep, "xlabel('Time (seconds)');");
-    engEvalString(ep, "ylabel('Position (meters)');");
+    matC = mxCreateDoubleMatrix(1, m, mxREAL);
+    memcpy((void *)mxGetPr(matC), (void *)C, sizeof(C));
+    engPutVariable(ep, "C", matC);
 
-    /*
-     * use fgetc() to make sure that we pause long enough to be
-     * able to see the plot
-     */
-    printf("Hit return to continue\n\n");
-    fgetc(stdin);
-    /*
-     * We're done for Part I! Free memory, close MATLAB figure.
-     */
-    printf("Done for Part I.\n");
-    mxDestroyArray(T);
-    engEvalString(ep, "close;");
+    matD = mxCreateDoubleMatrix(1, 1, mxREAL);
+    memcpy((void *)mxGetPr(matD), (void *)D, sizeof(D));
+    engPutVariable(ep, "D", matD);
 
+    res = mxCreateDoubleMatrix(1, 1, mxREAL);
+    memcpy((void *)mxGetPr(res), (void *)res, sizeof(res));
+    engPutVariable(ep, "res", res);
 
-    /*
-     * PART II
-     *
-     * For the second half of this demonstration, we will request
-     * a MATLAB string, which should define a variable X.  MATLAB
-     * will evaluate the string and create the variable.  We
-     * will then recover the variable, and determine its type.
-     */
+    double Kp = -0.0009466876514559384;
+    double Ki = -3.651948677736389e-04;
+    double Kd = -0.0041651834714520;
 
-    /*
-     * Use engOutputBuffer to capture MATLAB output, so we can
-     * echo it back.  Ensure first that the buffer is always NULL
-     * terminated.
-     */
+    engEvalString(ep, "cd /home/fedor/probreach-ap/src/matlab/");
 
-    buffer[BUFSIZE] = '\0';
-    engOutputBuffer(ep, buffer, BUFSIZE);
-    while (result == NULL) {
-        char str[BUFSIZE+1];
-        char *input = NULL;
-        /*
-         * Get a string input from the user
-         */
-        printf("Enter a MATLAB command to evaluate.  This command should\n");
-        printf("create a variable X.  This program will then determine\n");
-        printf("what kind of variable you created.\n");
-        printf("For example: X = 1:5\n");
-        printf(">> ");
+    stringstream ss;
+    ss << "res = check_stability(A,B,C,D," << T << "," << Kp << "," << Ki << "," << Kd << ");";
+    engEvalString(ep, ss.str().c_str());
 
-        input = fgets(str, BUFSIZE, stdin);
+    cout << "MATLAB command: " << ss.str() << endl;
 
-        /*
-         * Evaluate input with engEvalString
-         */
-        engEvalString(ep, str);
-
-        /*
-         * Echo the output from the command.
-         */
-        printf("%s", buffer);
-
-        /*
-         * Get result of computation
-         */
-        printf("\nRetrieving X...\n");
-        if ((result = engGetVariable(ep,"X")) == NULL)
-            printf("Oops! You didn't create a variable X.\n\n");
-        else {
-            printf("X is class %s\t\n", mxGetClassName(result));
-        }
+    result = engGetVariable(ep, "A");
+    double *resA = mxGetPr(result);
+    cout << "Matrix A from matlab: " << endl;
+    for(size_t i = 0; i < m*n; i++)
+    {
+        cout << resA[i] << " ";
     }
+    cout << endl;
 
-    /*
-     * We're done! Free memory, close MATLAB engine and exit.
-     */
-    printf("Done!\n");
+    result = engGetVariable(ep, "B");
+    double *resB = mxGetPr(result);
+    cout << "Matrix B from matlab: " << endl;
+    for(size_t i = 0; i < n; i++)
+    {
+        cout << resB[i] << " ";
+    }
+    cout << endl;
+
+    result = engGetVariable(ep, "C");
+    double *resC = mxGetPr(result);
+    cout << "Matrix C from matlab: " << endl;
+    for(size_t i = 0; i < m; i++)
+    {
+        cout << resC[i] << " ";
+    }
+    cout << endl;
+
+
+
+    // getting the matrix straight away
+    result = engGetVariable(ep, "res");
+
+    cout << "Result: " << mxGetPr(result)[0] << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        cout << mxGetPr(result)[i] << endl;
+//    }
+
+    mxDestroyArray(matA);
+    mxDestroyArray(matB);
+    mxDestroyArray(matC);
+    mxDestroyArray(matD);
     mxDestroyArray(result);
+
+//    engEvalString(ep, "close;");
     engClose(ep);
 
 

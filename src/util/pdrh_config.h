@@ -79,7 +79,7 @@ struct pdrh_config
     bool sort_rv_flag = false;
     bool show_model = false;
 
-    size_t ode_discretisation = 1;
+    size_t ode_discretisation = 10;
     std::string global_time = "tau";
     std::string sample_time = "counter";
     double noise_var = 1;

@@ -17,6 +17,7 @@
 #include <solver/isat_wrapper.h>
 #include "rnd.h"
 #include "ap.h"
+#include "stability.h"
 
 using namespace std;
 
@@ -1096,6 +1097,8 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
     box var = sigma * sigma;
     vector<pair<box, capd::interval>> samples;
     capd::interval size_correction_coef(1e-32);
+    // getting initial mode
+    pdrh::mode* init_mode = pdrh::get_mode(pdrh::init.front().id);
     //#pragma omp parallel
     while (var.max_coordinate_value() > global_config.cross_entropy_term_arg)
     {
@@ -1112,29 +1115,40 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << new_size;
         int outliers = 0;
         //#pragma omp parallel for
-        for (int i = 0; i < new_size; i++) {
+        for (int i = 0; i < new_size; i++)
+        {
             box b = rnd::get_normal_random_sample(r, mean, sigma);
+
             CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
             capd::interval probability;
-            if (domain.contains(b)) {
+            if (domain.contains(b))
+            {
                 CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is inside the domain";
-                if (global_config.bayesian_flag) {
-                    probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc,
-                                                        global_config.bayesian_conf, vector<box>{b});
-                } else if (global_config.chernoff_flag) {
-                    probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc,
-                                                        global_config.chernoff_conf, vector<box>{b});
-                } else {
-                    CLOG(ERROR, "algorithm") << "Unknown setting";
-                    exit(EXIT_FAILURE);
-                }
-                // fixing probability value
-                if (probability.leftBound() < 0) {
-                    probability.setLeftBound(0);
-                }
-                if (probability.rightBound() > 1) {
-                    probability.setRightBound(1);
-                }
+//                if(stability::is_stable(init_mode->odes, pdrh::node_to_interval(init_mode->time.second).rightBound(), ap::init_to_box({}), b))
+//                {
+//                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is stable";
+                    if (global_config.bayesian_flag) {
+                        probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc,
+                                                            global_config.bayesian_conf, vector<box>{b});
+                    } else if (global_config.chernoff_flag) {
+                        probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc,
+                                                            global_config.chernoff_conf, vector<box>{b});
+                    } else {
+                        CLOG(ERROR, "algorithm") << "Unknown setting";
+                        exit(EXIT_FAILURE);
+                    }
+                    // fixing probability value
+                    if (probability.leftBound() < 0) {
+                        probability.setLeftBound(0);
+                    }
+                    if (probability.rightBound() > 1) {
+                        probability.setRightBound(1);
+                    }
+//                }
+//                else
+//                {
+//                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is unstable";
+//                }
             } else {
                 CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is outside the domain";
                 outliers++;

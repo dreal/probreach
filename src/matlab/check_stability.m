@@ -7,32 +7,6 @@ function res = check_stability(A,B,C,D,T,Kp,Ki,Kd)
 
     fileID = fopen('poly.txt','w');
 
-    fprintf(fileID, '\nMatrix A*B:\n');
-    fprintf(fileID, '%f ', A*B);
-
-    fprintf(fileID, '\nMatrix A:\n');
-    for i=1:10
-        for j=1:10
-            fprintf(fileID, '%f ', A(i,j));
-        end
-        fprintf(fileID, '\n');
-    end
-
-    %A = [-0.0250000000000000	0	0	0	0	0	0	0	0	0;
-    %     0.0250000000000000	-0.0250000000000000	0	0	0	0	0	0	0	0;
-    %     0	0	-0.138000000000000	0	0	0	0.00151515151515152	0	0	0;
-    %     0	0.0250000000000000	0	-0.0189867406241226	0.0660000000000000	0	0	-97.7777777777778	0	-1.61000000000000;
-    %     0	0	0	0.0189867406241226	-0.0972722786750255	0	0	97.7777777777778	-19.0854098491107	0;
-    %     0	0	0	0	0	-0.0181818181818182	0	0	0	0;
-    %     0	0	0	0	0	0.0181818181818182	-0.0181818181818182	0	0	0;
-    %     0	0	0.00340000000000000	0	0	0	0	-0.00600000000000000	0	0;
-    %     0	0	0.0560000000000000	0	0	0	0	0	-0.0600000000000000	0;
-    %     0	0	0.0240000000000000	0	0	0	0	0	0	-0.0300000000000000]
-    %B = [0; 0; 0; 0; 0; 1; 0; 0; 0; 0]
-
-    %fprintf(fileID, '\nMatrix A*B:\n');
-    %fprintf(fileID, '%f ', A*B);
-
     % computing G, state transition matrix of discrete system
     G = expm(A*T);
 
@@ -83,7 +57,6 @@ function res = check_stability(A,B,C,D,T,Kp,Ki,Kd)
     fprintf(fileID, '\nParameters: %f %f %f\n', Kp, Ki, Kd);
     fprintf(fileID, '\nabc: %f %f %f\n', a, b, c);
     fprintf(fileID, '\nDiscretisation: %f\n', T);
-    fclose(fileID);
 
     % below is Jury test for the obtained characteristic polynomial
     n = length(poly);
@@ -149,7 +122,11 @@ function res = check_stability(A,B,C,D,T,Kp,Ki,Kd)
     end
 
     res = 0;    
-    
+
+    fprintf(fileID, 'Result = %f ', res);
+    fclose(fileID);
+
+
 end
 
 %================End of the code====================================

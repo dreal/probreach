@@ -73,23 +73,9 @@ bool stability::jury_test(std::vector<double> poly)
     return true;
 }
 
-std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *> odes, double T, box init, vector<box> boxes)
+
+bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, box init, box param)
 {
-
-
-    // creating capd string here
-    // declaring parameters
-//    string par_string = "par:";
-//    for(box b : boxes)
-//    {
-//        map<string, capd::interval> b_map = b.get_map();
-//        for(auto it = b_map.begin(); it != b_map.end(); it++)
-//        {
-//            par_string += it->first + ',';
-//        }
-////        cout << b << endl;
-//    }
-//    par_string.back() = ';';
 
     vector<string> vars;
 
@@ -122,8 +108,8 @@ std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *>
     fun_string.back() = ';';
 
 //    cout << par_string << endl;
-    cout << var_string << endl;
-    cout << fun_string << endl;
+//    cout << var_string << endl;
+//    cout << fun_string << endl;
 
     // creating an ODE solver and setting precision
     //capd::DMap odes_rhs(par_string + var_string + fun_string);
@@ -139,7 +125,7 @@ std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *>
 //        }
 //    }
 
-    cout << "Init: " << init << endl;
+//    cout << "Init: " << init << endl;
 
     // setting initial condition here
     capd::DVector init_vector(odes_size-1), res_vector(odes_size-1);
@@ -164,24 +150,24 @@ std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *>
         }
     }
 
-    cout << "Init vector: " << init_vector << endl;
+//    cout << "Init vector: " << init_vector << endl;
 
 //    capd::DVector coeff;
 //    odes_rhs.computeODECoefficients(coeff, 1);
 
-    cout << "Map degree: " << odes_rhs.degree() << endl;
-    cout << "Map order: " << odes_rhs.getOrder() << endl;
+//    cout << "Map degree: " << odes_rhs.degree() << endl;
+//    cout << "Map order: " << odes_rhs.getOrder() << endl;
 
 
-    cout << "Obtaining a big matrix: " << endl;
+//    cout << "Obtaining a big matrix: " << endl;
     capd::DMatrix Df = odes_rhs.derivative(init_vector);
-    cout << Df << endl;
+//    cout << Df << endl;
 
 
-    for(string var : vars)
-    {
-        cout << var << endl;
-    }
+//    for(string var : vars)
+//    {
+//        cout << var << endl;
+//    }
 
 
     // deriving matrices A and B from the big matrix
@@ -221,51 +207,48 @@ std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *>
             }
             A[j][i] = Df[i+i_index][j+j_index];
         }
-        if(vars.at(i) == "Q1")
+        if(vars.at(i) == "C")
         {
             C[0][i] = 1;
         }
         j_index = 0;
     }
 
-    cout << "Matrix A:" << endl;
-    for(size_t i = 0; i < n; i++)
-    {
-        for(size_t j = 0; j < m; j++)
-        {
-            cout << A[i][j] << " ";
-        }
-        cout << endl;
-    }
+//    cout << "Matrix A:" << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        for(size_t j = 0; j < m; j++)
+//        {
+//            cout << A[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
+//
+//    cout << "Matrix B:" << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        cout << B[i][0] << endl;
+//    }
+//
+//    cout << "Matrix C:" << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        cout << C[0][i] << " ";
+//    }
+//    cout << endl;
+//
+//    cout << "Matrix D:" << endl;
+//    cout << D[0][0] << endl;
 
-    cout << "Matrix B:" << endl;
-    for(size_t i = 0; i < n; i++)
-    {
-        cout << B[i][0] << endl;
-    }
-
-    cout << "Matrix C:" << endl;
-    for(size_t i = 0; i < n; i++)
-    {
-        cout << C[0][i] << " ";
-    }
-    cout << endl;
-
-    cout << "Matrix D:" << endl;
-    cout << D[0][0] << endl;
-
-
-    /*
-     * Call engOpen with a NULL string. This starts a MATLAB process
-     * on the current host using the command "matlab".
-     */
+    // initialising matlab engine
     Engine *ep;
     if (!(ep = engOpen(""))) {
         fprintf(stderr, "\nCan't start MATLAB engine\n");
         exit(EXIT_FAILURE);
     }
 
-    mxArray *matA = NULL, *matB = NULL, *matC = NULL, *matD = NULL, *result = NULL, *res = NULL;
+    // initialising matrices
+    mxArray *matA = NULL, *matB = NULL, *matC = NULL, *matD = NULL;
 
     matA = mxCreateDoubleMatrix(n, m, mxREAL);
     memcpy((void *)mxGetPr(matA), (void *)A, sizeof(A));
@@ -283,76 +266,57 @@ std::vector<double> stability::get_char_poly(std::map<std::string, pdrh::node *>
     memcpy((void *)mxGetPr(matD), (void *)D, sizeof(D));
     engPutVariable(ep, "D", matD);
 
-    res = mxCreateDoubleMatrix(1, 1, mxREAL);
-    memcpy((void *)mxGetPr(res), (void *)res, sizeof(res));
-    engPutVariable(ep, "res", res);
-
-    double Kp = -0.0009466876514559384;
-    double Ki = -3.651948677736389e-04;
-    double Kd = -0.0041651834714520;
-
     engEvalString(ep, "cd /home/fedor/probreach-ap/src/matlab/");
 
     stringstream ss;
-    ss << "res = check_stability(A,B,C,D," << T << "," << Kp << "," << Ki << "," << Kd << ");";
+    ss << "check_stability(A,B,C,D," << T << "," << param.get_map()["Kp"].leftBound() << "," << param.get_map()["Ki"].leftBound() << "," << param.get_map()["Kd"].leftBound() << ");";
     engEvalString(ep, ss.str().c_str());
 
-    cout << "MATLAB command: " << ss.str() << endl;
+//    cout << "MATLAB command: " << ss.str() << endl;
+//
+//    result = engGetVariable(ep, "A");
+//    double *resA = mxGetPr(result);
+//    cout << "Matrix A from matlab: " << endl;
+//    for(size_t i = 0; i < m*n; i++)
+//    {
+//        cout << resA[i] << " ";
+//    }
+//    cout << endl;
+//
+//    result = engGetVariable(ep, "B");
+//    double *resB = mxGetPr(result);
+//    cout << "Matrix B from matlab: " << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        cout << resB[i] << " ";
+//    }
+//    cout << endl;
+//
+//    result = engGetVariable(ep, "C");
+//    double *resC = mxGetPr(result);
+//    cout << "Matrix C from matlab: " << endl;
+//    for(size_t i = 0; i < m; i++)
+//    {
+//        cout << resC[i] << " ";
+//    }
+//    cout << endl;
 
-    result = engGetVariable(ep, "A");
-    double *resA = mxGetPr(result);
-    cout << "Matrix A from matlab: " << endl;
-    for(size_t i = 0; i < m*n; i++)
-    {
-        cout << resA[i] << " ";
-    }
-    cout << endl;
-
-    result = engGetVariable(ep, "B");
-    double *resB = mxGetPr(result);
-    cout << "Matrix B from matlab: " << endl;
-    for(size_t i = 0; i < n; i++)
-    {
-        cout << resB[i] << " ";
-    }
-    cout << endl;
-
-    result = engGetVariable(ep, "C");
-    double *resC = mxGetPr(result);
-    cout << "Matrix C from matlab: " << endl;
-    for(size_t i = 0; i < m; i++)
-    {
-        cout << resC[i] << " ";
-    }
-    cout << endl;
-
-
-
-    // getting the matrix straight away
-    result = engGetVariable(ep, "res");
-
-    cout << "Result: " << mxGetPr(result)[0] << endl;
 //    for(size_t i = 0; i < n; i++)
 //    {
 //        cout << mxGetPr(result)[i] << endl;
 //    }
 
+    double res = mxGetPr(engGetVariable(ep, "ans"))[0];
+
+    // freeing the memory
     mxDestroyArray(matA);
     mxDestroyArray(matB);
     mxDestroyArray(matC);
     mxDestroyArray(matD);
-    mxDestroyArray(result);
-
-//    engEvalString(ep, "close;");
     engClose(ep);
 
-
+    return res == 0;
 }
-
-
-
-
-
 
 
 

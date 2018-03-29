@@ -1234,8 +1234,8 @@ int ap::verify(vector<box> boxes)
         //cout << "Current mode: " << cur_mode->id << endl;
         // getting the initial condition for the current mode
         box init = path.back().second;
-        cout << "====================" << endl;
-        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
+//        cout << "====================" << endl;
+//        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
 //        cout << init << endl;
         // iterating through the jumps in the current mode and
         // recording all possible jumps with their times
@@ -1294,8 +1294,8 @@ int ap::verify(vector<box> boxes)
             // finding out the time of the jump with the delta-sat witness from dReal
             //cout << "Initial value: " << path.back().second << endl;
             pair<capd::interval, box> jump_time = decision_procedure::get_jump_time(cur_mode, jump, init, boxes);
-            cout << "Time of the jump to mode " << jump.next_id <<" : " << jump_time.first << "; witness: " << jump_time.second << endl;
-            cout << "===============" << endl;
+//            cout << "Time of the jump to mode " << jump.next_id <<" : " << jump_time.first << "; witness: " << jump_time.second << endl;
+//            cout << "===============" << endl;
             // adding only those jumps which are enabled within the mode
             if(jump_time.first != capd::interval(-1))
             {
@@ -1428,13 +1428,11 @@ int ap::simulate(vector<box> boxes)
         paths.erase(paths.begin());
         // getting the current mode
         pdrh::mode* cur_mode = pdrh::get_mode(path.back().first);
-        cout << "Current mode: " << cur_mode->id << endl;
-        stability::get_char_poly(cur_mode->odes, 5, path.back().second, {});
-        exit(EXIT_SUCCESS);
+//        cout << "Current mode: " << cur_mode->id << endl;
         // getting the initial condition for the current mode
         box init = path.back().second;
-        cout << "====================" << endl;
-        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
+//        cout << "====================" << endl;
+//        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
 //        cout << init << endl;
 //        cout << "====================" << endl;
         // will be iterating through the jumps in the current mode and
@@ -1479,8 +1477,8 @@ int ap::simulate(vector<box> boxes)
             //box sol = solve_odes_nonrig(cur_mode->odes, init, integration_step, boxes);
             //box sol = solve_odes(cur_mode->odes, init, integration_step, boxes);
             capd::interval cur_time = integration_step*(i+1);
-            cout << "Solution at time " << cur_time << ": " << sol << endl;
-            cout << "====================" << endl;
+//            cout << "Solution at time " << cur_time << ": " << sol << endl;
+//            cout << "====================" << endl;
             // checking the jumps here
             //cout << "Evaluating jumps now" << endl;
             // processing the sample jump first if it exists

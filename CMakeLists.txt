@@ -13,7 +13,7 @@ find_package(GTest)
 
 # setting compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-return-type -Wno-unused-function -std=c++11 -fopenmp -frounding-math")
-#set(CMAKE_EXE_LINKER_FLAGS)
+#set(CMAKE_EXE_LINKER_FLAGS "-static-libstdc++")
 
 # setting some environment variables
 set(PROBREACH_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
@@ -110,7 +110,7 @@ ADD_FLEX_BISON_DEPENDENCY(pdrh_scanner pdrh_parser)
 
 
 # header files
-include_directories("/usr/local/MATLAB/R2017b/extern/include")
+include_directories("/opt/Matlab/R2014a/extern/include")
 include_directories("${DREAL_INCLUDE_DIR}")
 include_directories("${DREAL_INCLUDE_DIR}/ibex")
 include_directories("${PROBREACH_SOURCE_DIR}/pdrh2smt")
@@ -147,8 +147,8 @@ set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhpa
         ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp src/util/ap.cpp src/util/ap.h src/util/stability.cpp src/util/stability.h)
 
-link_directories(/usr/local/MATLAB/R2017b/bin/glnxa64/)
-#link_directories(/usr/local/MATLAB/R2017b/sys/os/glnxa64)
+link_directories(/opt/Matlab/R2014a/bin/glnxa64/)
+#link_directories(/opt/Matlab/R2014a/sys/os/glnxa64)
 
 
 # creating a library
@@ -184,7 +184,7 @@ add_custom_command(TARGET pdrh2smt
 
 # adding executable
 add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
-target_compile_options(ProbReach PRIVATE -static)
+#target_compile_options(ProbReach PRIVATE -static)
 target_link_libraries(ProbReach probreach)
 
 

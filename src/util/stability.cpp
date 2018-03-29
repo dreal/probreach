@@ -128,7 +128,7 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
 //    cout << "Init: " << init << endl;
 
     // setting initial condition here
-    capd::DVector init_vector(odes_size-1), res_vector(odes_size-1);
+    capd::DVector init_vector(odes_size), res_vector(odes_size);
     map<string, capd::interval> init_map = init.get_map();
     size_t i = 0;
     for(auto it = init_map.begin(); it != init_map.end(); it++)
@@ -223,7 +223,6 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
 //        }
 //        cout << endl;
 //    }
-//
 //    cout << "Matrix B:" << endl;
 //    for(size_t i = 0; i < n; i++)
 //    {
@@ -266,7 +265,7 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
     memcpy((void *)mxGetPr(matD), (void *)D, sizeof(D));
     engPutVariable(ep, "D", matD);
 
-    engEvalString(ep, "cd /home/fedor/probreach-ap/src/matlab/");
+    engEvalString(ep, "cd /home/b2049657/probreach-ap/src/matlab/");
 
     stringstream ss;
     ss << "check_stability(A,B,C,D," << T << "," << param.get_map()["Kp"].leftBound() << "," << param.get_map()["Ki"].leftBound() << "," << param.get_map()["Kd"].leftBound() << ");";

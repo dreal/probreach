@@ -98,41 +98,41 @@ int main(int argc, char* argv[])
     }
 
     // displaying primary solver
-    CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
-    if(global_config.solver_type == solver::type::DREAL)
-    {
-        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: dReal";
-    }
-    else if(global_config.solver_type == solver::type::ISAT)
-    {
-        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: iSAT";
-    }
-    else if(global_config.solver_type == solver::type::UNKNOWN_SOLVER)
-    {
-        CLOG(ERROR, "parser") << "Primary solver is not defined";
-        return EXIT_FAILURE;
-    }
-    // displaying secondary solver
-    if(global_config.secondary_solver_bin.empty())
-    {
-        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: not defined";
-    }
-    else
-    {
-        if(global_config.secondary_solver_type == solver::type::DREAL)
-        {
-            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: dReal";
-        }
-        else if(global_config.secondary_solver_type == solver::type::ISAT)
-        {
-            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: iSAT";
-        }
-        else if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
-        {
-            CLOG(ERROR, "parser") << "Secondary solver is not recognized";
-            return EXIT_FAILURE;
-        }
-    }
+//    CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
+//    if(global_config.solver_type == solver::type::DREAL)
+//    {
+//        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: dReal";
+//    }
+//    else if(global_config.solver_type == solver::type::ISAT)
+//    {
+//        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: iSAT";
+//    }
+//    else if(global_config.solver_type == solver::type::UNKNOWN_SOLVER)
+//    {
+//        CLOG(ERROR, "parser") << "Primary solver is not defined";
+//        return EXIT_FAILURE;
+//    }
+//    // displaying secondary solver
+//    if(global_config.secondary_solver_bin.empty())
+//    {
+//        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: not defined";
+//    }
+//    else
+//    {
+//        if(global_config.secondary_solver_type == solver::type::DREAL)
+//        {
+//            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: dReal";
+//        }
+//        else if(global_config.secondary_solver_type == solver::type::ISAT)
+//        {
+//            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: iSAT";
+//        }
+//        else if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
+//        {
+//            CLOG(ERROR, "parser") << "Secondary solver is not recognized";
+//            return EXIT_FAILURE;
+//        }
+//    }
 
 //    vector<vector<pdrh::mode*>> paths = pdrh::get_paths();
 //    cout << "Set of paths to check: " << endl;
@@ -176,13 +176,13 @@ int main(int argc, char* argv[])
 //                return EXIT_FAILURE;
 //            }
 //            break;
-            //cout << "Simulating a path: " << ap::compute_objective(ap::get_all_paths({}).front(), ap::init_to_box({}), {}, {}) << endl;
+            cout << "Simulating a path: " << ap::simulate_path(ap::get_all_paths({}).front(), ap::init_to_box({}), {}) << endl;
             //cout << global_config.global_time << endl;
             //cout << global_config.sample_time << endl;
-            global_config.ode_discretisation = 1;
-            cout << "Noise variance: " << global_config.noise_var << endl;
-            cout << "Simulation: " << ap::simulate({}) << endl;
-            cout << "Verification: " << ap::verify({}) << endl;
+            //global_config.ode_discretisation = 1;
+            //cout << "Noise variance: " << global_config.noise_var << endl;
+            //cout << "Simulation: " << ap::simulate({}) << endl;
+            //cout << "Verification: " << ap::verify({}) << endl;
             break;
         }
         // probabilistic hybrid automata
@@ -254,6 +254,7 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
+                    global_config.ode_discretisation = 10;
                     // getting the domain of nondeterministic parameters
                     box nondet_domain = pdrh::get_nondet_domain();
                     cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
@@ -281,12 +282,13 @@ int main(int argc, char* argv[])
                         cout << "Domain of nondeterministic parameters: " << pdrh::get_nondet_domain() << endl;
                         capd::interval conf_intersection(0);
                         // adjusting discretisation until both intervals intersect by more than 80%
-                        while(capd::intervals::width(conf_intersection) < 1.6 * global_config.bayesian_acc)
+                        while(capd::intervals::width(conf_intersection) < global_config.bayesian_acc)
                         {
                             // cross entropy algorithm is used here
                             algorithm::use_verified = false;
                             cout << "Solving optimisation problem for the discretised system" << endl;
                             cout << "Discretisation using " << global_config.ode_discretisation << " points" << endl;
+//                            pair<box, capd::interval> opt_res = make_pair(box("Kp:[1.77,1.77];Ki:[0,0];Kd:[0,0];"), capd::interval(0));
                             pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
                                                                                                                global_config.reach_depth_max,
                                                                                                                global_config.sample_size);

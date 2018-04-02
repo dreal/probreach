@@ -17,7 +17,8 @@ struct pdrh_config
     double integral_inf_coeff = 1e-01;
     double integral_pdf_step = 1e-01;
     // solver options
-    string solver_bin = SOLVER_BIN;
+    //string solver_bin = SOLVER_BIN;
+    string solver_bin = "dReal";
     string solver_opt = "";
     solver::type solver_type = solver::type::UNKNOWN_SOLVER;
     string secondary_solver_bin = "";

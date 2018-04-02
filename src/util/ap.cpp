@@ -684,13 +684,12 @@ capd::interval time_to_goal(pdrh::mode *m, vector<box> boxes)
 }
 
 
-pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
+int ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
 {
     // reachability depth == 0
     if(path.size() == 1)
     {
-        return {decision_procedure::check_invariants(path.front(), time_to_goal(path.front(), boxes), init, boxes, global_config.solver_bin, global_config.solver_opt),
-                solve_odes(path.front()->odes, init, time_to_goal(path.front(), boxes), boxes)};
+        return decision_procedure::check_invariants(path.front(), time_to_goal(path.front(), boxes), init, boxes, global_config.solver_bin, global_config.solver_opt);
     }
     // reachability depth > 0
     vector<box> sol_box;
@@ -737,30 +736,41 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
             }
             // checking the invariants
             box init_box_hull = box_factory::box_hull(init_box);
+//            cout << "Mode: " << cur_mode->id << endl;
 //            cout << "Init box (VERIFIED) for depth " << i << endl;
 //            cout << init_box_hull << endl;
 //            cout << "----------" << endl;
-            int invt_check = decision_procedure::check_invariants(cur_mode, time, init_box_hull, boxes, global_config.solver_bin, global_config.solver_opt);
+            //if(i == 20) exit(EXIT_FAILURE);
+
+            int invt_check = decision_procedure::UNSAT;
+            if(ap::check_invariants(cur_mode, init_box_hull, boxes))
+            {
+                invt_check = decision_procedure::check_invariants(cur_mode, time, init_box_hull, boxes, global_config.solver_bin, global_config.solver_opt);
+            }
             //int invt_check = decision_procedure::SAT;
             switch(invt_check)
             {
+                case decision_procedure::SAT:
+                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is SAT in mode " << cur_mode->id << " @ depth=" << i;
+                    break;
+
                 case decision_procedure::UNDET:
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is UNDET in mode " << cur_mode->id << " @ depth=" << i;
-                    return make_pair(decision_procedure::UNDET, init_box_hull);
+                    return decision_procedure::UNDET;
 
                 case decision_procedure::UNSAT:
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is UNSAT in mode " << cur_mode->id << " @ depth=" << i;
-                    return make_pair(decision_procedure::UNSAT, init_box_hull);
+                    return decision_procedure::UNSAT;
             }
             // solving odes
             for(size_t k = 0; k < init_box.size(); k++)
             {
-                sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
-                //sol_box.push_back(solve_odes_nonrig(cur_mode->odes, init_box.at(k), time, boxes));
+                //sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
+                sol_box.push_back(solve_odes_nonrig(cur_mode->odes, init_box.at(k), time, boxes));
             }
-            cout << "Solution (VERIFIED) box for depth " << i << endl;
-            cout << box_factory::box_hull(sol_box) << endl;
-            cout << "===========" << endl;
+//            cout << "Solution (VERIFIED) box for depth " << i << endl;
+//            cout << box_factory::box_hull(sol_box) << endl;
+//            cout << "===========" << endl;
 
 //            cout << "Solution box hull in mode " << cur_mode->id << " at depth = " << i << endl;
 //            cout << box_factory::box_hull(sol_box) << endl;
@@ -770,7 +780,7 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
             vector<box> part_sol_box;
             for(box b : sol_box)
             {
-                vector<box> part_boxes = box_factory::bisect(b, vector<string>{"Q1"});
+                vector<box> part_boxes = box_factory::bisect(b, vector<string>{"phi", "psi", "the"});
                 part_sol_box.insert(part_sol_box.end(), part_boxes.begin(), part_boxes.end());
             }
 
@@ -779,20 +789,21 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
             map<string, pdrh::node*> reset_map = cur_mode->get_jump(next_mode->id).reset;
             for(box b : part_sol_box)
             {
-                map<string, capd::interval> init_map;
-                for (auto it = reset_map.begin(); it != reset_map.end(); it++)
-                {
-                    if((pdrh::par_map.find(it->first) == pdrh::par_map.end()) &&
-                       (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
-                       (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
-                    {
-                        vector<box> reset_boxes = boxes;
-                        reset_boxes.push_back(b);
-                        init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
-                    }
-                }
-                // can add random error here
-                init_box.push_back(box(init_map));
+//                map<string, capd::interval> init_map;
+//                for (auto it = reset_map.begin(); it != reset_map.end(); it++)
+//                {
+//                    if((pdrh::par_map.find(it->first) == pdrh::par_map.end()) &&
+//                       (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
+//                       (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
+//                    {
+//                        vector<box> reset_boxes = boxes;
+//                        reset_boxes.push_back(b);
+//                        init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
+//                    }
+//                }
+//                // can add random error here
+//                init_box.push_back(box(init_map));
+                init_box.push_back(ap::apply_reset(cur_mode->get_jump(next_mode->id).reset, b, boxes));
             }
             // clear solution boxes
             sol_box.clear();
@@ -803,24 +814,32 @@ pair<int, box> ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box
     // checking the invariants in the last mode
     box init_box_hull = box_factory::box_hull(init_box);
     capd::interval time = time_to_goal(path.back(), boxes) - cur_mode_time;
-    int invt_check = decision_procedure::check_invariants(path.back(), time, init_box_hull, boxes, global_config.solver_bin, global_config.solver_opt);
+    int invt_check = decision_procedure::UNSAT;
+    if(ap::check_invariants(path.back(), init_box_hull, boxes))
+    {
+        invt_check = decision_procedure::check_invariants(path.back(), time, init_box_hull, boxes, global_config.solver_bin, global_config.solver_opt);
+    }
     switch(invt_check)
     {
+        case decision_procedure::SAT:
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is SAT in mode " << path.back()->id << " @ depth=" << path.size() - 1;
+            break;
+
         case decision_procedure::UNDET:
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is UNDET in mode " << path.back()->id << " at depth=" << path.size() - 1;
-            return make_pair(decision_procedure::UNDET, init_box_hull);
+            return decision_procedure::UNDET;
 
         case decision_procedure::UNSAT:
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariant is UNSAT in mode " << path.back()->id << " at depth=" << path.size() - 1;
-            return make_pair(decision_procedure::UNSAT, init_box_hull);
+            return decision_procedure::UNSAT;
     }
     // computing solution for the goal
     for(size_t k = 0; k < init_box.size(); k++)
     {
-        sol_box.push_back(solve_odes(path.back()->odes, init_box.at(k), time, boxes));
-        //sol_box.push_back(solve_odes_nonrig(path.back()->odes, init_box.at(k), time, boxes));
+        //sol_box.push_back(solve_odes(path.back()->odes, init_box.at(k), time, boxes));
+        sol_box.push_back(solve_odes_nonrig(path.back()->odes, init_box.at(k), time, boxes));
     }
-    return make_pair(decision_procedure::SAT, box_factory::box_hull(sol_box));
+    return decision_procedure::SAT;
 }
 
 box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes, vector<string> obj_name)
@@ -1158,6 +1177,7 @@ vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
     {
         for(pdrh::state g : pdrh::goal)
         {
+//            cout << "Init: " << i.id << " goal: " << g.id << endl;
             vector<pdrh::mode*> path = pdrh::get_shortest_path(pdrh::get_mode(i.id), pdrh::get_mode(g.id));
             if(path.size() > 0)
             {
@@ -1177,7 +1197,11 @@ vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
     prev_mode->id = 0;
     for(vector<pdrh::mode*> path : paths)
     {
+//        cout << "Path:";
+//        for(pdrh::mode* m : path) cout << m->id << " ";
+//        cout << endl;
         vector<pdrh::mode*> new_path;
+        new_path.push_back(path.front());
         for(size_t i = 0; i < path.size(); i++)
         {
             pdrh::mode* cur_mode = path[i];
@@ -1198,6 +1222,9 @@ vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
         }
         new_path.push_back(path[path.size()-1]);
         res.push_back(new_path);
+//        cout << "Found a path: ";
+//        for(pdrh::mode* m : new_path) cout << m->id << " ";
+//        cout << endl;
     }
     prev_mode = NULL;
     delete prev_mode;
@@ -1234,9 +1261,9 @@ int ap::verify(vector<box> boxes)
         //cout << "Current mode: " << cur_mode->id << endl;
         // getting the initial condition for the current mode
         box init = path.back().second;
-//        cout << "====================" << endl;
-//        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
-//        cout << init << endl;
+        cout << "====================" << endl;
+        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
+        cout << init << endl;
         // iterating through the jumps in the current mode and
         // recording all possible jumps with their times
         map<int, pair<capd::interval, box>> jumps_times;
@@ -1294,8 +1321,8 @@ int ap::verify(vector<box> boxes)
             // finding out the time of the jump with the delta-sat witness from dReal
             //cout << "Initial value: " << path.back().second << endl;
             pair<capd::interval, box> jump_time = decision_procedure::get_jump_time(cur_mode, jump, init, boxes);
-//            cout << "Time of the jump to mode " << jump.next_id <<" : " << jump_time.first << "; witness: " << jump_time.second << endl;
-//            cout << "===============" << endl;
+            cout << "Time of the jump to mode " << jump.next_id <<" : " << jump_time.first << "; witness: " << jump_time.second << endl;
+            cout << "===============" << endl;
             // adding only those jumps which are enabled within the mode
             if(jump_time.first != capd::interval(-1))
             {
@@ -1384,13 +1411,15 @@ box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> box
     r = gsl_rng_alloc(T);
     // setting the seed
     gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
-    double noise = gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
-    gsl_rng_free(r);
+    //double noise = gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
     // adding noise to the right hand
 //    cout << "Solution before noise: " << sol << endl;
 //    cout << "--------------------" << endl;
     map<string, capd::interval> sol_map = sol.get_map();
-    sol_map["e"] += noise;
+    sol_map["e_phi"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+    sol_map["e_psi"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+    sol_map["e_the"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+    gsl_rng_free(r);
 //    cout << "Noise: " << noise << endl;
 //    cout << "--------------------" << endl;
     sol = box(sol_map);
@@ -1453,7 +1482,8 @@ int ap::simulate(vector<box> boxes)
             // NEED TO ACCOUNT FOR MULTIPLE PATHS DURING SIMULATION
             if(ap::check_invariants(cur_mode, init, boxes))
             {
-                //cout << "Invariants: SAT" << endl;
+//                cout << "Invariants: SAT" << endl;
+//                cout << "Witness: " << init << endl;
             }
             else
             {

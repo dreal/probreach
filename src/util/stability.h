@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <engine.h>
 #include "pdrh.h"
 
 
@@ -22,6 +21,7 @@ namespace stability
 
     // performs stability check using jury test for a given polynomial
     bool jury_test(std::vector<double>);
+
 
 }
 

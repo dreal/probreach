@@ -1,0 +1,345 @@
+//constants
+#define pi	3.14
+#define L 0.23
+//#define kd  7.5e-7
+#define kd 0.00000075
+#define k       5.2
+#define m 0.650
+//#define b       3.13e-5
+#define b 0.0000313
+#define g       9.8
+
+
+#define phi_dot (omegax + (sin(phi)*sin(the)/ ((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay + (sin(the)/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz)
+#define the_dot ((-sin(phi)^2*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)^2) + 1/cos(phi))*omegay + (-sin(phi)*cos(the)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegaz)
+#define psi_dot ((sin(phi)/((sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the))*cos(phi)))*omegay + (1/(sin(phi)^2*cos(the)/cos(phi) + cos(phi)*cos(the)))*omegaz)
+
+
+#define gamma1 (m*g/(4*k*cos(the)*cos(phi)) -(2*b*u_phi*Ixx + u_psi*Izz*k*L)/(4*b*k*L) )
+#define gamma2 (m*g/(4*k*cos(the)*cos(phi)) + u_psi*Izz/(4*b) -u_the*Iyy/(2*k*L))
+#define gamma3 (m*g/(4*k*cos(the)*cos(phi)) -(-2*b*u_phi*Ixx + u_psi*Izz*k*L)/(4*b*k*L) )
+#define gamma4 (m*g/(4*k*cos(the)*cos(phi)) + u_psi*Izz/(4*b) + u_the*Iyy/(2*k*L))
+
+// NICOLA: we don't use w_i^2 = gamma_i, but directly gamma_i
+//#define wsqsum  ((w1)^2 + (w2)^2 + (w3)^2 + (w4)^2)
+#define wsqsum  (gamma1 + gamma2 + gamma3 + gamma4)
+
+//inertia
+#define Ixx	0.0075
+#define Iyy	0.0075
+#define Izz	0.013
+
+//torques
+#define tauphi		L*k*(gamma1 - gamma3)
+#define tauthe		L*k*(gamma2 - gamma4)
+#define taupsi		b*(gamma1 - gamma2 + gamma3 - gamma4)
+
+#define thresh 1e-1
+
+// position of quadcopter
+// we don't need x and y
+[-1000, 1000] z;
+
+// NICOLA: I've increased the range for zdot (on the left side) because we have free fall
+// [-200, 2000] zdot;
+[-2000, 2000] zdot;
+
+// but we do need angular velocities for all components
+// angular velocities of quadcopter
+[-100, 100] omegax;
+[-100, 100] omegay;
+[-100, 100] omegaz;
+
+
+
+// roll angle
+[-1, 1] phi;
+// pitch  
+[-1, 1] the;
+// yaw angle
+[-1, 1] psi;
+
+[-10, 10] e_phi;
+[-10, 10] u_phi;
+[-10, 10] phi_prev;
+[-1e6, 1e6] e_phi_der;
+[-1e9, 1e9] e_phi_int;
+
+
+[-10, 10] e_psi;
+[-10, 10] u_psi;
+[-10, 10] psi_prev;
+[-1e6, 1e6] e_psi_der;
+[-1e9, 1e9] e_psi_int;
+
+
+[-10, 10] e_the;
+[-10, 10] u_the;
+[-10, 10] the_prev;
+[-1e6, 1e6] e_the_der;
+[-1e9, 1e9] e_the_int;
+
+
+[0,5] Kp;
+[0,5] Ki;
+[0,5] Kd;
+
+dist_normal(0,0.1) phi_init;
+dist_normal(0,0.1) psi_init;
+dist_normal(0,0.1) the_init;
+
+//#define phi_init 0.0
+//#define psi_init 0.0
+//#define the_init 0.0
+
+dist_normal(0,0.1) omegax_init;
+dist_normal(0,0.1) omegay_init;
+dist_normal(0,0.1) omegaz_init;
+
+//#define omegax_init 0
+//#define omegay_init 0
+//#define omegaz_init 0
+
+// the below values are taken from the paper
+//#define Kp 3
+//#define Ki 0
+//#define Kd 4
+
+//#define e_phi (Kd*phi_dot + Kp*phi)
+//#define e_psi (Kd*psi_dot + Kp*psi)
+//#define e_the (Kd*the_dot + Kp*the)
+
+
+
+#define tau_sample 0.1
+#define tau_stab 3
+
+[0,5] time;
+[0,5] tau;
+[0, tau_sample] counter;
+
+
+// normal mode
+{
+mode 1;
+
+time:
+
+[0,tau_sample];
+
+invt:
+   (z <= 1000);
+   (z >= -1000);
+flow:
+
+    d/dt[e_phi] = 0;
+    d/dt[u_phi] = 0;
+    d/dt[phi_prev] = 0;
+    d/dt[e_phi_der] = 0;
+    d/dt[e_phi_int] = 0;
+
+    d/dt[e_psi] = 0;
+    d/dt[u_psi] = 0;    
+    d/dt[psi_prev] = 0;
+    d/dt[e_psi_der] = 0;
+    d/dt[e_psi_int] = 0;
+
+    d/dt[e_the] = 0;
+    d/dt[u_the] = 0;
+    d/dt[the_prev] = 0;
+    d/dt[e_the_der] = 0;
+    d/dt[e_the_int] = 0;
+
+
+    d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+    d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+    d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+
+    d/dt[phi] = phi_dot;
+    d/dt[the] = the_dot;
+    d/dt[psi] = psi_dot;
+
+    d/dt[zdot] = -g + (1/m)*(cos(the)*k*wsqsum - kd*zdot);
+    d/dt[z] = zdot;
+
+    d/dt[tau] = 1;
+    d/dt[counter] = 1;
+
+jump:
+
+	(counter = tau_sample) ==> @1 (and (e_phi' = phi) (e_phi_der' = (-phi_prev + phi) / tau_sample) 
+                                     (phi_prev' = phi)(e_phi_int' = e_phi_int + phi*tau_sample)
+                                     (tau' = tau)(u_phi' = Kp*e_phi + Kd*e_phi_der + Ki*e_phi_int)
+                                     (e_psi' = psi) (e_psi_der' = (-psi_prev + psi) / tau_sample) 
+                                     (psi_prev' = psi) (e_psi_int' = e_psi_int + psi*tau_sample)
+                                     (tau' = tau)(u_psi' = Kp*e_psi + Kd*e_psi_der + Ki*e_psi_int)
+                                     (e_the' = the) (e_the_der' = (-the_prev + the) / tau_sample) 
+                                     (the_prev' = the) (e_the_int' = e_the_int + the*tau_sample)
+                                     (tau' = tau)(u_the' = Kp*e_the + Kd*e_the_der + Ki*e_the_int)
+                                     (counter' = 0));
+	(tau = tau_stab) ==> @2 (and (phi' = phi) (the' = the) (psi' = psi));
+}
+
+
+// free fall mode
+{
+mode 2;
+
+time:
+
+[0,tau_sample];
+
+invt:
+    (phi >= -thresh);
+    (phi <= thresh);
+    (the >= -thresh);
+    (the <= thresh);
+    (psi >= -thresh);
+    (psi <= thresh);
+    (omegax >= -thresh);
+    (omegax <= thresh);
+    (omegay >= -thresh);
+    (omegay <= thresh);
+    (omegaz >= -thresh);
+    (omegaz <= thresh);
+
+flow:
+
+    d/dt[e_phi] = 0;
+    d/dt[u_phi] = 0;
+    d/dt[phi_prev] = 0;
+    d/dt[e_phi_der] = 0;
+    d/dt[e_phi_int] = 0;
+
+    d/dt[e_psi] = 0;
+    d/dt[u_psi] = 0;    
+    d/dt[psi_prev] = 0;
+    d/dt[e_psi_der] = 0;
+    d/dt[e_psi_int] = 0;
+
+    d/dt[e_the] = 0;
+    d/dt[u_the] = 0;
+    d/dt[the_prev] = 0;
+    d/dt[e_the_der] = 0;
+    d/dt[e_the_int] = 0;
+
+    d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+    d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+    d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+
+    d/dt[phi] = phi_dot;
+    d/dt[the] = the_dot;
+    d/dt[psi] = psi_dot;
+
+    d/dt[zdot] = -g + (1/m)*(cos(the)*k*wsqsum - kd*zdot);
+    d/dt[z] = zdot;
+
+    d/dt[tau] = 1;
+    d/dt[counter] = 1;
+
+jump: 
+    (counter = tau_sample) ==> @2 (and (e_phi' = phi) (e_phi_der' = (-phi_prev + phi) / tau_sample) 
+                                 (phi_prev' = phi)(e_phi_int' = e_phi_int + phi*tau_sample)
+                                 (tau' = tau)(u_phi' = Kp*e_phi + Kd*e_phi_der + Ki*e_phi_int)
+                                 (e_psi' = psi) (e_psi_der' = (-psi_prev + psi) / tau_sample) 
+                                 (psi_prev' = psi) (e_psi_int' = e_psi_int + psi*tau_sample)
+                                 (tau' = tau)(u_psi' = Kp*e_psi + Kd*e_psi_der + Ki*e_psi_int)
+                                 (e_the' = the) (e_the_der' = (-the_prev + the) / tau_sample) 
+                                 (the_prev' = the) (e_the_int' = e_the_int + the*tau_sample)
+                                 (tau' = tau)(u_the' = Kp*e_the + Kd*e_the_der + Ki*e_the_int)
+                                 (counter' = 0));
+
+}
+
+
+// normal mode
+{
+mode 3;
+
+time:
+
+[0,tau_sample];
+
+invt:
+   (z <= 1000);
+   (z >= -1000);
+flow:
+
+    d/dt[e_phi] = 0;
+    d/dt[u_phi] = 0;
+    d/dt[phi_prev] = 0;
+    d/dt[e_phi_der] = 0;
+    d/dt[e_phi_int] = 0;
+
+    d/dt[e_psi] = 0;
+    d/dt[u_psi] = 0;    
+    d/dt[psi_prev] = 0;
+    d/dt[e_psi_der] = 0;
+    d/dt[e_psi_int] = 0;
+
+    d/dt[e_the] = 0;
+    d/dt[u_the] = 0;
+    d/dt[the_prev] = 0;
+    d/dt[e_the_der] = 0;
+    d/dt[e_the_int] = 0;
+
+
+    d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+    d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+    d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+
+    d/dt[phi] = phi_dot;
+    d/dt[the] = the_dot;
+    d/dt[psi] = psi_dot;
+
+    d/dt[zdot] = -g + (1/m)*(cos(the)*k*wsqsum - kd*zdot);
+    d/dt[z] = zdot;
+
+    d/dt[tau] = 1;
+    d/dt[counter] = 1;
+
+jump:
+
+  (counter = tau_sample) ==> @1 (and (e_phi' = 0) (e_phi_der' = 0) 
+                                     (phi_prev' = 0)(e_phi_int' = 0)
+                                     (tau' = 0)(u_phi' = 0)
+                                     (e_psi' = 0) (e_psi_der' = 0) 
+                                     (psi_prev' = 0) (e_psi_int' = 0)
+                                     (tau' = 0)(u_psi' = 0)
+                                     (e_the' = 0) (e_the_der' = 0) 
+                                     (the_prev' = 0) (e_the_int' = 0)
+                                     (tau' = 0)(u_the' = 0)
+                                     (counter' = 0)(phi' = phi_init)(psi' = psi_init)(the' = the_init)
+                                     (omegax' = omegax_init)(omegay' = omegay_init)(omegaz' = omegaz_init));
+}
+
+
+init: @3 (and (phi = 0)
+              (e_phi = 0)
+              (e_phi_der = 0)
+              (e_phi_int = 0)
+              (u_phi = 0)
+              (phi_prev = 0)
+              (psi = 0)
+              (e_psi = 0)
+              (e_psi_der = 0)
+              (e_psi_int = 0)
+              (u_psi = 0)
+              (psi_prev = 0)
+              (the = 0) 
+              (e_the = 0)
+              (e_the_der = 0)
+              (e_the_int = 0)
+              (u_the = 0)
+              (the_prev = 0)
+              (omegax = 0)
+              (omegay = 0)
+              (omegaz = 0)
+              (z = 0)
+              (zdot = 0)
+              (tau = 0)
+              (counter = 0));
+
+// here, they want to see if they can reach a crash (z=0).
+// change tau accordingly
+goal: @2 (tau = 5);

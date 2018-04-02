@@ -153,7 +153,8 @@ link_directories(/opt/Matlab/R2014a/bin/glnxa64/)
 
 # creating a library
 add_library(probreach ${PROBREACH_SRC})
-target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas -pthread -lmx -leng)
+#target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas -pthread -lmx -leng)
+target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas)
 
 set(PDRH2SMT_SRC
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp

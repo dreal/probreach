@@ -908,7 +908,8 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
             if(algorithm::use_verified)
             {
                 //res = decision_procedure::evaluate(paths, boxes, "");
-                res = ap::verify(boxes);
+                //res = ap::verify(boxes);
+                res = ap::simulate_path(ap::get_all_paths(boxes).front(), ap::init_to_box(boxes), boxes);
             }
             else
             {

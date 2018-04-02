@@ -71,11 +71,11 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
 {
     //int first_res = decision_procedure::evaluate_delta_sat(path, boxes, solver_opt);
     //int first_res = decision_procedure::evaluate_flow_by_flow(path, boxes, global_config.solver_bin, solver_opt);
-    pair<int, box> res = ap::simulate_path(path, ap::init_to_box(boxes), boxes);
+    int res = ap::simulate_path(path, ap::init_to_box(boxes), boxes);
 
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << res.second;
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << res;
 
-    return res.first;
+    return res;
 
 //    if(first_res == decision_procedure::result::UNSAT)
 //    {

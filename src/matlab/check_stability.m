@@ -7,6 +7,15 @@ function res = check_stability(A,B,C,D,T,Kp,Ki,Kd)
 
     fileID = fopen('poly.txt','w');
 
+    fprintf(fileID, '\nMatrix A\n');
+    fprintf(fileID, '%f ', A);
+    fprintf(fileID, '\nMatrix B\n');
+    fprintf(fileID, '%f ', B);
+    fprintf(fileID, '\nMatrix C\n');
+    fprintf(fileID, '%f ', C);
+    fprintf(fileID, '\nMatrix D\n');
+    fprintf(fileID, '%f ', D);
+
     % computing G, state transition matrix of discrete system
     G = expm(A*T);
 
@@ -24,7 +33,12 @@ function res = check_stability(A,B,C,D,T,Kp,Ki,Kd)
         H = H + expm(A*t(i))*B*delta;
     end
 
-    [bp,ap] = ss2tf(G,H(:,1),C,0);
+    [bp,ap] = ss2tf(G,H,C,D);
+    fprintf(fileID, '\nbp:\n');
+    fprintf(fileID, '%f ', bp);
+
+    fprintf(fileID, '\nap:\n');
+    fprintf(fileID, '%f ', ap);
 
     % transfer function of the controller
     ac = [1 -1 0]; % numerator
@@ -40,14 +54,6 @@ function res = check_stability(A,B,C,D,T,Kp,Ki,Kd)
 
     poly = conv(ac,ap) + conv(bc,bp);
 
-    fprintf(fileID, '\nMatrix A\n');
-    fprintf(fileID, '%f ', A);
-    fprintf(fileID, '\nMatrix B\n');
-    fprintf(fileID, '%f ', size(B));
-    fprintf(fileID, '\nMatrix C\n');
-    fprintf(fileID, '%f ', size(C));
-    fprintf(fileID, '\nMatrix D\n');
-    fprintf(fileID, '%f ', size(D));
     fprintf(fileID, '\nMatrix G\n');
     fprintf(fileID, '%f ', G);
     fprintf(fileID, '\nMatrix H\n');

@@ -7,7 +7,7 @@
 #include "pdrh_config.h"
 #include <cmath>
 #include <algorithm>
-//#include <engine.h>
+#include <engine.h>
 #include <cstring>
 
 using namespace std;
@@ -146,7 +146,6 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
             i++;
         }
         else
-
         {
             // only those whose ODEs are not 0 or 1 will go in
             if((pdrh::node_to_string_infix(odes[it->first]) != "0") &&
@@ -195,7 +194,7 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
     double A[n][m];
     double B[n][p];
     double C[q][m];
-    double D[1][1];
+    double D[q][1];
 
     for(size_t i = 0; i < n; i++)
     {
@@ -221,7 +220,10 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
         }
     }
 
-    D[0][0] = 0;
+    for(size_t i = 0; i < q; i++)
+    {
+        D[i][0] = 0;
+    }
 
     size_t i_end = 0;
     size_t j_end = 0;
@@ -276,114 +278,120 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
     }
 
 
-//    cout << "Matrix A:" << endl;
-//    for(size_t i = 0; i < n; i++)
-//    {
-//        for(size_t j = 0; j < m; j++)
-//        {
-//            cout << A[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << "Matrix B:" << endl;
-//    for(size_t i = 0; i < n; i++)
-//    {
-//        for(size_t j = 0; j < p; j++)
-//        {
-//            cout << B[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//
-//    cout << "Matrix C:" << endl;
-//    for(size_t i = 0; i < q; i++)
-//    {
-//        for(size_t j = 0; j < n; j++)
-//        {
-//            cout << C[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//
-//    cout << "Matrix D:" << endl;
-//    cout << D[0][0] << endl;
+    cout << "Matrix A:" << endl;
+    for(size_t i = 0; i < n; i++)
+    {
+        for(size_t j = 0; j < m; j++)
+        {
+            cout << A[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    cout << "Matrix B:" << endl;
+    for(size_t i = 0; i < n; i++)
+    {
+        for(size_t j = 0; j < p; j++)
+        {
+            cout << B[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    cout << "Matrix C:" << endl;
+    for(size_t i = 0; i < q; i++)
+    {
+        for(size_t j = 0; j < n; j++)
+        {
+            cout << C[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    cout << "Matrix D:" << endl;
+    for(size_t i = 0; i < q; i++)
+    {
+        cout << D[i][0] << endl;
+    }
 
     // initialising matlab engine
-//    Engine *ep;
-//    if (!(ep = engOpen(""))) {
-//        fprintf(stderr, "\nCan't start MATLAB engine\n");
-//        exit(EXIT_FAILURE);
+    Engine *ep;
+    if (!(ep = engOpen(""))) {
+        fprintf(stderr, "\nCan't start MATLAB engine\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // initialising matrices
+    mxArray *matA = NULL, *matB = NULL, *matC = NULL, *matD = NULL;
+
+    matA = mxCreateDoubleMatrix(n, m, mxREAL);
+    memcpy((void *)mxGetPr(matA), (void *)A, sizeof(A));
+    engPutVariable(ep, "A", matA);
+
+    matB = mxCreateDoubleMatrix(n, p, mxREAL);
+    memcpy((void *)mxGetPr(matB), (void *)B, sizeof(B));
+    engPutVariable(ep, "B", matB);
+
+    matC = mxCreateDoubleMatrix(q, m, mxREAL);
+    memcpy((void *)mxGetPr(matC), (void *)C, sizeof(C));
+    engPutVariable(ep, "C", matC);
+
+    matD = mxCreateDoubleMatrix(q, 1, mxREAL);
+    memcpy((void *)mxGetPr(matD), (void *)D, sizeof(D));
+    engPutVariable(ep, "D", matD);
+
+    //engEvalString(ep, "cd /home/b2049657/probreach-ap/src/matlab/");
+
+    engEvalString(ep, "cd /home/fedor/probreach-ap/src/matlab/");
+
+    stringstream ss;
+    ss << "check_stability(A,B,C,D," << T << "," << param.get_map()["Kp"].leftBound() << "," << param.get_map()["Ki"].leftBound() << "," << param.get_map()["Kd"].leftBound() << ");";
+    engEvalString(ep, ss.str().c_str());
+
+//    cout << "MATLAB command: " << ss.str() << endl;
+//
+//    result = engGetVariable(ep, "A");
+//    double *resA = mxGetPr(result);
+//    cout << "Matrix A from matlab: " << endl;
+//    for(size_t i = 0; i < m*n; i++)
+//    {
+//        cout << resA[i] << " ";
 //    }
+//    cout << endl;
 //
-//    // initialising matrices
-//    mxArray *matA = NULL, *matB = NULL, *matC = NULL, *matD = NULL;
+//    result = engGetVariable(ep, "B");
+//    double *resB = mxGetPr(result);
+//    cout << "Matrix B from matlab: " << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        cout << resB[i] << " ";
+//    }
+//    cout << endl;
 //
-//    matA = mxCreateDoubleMatrix(n, m, mxREAL);
-//    memcpy((void *)mxGetPr(matA), (void *)A, sizeof(A));
-//    engPutVariable(ep, "A", matA);
-//
-//    matB = mxCreateDoubleMatrix(n, 1, mxREAL);
-//    memcpy((void *)mxGetPr(matB), (void *)B, sizeof(B));
-//    engPutVariable(ep, "B", matB);
-//
-//    matC = mxCreateDoubleMatrix(1, m, mxREAL);
-//    memcpy((void *)mxGetPr(matC), (void *)C, sizeof(C));
-//    engPutVariable(ep, "C", matC);
-//
-//    matD = mxCreateDoubleMatrix(1, 1, mxREAL);
-//    memcpy((void *)mxGetPr(matD), (void *)D, sizeof(D));
-//    engPutVariable(ep, "D", matD);
-//
-//    engEvalString(ep, "cd /home/b2049657/probreach-ap/src/matlab/");
-//
-//    stringstream ss;
-//    ss << "check_stability(A,B,C,D," << T << "," << param.get_map()["Kp"].leftBound() << "," << param.get_map()["Ki"].leftBound() << "," << param.get_map()["Kd"].leftBound() << ");";
-//    engEvalString(ep, ss.str().c_str());
-//
-////    cout << "MATLAB command: " << ss.str() << endl;
-////
-////    result = engGetVariable(ep, "A");
-////    double *resA = mxGetPr(result);
-////    cout << "Matrix A from matlab: " << endl;
-////    for(size_t i = 0; i < m*n; i++)
-////    {
-////        cout << resA[i] << " ";
-////    }
-////    cout << endl;
-////
-////    result = engGetVariable(ep, "B");
-////    double *resB = mxGetPr(result);
-////    cout << "Matrix B from matlab: " << endl;
-////    for(size_t i = 0; i < n; i++)
-////    {
-////        cout << resB[i] << " ";
-////    }
-////    cout << endl;
-////
-////    result = engGetVariable(ep, "C");
-////    double *resC = mxGetPr(result);
-////    cout << "Matrix C from matlab: " << endl;
-////    for(size_t i = 0; i < m; i++)
-////    {
-////        cout << resC[i] << " ";
-////    }
-////    cout << endl;
-//
-////    for(size_t i = 0; i < n; i++)
-////    {
-////        cout << mxGetPr(result)[i] << endl;
-////    }
-//
-//    double res = mxGetPr(engGetVariable(ep, "ans"))[0];
-//
-//    // freeing the memory
-//    mxDestroyArray(matA);
-//    mxDestroyArray(matB);
-//    mxDestroyArray(matC);
-//    mxDestroyArray(matD);
-//    engClose(ep);
-//
-//    return res == 0;
+//    result = engGetVariable(ep, "C");
+//    double *resC = mxGetPr(result);
+//    cout << "Matrix C from matlab: " << endl;
+//    for(size_t i = 0; i < m; i++)
+//    {
+//        cout << resC[i] << " ";
+//    }
+//    cout << endl;
+
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        cout << mxGetPr(result)[i] << endl;
+//    }
+
+    double res = mxGetPr(engGetVariable(ep, "ans"))[0];
+
+    // freeing the memory
+    mxDestroyArray(matA);
+    mxDestroyArray(matB);
+    mxDestroyArray(matC);
+    mxDestroyArray(matD);
+    engClose(ep);
+
+    return res == 0;
 }
 
 

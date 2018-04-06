@@ -85,6 +85,17 @@ struct pdrh_config
     std::string sample_time = "counter";
     double noise_var = 1;
 
+    struct ctrl
+    {
+        std::vector<std::string> plant_output;
+        std::vector<std::string> controller_output;
+        std::vector<std::string> controller_input;
+        std::map<std::string, double> noise_variance;
+    } controller;
+
+
+
+
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

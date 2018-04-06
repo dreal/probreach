@@ -181,7 +181,7 @@ jump:
 }
 
 
-// free fall mode
+// stabilisation check
 {
 mode 2;
 
@@ -311,6 +311,68 @@ jump:
                                      (tau' = 0)(u_the' = 0)
                                      (counter' = 0)(phi' = phi_init)(psi' = psi_init)(the' = the_init)
                                      (omegax' = omegax_init)(omegay' = omegay_init)(omegaz' = omegaz_init));
+}
+
+
+// normal mode
+{
+mode 4;
+
+time:
+
+[0,tau_sample];
+
+invt:
+   (z <= 1000);
+   (z >= -1000);
+flow:
+
+    d/dt[e_phi] = 0;
+    d/dt[u_phi] = 0;
+    d/dt[phi_prev] = 0;
+    d/dt[e_phi_der] = 0;
+    d/dt[e_phi_int] = 0;
+
+    d/dt[e_psi] = 0;
+    d/dt[u_psi] = 0;    
+    d/dt[psi_prev] = 0;
+    d/dt[e_psi_der] = 0;
+    d/dt[e_psi_int] = 0;
+
+    d/dt[e_the] = 0;
+    d/dt[u_the] = 0;
+    d/dt[the_prev] = 0;
+    d/dt[e_the_der] = 0;
+    d/dt[e_the_int] = 0;
+
+
+    d/dt[omegax] = tauphi*(1/Ixx)-(Iyy - Izz)*omegay*omegaz/Ixx;
+    d/dt[omegay] = tauthe*(1/Iyy)-(Izz - Ixx)*omegax*omegaz/Iyy;
+    d/dt[omegaz] = taupsi*(1/Izz)-(Ixx - Iyy)*omegax*omegay/Izz;
+
+    d/dt[phi] = phi_dot;
+    d/dt[the] = the_dot;
+    d/dt[psi] = psi_dot;
+
+    d/dt[zdot] = -g + (1/m)*(cos(the)*k*wsqsum - kd*zdot);
+    d/dt[z] = zdot;
+
+    d/dt[tau] = 1;
+    d/dt[counter] = 1;
+
+jump:
+
+    (counter = tau_sample) ==> @4 (and (e_phi' = phi) (e_phi_der' = (-phi_prev + phi) / tau_sample) 
+                                     (phi_prev' = phi)(e_phi_int' = e_phi_int + phi*tau_sample)
+                                     (tau' = tau)(u_phi' = Kp*e_phi + Kd*e_phi_der + Ki*e_phi_int)
+                                     (e_psi' = psi) (e_psi_der' = (-psi_prev + psi) / tau_sample) 
+                                     (psi_prev' = psi) (e_psi_int' = e_psi_int + psi*tau_sample)
+                                     (tau' = tau)(u_psi' = Kp*e_psi + Kd*e_psi_der + Ki*e_psi_int)
+                                     (e_the' = the) (e_the_der' = (-the_prev + the) / tau_sample) 
+                                     (the_prev' = the) (e_the_int' = e_the_int + the*tau_sample)
+                                     (tau' = tau)(u_the' = Kp*e_the + Kd*e_the_der + Ki*e_the_int)
+                                     (counter' = 0));
+    (tau = tau_stab) ==> @2 (and (phi' = phi) (the' = the) (psi' = psi));
 }
 
 

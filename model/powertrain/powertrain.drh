@@ -1,0 +1,73 @@
+#define M 3.0e6       	// mass
+#define g 9.81    		// gravitational constant
+#define theta 0       	// angle to horizon
+#define A 7.36e4      	// constant 1 of mu function
+#define B 0 			// constant 2 of mu function
+#define C 101			// constant 3 of mu function
+#define mu A+B*v+C*v^2	// resistance function
+#define v_bar 6.56		// lower speed threshold
+#define alpha 1.67e4	// engine constant
+#define beta 1230		// brakes constant 1
+#define gamma 617		// brakes constant 2
+#define delta 3e3		// brakes recharging time
+#define b_bar 3.7e5		// maximum breaking power
+#define p_ref 2e6		// reference value of power
+#define v_ref 40		// reference value of power
+
+[0, 3e5] s;				// travelled distance (m)
+[0, 2e5] v;				// train speed (m/s)
+[0, 3600] tau;			// global time (s)
+[0, 5e5] b;				// braking force (N)
+[0, 5e5] b_max;			// maximum braking force (N)
+[-1.0, 1.0] u_d;		// engine control
+[-1.0, 1.0] u_b;		// brakes control
+[-1e6, 4e6] p;			// engine power (N)
+
+[0, 3600] time;
+
+// speed is smaller than v_bar; breaks: IDLE
+{
+mode 1;
+flow:
+	d/dt[s]=v;
+	d/dt[v]=(1/M)*(p/v_bar - (mu + b) - g*sin(theta));
+	d/dt[p]=alpha*u_d;
+	d/dt[u_d]=0;
+	d/dt[u_b]=0;
+	d/dt[b]=0;
+	d/dt[b_max]=0;
+	d/dt[tau]=1.0;
+jump:
+	(and (tau = 120))==>@2(and 	(s' = s) 
+					(v' = v) 
+					(p' = p)
+					(u_d' = 0) 
+					(u_b' = 0)
+					(b' = b) 
+					(b_max' = b_max) 
+					(tau' = 0));
+}
+
+
+
+init:
+@1(and 	(s = 0) 
+	(v = 0) 
+	(p = 0)
+	(u_d = 1.0) 
+	(u_b = 0.0)
+	(b = 0) 
+	(b_max = b_bar) 
+	(tau = 0));
+
+
+
+goal:
+//@2(and (tau = 0.0));
+//@3(and (tau = 180.0));
+//@3(and (v >= v_ref));
+@4(and (tau = 60.0));
+
+
+
+

@@ -1457,12 +1457,12 @@ int ap::simulate(vector<box> boxes)
         paths.erase(paths.begin());
         // getting the current mode
         pdrh::mode* cur_mode = pdrh::get_mode(path.back().first);
-//        cout << "Current mode: " << cur_mode->id << endl;
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Current mode: " << cur_mode->id;
         // getting the initial condition for the current mode
         box init = path.back().second;
 //        cout << "====================" << endl;
-//        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
-//        cout << init << endl;
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Mode " << cur_mode->id << " Step " << path.size();
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Init: " << init;
 //        cout << "====================" << endl;
         // will be iterating through the jumps in the current mode and
         // recording all possible jumps with their times
@@ -1476,18 +1476,18 @@ int ap::simulate(vector<box> boxes)
         pair<int, pair<capd::interval, box>> sample_jump = make_pair(0, make_pair(capd::interval(0.0), box()));
         for(size_t i = 0; i < global_config.ode_discretisation; i++)
         {
-//            cout << "Checking invariants in mode " << cur_mode->id << " Step " << path.size() << endl;
-//            cout << "Initial condition: " << init << endl;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Checking invariants in mode " << cur_mode->id << " Step " << path.size();
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Initial condition: " << init;
             // checking invariants
             // NEED TO ACCOUNT FOR MULTIPLE PATHS DURING SIMULATION
             if(ap::check_invariants(cur_mode, init, boxes))
             {
-//                cout << "Invariants: SAT" << endl;
-//                cout << "Witness: " << init << endl;
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariants: SAT";
+                CLOG_IF(global_config.verbose, INFO, "algorithm") <<  "Witness: " << init;
             }
             else
             {
-                //cout << "Invariants: UNSAT" << endl;
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariants: UNSAT";
                 break;
                 //return decision_procedure::UNSAT;
             }
@@ -1498,7 +1498,7 @@ int ap::simulate(vector<box> boxes)
                 vector<pair<int, box>> new_path = path;
                 new_path.push_back(make_pair(cur_mode->id, init));
                 good_paths.push_back(new_path);
-                //cout << "Global time limit has been reached in mode " << cur_mode->id << endl;
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
                 return decision_procedure::SAT;
             }
             // computing the solution here
@@ -1507,7 +1507,7 @@ int ap::simulate(vector<box> boxes)
             //box sol = solve_odes_nonrig(cur_mode->odes, init, integration_step, boxes);
             //box sol = solve_odes(cur_mode->odes, init, integration_step, boxes);
             capd::interval cur_time = integration_step*(i+1);
-//            cout << "Solution at time " << cur_time << ": " << sol << endl;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solution at time " << cur_time << ": " << sol;
 //            cout << "====================" << endl;
             // checking the jumps here
             //cout << "Evaluating jumps now" << endl;

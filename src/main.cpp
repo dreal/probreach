@@ -176,12 +176,12 @@ int main(int argc, char* argv[])
 //                return EXIT_FAILURE;
 //            }
 //            break;
-            cout << "Simulating a path: " << ap::simulate_path(ap::get_all_paths({}).front(), ap::init_to_box({}), {}) << endl;
+            //cout << "Simulating a path: " << ap::simulate_path(ap::get_all_paths({}).front(), ap::init_to_box({}), {}) << endl;
             //cout << global_config.global_time << endl;
             //cout << global_config.sample_time << endl;
             //global_config.ode_discretisation = 1;
             //cout << "Noise variance: " << global_config.noise_var << endl;
-            //cout << "Simulation: " << ap::simulate({}) << endl;
+            cout << "Simulation: " << ap::simulate({}) << endl;
             //cout << "Verification: " << ap::verify({}) << endl;
             break;
         }

@@ -1261,9 +1261,9 @@ int ap::verify(vector<box> boxes)
         //cout << "Current mode: " << cur_mode->id << endl;
         // getting the initial condition for the current mode
         box init = path.back().second;
-        cout << "====================" << endl;
-        cout << "Mode " << cur_mode->id << " Step " << path.size() << endl;
-        cout << init << endl;
+        //cout << "====================" << endl;
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Mode " << cur_mode->id << " Step " << path.size();
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << init;
         // iterating through the jumps in the current mode and
         // recording all possible jumps with their times
         map<int, pair<capd::interval, box>> jumps_times;
@@ -1321,29 +1321,29 @@ int ap::verify(vector<box> boxes)
             // finding out the time of the jump with the delta-sat witness from dReal
             //cout << "Initial value: " << path.back().second << endl;
             pair<capd::interval, box> jump_time = decision_procedure::get_jump_time(cur_mode, jump, init, boxes);
-            cout << "Time of the jump to mode " << jump.next_id <<" : " << jump_time.first << "; witness: " << jump_time.second << endl;
-            cout << "===============" << endl;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time of the jump to mode " << jump.next_id <<" : " << jump_time.first << "; witness: " << jump_time.second;
+            //cout << "===============" << endl;
             // adding only those jumps which are enabled within the mode
             if(jump_time.first != capd::interval(-1))
             {
-                //cout << "Checking invariants in mode " << cur_mode->id << endl;
+                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Checking invariants in mode " << cur_mode->id;
                 //cout << "Initial condition: " << init << endl;
                 int invt_check = decision_procedure::check_invariants(cur_mode, jump_time.first, init, boxes, global_config.solver_bin, global_config.solver_opt);
                 // updating the jump times only if invariants hold
                 switch(invt_check)
                 {
                     case decision_procedure::SAT:
-                        //cout << "SAT" << endl;
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                         jumps_times.insert(make_pair(jump.next_id, jump_time));
                         break;
                     case decision_procedure::UNDET:
-                        //cout << "UNDET" << endl;
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
                         //return decision_procedure::UNDET;
                         undet_flag = true;
                         break;
 
                     case decision_procedure::UNSAT:
-                        //cout << "UNSAT" << endl;
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
                         //return decision_procedure::UNSAT;
                         break;
                 }

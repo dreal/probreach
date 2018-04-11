@@ -1,72 +1,110 @@
-#define M 3.0e6       	// mass
-#define g 9.81    		// gravitational constant
-#define theta 0       	// angle to horizon
-#define A 7.36e4      	// constant 1 of mu function
-#define B 0 			// constant 2 of mu function
-#define C 101			// constant 3 of mu function
-#define mu A+B*v+C*v^2	// resistance function
-#define v_bar 6.56		// lower speed threshold
-#define alpha 1.67e4	// engine constant
-#define beta 1230		// brakes constant 1
-#define gamma 617		// brakes constant 2
-#define delta 3e3		// brakes recharging time
-#define b_bar 3.7e5		// maximum breaking power
-#define p_ref 2e6		// reference value of power
-#define v_ref 40		// reference value of power
+#define c1 0.41328
+#define c2 -0.366
+#define c3 0.08979
+#define c4 -0.0337
+#define c5 0.0001
+#define c6 2.821
+#define c7 -0.05231
+#define c8 0.10299
+#define c9 -0.00063
+#define c10 1
+#define c11 14.7 // value for the normal mode of operations
+#define c13 0.04
+#define c12 0.9
+#define c14 0.14
 
-[0, 3e5] s;				// travelled distance (m)
-[0, 2e5] v;				// train speed (m/s)
-[0, 3600] tau;			// global time (s)
-[0, 5e5] b;				// braking force (N)
-[0, 5e5] b_max;			// maximum braking force (N)
-[-1.0, 1.0] u_d;		// engine control
-[-1.0, 1.0] u_b;		// brakes control
-[-1e6, 4e6] p;			// engine power (N)
+#define c15 13.893
+#define c16 -35.2518
+#define c17 20.7364
+#define c18 2.6287
+#define c19 -1.592
+#define c20 -2.3421
+#define c21 2.7799
+#define c22 -0.3273
+#define c23 1
+#define c24 1
+#define c25 1
+#define c26 4
+
+// input: the_in, w
+#define the_in 70 // should be within [8.8, 70]
+#define w 100 // should be within [95, 115]
+
+// requirements mu = (lambda - lambda_ref) / lambda_ref
+// lambda_ref = c11 = 14.7
+// |mu| < 0.05
+// settling after eta seconds: |mu| < 0.02
+
+
+// controller
+//#define Fc 0.6537
+
+// tau_sample = 1 is too much time between the samples; 0.1 is OK
+#define tau_sample 0.1 
+
+
+[0, 180] the;
+[-1000, 1000] p;
+[-1000, 1000] lambda;
+[-1000, 1000] i;
+[-1000, 1000] Fc;
+
+
+// we need a lot of points (512 is not enough, but 1024 is sufficient) in discretisation when using the bad solver
+
+[0,tau_sample] counter;
 
 [0, 3600] time;
+[0, 3600] tau;
+
+
 
 // speed is smaller than v_bar; breaks: IDLE
 {
 mode 1;
+time:
+
+	[0, tau_sample];
+
+invt:
+	//((lambda - c11) / c11 < 0.05);
+	//((lambda - c11) / c11 > -0.05);
+	(1 - p >= 0);
+
+
 flow:
-	d/dt[s]=v;
-	d/dt[v]=(1/M)*(p/v_bar - (mu + b) - g*sin(theta));
-	d/dt[p]=alpha*u_d;
-	d/dt[u_d]=0;
-	d/dt[u_b]=0;
-	d/dt[b]=0;
-	d/dt[b_max]=0;
-	d/dt[tau]=1.0;
+	d/dt[the] = 10*(the_in - the);
+	d/dt[p] = c1*(2*(c6 + c7*the + c8*the^2 + c9*the^3)*sqrt(p/c10 - (p/c10)^2) - c12*(c2+c3*w*p + c4*w*p^2 + c5*w^2*p));
+	d/dt[lambda] = c26*(c12*(c2+c3*w*p+c4*w*p^2+c5*w^2*p)/(c25*Fc) - lambda);
+
+	// time variables
+	d/dt[counter] = 1;
+	d/dt[tau] = 1;
+
+	d/dt[i] = 0;
+	d/dt[Fc] = 0;
+
 jump:
-	(and (tau = 120))==>@2(and 	(s' = s) 
-					(v' = v) 
-					(p' = p)
-					(u_d' = 0) 
-					(u_b' = 0)
-					(b' = b) 
-					(b_max' = b_max) 
-					(tau' = 0));
+	(counter = tau_sample)==>@1(and 	(counter' = 0) (i' = i + tau_sample*c14*(c24*lambda - c11))
+										(tau' = tau) (Fc' = (1/c11)*(1 + i + c13*(c24*lambda - c11))*(c2+c3*w*p+c4*w*p^2+c5*w^2*p)));
 }
 
 
 
+
 init:
-@1(and 	(s = 0) 
-	(v = 0) 
-	(p = 0)
-	(u_d = 1.0) 
-	(u_b = 0.0)
-	(b = 0) 
-	(b_max = b_bar) 
-	(tau = 0));
+@1(and 	(the = 8.8) 
+	(p = 0.9833)
+	(lambda = 14.7) 
+	(tau = 0)
+	(counter = 0)
+	(i = 0)
+	(Fc = 0.6537));
 
 
 
 goal:
-//@2(and (tau = 0.0));
-//@3(and (tau = 180.0));
-//@3(and (v >= v_ref));
-@4(and (tau = 60.0));
+@1(and (tau = 3600.0));
 
 
 

@@ -319,7 +319,9 @@ int main(int argc, char* argv[])
 //    cout << setprecision(16) << lower_bound << endl;
 
     //TODO: remove this test code
+
     translator::parse_tree();
+
     // unregister the loggers
     el::Loggers::unregisterLogger("parser");
     el::Loggers::unregisterLogger("algorithm");

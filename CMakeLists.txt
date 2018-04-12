@@ -190,7 +190,7 @@ IF(MATLAB_FOUND)
     message(STATUS "MATLAB libraries included: ${MATLAB_LIBRARIES}")
     message(STATUS "LD_LIBRARY: $ENV{LD_LIBRARY_PATH}")
 
-    add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp )
+    add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp src/translator/translator_util.cpp src/translator/translator_util.h)
     target_compile_options(ProbReach PRIVATE)
     target_link_libraries(ProbReach probreach ${MATLAB_LIBRARIES})
 ELSE(MATLAB_FOUND)

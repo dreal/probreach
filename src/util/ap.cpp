@@ -736,9 +736,9 @@ int ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
             }
             // checking the invariants
             box init_box_hull = box_factory::box_hull(init_box);
-//            cout << "Mode: " << cur_mode->id << endl;
-//            cout << "Init box (VERIFIED) for depth " << i << endl;
-//            cout << init_box_hull << endl;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Init box (VERIFIED) in mode " << cur_mode->id << " for depth " << i;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << init_box_hull;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Integration time: " << time;
 //            cout << "----------" << endl;
             //if(i == 20) exit(EXIT_FAILURE);
 
@@ -765,11 +765,11 @@ int ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
             // solving odes
             for(size_t k = 0; k < init_box.size(); k++)
             {
-                //sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
-                sol_box.push_back(solve_odes_nonrig(cur_mode->odes, init_box.at(k), time, boxes));
+                sol_box.push_back(solve_odes(cur_mode->odes, init_box.at(k), time, boxes));
+                //sol_box.push_back(solve_odes_nonrig(cur_mode->odes, init_box.at(k), time, boxes));
             }
-//            cout << "Solution (VERIFIED) box for depth " << i << endl;
-//            cout << box_factory::box_hull(sol_box) << endl;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solution (VERIFIED) box in mode " << cur_mode->id << " at depth = " << i;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << box_factory::box_hull(sol_box);
 //            cout << "===========" << endl;
 
 //            cout << "Solution box hull in mode " << cur_mode->id << " at depth = " << i << endl;
@@ -780,7 +780,7 @@ int ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
             vector<box> part_sol_box;
             for(box b : sol_box)
             {
-                vector<box> part_boxes = box_factory::bisect(b, vector<string>{"phi", "psi", "the"});
+                vector<box> part_boxes = box_factory::bisect(b, vector<string>{"e"});
                 part_sol_box.insert(part_sol_box.end(), part_boxes.begin(), part_boxes.end());
             }
 
@@ -836,8 +836,8 @@ int ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
     // computing solution for the goal
     for(size_t k = 0; k < init_box.size(); k++)
     {
-        //sol_box.push_back(solve_odes(path.back()->odes, init_box.at(k), time, boxes));
-        sol_box.push_back(solve_odes_nonrig(path.back()->odes, init_box.at(k), time, boxes));
+        sol_box.push_back(solve_odes(path.back()->odes, init_box.at(k), time, boxes));
+        //sol_box.push_back(solve_odes_nonrig(path.back()->odes, init_box.at(k), time, boxes));
     }
     return decision_procedure::SAT;
 }
@@ -1177,7 +1177,7 @@ vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
     {
         for(pdrh::state g : pdrh::goal)
         {
-//            cout << "Init: " << i.id << " goal: " << g.id << endl;
+            //cout << "Init: " << i.id << " goal: " << g.id << endl;
             vector<pdrh::mode*> path = pdrh::get_shortest_path(pdrh::get_mode(i.id), pdrh::get_mode(g.id));
             if(path.size() > 0)
             {
@@ -1192,14 +1192,15 @@ vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
             }
         }
     }
+    //cout << "Number of paths: " << paths.size() << endl;
     // inserting self-loops in each path
     pdrh::mode* prev_mode = new pdrh::mode;
     prev_mode->id = 0;
     for(vector<pdrh::mode*> path : paths)
     {
-//        cout << "Path:";
-//        for(pdrh::mode* m : path) cout << m->id << " ";
-//        cout << endl;
+        //cout << "Path:";
+        //for(pdrh::mode* m : path) cout << m->id << " ";
+        //cout << endl;
         vector<pdrh::mode*> new_path;
         new_path.push_back(path.front());
         for(size_t i = 0; i < path.size(); i++)

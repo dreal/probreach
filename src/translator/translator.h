@@ -14,6 +14,9 @@ using namespace matlab::data;
 
 namespace translator{
 
+    extern const string slStateBase;
+    extern const string subSysHandlerBase;
+
     struct block_connection {
         string block_name;
         int port_id;
@@ -39,12 +42,12 @@ namespace translator{
         ~Translator();
 
     private:
-        void translate_ode_expression(pdrh::node *expr);
+        void translate_ode_expression(pdrh::node *expr, block_connection connect_to);
         void generate_init_var_blocks(const pdrh::mode &m);
         void set_system_time_interval(const string& subsys, double start_time, double end_time);
         void addBlock(string subSysHandler, string srcPath, string blkName);
         void addBlock(string subSysHandler, string srcPath, string blkName,
-                      translator::block_connection previous_block);
+                      translator::block_connection &connect_to);
         void set_block_param(string subSysHandler, string blkName, string parameter, string value);
     };
 

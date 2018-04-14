@@ -48,7 +48,7 @@ void translator::Translator::set_block_param(const string subSysHandler, const s
 }
 
 void translator::Translator::addBlock(string subSysHandler, string srcPath, string blkName) {
-    string commandString = systemHandlerName +  " = add_block(" + srcPath + ", fullfile(" + subSysHandler +".Path, " +
+    string commandString = systemHandlerName +  " = add_block('" + srcPath + "', fullfile(" + subSysHandler +".Path, " +
             subSysHandler + ".Name, '" + blkName + "'))";
     this->engine->eval(convertUTF8StringToUTF16String(commandString));
 }
@@ -57,16 +57,31 @@ void translator::Translator::addBlock(string subSysHandler, string srcPath, stri
                                       translator::block_connection &connect_to) {
     ostringstream add_block_command;
     add_block_command << systemHandlerName << " = add_block('" << srcPath << "', fullfile(" << subSysHandler
-                      << ".Path, " << subSysHandler << ".Name, '" << blkName + "'))";
+                      << ".Path, " << subSysHandler << ".Name, '" << blkName + "'), 'MakeNameUnique', 'On')";
 
     this->engine->eval(convertUTF8StringToUTF16String(add_block_command.str()));
+
+    engine->eval(convertUTF8StringToUTF16String("block_name = get_param(h, 'Name')"));
+//    matlab::data::Array blockHandler = engine->getVariable(convertUTF8StringToUTF16String(systemHandlerName));
+//    matlab::data::CharArray blockName = engine->getProperty(blockHandler, convertUTF8StringToUTF16String("Name"));
+    matlab::data::CharArray blockName = engine->getVariable(convertUTF8StringToUTF16String("block_name"));
+    cout<<"Recently added block name " << blockName.toAscii()<<endl;
 
     ostringstream add_line_command;
     add_line_command << "add_line(fullfile(" << subSysHandler << ".Path, " << subSysHandler << ".Name), '"
                      << blkName << "/1', '" << connect_to.block_name << "/" << connect_to.port_id
-                     << "', 'autorouting', 'on')";
+                     << "', 'autorouting', 'smart')";
+
 
     this->engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
+}
+
+void translator::Translator::connect_blocks(string subSysHandler, translator::block_connection out_block,
+                                            translator::block_connection in_block) {
+    ostringstream add_line_command;
+    add_line_command << "add_line(fullfile(" << subSysHandler << ".Path, " << subSysHandler << ".Name), '"
+                     << out_block.block_name << "/1', '" << in_block.block_name << "/" << in_block.port_id
+                     << "', 'autorouting', 'smart')";
 }
 
 void translator::Translator::set_system_time_interval(const string& subsys, double start_time, double end_time){
@@ -95,21 +110,21 @@ void translator::Translator::generate_init_var_blocks(const pdrh::mode &m){
     }
 }
 
-void translator::Translator::translate_ode_expression(pdrh::node *expr, block_connection connect_to) {
+void translator::Translator::translate_ode_expression(pdrh::node *expr, block_connection parent_block) {
     cout<< "ODE translation: value: " << expr->value << " and " << expr->operands.size() << " operands." << endl;
     if(expr->operands.size() == 0)
     {
         // the node is a reference to a variable
         if(pdrh::var_exists(string(expr->value.c_str())))
         {
-
+            connect_blocks(this->currentSubSystemHandler, block_connection(expr->value, 1), parent_block);
         }
         // the node is a reference to a constant number, assuming 0.0 (zero) is not used in the
         // ODE expression
         else if(strtod(expr->value.c_str(), nullptr) != 0.0)
         {
             string blkName = "Const_" + expr->value;
-            addBlock(this->currentSubSystemHandler, "simulink/Commonly Used Blocks/Constant", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Commonly Used Blocks/Constant", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, blkName, "Value", expr->value);
         }
 
@@ -121,37 +136,36 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
     }
     else
     {
-        string blkNameSuffix = ((expr->operands.size() == 1) ?
-                                expr->operands.at(0)->value : expr->operands.at(0)->value + "_" + expr->operands.at(1)->value);
+        string blkNameSuffix;
+        if (expr->operands.size() == 1){
+            blkNameSuffix = expr->operands.at(0)->value.compare("/") != 0 ? expr->operands.at(0)->value:"div";
+        } else {
+            blkNameSuffix = expr->operands.at(0)->value.compare("/") != 0 ? expr->operands.at(0)->value:"div";
+            blkNameSuffix = blkNameSuffix + "_" +
+                            (expr->operands.at(1)->value.compare("/") != 0 ? expr->operands.at(1)->value:"div");
+        }
+
         if(strcmp(expr->value.c_str(), "+") == 0)
         {
             string blkName = "Add_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Add'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Add", blkName, parent_block);
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
             translate_ode_expression(expr->operands.at(1), block_connection(blkName, 2));
-//            if(expr->operands.size() == 1)
-//            {
-//
-//            }
-//            else if(expr->operands.size() == 2)
-//            {
-//
-//            }
         }
         else if(strcmp(expr->value.c_str(), "-") == 0)
         {
             if(expr->operands.size() == 1)
             {
                 string blkName = "UnaryMinus_" + blkNameSuffix;
-                addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Unary Minus'", blkName, connect_to);
+                addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Unary Minus", blkName, parent_block);
 
                 translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
             }
             else if(expr->operands.size() == 2)
             {
-                string blkName = "Substract_" + blkNameSuffix;
-                addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Add'", blkName, connect_to);
+                string blkName = "Subtract_" + blkNameSuffix;
+                addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Subtract", blkName, parent_block);
 
                 translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
                 translate_ode_expression(expr->operands.at(1), block_connection(blkName, 2));
@@ -160,7 +174,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "*") == 0)
         {
             string blkName = "Product_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Product'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Product", blkName, parent_block);
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
             translate_ode_expression(expr->operands.at(1), block_connection(blkName, 2));
@@ -168,7 +182,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "/") == 0)
         {
             string blkName = "Divide_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Divide'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Divide", blkName, parent_block);
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
             translate_ode_expression(expr->operands.at(1), block_connection(blkName, 2));
@@ -176,7 +190,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "^") == 0)
         {
             string blkName = "Power_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Math Function'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Math Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, blkName, "Operator", "pow");
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
@@ -185,28 +199,28 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "sqrt") == 0)
         {
             string blkName = "Sqrt_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Sqrt'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Sqrt", blkName, parent_block);
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
         }
         else if(strcmp(expr->value.c_str(), "abs") == 0)
         {
             string blkName = "Abs_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Abs'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Abs", blkName, parent_block);
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
         }
         else if(strcmp(expr->value.c_str(), "exp") == 0)
         {
             string blkName = "Exp_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Math Function'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Math Function", blkName, parent_block);
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
         }
         else if(strcmp(expr->value.c_str(), "log") == 0)
         {
             string blkName = "Log_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Math Function'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Math Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, blkName, "Operator", "log");
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
@@ -215,7 +229,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "sin") == 0)
         {
             string blkName = "Sin_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Trigonometric Function'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, blkName, "Operator", "sin");
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
@@ -223,7 +237,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "cos") == 0)
         {
             string blkName = "Cos_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Trigonometric Function'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, blkName, "Operator", "cos");
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
@@ -231,7 +245,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "tan") == 0)
         {
             string blkName = "Tan_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Trigonometric Function'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, blkName, "Operator", "tan");
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
@@ -239,7 +253,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "asin") == 0)
         {
             string blkName = "Asin_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Trigonometric Function'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, blkName, "Operator", "asin");
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
@@ -247,7 +261,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "acos") == 0)
         {
             string blkName = "Acos_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Trigonometric Function'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, blkName, "Operator", "acos");
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
@@ -255,7 +269,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "atan") == 0)
         {
             string blkName = "Atan_" + blkNameSuffix;
-            addBlock(this->currentSubSystemHandler, "'simulink/Math Operatons/Trigonometric Function'", blkName, connect_to);
+            addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, blkName, "Operator", "atan");
 
             translate_ode_expression(expr->operands.at(0), block_connection(blkName, 1));
@@ -295,7 +309,7 @@ void translator::Translator::translate_model(){
 
         for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++){
 
-            this->translate_ode_expression(it->second, block_connection(std::basic_string(), 0));
+            this->translate_ode_expression(it->second, block_connection(it->first, 1));
         }
     }
 }

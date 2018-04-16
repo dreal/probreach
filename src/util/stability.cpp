@@ -77,6 +77,8 @@ bool stability::jury_test(std::vector<double> poly)
 bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, box init, box param)
 {
 
+    return true;
+
     vector<string> vars;
 
     // declaring variables

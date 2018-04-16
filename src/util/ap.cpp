@@ -1263,7 +1263,7 @@ int ap::verify(vector<box> boxes)
         // getting the initial condition for the current mode
         box init = path.back().second;
         //cout << "====================" << endl;
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Mode " << cur_mode->id << " Step " << path.size();
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Mode " << cur_mode->id << " Step " << (path.size() - 1);
         CLOG_IF(global_config.verbose, INFO, "algorithm") << init;
         // iterating through the jumps in the current mode and
         // recording all possible jumps with their times
@@ -1277,6 +1277,7 @@ int ap::verify(vector<box> boxes)
                 capd::intervals::intersection(global_time, pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
                     path.size() - 1 >= global_config.reach_depth_max)
         {
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
             return decision_procedure::SAT;
         }
         // the case when no jumps can be made here
@@ -1289,7 +1290,7 @@ int ap::verify(vector<box> boxes)
             {
                 time_bound = pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second) - global_time;
             }
-            //cout << "Time bound: " << time_bound << endl;
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time bound: " << time_bound;
             //cout << "Initial condition: " << init << endl;
             int invt_check = decision_procedure::check_invariants(cur_mode, time_bound, init, boxes, global_config.solver_bin, global_config.solver_opt);
             switch(invt_check)
@@ -1300,6 +1301,7 @@ int ap::verify(vector<box> boxes)
                        capd::intervals::intersection(global_time + time_bound, pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
                             path.size() - 1 >= global_config.reach_depth_max)
                     {
+                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
                         return decision_procedure::SAT;
                     }
                     break;
@@ -1335,6 +1337,13 @@ int ap::verify(vector<box> boxes)
                 {
                     case decision_procedure::SAT:
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                        if(global_time >= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
+                           capd::intervals::intersection(global_time, pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
+                           path.size() - 1 >= global_config.reach_depth_max)
+                        {
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
+                            return decision_procedure::SAT;
+                        }
                         jumps_times.insert(make_pair(jump.next_id, jump_time));
                         break;
                     case decision_procedure::UNDET:
@@ -1390,7 +1399,7 @@ int ap::verify(vector<box> boxes)
             init = ap::apply_reset(cur_mode->get_jump(it->first).reset, sol, boxes);
             vector<pair<int, box>> new_path = path;
             new_path.push_back(make_pair(it->first, init));
-            if(new_path.size() <= global_config.reach_depth_max) paths.push_back(new_path);
+            if(new_path.size() - 1 <= global_config.reach_depth_max) paths.push_back(new_path);
         }
     }
     // returning undet if there are no SAT paths and there is at least one UNDET
@@ -1462,7 +1471,7 @@ int ap::simulate(vector<box> boxes)
         // getting the initial condition for the current mode
         box init = path.back().second;
 //        cout << "====================" << endl;
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Mode " << cur_mode->id << " Step " << path.size();
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Mode " << cur_mode->id << " Step " << path.size() - 1;
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Init: " << init;
 //        cout << "====================" << endl;
         // will be iterating through the jumps in the current mode and
@@ -1477,7 +1486,7 @@ int ap::simulate(vector<box> boxes)
         pair<int, pair<capd::interval, box>> sample_jump = make_pair(0, make_pair(capd::interval(0.0), box()));
         for(size_t i = 0; i < global_config.ode_discretisation; i++)
         {
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Checking invariants in mode " << cur_mode->id << " Step " << path.size();
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Checking invariants in mode " << cur_mode->id << " Step " << path.size() - 1;
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Initial condition: " << init;
             // checking invariants
             // NEED TO ACCOUNT FOR MULTIPLE PATHS DURING SIMULATION
@@ -1494,7 +1503,7 @@ int ap::simulate(vector<box> boxes)
             }
             // checking if the time horizon is reached
             if(init.get_map()[global_config.global_time].leftBound() >= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second).rightBound() ||
-                    path.size() >= global_config.reach_depth_max)
+                    path.size() - 1 >= global_config.reach_depth_max)
             {
                 vector<pair<int, box>> new_path = path;
                 new_path.push_back(make_pair(cur_mode->id, init));
@@ -1504,8 +1513,8 @@ int ap::simulate(vector<box> boxes)
             }
             // computing the solution here
             //cout << "Before solving ODEs" << endl;
-            box sol = solve_odes_discrete(cur_mode->odes, init, integration_step, 1, boxes);
-            //box sol = solve_odes_nonrig(cur_mode->odes, init, integration_step, boxes);
+            //box sol = solve_odes_discrete(cur_mode->odes, init, integration_step, 1, boxes);
+            box sol = solve_odes_nonrig(cur_mode->odes, init, integration_step, boxes);
             //box sol = solve_odes(cur_mode->odes, init, integration_step, boxes);
             capd::interval cur_time = integration_step*(i+1);
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solution at time " << cur_time << ": " << sol;

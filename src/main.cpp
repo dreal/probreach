@@ -254,7 +254,7 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                    global_config.ode_discretisation = 10;
+                    global_config.ode_discretisation = 500;
                     // getting the domain of nondeterministic parameters
                     box nondet_domain = pdrh::get_nondet_domain();
                     cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;

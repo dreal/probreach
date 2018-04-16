@@ -36,7 +36,7 @@
 #define sp 14.7
 
 // input: the_in, w
-#define w 100 // should be within [95, 115]
+//#define w 100 // should be within [95, 115]
 
 // requirements mu = (lambda - lambda_ref) / lambda_ref
 // lambda_ref = c11 = 14.7
@@ -51,7 +51,7 @@
 #define tau_sample 0.1
 #define tau_rise 2
 #define tau_fall 2
-#define thresh 0.15 // in the paper this value is 0.05
+#define thresh 0.125 // in the paper this value is 0.05
 
 
 [0, 180] the;
@@ -62,6 +62,7 @@
 //[0, 180] the_in;
 
 dist_normal(30.6, 10) the_in;
+dist_normal(105, 2) w;
 
 [-1000, 1000] e;
 [-1e6, 1e6] e_int;
@@ -92,7 +93,7 @@ time:
 invt:
 	((lambda - sp) / sp < thresh);
 	((lambda - sp) / sp > -thresh);
-	(1 - p >= 0);
+//	(1 - p >= 0);
 
 
 flow:
@@ -104,7 +105,7 @@ flow:
 	d/dt[u] = 0;
 
 	d/dt[the] = 10*(the_in - the);
-	d/dt[p] = c1*(2*(c6 + c7*the + c8*the^2 + c9*the^3)*sqrt(p/c10 - (p/c10)^2) - c12*(c2+c3*w*p + c4*w*p^2 + c5*w^2*p));
+	d/dt[p] = c1*(2*(c6 + c7*the + c8*the^2 + c9*the^3)*(c20*p^2+c21*p+c22) - c12*(c2+c3*w*p + c4*w*p^2 + c5*w^2*p));
 	d/dt[lambda] = c26*(c12*(c2+c3*w*p+c4*w*p^2+c5*w^2*p)/(c25*Fc) - lambda);
 
 	// time variables
@@ -117,7 +118,7 @@ flow:
 
 jump:
 	(counter = tau_sample)==>@1(and 	(counter' = 0) (e'=lambda-sp) (lambda_prev' = lambda)
-										(tau' = tau) (pe' = pe + tau_sample*c1*(c23*2*(c6 + c7*the + c8*the^2 + c9*the^3)*sqrt(p/c10 - (p/c10)^2) - (c2+c3*w*pe+c4*w*pe^2+c5*w^2*pe)) )
+										(tau' = tau) (pe' = pe + tau_sample*c1*(c23*2*(c6 + c7*the + c8*the^2 + c9*the^3)*(c20*p^2+c21*p+c22) - (c2+c3*w*pe+c4*w*pe^2+c5*w^2*pe)) )
 										(tau' = tau) (Fc' = (1/sp)*(1 + Ki*e_int + Kp*(lambda - sp) + Kd*(lambda-lambda_prev)/tau_sample)*(c2+c3*w*pe+c4*w*pe^2+c5*w^2*pe))
 										(tau' = tau) (e_int' = e_int + tau_sample*(lambda-sp))
 										(tau' = tau) (u' = Ki*e_int + Kp*(lambda - sp) + Kd*(lambda-lambda_prev)/tau_sample));
@@ -134,7 +135,7 @@ time:
 invt:
 	((lambda - sp) / sp < thresh);
 	((lambda - sp) / sp > -thresh);
-	(1 - p >= 0);
+//	(1 - p >= 0);
 
 
 flow:
@@ -146,7 +147,7 @@ flow:
 	d/dt[u] = 0;
 
 	d/dt[the] = 10*(the_in - the);
-	d/dt[p] = c1*(2*(c6 + c7*the + c8*the^2 + c9*the^3)*sqrt(p/c10 - (p/c10)^2) - c12*(c2+c3*w*p + c4*w*p^2 + c5*w^2*p));
+	d/dt[p] = c1*(2*(c6 + c7*the + c8*the^2 + c9*the^3)*(c20*p^2+c21*p+c22) - c12*(c2+c3*w*p + c4*w*p^2 + c5*w^2*p));
 	d/dt[lambda] = c26*(c12*(c2+c3*w*p+c4*w*p^2+c5*w^2*p)/(c25*Fc) - lambda);
 
 	// time variables
@@ -159,7 +160,7 @@ flow:
 
 jump:
 	(counter = tau_sample)==>@2(and 	(counter' = 0) (e'=lambda-sp) (lambda_prev' = lambda)
-										(tau' = tau) (pe' = pe + tau_sample*c1*(c23*2*(c6 + c7*the + c8*the^2 + c9*the^3)*sqrt(p/c10 - (p/c10)^2) - (c2+c3*w*pe+c4*w*pe^2+c5*w^2*pe)) )
+										(tau' = tau) (pe' = pe + tau_sample*c1*(c23*2*(c6 + c7*the + c8*the^2 + c9*the^3)*(c20*p^2+c21*p+c22) - (c2+c3*w*pe+c4*w*pe^2+c5*w^2*pe)) )
 										(tau' = tau) (Fc' = (1/sp)*(1 + Ki*e_int + Kp*(lambda - sp) + Kd*(lambda-lambda_prev)/tau_sample)*(c2+c3*w*pe+c4*w*pe^2+c5*w^2*pe))
 										(tau' = tau) (e_int' = e_int + tau_sample*(lambda-sp))
 										(tau' = tau) (u' = Ki*e_int + Kp*(lambda - sp) + Kd*(lambda-lambda_prev)/tau_sample));

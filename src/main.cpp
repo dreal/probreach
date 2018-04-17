@@ -254,7 +254,7 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                    global_config.ode_discretisation = 8;
+                    global_config.ode_discretisation = 1;
                     // getting the domain of nondeterministic parameters
                     box nondet_domain = pdrh::get_nondet_domain();
                     cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
@@ -282,6 +282,7 @@ int main(int argc, char* argv[])
                         cout << "Domain of nondeterministic parameters: " << pdrh::get_nondet_domain() << endl;
                         capd::interval conf_intersection(0);
                         // adjusting discretisation until both intervals intersect by more than 80%
+                        // use the size of optimised conf interval instead of the accuracy value of the statistical algorithm
                         while(capd::intervals::width(conf_intersection) < global_config.bayesian_acc)
                         {
                             // cross entropy algorithm is used here

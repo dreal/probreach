@@ -1426,9 +1426,17 @@ box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> box
 //    cout << "Solution before noise: " << sol << endl;
 //    cout << "--------------------" << endl;
     map<string, capd::interval> sol_map = sol.get_map();
-    sol_map["e_phi"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
-    sol_map["e_psi"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
-    sol_map["e_the"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+//    sol_map["e_phi"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+//    sol_map["e_psi"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+//    sol_map["e_the"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+//    sol_map["e"] += gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+
+    map<string, capd::interval> param_map = box(boxes).get_map();
+    double noise = gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Noise value added: " << noise;
+    sol_map["u"] += noise * param_map["Kp"].leftBound();
+//    sol_map["e_int"] += noise * param_map["Ki"].leftBound();
+
     gsl_rng_free(r);
 //    cout << "Noise: " << noise << endl;
 //    cout << "--------------------" << endl;

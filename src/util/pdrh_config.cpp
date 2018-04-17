@@ -352,38 +352,38 @@ void parse_pdrh_config(int argc, char* argv[])
             }
         }
         // noise variance map
-        else if(strcmp(argv[i], "--noise-variance") == 0)
-        {
-            //global_config.partition_nondet = true;
-            i++;
-            bool map_end = false;
-            while (!map_end)
-            {
-                if (is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
-                {
-                    map_end = true;
-                    i--;
-                }
-                else
-                {
-                    istringstream var_is(argv[i]);
-                    string var = var_is.str();
-                    i++;
-                    if (is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
-                    {
-                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
-                        exit(EXIT_FAILURE);
-                    }
-                    else
-                    {
-                        istringstream val_is(argv[i]);
-                        global_config.controller.noise_variance.insert(
-                                make_pair(var, capd::interval(val_is.str(), val_is.str()).rightBound()));
-                        i++;
-                    }
-                }
-            }
-        }
+//        else if(strcmp(argv[i], "--noise-variance") == 0)
+//        {
+//            //global_config.partition_nondet = true;
+//            i++;
+//            bool map_end = false;
+//            while (!map_end)
+//            {
+//                if (is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+//                {
+//                    map_end = true;
+//                    i--;
+//                }
+//                else
+//                {
+//                    istringstream var_is(argv[i]);
+//                    string var = var_is.str();
+//                    i++;
+//                    if (is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+//                    {
+//                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
+//                        exit(EXIT_FAILURE);
+//                    }
+//                    else
+//                    {
+//                        istringstream val_is(argv[i]);
+//                        global_config.controller.noise_variance.insert(
+//                                make_pair(var, capd::interval(val_is.str(), val_is.str()).rightBound()));
+//                        i++;
+//                    }
+//                }
+//            }
+//        }
         // global_time variable
         else if(strcmp(argv[i], "--global-time") == 0)
         {

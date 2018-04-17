@@ -29,9 +29,9 @@ namespace translator{
 
     class Translator{
     private:
-        unique_ptr<matlab::engine::MATLABEngine> engine;
+        std::unique_ptr<matlab::engine::MATLABEngine> engine;
         matlab::data::ArrayFactory arrayFactory;
-        string modelName, systemHandlerName, currentSubSystemHandler;
+        string modelName, systemHandlerName, parentChart, currentSubSystemHandler;
         // name (re)generation rather than maps (of maps)
 
     public:
@@ -42,6 +42,8 @@ namespace translator{
         ~Translator();
 
     private:
+        string add_state_transition(pdrh::mode& mode);
+        string translate_jump_guard(pdrh::node* guard, int mode_id);
         void translate_ode_expression(pdrh::node *expr, block_connection parent_block);
         void generate_init_var_blocks(const pdrh::mode &m);
         void set_system_time_interval(const string& subsys, double start_time, double end_time);

@@ -6,7 +6,6 @@
 #include <logging/easylogging++.h>
 #include <util/pdrh.h>
 
-#include "engine.h"
 #include "MatlabEngine.hpp"
 #include "MatlabDataArray.hpp"
 #include "translator.h"
@@ -30,13 +29,18 @@ void print_map(map<string, pair<pdrh::node*, pdrh::node*>>& map1){
 }
 
 translator::Translator::Translator() {
-    this->engine = startMATLAB();
+    cout<< "Starting MATLAB engine" << endl;
+
+    this->engine = matlab::engine::startMATLAB();
+
+    cout<< "MATLAB engine started" << endl;
 
     vector<string> tokenised_filepath = split(global_config.model_filename, '/');
     vector<string> filename = split(tokenised_filepath.at(tokenised_filepath.size() - 1), '.');
     cout<<global_config.model_filename<<endl;
     this->modelName = "prostate_cancer";
     this->systemHandlerName = "h";
+    this->parentChart = "c";
 }
 
 void translator::Translator::set_block_param(const string subSysHandler, const string blkName,
@@ -97,17 +101,20 @@ void translator::Translator::generate_init_var_blocks(const pdrh::mode &m){
         string init_value = translator::get_initial_value(it->first);
         cout<< "Initialising blocks for var " << it->first;
         if (strcmp(it->second->value.c_str(), "0") == 0){
-            this->addBlock(this->currentSubSystemHandler, "simulink/Commonly Used Blocks/Constant", it->first);
-            this->set_block_param(this->currentSubSystemHandler, it->first, "Value", init_value);
+            //TODO: Change constant block to integrator block,
+            this->addBlock(this->currentSubSystemHandler, "simulink/Continuous/Integrator", it->first);
+            this->set_block_param(this->currentSubSystemHandler, it->first, "InitialCondition", init_value);
+            this->set_block_param(this->currentSubSystemHandler, it->first, "ContinuousStateAttributes", it->first);
         } else {
             this->addBlock(this->currentSubSystemHandler, "simulink/Continuous/Integrator", it->first);
             this->set_block_param(this->currentSubSystemHandler, it->first, "InitialCondition", init_value);
+            this->set_block_param(this->currentSubSystemHandler, it->first, "ContinuousStateAttributes", it->first);
         }
     }
 }
 
 void translator::Translator::translate_ode_expression(pdrh::node *expr, block_connection parent_block) {
-    cout<< "ODE translation: value: " << expr->value << " and " << expr->operands.size() << " operands." << endl;
+//    cout<< "ODE translation: value: " << expr->value << " and " << expr->operands.size() << " operands." << endl;
     if(expr->operands.size() == 0)
     {
         // the node is a reference to a variable
@@ -134,11 +141,11 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
     {
         string blkNameSuffix;
         if (expr->operands.size() == 1){
-            blkNameSuffix = expr->operands.at(0)->value.compare("/") != 0 ? expr->operands.at(0)->value:"div";
+            blkNameSuffix = expr->operands.at(0)->value.compare("/") != 0 ? expr->operands.at(0)->value + "__":"div__";
         } else {
             blkNameSuffix = expr->operands.at(0)->value.compare("/") != 0 ? expr->operands.at(0)->value:"div";
             blkNameSuffix = blkNameSuffix + "_" +
-                            (expr->operands.at(1)->value.compare("/") != 0 ? expr->operands.at(1)->value:"div");
+                            (expr->operands.at(1)->value.compare("/") != 0 ? expr->operands.at(1)->value + "__":"div__");
         }
 
         if(strcmp(expr->value.c_str(), "+") == 0)
@@ -225,7 +232,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "sin") == 0)
         {
             string blkName = "Sin_" + blkNameSuffix;
-            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
+            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, simulink_name, "Operator", "sin");
 
             translate_ode_expression(expr->operands.at(0), block_connection(simulink_name, 1));
@@ -233,7 +240,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "cos") == 0)
         {
             string blkName = "Cos_" + blkNameSuffix;
-            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
+            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, simulink_name, "Operator", "cos");
 
             translate_ode_expression(expr->operands.at(0), block_connection(simulink_name, 1));
@@ -241,7 +248,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "tan") == 0)
         {
             string blkName = "Tan_" + blkNameSuffix;
-            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function",
+            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Trigonometric Function",
                                             blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, simulink_name, "Operator", "tan");
 
@@ -250,7 +257,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "asin") == 0)
         {
             string blkName = "Asin_" + blkNameSuffix;
-            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
+            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, simulink_name, "Operator", "asin");
 
             translate_ode_expression(expr->operands.at(0), block_connection(simulink_name, 1));
@@ -258,7 +265,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "acos") == 0)
         {
             string blkName = "Acos_" + blkNameSuffix;
-            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
+            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, simulink_name, "Operator", "acos");
 
             translate_ode_expression(expr->operands.at(0), block_connection(simulink_name, 1));
@@ -266,7 +273,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         else if(strcmp(expr->value.c_str(), "atan") == 0)
         {
             string blkName = "Atan_" + blkNameSuffix;
-            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operatons/Trigonometric Function", blkName, parent_block);
+            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Math Operations/Trigonometric Function", blkName, parent_block);
             set_block_param(this->currentSubSystemHandler, simulink_name, "Operator", "atan");
 
             translate_ode_expression(expr->operands.at(0), block_connection(simulink_name, 1));
@@ -279,11 +286,82 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
     }
 }
 
+// translate a node expression to a stateflow jump condition
+string translator::Translator::translate_jump_guard(pdrh::node *guard, int mode_id)
+{
+    stringstream s, value;
+    if (pdrh::var_map.count(guard->value)){
+        value << slStateBase << mode_id << "." << guard->value;
+    } else if (guard->value == "="){
+        value << "==";
+    } else if (guard->value == "and"){
+        value << " & ";
+    }
+    else {
+        value << guard->value;
+    }
+    // checking whether it is an operation node
+    if(guard->operands.size() > 1)
+
+    {
+        s << "(";
+        for(int i = 0; i < guard->operands.size() - 1; i++)
+        {
+            s << translate_jump_guard(guard->operands.at(i), mode_id);
+            s << value.str();
+
+        }
+        s << translate_jump_guard(guard->operands.at(guard->operands.size() - 1), mode_id) << ")";
+    }
+    else if(guard->operands.size() == 1)
+    {
+        if(value.str() ==  "-")
+        {
+            s << "(" << value.str() << translate_jump_guard(guard->operands.front(), mode_id) << ")";
+        }
+        else
+        {
+            s << value.str() << "(" << translate_jump_guard(guard->operands.front(), mode_id) << ")";
+        }
+    }
+    else
+    {
+        s << value.str();
+    }
+    return s.str();
+}
+
+string translator::Translator::add_state_transition(pdrh::mode& mode){
+    stringstream slSourceState;
+    slSourceState << slStateBase << mode.id;
+    for (pdrh::mode::jump jump : mode.jumps){
+        stringstream slDestState;
+        slDestState << slStateBase << jump.next_id;
+        /**
+         * transition_new = Stateflow.Transition(c);
+           transition_new.Source = ss1;
+           transition_new.Destination = ss2;
+         */
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition = Stateflow.Transition(" + parentChart + ")"));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.Source = " + slSourceState.str()));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.Destination = " + slDestState.str()));
+
+        cout<< "Guard: " << translate_jump_guard(jump.guard, mode.id)<<endl;
+//        cout<< "Rest: " << pdrh::node_to_string_infix(jump.reset);
+//        cout<< "Mode : " << mode.id << " jump to: " << jump.next_id << endl;
+        return "new_transition";
+    }
+};
+
+
 void translator::Translator::translate_model(){
     matlab::data::ArrayFactory factory;
 
     //TODO: bound variables in Simulink: pick initial value in range
     //TODO: non-determinism
+    /**
+     * Setup the system environment
+     */
     this->engine->eval(convertUTF8StringToUTF16String(systemHandlerName + " = new_system('" + modelName + "');"));
 //    engine->eval(convertUTF8StringToUTF16String(buffer));
     this->engine->eval(convertUTF8StringToUTF16String("open_system(" + systemHandlerName + ");"));
@@ -291,8 +369,11 @@ void translator::Translator::translate_model(){
     this->engine->eval(convertUTF8StringToUTF16String("add_block('sflib/Chart', ['" + modelName + "' '/Chart']);"));
     this->engine->eval(convertUTF8StringToUTF16String("rt = sfroot;"));
     this->engine->eval(convertUTF8StringToUTF16String("m = rt.find('-isa', 'Stateflow.Machine', 'name', '" + modelName + "');"));
-    this->engine->eval(convertUTF8StringToUTF16String("c = m.find('-isa', 'Stateflow.Chart');"));
+    this->engine->eval(convertUTF8StringToUTF16String(parentChart + " = m.find('-isa', 'Stateflow.Chart');"));
 
+    /**
+     * Build states and the corresponding ODEs for each state
+     */
     for (pdrh::mode m : pdrh::modes){
         ostringstream slState, subSysHandler;
         slState << translator::slStateBase << m.id;
@@ -307,11 +388,18 @@ void translator::Translator::translate_model(){
         for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++){
 
             this->translate_ode_expression(it->second, block_connection(it->first, 1));
-            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + subSysHandler.str() + ")"));
-
+//            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + subSysHandler.str() + ")"));
             cout<<"Completed translating equation d[\"" << it->first << "\"]/dt"<<endl;
         }
     }
+
+    /**
+     * Connect all states and set all guards/reset conditions
+     */
+    for (pdrh::mode m : pdrh::modes){
+        add_state_transition(m);
+    }
+    cout<< "Completed translating model" << endl;
 }
 
 translator::Translator::~Translator() {
@@ -404,6 +492,8 @@ int model_creation_test(){
     return 0;
 }
 
+// TODO: Find global maximum time bound (in mode or global) multiply by max number of jumps (in pfrh config, reach_depth_max
+// , set sample_time to that number + 1  for all generators OR LARGEST NUMBER
 string translator::get_initial_value(string variable_name){
     for(pdrh::state s : pdrh::init){
         for(pdrh::node* node : s.prop->operands){
@@ -424,7 +514,7 @@ void translator::parse_tree(){
     print_map(pdrh::par_map);
 //    model_creation_test();
 
-    translator::Translator *translator1 = new Translator();
+    translator::Translator* translator1 = new Translator();
     translator1->translate_model();
 
     cout<<"Test complete"<<endl;
@@ -432,42 +522,4 @@ void translator::parse_tree(){
     delete translator1;
 //    test_engine_call();
 }
-
-
-//double translator::test_engine_call() {
-//    // Create arrays of Matlab type
-//    mxArray *X = mxCreateDoubleMatrix(1, 1, mxREAL);
-//    mxArray *Y = mxCreateDoubleMatrix(1, 1, mxREAL);
-//
-//    // Matlab arrays --> double arrays
-//    double *ptrToMatX = reinterpret_cast<double *>(mxGetData(X));
-//    double *ptrToMatY = reinterpret_cast<double *>(mxGetData(Y));
-//
-//    // Manipulate ordinary c++ arrays
-//    ptrToMatX[0] = 1;
-//    ptrToMatY[0] = 2;
-//
-//    // Start the Matlab Engine
-//    engine *ep;
-//    if (!(ep = engOpen("\0"))) {
-//        fprintf(stderr, "\nCan't start MATLAB engine\n");
-//        return 0;
-//    }
-//
-//    // Copy the variables into Matlab prompt
-//    engPutVariable(ep, "X", X);
-//    engPutVariable(ep, "Y", Y);
-//
-//    // Call the function
-//    engEvalString(ep, "Z = (X + Y^2)");
-//
-//    // Copy the variable from Matlab prompt to our code
-//    mxArray *Z = engGetVariable(ep, "Z");
-//
-//    // Convert this variable to ordinary c++ array and show it
-//    double *ptrToMatZ = reinterpret_cast<double *>(mxGetData(Z));
-//    std::cout << "result is " << *ptrToMatZ << std::endl;
-//
-//    return *ptrToMatZ;
-//}
 

@@ -12,7 +12,7 @@ IF( "$ENV{MATLAB_ROOT}" STREQUAL "" )
     MESSAGE(STATUS " " )
     MESSAGE(STATUS " MATLAB_ROOT environment variable not set." )
     MESSAGE(STATUS " In Linux append the following to your .bashrc file:" )
-    MESSAGE(STATUS " >>> export MATLAB_ROOT=/usr/local/MATLAB/R2017a <<<" )
+    MESSAGE(STATUS " >>> export MATLAB_ROOT=/usr/local/MATLAB/R2018a <<<" )
     MESSAGE(STATUS " be sure to pick the correct version of Matlab" )
     MESSAGE(STATUS " " )
     MESSAGE(STATUS " " )
@@ -25,20 +25,20 @@ ELSE("$ENV{MATLAB_ROOT}" STREQUAL "" )
 
         INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
 
-        FIND_LIBRARY( MATLAB_MEX_LIBRARY
-                      NAMES libmex mex
-                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib 
-                      PATH_SUFFIXES glnxa64 glnx86)
-
-        FIND_LIBRARY( MATLAB_ENG_LIBRARY
-                      NAMES libeng eng
-                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib 
-                      PATH_SUFFIXES glnxa64 glnx86)
-
-        FIND_LIBRARY( MATLAB_MX_LIBRARY
-                      NAMES libmx mx
-                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib 
-                      PATH_SUFFIXES glnxa64 glnx86)
+#        FIND_LIBRARY( MATLAB_MEX_LIBRARY
+#                      NAMES libmex mex
+#                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib
+#                      PATH_SUFFIXES glnxa64 glnx86)
+#
+#        FIND_LIBRARY( MATLAB_ENG_LIBRARY
+#                      NAMES libeng eng
+#                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib
+#                      PATH_SUFFIXES glnxa64 glnx86)
+#
+#        FIND_LIBRARY( MATLAB_MX_LIBRARY
+#                      NAMES libmx mx
+#                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib
+#                      PATH_SUFFIXES glnxa64 glnx86)
 
         FIND_LIBRARY( MATLAB_ENGINE_LIBRARY
                       NAMES libMatlabEngine MatlabEngine
@@ -51,14 +51,15 @@ ELSE("$ENV{MATLAB_ROOT}" STREQUAL "" )
                       PATHS SUFFIXES libMatlabDataArray)
 
     MESSAGE (STATUS "MATLAB_ROOT: $ENV{MATLAB_ROOT}")
+    MESSAGE (STATUS "MATLAB_INCLUDE_DIR: ${MATLAB_INCLUDE_DIR}")
 
 ENDIF("$ENV{MATLAB_ROOT}" STREQUAL "" )
 
 # This is common to UNIX and Win32:
 SET(MATLAB_LIBRARIES
-  ${MATLAB_MEX_LIBRARY}
-  ${MATLAB_MX_LIBRARY}
-  ${MATLAB_ENG_LIBRARY}
+#  ${MATLAB_MEX_LIBRARY}
+#  ${MATLAB_MX_LIBRARY}
+#  ${MATLAB_ENG_LIBRARY}
   ${MATLAB_ENGINE_LIBRARY}
   ${MATLAB_DATA_ARRAY_LIBRARY}
 )
@@ -70,9 +71,9 @@ ENDIF(MATLAB_INCLUDE_DIR AND MATLAB_LIBRARIES)
 
 MARK_AS_ADVANCED(
   MATLAB_LIBRARIES
-  MATLAB_ENG_LIBRARY
-  MATLAB_MEX_LIBRARY
-  MATLAB_MX_LIBRARY
+#  MATLAB_ENG_LIBRARY
+#  MATLAB_MEX_LIBRARY
+#  MATLAB_MX_LIBRARY
   MATLAB_ENGINE_LIBRARY
   MATLAB_DATA_ARRAY_LIBRARY
   MATLAB_INCLUDE_DIR

@@ -51,7 +51,9 @@
 #define tau_sample 0.1
 #define tau_rise 2
 #define tau_fall 2
-#define thresh 0.05 // in the paper this value is 0.05. we can try 0.04
+#define tau_stab 0.5
+#define thresh_safe 0.05 // in the paper this value is 0.05. we can try 0.04
+#define thresh_stab 0.02 // in the paper this value is 0.02
 
 #define Fc (1/sp)*(1 + u)*(c2+c3*w*pe+c4*w*pe^2+c5*w^2*pe)
 
@@ -71,9 +73,9 @@ dist_normal(105, 2) w;
 [-1e6, 1e6] u;
 [-1000, 1000] lambda_prev;
 
-[0, 0.1] Kp;
-[0, 0.1] Ki;
-[0, 0.1] Kd;
+[0, 0.5] Kp;
+[0, 0.5] Ki;
+[0, 0.5] Kd;
 
 
 // we need a lot of points (512 is not enough, but 1024 is sufficient) in discretisation when using the bad solver
@@ -85,7 +87,7 @@ dist_normal(105, 2) w;
 
 
 
-// speed is smaller than v_bar; breaks: IDLE
+// rise
 {
 mode 1;
 time:
@@ -93,8 +95,8 @@ time:
 	[0, tau_sample];
 
 invt:
-	((lambda - sp) / sp < thresh);
-	((lambda - sp) / sp > -thresh);
+	((lambda - sp) / sp < thresh_safe);
+	((lambda - sp) / sp > -thresh_safe);
 	(1 - p >= 0);
 
 
@@ -121,10 +123,10 @@ jump:
 										(tau' = tau) (e_int' = e_int + tau_sample*(lambda-sp))
 										(tau' = tau) (e_der' = (lambda-lambda_prev)/tau_sample)
 										(tau' = tau) (u' = Ki*e_int + Kp*(lambda-sp) + Kd*(lambda-lambda_prev)/tau_sample));
-	(tau = tau_rise)==>@2(and (tau' = 0));
+	(tau = tau_stab)==>@2(and (tau' = tau));
 }
 
-// speed is smaller than v_bar; breaks: IDLE
+// stabilisation after rise
 {
 mode 2;
 time:
@@ -132,8 +134,49 @@ time:
 	[0, tau_sample];
 
 invt:
-	((lambda - sp) / sp < thresh);
-	((lambda - sp) / sp > -thresh);
+	((lambda - sp) / sp < thresh_stab);
+	((lambda - sp) / sp > -thresh_stab);
+	(1 - p >= 0);
+
+
+flow:
+	// controller
+	d/dt[e] = 0;
+	d/dt[e_der] = 0;
+	d/dt[e_int]  = 0;
+	d/dt[lambda_prev] = 0;
+	d/dt[u] = 0;
+
+	// plant	
+	d/dt[the] = 10*(the_in - the);
+	d/dt[p] = c1*(2*(c6 + c7*the + c8*the^2 + c9*the^3)*sqrt(p/c10 - (p/c10)^2) - c12*(c2+c3*w*p + c4*w*p^2 + c5*w^2*p));
+	d/dt[pe] = c1*(c23*2*(c6 + c7*the + c8*the^2 + c9*the^3)*sqrt(p/c10 - (p/c10)^2) - (c2+c3*w*pe+c4*w*pe^2+c5*w^2*pe));
+	d/dt[lambda] = c26*(c12*(c2+c3*w*p+c4*w*p^2+c5*w^2*p)/(c25*Fc) - lambda);
+
+	// time variables
+	d/dt[counter] = 1;
+	d/dt[tau] = 1;
+
+jump:
+	(counter = tau_sample)==>@2(and 	(counter' = 0) (e'=lambda-sp) (lambda_prev' = lambda)
+										(tau' = tau) (e_int' = e_int + tau_sample*(lambda-sp))
+										(tau' = tau) (e_der' = (lambda-lambda_prev)/tau_sample)
+										(tau' = tau) (u' = Ki*e_int + Kp*(lambda-sp) + Kd*(lambda-lambda_prev)/tau_sample));
+ 	(tau = tau_rise)==>@3(and (tau' = 0));
+}
+
+
+
+// fall
+{
+mode 3;
+time:
+
+	[0, tau_sample];
+
+invt:
+	((lambda - sp) / sp < thresh_safe);
+	((lambda - sp) / sp > -thresh_safe);
 	(1 - p >= 0);
 
 
@@ -156,11 +199,51 @@ flow:
 	d/dt[tau] = 1;
 
 jump:
-	(counter = tau_sample)==>@2(and 	(counter' = 0) (e'=lambda-sp) (lambda_prev' = lambda)
+	(counter = tau_sample)==>@3(and 	(counter' = 0) (e'=lambda-sp) (lambda_prev' = lambda)
 										(tau' = tau) (e_int' = e_int + tau_sample*(lambda-sp))
 										(tau' = tau) (e_der' = (lambda-lambda_prev)/tau_sample)
 										(tau' = tau) (u' = Ki*e_int + Kp*(lambda-sp) + Kd*(lambda-lambda_prev)/tau_sample));
- 	(tau = tau_fall)==>@1(and (tau' = 0));
+ 	(tau = tau_stab)==>@4(and (tau' = tau));
+}
+
+
+// stabilisation after fall
+{
+mode 4;
+time:
+
+	[0, tau_sample];
+
+invt:
+	((lambda - sp) / sp < thresh_stab);
+	((lambda - sp) / sp > -thresh_stab);
+	(1 - p >= 0);
+
+
+flow:
+	// controller
+	d/dt[e] = 0;
+	d/dt[e_der] = 0;
+	d/dt[e_int]  = 0;
+	d/dt[lambda_prev] = 0;
+	d/dt[u] = 0;
+
+	// plant	
+	d/dt[the] = 10*(the - the);
+	d/dt[p] = c1*(2*(c6 + c7*the + c8*the^2 + c9*the^3)*sqrt(p/c10 - (p/c10)^2) - c12*(c2+c3*w*p + c4*w*p^2 + c5*w^2*p));
+	d/dt[pe] = c1*(c23*2*(c6 + c7*the + c8*the^2 + c9*the^3)*sqrt(p/c10 - (p/c10)^2) - (c2+c3*w*pe+c4*w*pe^2+c5*w^2*pe));
+	d/dt[lambda] = c26*(c12*(c2+c3*w*p+c4*w*p^2+c5*w^2*p)/(c25*Fc) - lambda);
+
+	// time variables
+	d/dt[counter] = 1;
+	d/dt[tau] = 1;
+
+jump:
+	(counter = tau_sample)==>@3(and 	(counter' = 0) (e'=lambda-sp) (lambda_prev' = lambda)
+										(tau' = tau) (e_int' = e_int + tau_sample*(lambda-sp))
+										(tau' = tau) (e_der' = (lambda-lambda_prev)/tau_sample)
+										(tau' = tau) (u' = Ki*e_int + Kp*(lambda-sp) + Kd*(lambda-lambda_prev)/tau_sample));
+ 	(tau = tau_stab)==>@1(and (tau' = 0));
 }
 
 init:

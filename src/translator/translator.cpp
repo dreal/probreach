@@ -80,6 +80,19 @@ string translator::Translator::addBlock(string subSysHandler, string srcPath, st
     return added_block_name;
 }
 
+void translator::Translator::add_scope_block(const string& subSysHandler, const string& blkName, const unsigned long inportCount){
+    this->addBlock(this->currentSubSystemHandler, "simulink/Sinks/Scope", blkName);
+    stringstream configCommand;
+    configCommand << "scopeConfig = get_param(fullfile(" << subSysHandler << ".Path, " << subSysHandler << ".Name, '"
+            << blkName <<"'), 'ScopeConfiguration');" << endl;
+//            << "scopeConfig.OpenAtSimulationStart = true;" <<endl
+//            << "scopeConfig.NumInputPorts = '" << to_string(inportCount) << "';";
+    this->engine->eval(convertUTF8StringToUTF16String(configCommand.str()));
+    this->engine->eval(convertUTF8StringToUTF16String("scopeConfig.OpenAtSimulationStart = true;"));
+    this->engine->eval(convertUTF8StringToUTF16String("scopeConfig.NumInputPorts = '" + to_string(inportCount) + "';"));
+};
+
+
 void translator::Translator::connect_blocks(string subSysHandler, translator::block_connection out_block,
                                             translator::block_connection in_block) {
     ostringstream add_line_command;
@@ -404,8 +417,15 @@ void translator::Translator::translate_model(){
         }
         this->generate_init_var_blocks(m);
 
+        string scope_block_name = slState.str() + "_Scope";
+        this->add_scope_block(this->currentSubSystemHandler, scope_block_name, m.odes.size());
+
+        int scope_inport_counter = 1;
         for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++){
-            this->translate_ode_expression(it->second, block_connection(it->first, 1));
+            block_connection parent_ode_block = block_connection(it->first, 1);
+
+            this->connect_blocks(this->currentSubSystemHandler, parent_ode_block, block_connection(scope_block_name, scope_inport_counter++));
+            this->translate_ode_expression(it->second, parent_ode_block);
 //            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + subSysHandler.str() + ")"));
             cout<<"Completed translating equation d[\"" << it->first << "\"]/dt"<<endl;
         }
@@ -584,7 +604,7 @@ string translator::get_initial_value(string variable_name){
                 }
             }
         }
-    } return lower_bound + "+(" + upper_bound + "-" + lower_bound + ")*rand(1,1)";
+    } return lower_bound + "+(" + upper_bound + "-" + lower_bound + ").*rand(1,1)";
 }
 
 void translator::parse_tree(){

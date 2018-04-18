@@ -44,6 +44,7 @@ namespace translator{
     private:
         string add_state_transition(pdrh::mode& mode);
         void add_default_transition(int start_node);
+        void add_scope_block(const string& subSysHandler, const string& blkName, const unsigned long inportCount);
         string translate_jump_guard(pdrh::node* guard, int mode_id);
         string translate_reset_expression(pdrh::node* reset_expr, int mode_id);
         string translate_reset_condition(pdrh::mode::jump& jump, int source_mode_id);

@@ -43,6 +43,10 @@ translator::Translator::Translator() {
     this->parentChart = "c";
 }
 
+translator::Translator::~Translator() {
+    this->engine.reset();
+}
+
 void translator::Translator::set_block_param(const string subSysHandler, const string blkName,
                                              const string parameter, const string value){
     ostringstream command;
@@ -80,8 +84,10 @@ void translator::Translator::connect_blocks(string subSysHandler, translator::bl
                                             translator::block_connection in_block) {
     ostringstream add_line_command;
     add_line_command << "add_line(fullfile(" << subSysHandler << ".Path, " << subSysHandler << ".Name), '"
-                     << out_block.block_name << "/1', '" << in_block.block_name << "/" << in_block.port_id
+                     << out_block.block_name << "/" << out_block.port_id << "', '"
+                     << in_block.block_name << "/" << in_block.port_id
                      << "', 'autorouting', 'smart')";
+    this->engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
 }
 
 void translator::Translator::set_system_time_interval(const string& subsys, double start_time, double end_time){
@@ -104,11 +110,11 @@ void translator::Translator::generate_init_var_blocks(const pdrh::mode &m){
             //TODO: Change constant block to integrator block,
             this->addBlock(this->currentSubSystemHandler, "simulink/Continuous/Integrator", it->first);
             this->set_block_param(this->currentSubSystemHandler, it->first, "InitialCondition", init_value);
-            this->set_block_param(this->currentSubSystemHandler, it->first, "ContinuousStateAttributes", it->first);
+            this->set_block_param(this->currentSubSystemHandler, it->first, "ContinuousStateAttributes", "''" + it->first + "''");
         } else {
             this->addBlock(this->currentSubSystemHandler, "simulink/Continuous/Integrator", it->first);
             this->set_block_param(this->currentSubSystemHandler, it->first, "InitialCondition", init_value);
-            this->set_block_param(this->currentSubSystemHandler, it->first, "ContinuousStateAttributes", it->first);
+            this->set_block_param(this->currentSubSystemHandler, it->first, "ContinuousStateAttributes", "''" + it->first + "''");
         }
     }
 }
@@ -118,8 +124,10 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
     if(expr->operands.size() == 0)
     {
         // the node is a reference to a variable
-        if(pdrh::var_exists(string(expr->value.c_str())))
+        if(pdrh::var_exists(expr->value))
         {
+            cout<< "Connect " << expr->value << " to already defined variable: " << parent_block.block_name
+                << " " << parent_block.port_id <<endl;
             connect_blocks(this->currentSubSystemHandler, block_connection(expr->value, 1), parent_block);
         }
         // the node is a reference to a constant number, assuming 0.0 (zero) is not used in the
@@ -346,9 +354,13 @@ string translator::Translator::add_state_transition(pdrh::mode& mode){
         this->engine->eval(convertUTF8StringToUTF16String("new_transition.Source = " + slSourceState.str()));
         this->engine->eval(convertUTF8StringToUTF16String("new_transition.Destination = " + slDestState.str()));
 
+        stringstream transition_label;
+        transition_label << "'[" << translate_jump_guard(jump.guard, mode.id)
+                         << "]{" << translate_reset_condition(jump, mode.id) << "}'";
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.LabelString = " + transition_label.str()));
+
         cout<< "Guard: " << translate_jump_guard(jump.guard, mode.id)<<endl;
-//        cout<< "Rest: " << pdrh::node_to_string_infix(jump.reset);
-//        cout<< "Mode : " << mode.id << " jump to: " << jump.next_id << endl;
+        cout<< "Resets: " << translate_reset_condition(jump, mode.id)<<endl;
         return "new_transition";
     }
 };
@@ -362,6 +374,7 @@ void translator::Translator::translate_model(){
     /**
      * Setup the system environment
      */
+    this->engine->eval(convertUTF8StringToUTF16String("mdlName = '" + modelName + "'"));
     this->engine->eval(convertUTF8StringToUTF16String(systemHandlerName + " = new_system('" + modelName + "');"));
 //    engine->eval(convertUTF8StringToUTF16String(buffer));
     this->engine->eval(convertUTF8StringToUTF16String("open_system(" + systemHandlerName + ");"));
@@ -370,6 +383,7 @@ void translator::Translator::translate_model(){
     this->engine->eval(convertUTF8StringToUTF16String("rt = sfroot;"));
     this->engine->eval(convertUTF8StringToUTF16String("m = rt.find('-isa', 'Stateflow.Machine', 'name', '" + modelName + "');"));
     this->engine->eval(convertUTF8StringToUTF16String(parentChart + " = m.find('-isa', 'Stateflow.Chart');"));
+    this->engine->eval(convertUTF8StringToUTF16String(parentChart + ".ChartUpdate = 'CONTINUOUS';"));
 
     /**
      * Build states and the corresponding ODEs for each state
@@ -383,10 +397,14 @@ void translator::Translator::translate_model(){
         this->engine->eval(convertUTF8StringToUTF16String(slState.str() + ".Name = '" + slState.str() + "';"));
         this->engine->eval(convertUTF8StringToUTF16String(subSysHandler.str() + " = " + slState.str() + ".getDialogProxy;"));
 
+        for(pdrh::state s : pdrh::init){
+            if (m.id == s.id){
+                add_default_transition(s.id);
+            }
+        }
         this->generate_init_var_blocks(m);
 
         for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++){
-
             this->translate_ode_expression(it->second, block_connection(it->first, 1));
 //            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + subSysHandler.str() + ")"));
             cout<<"Completed translating equation d[\"" << it->first << "\"]/dt"<<endl;
@@ -399,11 +417,66 @@ void translator::Translator::translate_model(){
     for (pdrh::mode m : pdrh::modes){
         add_state_transition(m);
     }
+    this->engine->eval(convertUTF8StringToUTF16String("save_system(mdlName);"));
     cout<< "Completed translating model" << endl;
 }
 
-translator::Translator::~Translator() {
-  this->engine.reset();
+string translator::Translator::translate_reset_expression(pdrh::node* reset_expr, int mode_id){
+    stringstream s, value;
+    if (pdrh::var_exists(reset_expr->value)){
+        value << slStateBase << mode_id << "." << reset_expr->value;
+    }
+    else {
+        value << reset_expr->value;
+    }
+    // checking whether it is an operation reset_expr
+    if(reset_expr->operands.size() > 1)
+
+    {
+        s << "(";
+        for(int i = 0; i < reset_expr->operands.size() - 1; i++)
+        {
+            s << translate_reset_expression(reset_expr->operands.at(i), mode_id);
+            s << value.str();
+
+        }
+        s << translate_reset_expression(reset_expr->operands.at(reset_expr->operands.size() - 1), mode_id) << ")";
+    }
+    else if(reset_expr->operands.size() == 1)
+    {
+        if(value.str() ==  "-")
+        {
+            s << "(" << value.str() << translate_reset_expression(reset_expr->operands.front(), mode_id) << ")";
+        }
+        else
+        {
+            s << value.str() << "(" << translate_reset_expression(reset_expr->operands.front(), mode_id) << ")";
+        }
+    }
+    else
+    {
+        s << value.str();
+    }
+    return s.str();
+};
+
+
+string translator::Translator::translate_reset_condition(pdrh::mode::jump &jump, int source_mode_id) {
+    stringstream reset_condition;
+    string targetState = slStateBase + to_string(jump.next_id);
+    for(auto it = jump.reset.cbegin(); it != jump.reset.cend(); it++){
+        reset_condition << targetState << "." << it->first << "="
+                        << translate_reset_expression(it->second, source_mode_id) << ";";
+    }
+        return reset_condition.str();
+}
+
+void translator::Translator::add_default_transition(int start_node) {
+    stringstream defaultModeName;
+    defaultModeName << slStateBase << start_node;
+    this->engine->eval(convertUTF8StringToUTF16String("new_transition = Stateflow.Transition(" + parentChart + ");"));
+    this->engine->eval(convertUTF8StringToUTF16String("new_transition.Destination = " + defaultModeName.str() + ";"));
+    this->engine->eval(convertUTF8StringToUTF16String("new_transition.DestinationOClock = 0;"));
 }
 
 
@@ -495,17 +568,23 @@ int model_creation_test(){
 // TODO: Find global maximum time bound (in mode or global) multiply by max number of jumps (in pfrh config, reach_depth_max
 // , set sample_time to that number + 1  for all generators OR LARGEST NUMBER
 string translator::get_initial_value(string variable_name){
+    string lower_bound, upper_bound;
     for(pdrh::state s : pdrh::init){
-        for(pdrh::node* node : s.prop->operands){
-            if (strcmp(node->value.c_str(), "=") == 0){
-                if (variable_name.compare(node->operands.at(0)->value) == 0){
+        for(unsigned int i = 0; i < s.prop->operands.size(); i++){
+            pdrh::node* node = s.prop->operands.at(i);
+            if (node->operands.at(0)->value == variable_name){
+                if (node->value == "="){
                     return node->operands.at(1)->value;
+                } else {
+                    if (node->value == ">="){
+                        lower_bound = node->operands.at(1)->value;
+                    } else if (node->value == "<="){
+                        upper_bound = node->operands.at(1)->value;
+                    }
                 }
             }
-            // DUMMY VALUE 5
-            else return "5";
-            }
         }
+    } return lower_bound + "+(" + upper_bound + "-" + lower_bound + ")*rand(1,1)";
 }
 
 void translator::parse_tree(){
@@ -518,7 +597,7 @@ void translator::parse_tree(){
     translator1->translate_model();
 
     cout<<"Test complete"<<endl;
-    cout<<translator::get_initial_value("y");
+//    cout<<translator::get_initial_value("y");
     delete translator1;
 //    test_engine_call();
 }

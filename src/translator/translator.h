@@ -43,7 +43,10 @@ namespace translator{
 
     private:
         string add_state_transition(pdrh::mode& mode);
+        void add_default_transition(int start_node);
         string translate_jump_guard(pdrh::node* guard, int mode_id);
+        string translate_reset_expression(pdrh::node* reset_expr, int mode_id);
+        string translate_reset_condition(pdrh::mode::jump& jump, int source_mode_id);
         void translate_ode_expression(pdrh::node *expr, block_connection parent_block);
         void generate_init_var_blocks(const pdrh::mode &m);
         void set_system_time_interval(const string& subsys, double start_time, double end_time);

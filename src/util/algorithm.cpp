@@ -1101,9 +1101,11 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
     // getting initial mode
     pdrh::mode* init_mode = pdrh::get_mode(pdrh::init.front().id);
     //#pragma omp parallel
-    while (var.max_coordinate_value() > global_config.cross_entropy_term_arg)
+    for(int j = 0; j < global_config.iter_num; j++)
+    //while (var.max_coordinate_value() > global_config.cross_entropy_term_arg)
     {
         var = sigma * sigma;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration number: " << j+1;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Mean: " << mean;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Standard deviation: " << sigma;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Variance: " << var;

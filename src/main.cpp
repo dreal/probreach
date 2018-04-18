@@ -254,7 +254,6 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                    global_config.ode_discretisation = 1;
                     // getting the domain of nondeterministic parameters
                     box nondet_domain = pdrh::get_nondet_domain();
                     cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
@@ -326,6 +325,10 @@ int main(int argc, char* argv[])
                             cout << res.first << "   |   " << res.second << endl;
                         }
                         cout << "Updating controller's complexity" << endl << endl;
+                        // doubling the number of samples per iteration
+                        global_config.sample_size *= 2;
+                        // incrementing the number of iterations
+                        global_config.iter_num++;
                     }
                     // removing zero node
                     delete zero_node;

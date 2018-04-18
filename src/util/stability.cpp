@@ -76,7 +76,7 @@ bool stability::jury_test(std::vector<double> poly)
 
 bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, box init, box param)
 {
-    return true;
+    //return true;
     vector<string> vars;
 
     // declaring variables
@@ -126,8 +126,8 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
 //        odes_rhs.setParameter(it->first, it->second.rightBound());
 //    }
 
-    odes_rhs.setParameter("w", 0);
-    odes_rhs.setParameter("the_in", 8.8);
+    odes_rhs.setParameter("w", 105);
+    odes_rhs.setParameter("the_in", 30.6);
 
 //    cout << "Init: " << init << endl;
 
@@ -165,13 +165,13 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
 
 //    cout << "Obtaining a big matrix: " << endl;
     capd::DMatrix Df = odes_rhs.derivative(init_vector);
-    cout << Df << endl;
+//    cout << Df << endl;
 
 
-    for(string var : vars)
-    {
-        cout << var << endl;
-    }
+//    for(string var : vars)
+//    {
+//        cout << var << endl;
+//    }
 
 
     // deriving matrices A and B from the big matrix
@@ -202,47 +202,47 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
     for(size_t i = 0; i < n; i++)
     {
         if(vars.at(i) == "u") i_index = 1;
-        for(size_t j = 0; j < m + 1; j++)
+        for(size_t j = 0; j < m; j++)
         {
             if(vars.at(j) == "u")
             {
-                cout << "u column. " << Df[i][j] << endl;
+                //cout << "u column. " << Df[i][j] << endl;
                 B[i][0] = Df[i][j];
                 j_index = 1;
             }
             A[j][i] = Df[i+i_index][j+j_index];
         }
-        if(vars.at(i) == "lambda")
+        if(vars.at(i) == global_config.controller.sys_out)
         {
             C[0][i] = 1;
         }
         j_index = 0;
     }
 
-    cout << "Matrix A:" << endl;
-    for(size_t i = 0; i < n; i++)
-    {
-        for(size_t j = 0; j < m; j++)
-        {
-            cout << A[i][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << "Matrix B:" << endl;
-    for(size_t i = 0; i < n; i++)
-    {
-        cout << B[i][0] << endl;
-    }
-
-    cout << "Matrix C:" << endl;
-    for(size_t i = 0; i < n; i++)
-    {
-        cout << C[0][i] << " ";
-    }
-    cout << endl;
-
-    cout << "Matrix D:" << endl;
-    cout << D[0][0] << endl;
+//    cout << "Matrix A:" << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        for(size_t j = 0; j < m; j++)
+//        {
+//            cout << A[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
+//    cout << "Matrix B:" << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        cout << B[i][0] << endl;
+//    }
+//
+//    cout << "Matrix C:" << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        cout << C[0][i] << " ";
+//    }
+//    cout << endl;
+//
+//    cout << "Matrix D:" << endl;
+//    cout << D[0][0] << endl;
 
     // initialising matlab engine
     Engine *ep;

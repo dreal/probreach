@@ -65,7 +65,6 @@ struct pdrh_config
 
     bool delta_sat = false;
     vector<string> time_var_name = {"tau"};
-    int sample_size = 10;
     double elite_ratio = 0.1;
     double sobol_term_arg = 1e-2;
     bool max_prob = true;
@@ -80,13 +79,17 @@ struct pdrh_config
     bool sort_rv_flag = false;
     bool show_model = false;
 
-    size_t ode_discretisation = 1024;
+    int sample_size = 20;
+    int iter_num = 3;
+    size_t ode_discretisation = 4;
+    
     std::string global_time = "tau";
     std::string sample_time = "counter";
     double noise_var = 1;
 
     struct ctrl
     {
+        string sys_out;
         std::vector<std::string> plant_output;
         std::vector<std::string> controller_output;
         std::vector<std::string> controller_input;

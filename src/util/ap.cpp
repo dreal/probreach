@@ -1501,7 +1501,7 @@ int ap::simulate(vector<box> boxes)
             if(ap::check_invariants(cur_mode, init, boxes))
             {
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "Invariants: SAT";
-                CLOG_IF(global_config.verbose, INFO, "algorithm") <<  "Witness: " << init;
+                CLOG_IF(global_config.verbose, INFO, "algorithm") <<  "Initial state: " << init;
             }
             else
             {
@@ -1521,8 +1521,8 @@ int ap::simulate(vector<box> boxes)
             }
             // computing the solution here
             //cout << "Before solving ODEs" << endl;
-            //box sol = solve_odes_discrete(cur_mode->odes, init, integration_step, 1, boxes);
-            box sol = solve_odes_nonrig(cur_mode->odes, init, integration_step, boxes);
+            box sol = solve_odes_discrete(cur_mode->odes, init, integration_step, 1, boxes);
+            //box sol = solve_odes_nonrig(cur_mode->odes, init, integration_step, boxes);
             //box sol = solve_odes(cur_mode->odes, init, integration_step, boxes);
             capd::interval cur_time = integration_step*(i+1);
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solution at time " << cur_time << ": " << sol;

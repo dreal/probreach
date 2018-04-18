@@ -54,15 +54,15 @@ function res = check_stability(A,B,C,D,T,Kp,Ki,Kd)
 
     poly = conv(ac,ap) + conv(bc,bp);
 
+    fprintf(fileID, '\nParameters: %f %f %f\n', Kp, Ki, Kd);
+    fprintf(fileID, '\nabc: %f %f %f\n', a, b, c);
+    fprintf(fileID, '\nDiscretisation: %f\n', T);
     fprintf(fileID, '\nMatrix G\n');
     fprintf(fileID, '%f ', G);
     fprintf(fileID, '\nMatrix H\n');
     fprintf(fileID, '%f ', H);
     fprintf(fileID, '\nCharacteristic polynomial:\n');
     fprintf(fileID, '%f ', poly);
-    fprintf(fileID, '\nParameters: %f %f %f\n', Kp, Ki, Kd);
-    fprintf(fileID, '\nabc: %f %f %f\n', a, b, c);
-    fprintf(fileID, '\nDiscretisation: %f\n', T);
 
     % below is Jury test for the obtained characteristic polynomial
     n = length(poly);

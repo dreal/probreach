@@ -390,6 +390,12 @@ void parse_pdrh_config(int argc, char* argv[])
             i++;
             global_config.global_time = argv[i];
         }
+        // system's output
+        else if(strcmp(argv[i], "--sys-out") == 0)
+        {
+            i++;
+            global_config.controller.sys_out = argv[i];
+        }
         // sample_time variable
         else if(strcmp(argv[i], "--sample-time") == 0)
         {

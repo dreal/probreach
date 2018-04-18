@@ -41,7 +41,7 @@
 
 #define G_upper_unsafe 16 // [mmol/L] glucose concentration upper shut off bound (Fedor 2017)
 #define G_lower_unsafe 4 // [mmol/L] glucose concentration upper shut off bound (Fedor 2017)
-#define sp_thresh 0.05
+#define sp_thresh 0.25
 
 #define u_basal 0.055485957306259535484277955219043 			// basal insulin infusion rate (Fedor 2017). Approximation of symbolic MATLAB solution
 
@@ -72,7 +72,6 @@
 // breakfast
 dist_normal(40, 10) DG1;
 dist_normal(300, 10) tau_meal_1;
-
 
 // lunch
 dist_normal(90, 10) DG2;
@@ -405,7 +404,7 @@ d/dt[counter]= 1;
 jump:
 
 
-(tau = tau_sample) ==> @1	(and (tau' = tau) (G1' = AG*DG1*1000/Gmolar));
+(tau = tau_sample) ==> @1	(and (tau' = 0) (G1' = AG*DG1*1000/Gmolar) (counter' = 0));
 
 }
 

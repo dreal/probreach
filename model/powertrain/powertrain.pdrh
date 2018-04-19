@@ -239,7 +239,7 @@ flow:
 	d/dt[tau] = 1;
 
 jump:
-	(counter = tau_sample)==>@3(and 	(counter' = 0) (e'=lambda-sp) (lambda_prev' = lambda)
+	(counter = tau_sample)==>@4(and 	(counter' = 0) (e'=lambda-sp) (lambda_prev' = lambda)
 										(tau' = tau) (e_int' = e_int + tau_sample*(lambda-sp))
 										(tau' = tau) (e_der' = (lambda-lambda_prev)/tau_sample)
 										(tau' = tau) (u' = Ki*e_int + Kp*(lambda-sp) + Kd*(lambda-lambda_prev)/tau_sample));

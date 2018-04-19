@@ -1434,8 +1434,11 @@ box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> box
     map<string, capd::interval> param_map = box(boxes).get_map();
     double noise = gsl_ran_gaussian_ziggurat(r, global_config.noise_var);
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Noise value added: " << noise;
-    sol_map["u"] += noise * param_map["Kp"].leftBound();
-//    sol_map["e_int"] += noise * param_map["Ki"].leftBound();
+    capd::interval sampling_rate = ap::get_sample_rate(pdrh::get_mode(1));
+    sol_map["u"] += noise * (param_map["Kp"].leftBound() +
+                                param_map["Kd"].leftBound()/sampling_rate.leftBound() +
+                                    param_map["Ki"].leftBound()*sampling_rate.leftBound());
+    sol_map["e_int"] += noise * param_map["Ki"].leftBound()*sampling_rate.leftBound();
 
     gsl_rng_free(r);
 //    cout << "Noise: " << noise << endl;

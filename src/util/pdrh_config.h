@@ -82,7 +82,7 @@ struct pdrh_config
     int sample_size = 20;
     int iter_num = 3;
     size_t ode_discretisation = 4;
-    
+
     std::string global_time = "tau";
     std::string sample_time = "counter";
     double noise_var = 1;

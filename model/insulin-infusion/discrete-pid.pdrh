@@ -49,9 +49,9 @@
 //#define Ki 0
 //#define Kd 0
 
-[-1e-3, 0] Kp;
-[-1e-6, 0] Ki;
-[-1e-1, 0] Kd;
+[-1e-3, 1e-3] Kp;
+[-1e-6, 1e-6] Ki;
+[-1e-1, 1e-1] Kd;
 
 
 #define Q1_SP (110 * VG) / 18
@@ -168,7 +168,7 @@ jump:
 
 (counter = tau_sample) ==> @1	(and 	(counter' = 0)	(e_der' = (C_prev-C)/tau_sample) 
 					(e' = r - C) 	(e_int' = e_int + (r - C)*tau_sample)
-					(C_prev' = C)(u' = Kp*e + Kd*e_der + Ki*e_int));
+					(C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
 (tau = tau_meal_1) ==> @2	(and (tau' = tau) (G1' = AG*DG2*1000/Gmolar));
 
@@ -228,7 +228,7 @@ jump:
 
 (counter = tau_sample) ==> @2   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
                                         (e' = r - C)   (e_int' = e_int + (r - C)*tau_sample)
-                                        (C_prev' = C)(u' = Kp*e + Kd*e_der + Ki*e_int));
+                                        (C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
 
 (tau = tau_meal_1 + tau_meal_2) ==> @3	(and 	(tau' = tau) (G1' = AG*DG3*1000/Gmolar));
@@ -290,7 +290,7 @@ jump:
 
 (counter = tau_sample) ==> @3   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
                                         (e' = r - C)   (e_int' = e_int + (r - C)*tau_sample)
-                                        (C_prev' = C)(u' = Kp*e + Kd*e_der + Ki*e_int));
+                                        (C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
 
 (tau = 1440) ==> @4 (and (tau' = tau));

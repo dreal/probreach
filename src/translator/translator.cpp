@@ -38,7 +38,7 @@ translator::Translator::Translator() {
     vector<string> tokenised_filepath = split(global_config.model_filename, '/');
     vector<string> filename = split(tokenised_filepath.at(tokenised_filepath.size() - 1), '.');
     cout<<global_config.model_filename<<endl;
-    this->modelName = "prostate_cancer";
+    this->modelName = "bouncing_ball";
     this->systemHandlerName = "h";
     this->parentChart = "c";
 }
@@ -143,13 +143,13 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
                 << " " << parent_block.port_id <<endl;
             connect_blocks(this->currentSubSystemHandler, block_connection(expr->value, 1), parent_block);
         }
-        // the node is a reference to a constant number, assuming 0.0 (zero) is not used in the
+        // the node is a reference to a constant number
         // ODE expression
-        else if(strtod(expr->value.c_str(), nullptr) != 0.0)
+        else
         {
             string blkName = "Const_" + expr->value;
-            addBlock(this->currentSubSystemHandler, "simulink/Commonly Used Blocks/Constant", blkName, parent_block);
-            set_block_param(this->currentSubSystemHandler, blkName, "Value", expr->value);
+            string simulink_name = addBlock(this->currentSubSystemHandler, "simulink/Commonly Used Blocks/Constant", blkName, parent_block);
+            set_block_param(this->currentSubSystemHandler, simulink_name, "Value", expr->value);
         }
 
     }
@@ -317,6 +317,8 @@ string translator::Translator::translate_jump_guard(pdrh::node *guard, int mode_
         value << "==";
     } else if (guard->value == "and"){
         value << " & ";
+    } else if (guard->value == "or"){
+        value << " | ";
     }
     else {
         value << guard->value;
@@ -374,8 +376,8 @@ string translator::Translator::add_state_transition(pdrh::mode& mode){
 
         cout<< "Guard: " << translate_jump_guard(jump.guard, mode.id)<<endl;
         cout<< "Resets: " << translate_reset_condition(jump, mode.id)<<endl;
-        return "new_transition";
     }
+    return "new_transition";
 };
 
 
@@ -422,10 +424,14 @@ void translator::Translator::translate_model(){
 
         int scope_inport_counter = 1;
         for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++){
+            cout<<"*** Translating : " << it->first << ":    " << pdrh::node_to_string_infix(it->second) <<endl;
             block_connection parent_ode_block = block_connection(it->first, 1);
 
-            this->connect_blocks(this->currentSubSystemHandler, parent_ode_block, block_connection(scope_block_name, scope_inport_counter++));
+//            if (it->first == "Q1") {
             this->translate_ode_expression(it->second, parent_ode_block);
+            this->connect_blocks(this->currentSubSystemHandler, parent_ode_block, block_connection(scope_block_name, scope_inport_counter++));
+
+//            }
 //            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + subSysHandler.str() + ")"));
             cout<<"Completed translating equation d[\"" << it->first << "\"]/dt"<<endl;
         }
@@ -594,7 +600,7 @@ string translator::get_initial_value(string variable_name){
             pdrh::node* node = s.prop->operands.at(i);
             if (node->operands.at(0)->value == variable_name){
                 if (node->value == "="){
-                    return node->operands.at(1)->value;
+                    return translator::resolve_variable_initial_condition(node->operands.at(1));
                 } else {
                     if (node->value == ">="){
                         lower_bound = node->operands.at(1)->value;
@@ -608,9 +614,9 @@ string translator::get_initial_value(string variable_name){
 }
 
 void translator::parse_tree(){
-    cout<<pdrh::model_to_string();
-    print_map(pdrh::var_map);
-    print_map(pdrh::par_map);
+//    cout<<pdrh::model_to_string();
+//    print_map(pdrh::var_map);
+//    print_map(pdrh::par_map);
 //    model_creation_test();
 
     translator::Translator* translator1 = new Translator();
@@ -621,4 +627,43 @@ void translator::parse_tree(){
     delete translator1;
 //    test_engine_call();
 }
+
+string translator::resolve_variable_initial_condition(pdrh::node *node) {
+    stringstream s, value;
+    if (pdrh::var_exists(node->value)){
+        value << translator::get_initial_value(node->value);
+    }
+    else {
+        value << node->value;
+    }
+    // checking whether it is an operation reset_expr
+    if(node->operands.size() > 1)
+
+    {
+        s << "(";
+        for(int i = 0; i < node->operands.size() - 1; i++)
+        {
+            s << resolve_variable_initial_condition(node->operands.at(i));
+            s << value.str();
+
+        }
+        s << resolve_variable_initial_condition(node->operands.at(node->operands.size() - 1)) << ")";
+    }
+    else if(node->operands.size() == 1)
+    {
+        if(value.str() ==  "-")
+        {
+            s << "(" << value.str() << resolve_variable_initial_condition(node->operands.front()) << ")";
+        }
+        else
+        {
+            s << value.str() << "(" << resolve_variable_initial_condition(node->operands.front()) << ")";
+        }
+    }
+    else
+    {
+        s << value.str();
+    }
+    return s.str();
+};
 

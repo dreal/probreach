@@ -85,6 +85,7 @@ int main(int argc, char* argv[])
     //cout << scientific;
     // pdrh parser
     parse_pdrh(global_config.model_filename);
+
     // setting the model type automatically here
     pdrh::set_model_type();
 
@@ -148,160 +149,160 @@ int main(int argc, char* argv[])
 //        cout << "To determine from the command line options" << endl;
 //    }
 
-    switch(pdrh::model_type)
-    {
-        // hybrid automata
-        case pdrh::HA:
-        {
-            decision_procedure::result res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
-            if (res == decision_procedure::SAT)
-            {
-                std::cout << "sat" << std::endl;
-            }
-            else if (res == decision_procedure::UNDET)
-            {
-                std::cout << "undet" << std::endl;
-            }
-            else if (res == decision_procedure::UNSAT)
-            {
-                std::cout << "unsat" << std::endl;
-            }
-            else if (res == decision_procedure::ERROR)
-            {
-                std::cout << "error" << std::endl;
-                return EXIT_FAILURE;
-            }
-            break;
-        }
-        // probabilistic hybrid automata
-        case pdrh::PHA:
-        {
-            capd::interval probability;
-            if(global_config.chernoff_flag)
-            {
-                probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
-            }
-            else if(global_config.bayesian_flag)
-            {
-                probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
-            }
-            else
-            {
-                probability = algorithm::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
-            }
-            // modifying the interval if outside (0,1)
-            if(probability.leftBound() < 0)
-            {
-                probability.setLeftBound(0);
-            }
-            if(probability.rightBound() > 1)
-            {
-                probability.setRightBound(1);
-            }
-            std::cout << scientific << probability << " | " << capd::intervals::width(probability) << std::endl;
-            break;
-        }
-        // nondeterministic probabilistic hybrid automata
-        case pdrh::NPHA:
-        {
-            if(global_config.sobol_flag)
-            {
-                pair<box, capd::interval> probability = algorithm::evaluate_npha_sobol(global_config.reach_depth_min,
-                                                                                       global_config.reach_depth_max,
-                                                                                       global_config.sample_size);
-                std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
-            }
-            else if(global_config.cross_entropy_flag)
-            {
-                // just a temporary fix. come back to it !!!
-                if(pdrh::par_map.empty())
-                {
-                    capd::interval probability;
-                    if(global_config.chernoff_flag)
-                    {
-                        probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
-                    }
-                    else if(global_config.bayesian_flag)
-                    {
-                        probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
-                    }
-                    else if(global_config.qmc_flag)
-                    {
-                        probability = algorithm::evaluate_pha_qmc();
-                    } else
-                    {
-                        cout << "Statistical method is not chosen" << endl;
-                        return EXIT_FAILURE;
-                    }
-                    cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
-                }
-                else
-                {
-                    pair<box, capd::interval> probability;
-                    if(global_config.cross_entropy_normal)
-                    {
-                        probability = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
-                                                                                     global_config.reach_depth_max,
-                                                                                     global_config.sample_size);
-                    }
-                    else if(global_config.cross_entropy_beta)
-                    {
-                        probability = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
-                                                                                   global_config.reach_depth_max,
-                                                                                   global_config.sample_size);
-                    }
-                    std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
-                }
-            }
-            else
-            {
-                std::map<box, capd::interval> probability_map = algorithm::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
-                for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
-                {
-                    std::cout << scientific << it->first << " | " << it->second << std::endl;
-                }
-            }
-            break;
-        }
-        // parameter synthesis
-        case pdrh::PSY:
-        {
-            //CLOG(ERROR, "algorithm") << "Parameter synthesis is currently not supported";
-            //exit(EXIT_FAILURE);
-            if(global_config.series_filename.empty())
-            {
-                CLOG(ERROR, "series-parser") << "Time series file is not specified";
-                return EXIT_FAILURE;
-            }
-            map<string, vector<pair<pdrh::node*, pdrh::node*>>> time_series = csvparser::parse(global_config.series_filename);
-            tuple<vector<box>, vector<box>, vector<box>> boxes = algorithm::evaluate_psy(time_series);
-            vector<box> sat_boxes = get<0>(boxes);
-            vector<box> undet_boxes = get<1>(boxes);
-            vector<box> unsat_boxes = get<2>(boxes);
-            cout << "sat" << endl;
-            for(box b : sat_boxes)
-            {
-                cout << b << endl;
-            }
-            cout << "undet" << endl;
-            for(box b : undet_boxes)
-            {
-                cout << b << endl;
-            }
-            cout << "unsat" << endl;
-            for(box b : unsat_boxes)
-            {
-                cout << b << endl;
-            }
-            break;
-        }
-        case pdrh::NHA:
-        {
-            CLOG(ERROR, "algorithm") << "Nondeterministic hybrid automata is currently not supported";
-            exit(EXIT_FAILURE);
-            //break;
-        }
-    }
+//    switch(pdrh::model_type)
+//    {
+//        // hybrid automata
+//        case pdrh::HA:
+//        {
+//            decision_procedure::result res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
+//            if (res == decision_procedure::SAT)
+//            {
+//                std::cout << "sat" << std::endl;
+//            }
+//            else if (res == decision_procedure::UNDET)
+//            {
+//                std::cout << "undet" << std::endl;
+//            }
+//            else if (res == decision_procedure::UNSAT)
+//            {
+//                std::cout << "unsat" << std::endl;
+//            }
+//            else if (res == decision_procedure::ERROR)
+//            {
+//                std::cout << "error" << std::endl;
+//                return EXIT_FAILURE;
+//            }
+//            break;
+//        }
+//        // probabilistic hybrid automata
+//        case pdrh::PHA:
+//        {
+//            capd::interval probability;
+//            if(global_config.chernoff_flag)
+//            {
+//                probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
+//            }
+//            else if(global_config.bayesian_flag)
+//            {
+//                probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
+//            }
+//            else
+//            {
+//                probability = algorithm::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
+//            }
+//            // modifying the interval if outside (0,1)
+//            if(probability.leftBound() < 0)
+//            {
+//                probability.setLeftBound(0);
+//            }
+//            if(probability.rightBound() > 1)
+//            {
+//                probability.setRightBound(1);
+//            }
+//            std::cout << scientific << probability << " | " << capd::intervals::width(probability) << std::endl;
+//            break;
+//        }
+//        // nondeterministic probabilistic hybrid automata
+//        case pdrh::NPHA:
+//        {
+//            if(global_config.sobol_flag)
+//            {
+//                pair<box, capd::interval> probability = algorithm::evaluate_npha_sobol(global_config.reach_depth_min,
+//                                                                                       global_config.reach_depth_max,
+//                                                                                       global_config.sample_size);
+//                std::cout << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
+//            }
+//            else if(global_config.cross_entropy_flag)
+//            {
+//                // just a temporary fix. come back to it !!!
+//                if(pdrh::par_map.empty())
+//                {
+//                    capd::interval probability;
+//                    if(global_config.chernoff_flag)
+//                    {
+//                        probability = algorithm::evaluate_pha_chernoff(global_config.reach_depth_min, global_config.reach_depth_max, global_config.chernoff_acc, global_config.chernoff_conf);
+//                    }
+//                    else if(global_config.bayesian_flag)
+//                    {
+//                        probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc, global_config.bayesian_conf);
+//                    }
+//                    else if(global_config.qmc_flag)
+//                    {
+//                        probability = algorithm::evaluate_pha_qmc();
+//                    } else
+//                    {
+//                        cout << "Statistical method is not chosen" << endl;
+//                        return EXIT_FAILURE;
+//                    }
+//                    cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
+//                }
+//                else
+//                {
+//                    pair<box, capd::interval> probability;
+//                    if(global_config.cross_entropy_normal)
+//                    {
+//                        probability = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
+//                                                                                     global_config.reach_depth_max,
+//                                                                                     global_config.sample_size);
+//                    }
+//                    else if(global_config.cross_entropy_beta)
+//                    {
+//                        probability = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
+//                                                                                   global_config.reach_depth_max,
+//                                                                                   global_config.sample_size);
+//                    }
+//                    std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
+//                }
+//            }
+//            else
+//            {
+//                std::map<box, capd::interval> probability_map = algorithm::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
+//                for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
+//                {
+//                    std::cout << scientific << it->first << " | " << it->second << std::endl;
+//                }
+//            }
+//            break;
+//        }
+//        // parameter synthesis
+//        case pdrh::PSY:
+//        {
+//            //CLOG(ERROR, "algorithm") << "Parameter synthesis is currently not supported";
+//            //exit(EXIT_FAILURE);
+//            if(global_config.series_filename.empty())
+//            {
+//                CLOG(ERROR, "series-parser") << "Time series file is not specified";
+//                return EXIT_FAILURE;
+//            }
+//            map<string, vector<pair<pdrh::node*, pdrh::node*>>> time_series = csvparser::parse(global_config.series_filename);
+//            tuple<vector<box>, vector<box>, vector<box>> boxes = algorithm::evaluate_psy(time_series);
+//            vector<box> sat_boxes = get<0>(boxes);
+//            vector<box> undet_boxes = get<1>(boxes);
+//            vector<box> unsat_boxes = get<2>(boxes);
+//            cout << "sat" << endl;
+//            for(box b : sat_boxes)
+//            {
+//                cout << b << endl;
+//            }
+//            cout << "undet" << endl;
+//            for(box b : undet_boxes)
+//            {
+//                cout << b << endl;
+//            }
+//            cout << "unsat" << endl;
+//            for(box b : unsat_boxes)
+//            {
+//                cout << b << endl;
+//            }
+//            break;
+//        }
+//        case pdrh::NHA:
+//        {
+//            CLOG(ERROR, "algorithm") << "Nondeterministic hybrid automata is currently not supported";
+//            exit(EXIT_FAILURE);
+//            //break;
+//        }
+//    }
 
 //    capd::interval alpha("0.7854","0.7854");
 //    capd::interval v0("25","25");

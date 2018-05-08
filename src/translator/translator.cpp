@@ -20,14 +20,6 @@ using namespace matlab::data;
 const string translator::slStateBase = "mode";
 const string translator::subSysHandlerBase = "subSysHandler";
 
-//TODO: read number of jump counts from main (it's command line option)
-void print_map(map<string, pair<pdrh::node*, pdrh::node*>>& map1){
-    for (auto& t : map1)
-        std::cout << t.first << " "
-                  << t.second.first->value << " "
-                  << t.second.second->value << "\n";
-}
-
 translator::Translator::Translator() {
     cout<< "Starting MATLAB engine" << endl;
 
@@ -38,7 +30,11 @@ translator::Translator::Translator() {
     vector<string> tokenised_filepath = split(global_config.model_filename, '/');
     vector<string> filename = split(tokenised_filepath.at(tokenised_filepath.size() - 1), '.');
     cout<<global_config.model_filename<<endl;
-    this->modelName = "bouncing_ball";
+    this->modelName = filename.front();
+
+    // replace all dashes contained within the name file with underscores
+    std::replace(this->modelName.begin(), this->modelName.end(), '-', '_');
+
     this->systemHandlerName = "h";
     this->parentChart = "c";
 }
@@ -368,6 +364,10 @@ string translator::Translator::add_state_transition(pdrh::mode& mode){
         this->engine->eval(convertUTF8StringToUTF16String("new_transition = Stateflow.Transition(" + parentChart + ")"));
         this->engine->eval(convertUTF8StringToUTF16String("new_transition.Source = " + slSourceState.str()));
         this->engine->eval(convertUTF8StringToUTF16String("new_transition.Destination = " + slDestState.str()));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.SourceOClock = 6"));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.DestinationOClock = 0"));
+
+
 
         stringstream transition_label;
         transition_label << "'[" << translate_jump_guard(jump.guard, mode.id)
@@ -383,8 +383,11 @@ string translator::Translator::add_state_transition(pdrh::mode& mode){
 
 void translator::Translator::translate_model(){
     matlab::data::ArrayFactory factory;
+    int xStatePosition = 40;
+    int yStatePosition = 120;
+    const int yIncrement = 140;
+    const int xIncrement = 100;
 
-    //TODO: bound variables in Simulink: pick initial value in range
     //TODO: non-determinism
     /**
      * Setup the system environment
@@ -404,12 +407,17 @@ void translator::Translator::translate_model(){
      * Build states and the corresponding ODEs for each state
      */
     for (pdrh::mode m : pdrh::modes){
-        ostringstream slState, subSysHandler;
+        ostringstream slState, subSysHandler, positioningCommand;
         slState << translator::slStateBase << m.id;
         subSysHandler << translator::subSysHandlerBase << m.id;
         currentSubSystemHandler = subSysHandler.str();
+
+        positioningCommand << slState.str() << ".Position = [ " << xStatePosition << " " << yStatePosition << " 90 60];";
+        yStatePosition += yIncrement;
+        xStatePosition += xIncrement;
         this->engine->eval(convertUTF8StringToUTF16String(slState.str() + " = Stateflow.SimulinkBasedState(c);"));
         this->engine->eval(convertUTF8StringToUTF16String(slState.str() + ".Name = '" + slState.str() + "';"));
+        this->engine->eval(convertUTF8StringToUTF16String(positioningCommand.str()));
         this->engine->eval(convertUTF8StringToUTF16String(subSysHandler.str() + " = " + slState.str() + ".getDialogProxy;"));
 
         for(pdrh::state s : pdrh::init){
@@ -432,6 +440,7 @@ void translator::Translator::translate_model(){
             this->connect_blocks(this->currentSubSystemHandler, parent_ode_block, block_connection(scope_block_name, scope_inport_counter++));
 
 //            }
+              // applicable for R2018a+ only
 //            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + subSysHandler.str() + ")"));
             cout<<"Completed translating equation d[\"" << it->first << "\"]/dt"<<endl;
         }
@@ -455,7 +464,7 @@ string translator::Translator::translate_reset_expression(pdrh::node* reset_expr
     else {
         value << reset_expr->value;
     }
-    // checking whether it is an operation reset_expr
+    // checking whether it is an operation reset expression
     if(reset_expr->operands.size() > 1)
 
     {
@@ -575,24 +584,16 @@ int model_creation_test(){
 
     cout<<"Added block"<<endl;
 
-//    engine->eval(convertUTF8StringToUTF16String("figureHandle = figure;"));
-//    cout<<"Created system handler"<<endl;
-//
-//    matlab::data::Array systemHandler = engine->
-//            getVariable(convertUTF8StringToUTF16String("figureHandle"));
-//
-//    matlab::data::CharArray units = engine->
-//            getProperty(systemHandler, convertUTF8StringToUTF16String("Units"));
-//
-//    // Display property value
-//    cout << "Units property: " << units.toAscii() << std::endl;
-
-
     return 0;
 }
 
-// TODO: Find global maximum time bound (in mode or global) multiply by max number of jumps (in pfrh config, reach_depth_max
-// , set sample_time to that number + 1  for all generators OR LARGEST NUMBER
+/**
+ * Resolves initial value for the given variable name string.
+ * Performs look-up in the initial conditions for a variable and maps either a uniform distribution
+ * or a concrete initial value.
+ * @param variable_name - name of variable
+ * @return - string containing the initial value or random number function
+ */
 string translator::get_initial_value(string variable_name){
     string lower_bound, upper_bound;
     for(pdrh::state s : pdrh::init){

@@ -364,6 +364,10 @@ string translator::Translator::add_state_transition(pdrh::mode& mode){
         this->engine->eval(convertUTF8StringToUTF16String("new_transition = Stateflow.Transition(" + parentChart + ")"));
         this->engine->eval(convertUTF8StringToUTF16String("new_transition.Source = " + slSourceState.str()));
         this->engine->eval(convertUTF8StringToUTF16String("new_transition.Destination = " + slDestState.str()));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.SourceOClock = 6"));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.DestinationOClock = 0"));
+
+
 
         stringstream transition_label;
         transition_label << "'[" << translate_jump_guard(jump.guard, mode.id)
@@ -379,8 +383,10 @@ string translator::Translator::add_state_transition(pdrh::mode& mode){
 
 void translator::Translator::translate_model(){
     matlab::data::ArrayFactory factory;
-    int xStatePosition = 80;
-    const int xIncrement = 160;
+    int xStatePosition = 40;
+    int yStatePosition = 120;
+    const int yIncrement = 140;
+    const int xIncrement = 100;
 
     //TODO: non-determinism
     /**
@@ -406,7 +412,8 @@ void translator::Translator::translate_model(){
         subSysHandler << translator::subSysHandlerBase << m.id;
         currentSubSystemHandler = subSysHandler.str();
 
-        positioningCommand << slState.str() << ".Position = [" << xStatePosition << " 120 90 60];";
+        positioningCommand << slState.str() << ".Position = [ " << xStatePosition << " " << yStatePosition << " 90 60];";
+        yStatePosition += yIncrement;
         xStatePosition += xIncrement;
         this->engine->eval(convertUTF8StringToUTF16String(slState.str() + " = Stateflow.SimulinkBasedState(c);"));
         this->engine->eval(convertUTF8StringToUTF16String(slState.str() + ".Name = '" + slState.str() + "';"));
@@ -457,7 +464,7 @@ string translator::Translator::translate_reset_expression(pdrh::node* reset_expr
     else {
         value << reset_expr->value;
     }
-    // checking whether it is an operation reset_expr
+    // checking whether it is an operation reset expression
     if(reset_expr->operands.size() > 1)
 
     {

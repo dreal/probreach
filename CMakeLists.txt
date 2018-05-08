@@ -186,6 +186,8 @@ IF(MATLAB_FOUND)
 
     INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
 
+    message(STATUS "MATLAB root dir: $ENV{MATLAB_ROOT}")
+    message(STATUS "OUTPUT DIR: ${PROBREACH_BINARY_DIR}")
     message(STATUS "MATLAB include dir: ${MATLAB_INCLUDE_DIR}")
     message(STATUS "MATLAB libraries included: ${MATLAB_LIBRARIES}")
     message(STATUS "LD_LIBRARY: $ENV{LD_LIBRARY_PATH}")

@@ -20,14 +20,6 @@ using namespace matlab::data;
 const string translator::slStateBase = "mode";
 const string translator::subSysHandlerBase = "subSysHandler";
 
-//TODO: read number of jump counts from main (it's command line option)
-void print_map(map<string, pair<pdrh::node*, pdrh::node*>>& map1){
-    for (auto& t : map1)
-        std::cout << t.first << " "
-                  << t.second.first->value << " "
-                  << t.second.second->value << "\n";
-}
-
 translator::Translator::Translator() {
     cout<< "Starting MATLAB engine" << endl;
 
@@ -40,6 +32,7 @@ translator::Translator::Translator() {
     cout<<global_config.model_filename<<endl;
     this->modelName = filename.front();
 
+    // replace all dashes contained within the name file with underscores
     std::replace(this->modelName.begin(), this->modelName.end(), '-', '_');
 
     this->systemHandlerName = "h";
@@ -386,8 +379,9 @@ string translator::Translator::add_state_transition(pdrh::mode& mode){
 
 void translator::Translator::translate_model(){
     matlab::data::ArrayFactory factory;
+    int xStatePosition = 80;
+    const int xIncrement = 160;
 
-    //TODO: bound variables in Simulink: pick initial value in range
     //TODO: non-determinism
     /**
      * Setup the system environment
@@ -407,12 +401,16 @@ void translator::Translator::translate_model(){
      * Build states and the corresponding ODEs for each state
      */
     for (pdrh::mode m : pdrh::modes){
-        ostringstream slState, subSysHandler;
+        ostringstream slState, subSysHandler, positioningCommand;
         slState << translator::slStateBase << m.id;
         subSysHandler << translator::subSysHandlerBase << m.id;
         currentSubSystemHandler = subSysHandler.str();
+
+        positioningCommand << slState.str() << ".Position = [" << xStatePosition << " 120 90 60];";
+        xStatePosition += xIncrement;
         this->engine->eval(convertUTF8StringToUTF16String(slState.str() + " = Stateflow.SimulinkBasedState(c);"));
         this->engine->eval(convertUTF8StringToUTF16String(slState.str() + ".Name = '" + slState.str() + "';"));
+        this->engine->eval(convertUTF8StringToUTF16String(positioningCommand.str()));
         this->engine->eval(convertUTF8StringToUTF16String(subSysHandler.str() + " = " + slState.str() + ".getDialogProxy;"));
 
         for(pdrh::state s : pdrh::init){
@@ -435,6 +433,7 @@ void translator::Translator::translate_model(){
             this->connect_blocks(this->currentSubSystemHandler, parent_ode_block, block_connection(scope_block_name, scope_inport_counter++));
 
 //            }
+              // applicable for R2018a+ only
 //            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + subSysHandler.str() + ")"));
             cout<<"Completed translating equation d[\"" << it->first << "\"]/dt"<<endl;
         }

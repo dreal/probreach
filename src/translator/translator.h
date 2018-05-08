@@ -8,6 +8,8 @@
 #include "MatlabEngine.hpp"
 #include "MatlabDataArray.hpp"
 
+#include <algorithm>
+
 using namespace std;
 using namespace matlab::engine;
 using namespace matlab::data;

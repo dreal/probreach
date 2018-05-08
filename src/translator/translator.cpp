@@ -38,7 +38,10 @@ translator::Translator::Translator() {
     vector<string> tokenised_filepath = split(global_config.model_filename, '/');
     vector<string> filename = split(tokenised_filepath.at(tokenised_filepath.size() - 1), '.');
     cout<<global_config.model_filename<<endl;
-    this->modelName = "bouncing_ball";
+    this->modelName = filename.front();
+
+    std::replace(this->modelName.begin(), this->modelName.end(), '-', '_');
+
     this->systemHandlerName = "h";
     this->parentChart = "c";
 }
@@ -575,24 +578,16 @@ int model_creation_test(){
 
     cout<<"Added block"<<endl;
 
-//    engine->eval(convertUTF8StringToUTF16String("figureHandle = figure;"));
-//    cout<<"Created system handler"<<endl;
-//
-//    matlab::data::Array systemHandler = engine->
-//            getVariable(convertUTF8StringToUTF16String("figureHandle"));
-//
-//    matlab::data::CharArray units = engine->
-//            getProperty(systemHandler, convertUTF8StringToUTF16String("Units"));
-//
-//    // Display property value
-//    cout << "Units property: " << units.toAscii() << std::endl;
-
-
     return 0;
 }
 
-// TODO: Find global maximum time bound (in mode or global) multiply by max number of jumps (in pfrh config, reach_depth_max
-// , set sample_time to that number + 1  for all generators OR LARGEST NUMBER
+/**
+ * Resolves initial value for the given variable name string.
+ * Performs look-up in the initial conditions for a variable and maps either a uniform distribution
+ * or a concrete initial value.
+ * @param variable_name - name of variable
+ * @return - string containing the initial value or random number function
+ */
 string translator::get_initial_value(string variable_name){
     string lower_bound, upper_bound;
     for(pdrh::state s : pdrh::init){

@@ -388,7 +388,6 @@ void translator::Translator::translate_model(){
     const int yIncrement = 140;
     const int xIncrement = 100;
 
-    //TODO: non-determinism
     /**
      * Setup the system environment
      */

@@ -116,8 +116,13 @@ std::vector<rv_box> measure::partition(rv_box b, double e)
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
             std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])),
-                                                                                              capd::interval(pdrh::node_to_interval(std::get<1>(pdrh::rv_map[it->first])).leftBound(),
-                                                                                                             pdrh::node_to_interval(std::get<2>(pdrh::rv_map[it->first])).rightBound()),
+                                                                                              capd::interval(
+                                                                                                      pdrh::node_to_interval(
+                                                                                                              std::get<1>(
+                                                                                                                      pdrh::rv_map[it->first])).leftBound(),
+                                                                                                      pdrh::node_to_interval(
+                                                                                                              std::get<2>(
+                                                                                                                      pdrh::rv_map[it->first])).rightBound()),
                                                                                                               measure::precision(e, edges.size()));
             //std::prob_pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size()));
             m.insert(make_pair(it->first, itg.second));
@@ -210,8 +215,13 @@ std::vector<box> measure::partition(box b, double e)
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
             std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])),
-                                                                                              capd::interval(pdrh::node_to_interval(std::get<1>(pdrh::rv_map[it->first])).leftBound(),
-                                                                                                             pdrh::node_to_interval(std::get<2>(pdrh::rv_map[it->first])).rightBound()),
+                                                                                              capd::interval(
+                                                                                                      pdrh::node_to_interval(
+                                                                                                              std::get<1>(
+                                                                                                                      pdrh::rv_map[it->first])).leftBound(),
+                                                                                                      pdrh::node_to_interval(
+                                                                                                              std::get<2>(
+                                                                                                                      pdrh::rv_map[it->first])).rightBound()),
                                                                                                                  measure::precision(e, edges.size()));
             m.insert(make_pair(it->first, itg.second));
         }
@@ -447,7 +457,8 @@ std::vector<box> measure::get_rv_partition()
         // getting rv bounds
         std::pair<capd::interval, std::vector<capd::interval>> bound = measure::bounds::pdf(it->first,
                                                                            pdrh::node_to_string_infix(get<0>(it->second)), init_domain,
-                                                                                    pdrh::node_to_interval(get<3>(it->second)).mid().leftBound(),
+                                                                                            pdrh::node_to_interval(
+                                                                                                    get<3>(it->second)).mid().leftBound(),
                                                                                          measure::precision(global_config.precision_prob, pdrh::rv_map.size()));
         // updating rv bounds
         pdrh::rv_map[it->first] = make_tuple(std::get<0>(it->second), pdrh::push_terminal_node(bound.first.leftBound()),
@@ -483,7 +494,7 @@ box measure::bounds::get_rv_domain()
     {
         vector<capd::interval> tmp;
         tmp.push_back(capd::interval(pdrh::node_to_interval(get<1>(it->second)).leftBound(),
-                                        pdrh::node_to_interval(get<2>(it->second)).rightBound()));
+                                     pdrh::node_to_interval(get<2>(it->second)).rightBound()));
         domain_map.insert(std::make_pair(it->first, tmp));
     }
     if(domain_map.empty())

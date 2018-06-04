@@ -25,23 +25,30 @@ box rnd::get_random_sample(gsl_rng* r)
         if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
         {
             edges.insert(make_pair(it->first,
-                                        pdrh::node_to_interval(pdrh::distribution::uniform[it->first].first) + gsl_rng_uniform(r) *
-                                            (pdrh::node_to_interval(pdrh::distribution::uniform[it->first].second) -
-                                                    pdrh::node_to_interval(pdrh::distribution::uniform[it->first].first))));
+                                   pdrh::node_to_interval(pdrh::distribution::uniform[it->first].first) + gsl_rng_uniform(r) *
+                                            (pdrh::node_to_interval(
+                                                    pdrh::distribution::uniform[it->first].second) -
+                                                    pdrh::node_to_interval(
+                                                            pdrh::distribution::uniform[it->first].first))));
         }
         else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())
         {
-            edges.insert(make_pair(it->first, pdrh::node_to_interval(pdrh::distribution::normal[it->first].first) +
-                                            gsl_ran_gaussian_ziggurat(r, pdrh::node_to_interval(pdrh::distribution::normal[it->first].second).mid().leftBound())));
+            edges.insert(make_pair(it->first,
+                                   pdrh::node_to_interval(pdrh::distribution::normal[it->first].first) +
+                                            gsl_ran_gaussian_ziggurat(r, pdrh::node_to_interval(
+                                                    pdrh::distribution::normal[it->first].second).mid().leftBound())));
         }
         else if(pdrh::distribution::exp.find(it->first) != pdrh::distribution::exp.cend())
         {
-            edges.insert(make_pair(it->first, gsl_ran_exponential(r, pdrh::node_to_interval(pdrh::distribution::exp[it->first]).mid().leftBound())));
+            edges.insert(make_pair(it->first, gsl_ran_exponential(r, pdrh::node_to_interval(
+                    pdrh::distribution::exp[it->first]).mid().leftBound())));
         }
         else if(pdrh::distribution::gamma.find(it->first) != pdrh::distribution::gamma.cend())
         {
-            edges.insert(make_pair(it->first, gsl_ran_gamma(r, pdrh::node_to_interval(pdrh::distribution::gamma[it->first].first).mid().leftBound(),
-                                                                 pdrh::node_to_interval(pdrh::distribution::gamma[it->first].second).mid().leftBound())));
+            edges.insert(make_pair(it->first, gsl_ran_gamma(r, pdrh::node_to_interval(
+                    pdrh::distribution::gamma[it->first].first).mid().leftBound(),
+                                                            pdrh::node_to_interval(
+                                                                    pdrh::distribution::gamma[it->first].second).mid().leftBound())));
         }
         else
         {
@@ -260,8 +267,10 @@ box rnd::get_icdf(box b)
     {
         if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
         {
-            double value = gsl_cdf_flat_Pinv(it->second.leftBound(),pdrh::node_to_interval(pdrh::distribution::uniform[it->first].first).leftBound(),
-                                                             pdrh::node_to_interval(pdrh::distribution::uniform[it->first].second).leftBound());
+            double value = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh::node_to_interval(
+                    pdrh::distribution::uniform[it->first].first).leftBound(),
+                                             pdrh::node_to_interval(
+                                                     pdrh::distribution::uniform[it->first].second).leftBound());
             //value += pdrh::node_to_interval(pdrh::distribution::normal[it->first].first).leftBound();
 
             edges.insert(make_pair(it->first, capd::interval(value,value)));
@@ -269,7 +278,8 @@ box rnd::get_icdf(box b)
         else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())
         {
             double value = gsl_cdf_gaussian_Pinv(it->second.leftBound(),
-                                                 pdrh::node_to_interval(pdrh::distribution::normal[it->first].second).leftBound());
+                                                 pdrh::node_to_interval(
+                                                         pdrh::distribution::normal[it->first].second).leftBound());
             value += pdrh::node_to_interval(pdrh::distribution::normal[it->first].first).leftBound();
             edges.insert(make_pair(it->first, capd::interval(value,value)));
         }

@@ -33,7 +33,6 @@ translator::Translator::Translator() {
 
     vector<string> tokenised_filepath = split(global_config.model_filename, '/');
     vector<string> filename = split(tokenised_filepath.at(tokenised_filepath.size() - 1), '.');
-    cout<<global_config.model_filename<<endl;
     this->modelName = filename.front();
 
     // replace all dashes contained within the name file with underscores
@@ -353,7 +352,11 @@ string translator::Translator::translate_jump_guard(pdrh::node *guard, int mode_
     } else if (guard->value == "="){
         value << "==";
     } else if (guard->value == "and"){
-        value << " & ";
+        if (guard->operands.size() == 1){
+            translate_jump_guard(guard->operands.front(), mode_id);
+        } else {
+            value << " & ";
+        }
     } else if (guard->value == "or"){
         value << " | ";
     }

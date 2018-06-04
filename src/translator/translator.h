@@ -34,7 +34,6 @@ namespace translator{
         std::unique_ptr<matlab::engine::MATLABEngine> engine;
         matlab::data::ArrayFactory arrayFactory;
         string modelName, systemHandlerName, parentChart, currentSubSystemHandler;
-        // name (re)generation rather than maps (of maps)
 
     public:
         Translator();

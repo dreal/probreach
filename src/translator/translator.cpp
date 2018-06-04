@@ -20,6 +20,10 @@ using namespace matlab::data;
 const string translator::slStateBase = "mode";
 const string translator::subSysHandlerBase = "subSysHandler";
 
+/**
+ * Initialises translator paremeters and parses model name so that is is compliant with
+ * MATLAB syntax.
+ */
 translator::Translator::Translator() {
     cout<< "Starting MATLAB engine" << endl;
 
@@ -43,6 +47,14 @@ translator::Translator::~Translator() {
     this->engine.reset();
 }
 
+/**
+ * A wrapper for setting block paremeters, assumes the block already exists in the workspace, else a
+ * MATLAB exception is thrown.
+ * @param subSysHandler - handle to state
+ * @param blkName
+ * @param parameter - parameter name
+ * @param value - the desired value
+ */
 void translator::Translator::set_block_param(const string subSysHandler, const string blkName,
                                              const string parameter, const string value){
     ostringstream command;
@@ -51,6 +63,14 @@ void translator::Translator::set_block_param(const string subSysHandler, const s
     this->engine->eval(convertUTF8StringToUTF16String(command.str()));
 }
 
+/**
+ * Adds a block to the currently open canvas (defined by the value of \param subSysHandler). \param blkName and
+ * \param srcPath refer to block name and its location in the default Simulink block library, respectively.
+ * @param subSysHandler - handle to subsystem/state
+ * @param srcPath - blocks path in standard library
+ * @param blkName - block's name
+ * @return - block name as it appears in MATLAB environment
+ */
 string translator::Translator::addBlock(string subSysHandler, string srcPath, string blkName) {
     ostringstream add_block_command;
     add_block_command << systemHandlerName << " = add_block('" << srcPath << "', fullfile(" << subSysHandler
@@ -63,6 +83,17 @@ string translator::Translator::addBlock(string subSysHandler, string srcPath, st
     return blockName.toAscii();
 }
 
+/**
+ * Adds a block to the currently open canvas (defined by the value of \param subSysHandler). \param blkName and
+ * \param srcPath refer to block name and its location in the default Simulink block library, respectively.
+ * \param connect_to specifies to which block to connect the output of the newly added block, assumes this block is already
+ * present on the canvas.
+ * @param subSysHandler - handle to subsystem/state
+ * @param srcPath - blocks path in standard library
+ * @param blkName - block's name
+ * @param connect_to
+ * @return block name as it appears in MATLAB environment
+ */
 string translator::Translator::addBlock(string subSysHandler, string srcPath, string blkName,
                                       translator::block_connection &connect_to) {
     string added_block_name = addBlock(subSysHandler, srcPath, blkName);
@@ -76,6 +107,12 @@ string translator::Translator::addBlock(string subSysHandler, string srcPath, st
     return added_block_name;
 }
 
+/**
+ * Adds a scope block with the specified number of input ports.
+ * @param subSysHandler - handle to subsystem/state
+ * @param blkName
+ * @param inportCount
+ */
 void translator::Translator::add_scope_block(const string& subSysHandler, const string& blkName, const unsigned long inportCount){
     this->addBlock(this->currentSubSystemHandler, "simulink/Sinks/Scope", blkName);
     stringstream configCommand;
@@ -88,7 +125,12 @@ void translator::Translator::add_scope_block(const string& subSysHandler, const 
     this->engine->eval(convertUTF8StringToUTF16String("scopeConfig.NumInputPorts = '" + to_string(inportCount) + "';"));
 };
 
-
+/**
+ * Connects any two blocks and automatically routes the line.
+ * @param subSysHandler - handle to subsystem/state
+ * @param out_block - source block
+ * @param in_block - destination block
+ */
 void translator::Translator::connect_blocks(string subSysHandler, translator::block_connection out_block,
                                             translator::block_connection in_block) {
     ostringstream add_line_command;
@@ -135,12 +177,11 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         // the node is a reference to a variable
         if(pdrh::var_exists(expr->value))
         {
-            cout<< "Connect " << expr->value << " to already defined variable: " << parent_block.block_name
-                << " " << parent_block.port_id <<endl;
+//            cout<< "Connect " << expr->value << " to already defined variable: " << parent_block.block_name
+//                << " " << parent_block.port_id <<endl;
             connect_blocks(this->currentSubSystemHandler, block_connection(expr->value, 1), parent_block);
         }
         // the node is a reference to a constant number
-        // ODE expression
         else
         {
             string blkName = "Const_" + expr->value;
@@ -388,7 +429,6 @@ void translator::Translator::translate_model(){
     const int yIncrement = 140;
     const int xIncrement = 100;
 
-    //TODO: non-determinism
     /**
      * Setup the system environment
      */
@@ -435,16 +475,17 @@ void translator::Translator::translate_model(){
             cout<<"*** Translating : " << it->first << ":    " << pdrh::node_to_string_infix(it->second) <<endl;
             block_connection parent_ode_block = block_connection(it->first, 1);
 
-//            if (it->first == "Q1") {
             this->translate_ode_expression(it->second, parent_ode_block);
             this->connect_blocks(this->currentSubSystemHandler, parent_ode_block, block_connection(scope_block_name, scope_inport_counter++));
 
-//            }
               // applicable for R2018a+ only
-//            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + subSysHandler.str() + ")"));
+            //TODO: detect matlab version and switch on/off the arrange command
+//            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + systemHandlerName + ")"));
             cout<<"Completed translating equation d[\"" << it->first << "\"]/dt"<<endl;
         }
     }
+
+    this->engine->eval(convertUTF8StringToUTF16String("set_param(mdlName, 'StopTime', '" + pdrh::time.second->value +"');"));
 
     /**
      * Connect all states and set all guards/reset conditions
@@ -595,6 +636,7 @@ int model_creation_test(){
  * @return - string containing the initial value or random number function
  */
 string translator::get_initial_value(string variable_name){
+    //TODO: add the other random distributions
     string lower_bound, upper_bound;
     for(pdrh::state s : pdrh::init){
         for(unsigned int i = 0; i < s.prop->operands.size(); i++){

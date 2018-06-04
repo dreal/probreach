@@ -321,7 +321,7 @@ int main(int argc, char* argv[])
 
     //TODO: remove this test code
 
-    translator::parse_tree();
+    translator::translate();
 
     // unregister the loggers
     el::Loggers::unregisterLogger("parser");

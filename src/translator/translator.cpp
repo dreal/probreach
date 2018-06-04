@@ -478,10 +478,18 @@ void translator::Translator::translate_model(){
             this->translate_ode_expression(it->second, parent_ode_block);
             this->connect_blocks(this->currentSubSystemHandler, parent_ode_block, block_connection(scope_block_name, scope_inport_counter++));
 
-              // applicable for R2018a+ only
-            //TODO: detect matlab version and switch on/off the arrange command
-//            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem(" + systemHandlerName + ")"));
+
             cout<<"Completed translating equation d[\"" << it->first << "\"]/dt"<<endl;
+        }
+        // applicable for R2018a+ only
+        //TODO: detect matlab version and switch on/off the auto-arrange command
+        try {
+            string name = this->modelName + "/" + "Chart/" + slState.str();
+            cout<<"arrangeSystem: " << name << endl;
+            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem('" + name + "')"));
+        } catch (const matlab::engine::MATLABException& e) {
+//          CLOG(INFO) << "Attempted to arrange sub-system - Current MATLAB version doesn't support autoarranging.";
+            cout<<"Attempted to arrange sub-system - current MATLAB version doesn't support autoarranging."<<endl;
         }
     }
 
@@ -656,19 +664,12 @@ string translator::get_initial_value(string variable_name){
     } return lower_bound + "+(" + upper_bound + "-" + lower_bound + ").*rand(1,1)";
 }
 
-void translator::parse_tree(){
-//    cout<<pdrh::model_to_string();
-//    print_map(pdrh::var_map);
-//    print_map(pdrh::par_map);
-//    model_creation_test();
-
+void translator::translate(){
     translator::Translator* translator1 = new Translator();
     translator1->translate_model();
 
-    cout<<"Test complete"<<endl;
-//    cout<<translator::get_initial_value("y");
+    cout<<"Translation complete!"<<endl;
     delete translator1;
-//    test_engine_call();
 }
 
 string translator::resolve_variable_initial_condition(pdrh::node *node) {

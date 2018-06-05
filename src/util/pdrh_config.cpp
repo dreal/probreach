@@ -526,10 +526,6 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
-        else if(strcmp(argv[i], "--translate") == 0)
-        {
-            global_config.translate = true;
-        }
         else
         {
             CLOG(ERROR, "config") << "Unrecognized option: " << argv[i];

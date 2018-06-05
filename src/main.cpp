@@ -76,7 +76,6 @@ int main(int argc, char* argv[])
     el::Logger* config_parser_logger = el::Loggers::getLogger("config");
     el::Logger* rng_logger = el::Loggers::getLogger("ran_gen");
     el::Logger* model_logger = el::Loggers::getLogger("model");
-    el::Logger* translator_logger = el::Loggers::getLogger("translator");
 
     // parse command line
     parse_pdrh_config(argc, argv);
@@ -130,23 +129,6 @@ int main(int argc, char* argv[])
             CLOG(ERROR, "parser") << "Secondary solver is not recognized";
             return EXIT_FAILURE;
         }
-    }
-
-    // runs the translator
-    if (global_config.translate) {
-        translator::translate();
-
-        //clear loggers
-        el::Loggers::unregisterLogger("parser");
-        el::Loggers::unregisterLogger("algorithm");
-        el::Loggers::unregisterLogger("solver");
-        el::Loggers::unregisterLogger("series-parser");
-        el::Loggers::unregisterLogger("config");
-        el::Loggers::unregisterLogger("ran_gen");
-        el::Loggers::unregisterLogger("model");
-        el::Loggers::unregisterLogger("translator");
-
-        exit(EXIT_SUCCESS);
     }
 
     vector<vector<pdrh::mode*>> paths = pdrh::get_paths();
@@ -337,10 +319,6 @@ int main(int argc, char* argv[])
     capd::interval lower_bound = sqrt( (Sx * g) / (sin(2 * alpha) * (0.7*0.7 + 1)) );
     cout << setprecision(16) << lower_bound << endl;
 
-    //TODO: remove this test code
-
-
-
     // unregister the loggers
     el::Loggers::unregisterLogger("parser");
     el::Loggers::unregisterLogger("algorithm");
@@ -349,6 +327,5 @@ int main(int argc, char* argv[])
     el::Loggers::unregisterLogger("config");
     el::Loggers::unregisterLogger("ran_gen");
     el::Loggers::unregisterLogger("model");
-    el::Loggers::unregisterLogger("translator");
     return EXIT_SUCCESS;
 }

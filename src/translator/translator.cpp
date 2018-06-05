@@ -4,7 +4,7 @@
 
 #include <sstream>
 #include <logging/easylogging++.h>
-#include <util/pdrh.h>
+#include <pdrh.h>
 
 #include "MatlabEngine.hpp"
 #include "MatlabDataArray.hpp"

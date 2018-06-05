@@ -191,15 +191,16 @@ IF(MATLAB_FOUND)
     message(STATUS "MATLAB include dir: ${MATLAB_INCLUDE_DIR}")
     message(STATUS "MATLAB libraries included: ${MATLAB_LIBRARIES}")
 
-    add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp src/translator/translator_util.cpp src/translator/translator_util.h)
-    target_compile_options(ProbReach PRIVATE)
-    target_link_libraries(ProbReach probreach ${MATLAB_LIBRARIES})
+    add_executable(pdrh2simulink ${PROBREACH_SOURCE_DIR}/translator/translator_main.cpp)
+    target_compile_options(pdrh2simulink PRIVATE)
+    target_link_libraries(pdrh2simulink probreach ${MATLAB_LIBRARIES})
 ELSE(MATLAB_FOUND)
     MESSAGE("MATLAB not found, translator functionality won't be available.")
-    add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
-    target_compile_options(ProbReach PRIVATE -static)
-    target_link_libraries(ProbReach probreach)
 ENDIF(MATLAB_FOUND)
+
+add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
+target_compile_options(ProbReach PRIVATE -static)
+target_link_libraries(ProbReach probreach)
 
 
 

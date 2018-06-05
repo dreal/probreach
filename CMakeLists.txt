@@ -132,15 +132,13 @@ include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 file(GLOB PROBREACH_SRC   ${PROBREACH_SOURCE_DIR}/util/*.cpp
         ${PROBREACH_SOURCE_DIR}/parser/csv/*.cpp
         ${PROBREACH_SOURCE_DIR}/parser/output/*.cpp
-        ${PROBREACH_SOURCE_DIR}/solver/*.cpp
-        ${PROBREACH_SOURCE_DIR}/translator/*.cpp)
+        ${PROBREACH_SOURCE_DIR}/solver/*.cpp)
 
 
 file(GLOB PROBREACH_INCLUDE   ${PROBREACH_SOURCE_DIR}/util/*.h
         ${PROBREACH_SOURCE_DIR}/parser/csv/*.h
         ${PROBREACH_SOURCE_DIR}/parser/output/*.h
-        ${PROBREACH_SOURCE_DIR}/solver/*.h
-        ${PROBREACH_SOURCE_DIR}/translator/*.h)
+        ${PROBREACH_SOURCE_DIR}/solver/*.h)
 
 set(PROBREACH_INCLUDE ${PROBREACH_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.h)
 
@@ -172,11 +170,34 @@ set(PDRH2SMT_INCLUDE
 
 add_library(pdrh2smt ${PDRH2SMT_SRC})
 target_link_libraries(pdrh2smt -lfl)
+
 file(COPY ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
 make_directory(${PROBREACH_BINARY_DIR}/include/pdrh2smt/parser)
 add_custom_command(TARGET pdrh2smt
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.hpp ${PROBREACH_BINARY_DIR}/include/pdrh2smt/parser)
+
+file(GLOB PDRH2SIMULINK_SRC   ${PROBREACH_SOURCE_DIR}/util/*.cpp
+        ${PROBREACH_SOURCE_DIR}/parser/csv/*.cpp
+        ${PROBREACH_SOURCE_DIR}/parser/output/*.cpp
+        ${PROBREACH_SOURCE_DIR}/solver/*.cpp
+        ${PROBREACH_SOURCE_DIR}/translator/*.cpp)
+
+
+file(GLOB PDRH2SIMULINK_INCLUDE   ${PROBREACH_SOURCE_DIR}/util/*.h
+        ${PROBREACH_SOURCE_DIR}/parser/csv/*.h
+        ${PROBREACH_SOURCE_DIR}/parser/output/*.h
+        ${PROBREACH_SOURCE_DIR}/solver/*.h
+        ${PROBREACH_SOURCE_DIR}/translator/*.h)
+
+set(PDRH2SIMULINK_INCLUDE ${PDRH2SIMULINK_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.h)
+
+set(PDRH2SIMULINK_SRC ${PDRH2SIMULINK_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
+        ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
+        ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
+
+add_library(pdrh2simulink_lib ${PDRH2SIMULINK_SRC})
+target_link_libraries(pdrh2simulink_lib ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas)
 #install(FILES ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
 
 # adding executable
@@ -193,7 +214,7 @@ IF(MATLAB_FOUND)
 
     add_executable(pdrh2simulink ${PROBREACH_SOURCE_DIR}/translator/translator_main.cpp)
     target_compile_options(pdrh2simulink PRIVATE)
-    target_link_libraries(pdrh2simulink probreach ${MATLAB_LIBRARIES})
+    target_link_libraries(pdrh2simulink pdrh2simulink_lib ${MATLAB_LIBRARIES})
 ELSE(MATLAB_FOUND)
     MESSAGE("MATLAB not found, translator functionality won't be available.")
 ENDIF(MATLAB_FOUND)

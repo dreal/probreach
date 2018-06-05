@@ -12,7 +12,6 @@
 #include "pdrh_config.h"
 #include "translator_util.h"
 
-
 using namespace std;
 using namespace matlab::engine;
 using namespace matlab::data;
@@ -73,11 +72,11 @@ void translator::Translator::set_block_param(const string subSysHandler, const s
 string translator::Translator::addBlock(string subSysHandler, string srcPath, string blkName) {
     ostringstream add_block_command;
     add_block_command << systemHandlerName << " = add_block('" << srcPath << "', fullfile(" << subSysHandler
-                      << ".Path, " << subSysHandler << ".Name, '" << blkName + "'), 'MakeNameUnique', 'On')";
+                      << ".Path, " << subSysHandler << ".Name, '" << blkName + "'), 'MakeNameUnique', 'On');";
 
     this->engine->eval(convertUTF8StringToUTF16String(add_block_command.str()));
 
-    engine->eval(convertUTF8StringToUTF16String("block_name = get_param(h, 'Name')"));
+    engine->eval(convertUTF8StringToUTF16String("block_name = get_param(h, 'Name');"));
     matlab::data::CharArray blockName = engine->getVariable(convertUTF8StringToUTF16String("block_name"));
     return blockName.toAscii();
 }
@@ -99,7 +98,7 @@ string translator::Translator::addBlock(string subSysHandler, string srcPath, st
     ostringstream add_line_command;
     add_line_command << "add_line(fullfile(" << subSysHandler << ".Path, " << subSysHandler << ".Name), '"
                      << added_block_name << "/1', '" << connect_to.block_name << "/" << connect_to.port_id
-                     << "', 'autorouting', 'smart')";
+                     << "', 'autorouting', 'smart');";
 
     this->engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
 
@@ -136,18 +135,18 @@ void translator::Translator::connect_blocks(string subSysHandler, translator::bl
     add_line_command << "add_line(fullfile(" << subSysHandler << ".Path, " << subSysHandler << ".Name), '"
                      << out_block.block_name << "/" << out_block.port_id << "', '"
                      << in_block.block_name << "/" << in_block.port_id
-                     << "', 'autorouting', 'smart')";
+                     << "', 'autorouting', 'smart');";
     this->engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
 }
 
 void translator::Translator::set_system_time_interval(const string& subsys, double start_time, double end_time){
     ostringstream strs;
     strs << "set_param(";
-    strs <<  subsys << ", 'StartTime', '" << start_time << "')";
+    strs <<  subsys << ", 'StartTime', '" << start_time << "');";
     this->engine->eval(convertUTF8StringToUTF16String(strs.str()));
     strs.clear();
     strs << "set_param(";
-    strs << subsys << ", 'EndTime', '" << end_time << "')";
+    strs << subsys << ", 'EndTime', '" << end_time << "');";
     this->engine->eval(convertUTF8StringToUTF16String(strs.str()));
 }
 
@@ -155,7 +154,7 @@ void translator::Translator::generate_init_var_blocks(const pdrh::mode &m){
 
     for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++){
         string init_value = translator::get_initial_value(it->first);
-        cout<< "Initialising blocks for var " << it->first;
+        CLOG_IF(global_config.verbose, INFO, "translator") <<  "Initialing integrator blocks...";
         if (strcmp(it->second->value.c_str(), "0") == 0){
             //TODO: Change constant block to integrator block,
             this->addBlock(this->currentSubSystemHandler, "simulink/Continuous/Integrator", it->first);
@@ -191,7 +190,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
     }
     else if(expr->operands.size() > 2)
     {
-        CLOG(ERROR, "model") << "The number of operands can't be greater than 2";
+        CLOG(ERROR, "translator") << "The number of operands for operation " << expr->value << " can't be greater than 2";
         exit(EXIT_FAILURE);
     }
     else
@@ -337,7 +336,7 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
         }
         else
         {
-            CLOG(ERROR, "model") << "Unknown function \"" << expr->value << "\"";
+            CLOG(ERROR, "translator") << "Unknown function \"" << expr->value << "\"";
             exit(EXIT_FAILURE);
         }
     }
@@ -400,26 +399,25 @@ string translator::Translator::add_state_transition(pdrh::mode& mode){
     for (pdrh::mode::jump jump : mode.jumps){
         stringstream slDestState;
         slDestState << slStateBase << jump.next_id;
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Adding transition to mode " << jump.next_id << ":";
         /**
          * transition_new = Stateflow.Transition(c);
            transition_new.Source = ss1;
            transition_new.Destination = ss2;
          */
-        this->engine->eval(convertUTF8StringToUTF16String("new_transition = Stateflow.Transition(" + parentChart + ")"));
-        this->engine->eval(convertUTF8StringToUTF16String("new_transition.Source = " + slSourceState.str()));
-        this->engine->eval(convertUTF8StringToUTF16String("new_transition.Destination = " + slDestState.str()));
-        this->engine->eval(convertUTF8StringToUTF16String("new_transition.SourceOClock = 6"));
-        this->engine->eval(convertUTF8StringToUTF16String("new_transition.DestinationOClock = 0"));
-
-
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition = Stateflow.Transition(" + parentChart + ");"));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.Source = " + slSourceState.str() + ";"));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.Destination = " + slDestState.str() + ";"));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.SourceOClock = 6;"));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.DestinationOClock = 0;"));
 
         stringstream transition_label;
         transition_label << "'[" << translate_jump_guard(jump.guard, mode.id)
                          << "]{" << translate_reset_condition(jump, mode.id) << "}'";
-        this->engine->eval(convertUTF8StringToUTF16String("new_transition.LabelString = " + transition_label.str()));
+        this->engine->eval(convertUTF8StringToUTF16String("new_transition.LabelString = " + transition_label.str() + ";"));
 
-        cout<< "Guard: " << translate_jump_guard(jump.guard, mode.id)<<endl;
-        cout<< "Resets: " << translate_reset_condition(jump, mode.id)<<endl;
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Jump guard: " << translate_jump_guard(jump.guard, mode.id)<<endl;
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Jump resets: " << translate_reset_condition(jump, mode.id)<<endl;
     }
     return "new_transition";
 };
@@ -437,7 +435,6 @@ void translator::Translator::translate_model(){
      */
     this->engine->eval(convertUTF8StringToUTF16String("mdlName = '" + modelName + "'"));
     this->engine->eval(convertUTF8StringToUTF16String(systemHandlerName + " = new_system('" + modelName + "');"));
-//    engine->eval(convertUTF8StringToUTF16String(buffer));
     this->engine->eval(convertUTF8StringToUTF16String("open_system(" + systemHandlerName + ");"));
     this->engine->eval(convertUTF8StringToUTF16String("load_system('sflib');"));
     this->engine->eval(convertUTF8StringToUTF16String("add_block('sflib/Chart', ['" + modelName + "' '/Chart']);"));
@@ -454,6 +451,8 @@ void translator::Translator::translate_model(){
         slState << translator::slStateBase << m.id;
         subSysHandler << translator::subSysHandlerBase << m.id;
         currentSubSystemHandler = subSysHandler.str();
+
+        CLOG(INFO, "translator") << "*** Beginning translation of " << slState.str();
 
         positioningCommand << slState.str() << ".Position = [ " << xStatePosition << " " << yStatePosition << " 90 60];";
         yStatePosition += yIncrement;
@@ -475,37 +474,40 @@ void translator::Translator::translate_model(){
 
         int scope_inport_counter = 1;
         for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++){
-            cout<<"*** Translating : " << it->first << ":    " << pdrh::node_to_string_infix(it->second) <<endl;
+            CLOG(INFO, "translator") << "Translating equation d[\"" << it->first << "\"]/dt" << endl;
             block_connection parent_ode_block = block_connection(it->first, 1);
 
             this->translate_ode_expression(it->second, parent_ode_block);
             this->connect_blocks(this->currentSubSystemHandler, parent_ode_block, block_connection(scope_block_name, scope_inport_counter++));
 
-
-            cout<<"Completed translating equation d[\"" << it->first << "\"]/dt"<<endl;
+            CLOG(INFO, "translator") << "Completed translation of equation d[\"" << it->first << "\"]/dt" << endl;
         }
-        // applicable for R2018a+ only
+
+        // applicable to MATLAB R2018a+ only
         //TODO: detect matlab version and switch on/off the auto-arrange command
         try {
             string name = this->modelName + "/" + "Chart/" + slState.str();
-            cout<<"arrangeSystem: " << name << endl;
-            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem('" + name + "')"));
+            engine->eval(convertUTF8StringToUTF16String("Simulink.BlockDiagram.arrangeSystem('" + name + "');"));
         } catch (const matlab::engine::MATLABException& e) {
-//          CLOG(INFO) << "Attempted to arrange sub-system - Current MATLAB version doesn't support autoarranging.";
-            cout<<"Attempted to arrange sub-system - current MATLAB version doesn't support autoarranging."<<endl;
+          CLOG(INFO, "translator") << "Attempted to arrange sub-system - Current MATLAB version doesn't support autoarranging.";
         }
     }
 
-    this->engine->eval(convertUTF8StringToUTF16String("set_param(mdlName, 'StopTime', '" + pdrh::time.second->value +"');"));
 
     /**
      * Connect all states and set all guards/reset conditions
      */
+    CLOG(INFO, "translator") << "Adding state transitions ...";
     for (pdrh::mode m : pdrh::modes){
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Transitions for mode " << m.id;
         add_state_transition(m);
     }
+
+    CLOG_IF(global_config.verbose, INFO, "translator") << "Setting simulation time... ";
+    this->engine->eval(convertUTF8StringToUTF16String("set_param(mdlName, 'StopTime', '" + pdrh::time.second->value +"');"));
+
     this->engine->eval(convertUTF8StringToUTF16String("save_system(mdlName);"));
-    cout<< "Completed translating model" << endl;
+    CLOG(INFO, "translator" ) << "Completed translating model";
 }
 
 string translator::Translator::translate_reset_expression(pdrh::node* reset_expr, int mode_id){
@@ -516,7 +518,7 @@ string translator::Translator::translate_reset_expression(pdrh::node* reset_expr
     else {
         value << reset_expr->value;
     }
-    // checking whether it is an operation reset expression
+    // checking if an operation is contained in the reset expression
     if(reset_expr->operands.size() > 1)
 
     {
@@ -569,7 +571,7 @@ void translator::Translator::add_default_transition(int start_node) {
 
 void addBlock(const unique_ptr<MATLABEngine>& engine, string systemHandler, string subSysHandler, string srcPath, string blkName) {
     string commandString = systemHandler +  " = add_block('" + srcPath + "', fullfile(" + subSysHandler +".Path, " +
-                           subSysHandler + ".Name, '" + blkName + "'))";
+                           subSysHandler + ".Name, '" + blkName + "'));";
     engine->eval(convertUTF8StringToUTF16String(commandString));
 }
 
@@ -577,14 +579,14 @@ void addBlock(const unique_ptr<MATLABEngine>& engine, string systemHandler, stri
               string srcPath, string blkName, translator::block_connection previous_block) {
     ostringstream add_block_command;
     add_block_command << systemHandler << " = add_block('" << srcPath << "', fullfile(" << subSysHandler
-                      << ".Path, " << subSysHandler << ".Name, '" << blkName + "'))";
+                      << ".Path, " << subSysHandler << ".Name, '" << blkName + "'));";
     engine->eval(convertUTF8StringToUTF16String(add_block_command.str()));
 //    string add_line_command = "add_line(fullfile(" + subSysHandler +".Path, " +
 //    subSysHandler + ".Name), '" + blkName + "/1', '" + previous_block.block_name + "/'";
     ostringstream add_line_command;
     add_line_command << "add_line(fullfile(" << subSysHandler << ".Path, " << subSysHandler << ".Name), '"
                      << blkName << "/1', '" << previous_block.block_name << "/" << previous_block.port_id
-                     << "', 'autorouting', 'on')";
+                     << "', 'autorouting', 'on');";
     engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
 }
 
@@ -670,8 +672,6 @@ string translator::get_initial_value(string variable_name){
 void translator::translate(){
     translator::Translator* translator1 = new Translator();
     translator1->translate_model();
-
-    cout<<"Translation complete!"<<endl;
     delete translator1;
 }
 

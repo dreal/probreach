@@ -17,7 +17,7 @@ IF( "$ENV{MATLAB_ROOT}" STREQUAL "" )
     MESSAGE(STATUS " " )
     MESSAGE(STATUS " " )
     MESSAGE(STATUS " " )
-    MESSAGE(FATAL_ERROR " No matlab found. Follow the instructions above." )
+#    MESSAGE(FATAL_ERROR " No matlab found. Follow the instructions above." )
 ELSE("$ENV{MATLAB_ROOT}" STREQUAL "" )
 
         FIND_PATH(MATLAB_INCLUDE_DIR mex.h

@@ -20,7 +20,6 @@ extern "C"
 }
 
 #include "easylogging++.h"
-#include "translator/translator.h"
 
 extern "C" int yyparse();
 extern "C" FILE *yyin;

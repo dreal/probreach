@@ -60,7 +60,7 @@ namespace translator{
     };
 
 
-    void parse_tree();
+    void translate();
     string get_initial_value(string variable_name);
     string resolve_variable_initial_condition(pdrh::node *node);
     void translate_ode_expression(pdrh::node *expr);

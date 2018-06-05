@@ -78,7 +78,6 @@ struct pdrh_config
     bool debug = false;
     bool sort_rv_flag = false;
     bool show_model = false;
-
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

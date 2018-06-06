@@ -58,7 +58,7 @@ identifiers can contain dashes in their name, all dashes, "-", in the input file
 
 ## Model Advice
 
-Some considerations need to be taken into account when developing models which are intented to be translated.
+Some considerations need to be taken into account when developing models which are intended to be translated.
 
 Expressing strong equality ```x = y``` in jump guards is discouraged as the 
 translated Stateflow model might miss events (due to round-off errors, etc.) and the 

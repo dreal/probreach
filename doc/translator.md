@@ -53,7 +53,7 @@ pdrh2simulink /home/user/repos/probreach/model/cars/collision.drh
 An optional ```--verbose``` flag can be passed to the command line tool to print additional translation details.
 
 Upon successful translation, a *.slx* file with a matching model name will be created
-in the directory of the executable pdrh2simulink. Note that since no valid Matlab 
+in the current directory. Note that since no valid Matlab 
 identifiers can contain dashes in their name, all dashes, "-", in the input files are replaced with underscores "_".
 
 ## Model Advice

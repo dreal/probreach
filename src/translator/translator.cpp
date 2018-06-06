@@ -2,15 +2,8 @@
 // Created by kny on 27/02/18.
 //
 
-#include <sstream>
-#include <logging/easylogging++.h>
-#include <pdrh.h>
-
-#include "MatlabEngine.hpp"
-#include "MatlabDataArray.hpp"
 #include "translator.h"
-#include "pdrh_config.h"
-#include "translator_util.h"
+
 
 using namespace std;
 using namespace matlab::engine;
@@ -650,11 +643,13 @@ int model_creation_test(){
  */
 string translator::get_initial_value(string variable_name){
     //TODO: add the other random distributions
+    bool located = false;
     string lower_bound, upper_bound;
     for(pdrh::state s : pdrh::init){
         for(unsigned int i = 0; i < s.prop->operands.size(); i++){
             pdrh::node* node = s.prop->operands.at(i);
             if (node->operands.at(0)->value == variable_name){
+                located = true;
                 if (node->value == "="){
                     return translator::resolve_variable_initial_condition(node->operands.at(1));
                 } else {
@@ -666,7 +661,12 @@ string translator::get_initial_value(string variable_name){
                 }
             }
         }
-    } return lower_bound + "+(" + upper_bound + "-" + lower_bound + ").*rand(1,1)";
+    }
+    if (located) {
+        return lower_bound + "+(" + upper_bound + "-" + lower_bound + ").*rand(1,1)";
+    } else {
+        return "0";
+    }
 }
 
 void translator::translate(){

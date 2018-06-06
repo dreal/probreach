@@ -7,7 +7,11 @@
 
 #include "MatlabEngine.hpp"
 #include "MatlabDataArray.hpp"
-
+#include "pdrh_config.h"
+#include <pdrh.h>
+#include "translator_util.h"
+#include <sstream>
+#include <logging/easylogging++.h>
 #include <algorithm>
 
 using namespace std;

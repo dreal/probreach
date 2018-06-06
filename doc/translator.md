@@ -6,9 +6,7 @@ The translator from *.pdrh* to *Simulink®/Stateflow®* models is available as a
 
  - The packages already listed under [How to Build](https://github.com/dreal/probreach/blob/master/doc/build.md)
 
-
-
- 
+ - Currently only available for Linux, tested on Ubuntu 16.04, 17.10, 18.04 and Fedora 26
 
  - And a local installation of MATLAB (version 2017b or later) with Simulink and Stateflow addons installed, 
  as described [here](https://uk.mathworks.com/help/install/ug/install-mathworks-software.html).

@@ -18,3 +18,5 @@ Latest version of static binary for Linux and Mac can be downloaded from **ProbR
 # [How to Build](doc/build.md)
 
 # [How to Use](doc/usage.md)
+
+# [Translator Guide](doc/translator.md)

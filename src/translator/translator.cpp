@@ -161,6 +161,13 @@ void translator::Translator::generate_init_var_blocks(const pdrh::mode &m){
     }
 }
 
+/**
+ * Recursively traverses an ODE expression tree and translates it in Simulink using the available
+ * standard block library. \param parent_block specifies the block to which the output of the newly added block is to be
+ * connected.
+ * @param expr - reference to an expression node
+ * @param parent_block
+ */
 void translator::Translator::translate_ode_expression(pdrh::node *expr, block_connection parent_block) {
 //    cout<< "ODE translation: value: " << expr->value << " and " << expr->operands.size() << " operands." << endl;
     if(expr->operands.size() == 0)
@@ -335,7 +342,13 @@ void translator::Translator::translate_ode_expression(pdrh::node *expr, block_co
     }
 }
 
-// translate a node expression to a stateflow jump condition
+/**
+ * Translates a node expression to a stateflow jump condition. Converts the expression tree to infix notation and
+ * peforms substitution of logical operators.
+ * @param guard
+ * @param mode_id
+ * @return Stateflow jump guard string
+ */
 string translator::Translator::translate_jump_guard(pdrh::node *guard, int mode_id)
 {
     stringstream s, value;
@@ -386,6 +399,12 @@ string translator::Translator::translate_jump_guard(pdrh::node *guard, int mode_
     return s.str();
 }
 
+/**
+ * Builds all transitions from a given Stateflow state. This involves the translation of
+ * jump guards and reset conditions.
+ * @param mode - source mode
+ * @return
+ */
 string translator::Translator::add_state_transition(pdrh::mode& mode){
     stringstream slSourceState;
     slSourceState << slStateBase << mode.id;
@@ -415,7 +434,16 @@ string translator::Translator::add_state_transition(pdrh::mode& mode){
     return "new_transition";
 };
 
-
+/**
+ * The main driver method for translating a hybrid model. Configures the environment and oversees each translation step.
+ * 1 -> Initialise Simulink model file.
+ * 2 -> For each mode:
+ *      - initialise variables
+ *      - translate ODEs
+ *      - translate transitions
+ * 3 -> Add default transitions
+ * 4 -> Set simulation time
+ */
 void translator::Translator::translate_model(){
     matlab::data::ArrayFactory factory;
     int xStatePosition = 40;
@@ -503,6 +531,13 @@ void translator::Translator::translate_model(){
     CLOG(INFO, "translator" ) << "Completed translating model";
 }
 
+/**
+ * Translates the right-hand side of a reset condition in MATLAB syntax. Accepts a node pointer to an expression tree
+ * which is then converted in infix notation.
+ * @param reset_expr - pointer to the beginning of the syntax tree
+ * @param mode_id - number label of the mode that's currently being translated
+ * @return - string containing the translated expression
+ */
 string translator::Translator::translate_reset_expression(pdrh::node* reset_expr, int mode_id){
     stringstream s, value;
     if (pdrh::var_exists(reset_expr->value)){
@@ -542,7 +577,12 @@ string translator::Translator::translate_reset_expression(pdrh::node* reset_expr
     return s.str();
 };
 
-
+/**
+ * Builds the entire reset condition by joining together left-hand side identifies to their expressions.
+ * @param jump - the transition in question
+ * @param source_mode_id - the number label of the source transition
+ * @return - a complete reset condition string
+ */
 string translator::Translator::translate_reset_condition(pdrh::mode::jump &jump, int source_mode_id) {
     stringstream reset_condition;
     string targetState = slStateBase + to_string(jump.next_id);
@@ -553,6 +593,10 @@ string translator::Translator::translate_reset_condition(pdrh::mode::jump &jump,
         return reset_condition.str();
 }
 
+/**
+ * Adds a default (initial) transition to the designated mode.
+ * @param start_node - number labe of a mode
+ */
 void translator::Translator::add_default_transition(int start_node) {
     stringstream defaultModeName;
     defaultModeName << slStateBase << start_node;
@@ -675,6 +719,11 @@ void translator::translate(){
     delete translator1;
 }
 
+/**
+ * Translates a variables initial condition right-hand side expression to infix notation as used in MATLAB.
+ * @param node - root of the expression tree
+ * @return - string containing the infix representation
+ */
 string translator::resolve_variable_initial_condition(pdrh::node *node) {
     stringstream s, value;
     if (pdrh::var_exists(node->value)){

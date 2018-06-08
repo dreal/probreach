@@ -1,7 +1,0 @@
-<map id="rnd::digamma" name="rnd::digamma">
-<area shape="rect" id="node2" href="$namespacernd.html#a7c2c35476c34393dbad2ca0f10896cbe" title="rnd::beta_system" alt="" coords="155,13,277,39"/>
-<area shape="rect" id="node3" href="$namespacernd.html#a32df1baa78c1d1f95fc20ec3520be14e" title="rnd::solve_beta_system" alt="" coords="325,13,487,39"/>
-<area shape="rect" id="node4" href="$namespacernd.html#ad227952cba626ec51c04420f4bb1107a" title="rnd::update_beta_dist" alt="" coords="535,13,681,39"/>
-<area shape="rect" id="node5" href="$namespacealgorithm.html#a48f13c46ec805c783877e166f80b69fa" title="algorithm::evaluate\l_npha_cross_entropy_beta" alt="" coords="729,5,908,47"/>
-<area shape="rect" id="node6" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="956,13,1007,39"/>
-</map>

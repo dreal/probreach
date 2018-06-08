@@ -1,7 +1,0 @@
-<map id="box_factory::get_stddev" name="box_factory::get_stddev">
-<area shape="rect" id="node2" href="$namespacebox__factory.html#afe15c3d9cfe8237ce49445a2f7ad489c" title="box_factory::get_mean" alt="" coords="216,56,371,83"/>
-<area shape="rect" id="node3" href="$classbox.html#ab1b3f88480aa142512f4e12710d0a166" title="box::get_map" alt="" coords="587,81,688,108"/>
-<area shape="rect" id="node4" href="$classbox.html#a57eff83f119a7f5a8f561493c70500a7" title="box::get_mean" alt="" coords="425,5,533,32"/>
-<area shape="rect" id="node6" href="$namespacebox__factory.html#a270c930f220f7b1d388bd9cf828e4442" title="box_factory::sqrt" alt="" coords="419,107,539,133"/>
-<area shape="rect" id="node5" href="$classbox.html#a1ca802dd9502ab576e4786c06325fd94" title="box::box" alt="" coords="601,5,673,32"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="generate_var_declaration" name="generate_var_declaration">
-<area shape="rect" id="node2" href="$classmodel.html#a35080909196a52b355b71eb84935b001" title="model::get_var_map" alt="" coords="223,5,363,32"/>
-<area shape="rect" id="node3" href="$smt2__generator_8cpp.html#a1a85d3656cd613a0601d8a6a98766265" title="get_unique_elements" alt="" coords="220,56,365,83"/>
-<area shape="rect" id="node4" href="$classmodel.html#a66b7618a2b3a331812fbc12f2e398c1b" title="model::get_mode" alt="" coords="231,107,354,133"/>
-<area shape="rect" id="node5" href="$classmode.html#a4cf9191d7dc410eb1da780324e758f51" title="mode::get_odes" alt="" coords="235,157,350,184"/>
-</map>

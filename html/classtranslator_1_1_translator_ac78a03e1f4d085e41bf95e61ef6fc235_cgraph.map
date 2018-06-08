@@ -1,7 +1,0 @@
-<map id="translator::Translator::~Translator" name="translator::Translator::~Translator">
-<area shape="rect" id="node2" href="$translator_8cpp.html#a21be492e9f8c00679f087b86495cf56b" title="addBlock" alt="" coords="227,5,303,32"/>
-<area shape="rect" id="node3" href="$namespacetranslator.html#aaac257b38780512eaafa42b8a9aa8e54" title="translator::get_initial\l_value" alt="" coords="196,57,335,98"/>
-<area shape="rect" id="node5" href="$namespacepdrh.html#a85d0964f6180e4b17cd9ab0e06b6463c" title="pdrh::var_exists" alt="" coords="601,93,716,120"/>
-<area shape="rect" id="node6" href="$namespacetranslator.html#a29486462382014a625fa2827c604a861" title="translator::translate\l_ode_expression" alt="" coords="198,174,333,215"/>
-<area shape="rect" id="node4" href="$namespacetranslator.html#a0eafa48c362169959670cd0801439cb4" title="translator::resolve\l_variable_initial_condition" alt="" coords="383,57,553,98"/>
-</map>

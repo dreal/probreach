@@ -1,7 +1,0 @@
-<map id="generate_flows" name="generate_flows">
-<area shape="rect" id="node2" href="$classmodel.html#ab67172763d5556cc7c27d95934f6b636" title="model::get_modes" alt="" coords="164,5,293,32"/>
-<area shape="rect" id="node3" href="$smt2__generator_8cpp.html#a090f4555e760b1434cd751d3877e164b" title="generate_flows" alt="" coords="173,56,284,83"/>
-<area shape="rect" id="node4" href="$smt2__generator_8cpp.html#a1a85d3656cd613a0601d8a6a98766265" title="get_unique_elements" alt="" coords="341,5,487,32"/>
-<area shape="rect" id="node5" href="$classmodel.html#a66b7618a2b3a331812fbc12f2e398c1b" title="model::get_mode" alt="" coords="353,56,475,83"/>
-<area shape="rect" id="node6" href="$classmode.html#a4cf9191d7dc410eb1da780324e758f51" title="mode::get_odes" alt="" coords="357,107,471,133"/>
-</map>

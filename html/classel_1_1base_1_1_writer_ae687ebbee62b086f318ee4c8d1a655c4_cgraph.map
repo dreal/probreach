@@ -1,7 +1,0 @@
-<map id="el::base::Writer::initializeLogger" name="el::base::Writer::initializeLogger">
-<area shape="rect" id="node2" href="$classel_1_1base_1_1_writer.html#a282d82f392a3e6fef9eda47ce53e87dc" title="el::base::Writer::construct" alt="" coords="221,5,394,32"/>
-<area shape="rect" id="node4" href="$classel_1_1base_1_1threading_1_1_thread_safe.html#a59db719b214f7118f0919846a85077bf" title="el::base::threading\l::ThreadSafe::acquireLock" alt="" coords="220,57,395,98"/>
-<area shape="rect" id="node5" href="$classel_1_1_logger.html#aa577392f6bd9f3a48b447fc0c7e5f8dc" title="el::Logger::enabled" alt="" coords="241,123,373,149"/>
-<area shape="rect" id="node6" href="$classel_1_1_level_helper.html#a6576fd7cd6d1d839952145115c6e4b38" title="Casts level to int, useful for iterating through enum. " alt="" coords="221,173,393,200"/>
-<area shape="rect" id="node3" href="$classel_1_1_logger.html#a8583bfdeea4cb781396fd635addd64e9" title="el::Logger::id" alt="" coords="443,5,540,32"/>
-</map>

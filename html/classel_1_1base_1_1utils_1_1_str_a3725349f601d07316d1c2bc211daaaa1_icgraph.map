@@ -1,4 +1,0 @@
-<map id="el::base::utils::Str::replaceFirstWithEscape" name="el::base::utils::Str::replaceFirstWithEscape">
-<area shape="rect" id="node2" href="$classel_1_1base_1_1_log_format.html#afee2335cce2b627dfd7f918d5a2b85f3" title="Updates level from format. This is so that we dont have to do it at log&#45;writing&#45;time. It uses m_format and m_level. " alt="" coords="242,5,382,47"/>
-<area shape="rect" id="node3" href="$classel_1_1base_1_1_default_log_builder.html#a9ee7983bc51f1fac887806e909ecbbbd" title="el::base::DefaultLogBuilder\l::build" alt="" coords="223,71,401,112"/>
-</map>

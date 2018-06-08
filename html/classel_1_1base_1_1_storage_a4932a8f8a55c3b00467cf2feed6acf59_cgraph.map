@@ -1,5 +1,0 @@
-<map id="el::base::Storage::Storage" name="el::base::Storage::Storage">
-<area shape="rect" id="node2" href="$classel_1_1_logger.html#aeb57aeaddbb3dcd0cb96114019817142" title="el::Logger::configurations" alt="" coords="183,5,351,32"/>
-<area shape="rect" id="node3" href="$classel_1_1_configurations.html#a56c82c15ea39cc230a5c85ec2c41cbfd" title="Sets configuration for all levels. " alt="" coords="205,57,329,98"/>
-<area shape="rect" id="node4" href="$classel_1_1_logger.html#adfd57ab27fb398cc980a3edfab92927e" title="Reconfigures logger using existing configurations. " alt="" coords="191,123,342,149"/>
-</map>

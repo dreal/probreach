@@ -1,6 +1,0 @@
-<map id="generate_goal" name="generate_goal">
-<area shape="rect" id="node2" href="$classmodel.html#ae97ed38385536aa181d5a966d535d864" title="model::get_goal" alt="" coords="159,5,274,32"/>
-<area shape="rect" id="node3" href="$classnode.html#a4646877e6854b17ae91b842d6fdcd6bf" title="node::to_prefix" alt="" coords="163,56,271,83"/>
-<area shape="rect" id="node4" href="$smt2__generator_8cpp.html#a0375f024d4745b47e889645e777b175c" title="generate_t_index" alt="" coords="156,107,277,133"/>
-<area shape="rect" id="node5" href="$smt2__generator_8cpp.html#ad166bcacdbef88a93e18c47603022f97" title="generate_index" alt="" coords="325,107,436,133"/>
-</map>

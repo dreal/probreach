@@ -1,8 +1,0 @@
-<map id="decision_procedure::evaluate" name="decision_procedure::evaluate">
-<area shape="rect" id="node2" href="$namespacedecision__procedure.html#af2de5f5d8854227fd8b2e0fac67eb5c5" title="decision_procedure\l::evaluate_isat" alt="" coords="199,5,334,47"/>
-<area shape="rect" id="node3" href="$namespacedecision__procedure.html#aede6c2075c252a48c682e6c2d24b1b2e" title="decision_procedure\l::evaluate_complement" alt="" coords="188,71,345,112"/>
-<area shape="rect" id="node6" href="$namespaceisat.html#ad041aff0acf4fe2e3880ccca4902387d" title="isat::evaluate" alt="" coords="217,137,317,163"/>
-<area shape="rect" id="node4" href="$namespacepdrh.html#aeb5a9a2fdf6f5da310170db56124dde1" title="pdrh::reach_c_to_smt2" alt="" coords="393,31,548,58"/>
-<area shape="rect" id="node5" href="$namespacedreal.html#a65919a4b184526125dd6429bc207cc3f" title="dreal::execute" alt="" coords="419,82,523,109"/>
-<area shape="rect" id="node7" href="$isat__wrapper_8cpp.html#ae9c7e5e8eabf114b70072b539778b768" title="parse_isat_output" alt="" coords="408,137,533,163"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="measure::p_dd_measure" name="measure::p_dd_measure">
-<area shape="rect" id="node2" href="$classbox.html#ab1b3f88480aa142512f4e12710d0a166" title="box::get_map" alt="" coords="585,31,687,57"/>
-<area shape="rect" id="node3" href="$namespacepdrh.html#aa4f2173c40c59858af52948ef37f12e6" title="pdrh::node_to_interval" alt="" coords="219,31,369,57"/>
-<area shape="rect" id="node4" href="$namespacebox__factory.html#a270c930f220f7b1d388bd9cf828e4442" title="box_factory::sqrt" alt="" coords="417,31,537,57"/>
-<area shape="rect" id="node5" href="$namespacebox__factory.html#aec0a591c02a0d47226ddc5fe2793720b" title="box_factory::log" alt="" coords="420,81,535,108"/>
-</map>

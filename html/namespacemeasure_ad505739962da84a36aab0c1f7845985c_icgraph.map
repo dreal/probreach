@@ -1,8 +1,0 @@
-<map id="measure::precision" name="measure::precision">
-<area shape="rect" id="node2" href="$namespacemeasure.html#a3a2114917621300beaa451f2a537fb2b" title="measure::partition" alt="" coords="207,5,333,32"/>
-<area shape="rect" id="node3" href="$namespacemeasure.html#a47d3569a9a069a8a06b56101f6210799" title="measure::p_measure" alt="" coords="198,56,342,83"/>
-<area shape="rect" id="node4" href="$namespacemeasure.html#aff9dc4e19e55efa41cf10f833e60809f" title="measure::get_rv_partition" alt="" coords="185,107,355,133"/>
-<area shape="rect" id="node5" href="$namespacealgorithm.html#a1cc29dbbc0fd4938905663bb8dbf1c29" title="algorithm::evaluate_pha" alt="" coords="602,80,762,107"/>
-<area shape="rect" id="node6" href="$namespacealgorithm.html#aa4492db22a9b09affa1aa7e966d6ef0f" title="algorithm::evaluate_npha" alt="" coords="599,135,765,161"/>
-<area shape="rect" id="node7" href="$namespacemeasure_1_1bounds.html#a44010a00e7a25bf822120d96607d7be7" title="measure::bounds::get\l_rv_domain" alt="" coords="403,99,551,141"/>
-</map>

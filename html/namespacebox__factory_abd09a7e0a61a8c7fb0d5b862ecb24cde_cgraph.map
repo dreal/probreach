@@ -1,8 +1,0 @@
-<map id="box_factory::compatible" name="box_factory::compatible">
-<area shape="rect" id="node2" href="$classbox.html#a1834fc925ce861aef56d2cde6d91667b" title="box::compatible" alt="" coords="215,56,329,83"/>
-<area shape="rect" id="node3" href="$namespacebox__factory.html#a4176cc198e532cb72c8996a11d55e913" title="box_factory::get_keys_diff" alt="" coords="377,5,553,32"/>
-<area shape="rect" id="node5" href="$classbox.html#a4edfd230c4d1902806045c207006a0c4" title="box::empty" alt="" coords="422,56,509,83"/>
-<area shape="rect" id="node6" href="$classbox.html#a77c29667a727860108380c8a780c4d98" title="box::get_keys_diff" alt="" coords="401,107,530,133"/>
-<area shape="rect" id="node4" href="$classbox.html#ab1b3f88480aa142512f4e12710d0a166" title="box::get_map" alt="" coords="601,31,703,57"/>
-<area shape="rect" id="node7" href="$classbox.html#a1ca802dd9502ab576e4786c06325fd94" title="box::box" alt="" coords="616,107,688,133"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="decision_procedure::evaluate_delta_sat" name="decision_procedure::evaluate_delta_sat">
-<area shape="rect" id="node2" href="$namespacealgorithm.html#a10ab9b4fda5f4c764a8cc1304cea327f" title="algorithm::evaluate\l_pha_chernoff" alt="" coords="195,5,327,47"/>
-<area shape="rect" id="node3" href="$namespacealgorithm.html#a69c8275d5c6f97758248f103b1ba3879" title="algorithm::evaluate\l_pha_bayesian" alt="" coords="195,71,327,112"/>
-<area shape="rect" id="node4" href="$namespacedecision__procedure.html#ae5030e785d4819b025c898b318851d21" title="decision_procedure\l::evaluate_isat" alt="" coords="194,136,329,177"/>
-<area shape="rect" id="node5" href="$namespacedecision__procedure.html#a1423af34a848a2083f43e2817a71bae8" title="decision_procedure\l::evaluate_delta_sat" alt="" coords="192,201,331,243"/>
-</map>

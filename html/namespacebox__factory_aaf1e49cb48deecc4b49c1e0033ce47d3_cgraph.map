@@ -1,7 +1,0 @@
-<map id="box_factory::partition" name="box_factory::partition">
-<area shape="rect" id="node2" href="$namespacebox__factory.html#a4176cc198e532cb72c8996a11d55e913" title="box_factory::get_keys_diff" alt="" coords="197,5,373,32"/>
-<area shape="rect" id="node4" href="$classbox.html#a4edfd230c4d1902806045c207006a0c4" title="box::empty" alt="" coords="242,56,329,83"/>
-<area shape="rect" id="node5" href="$namespacebox__factory.html#ab7d7eb40c548e859081e5869f24df6dd" title="box_factory::bisect" alt="" coords="219,107,352,133"/>
-<area shape="rect" id="node3" href="$classbox.html#ab1b3f88480aa142512f4e12710d0a166" title="box::get_map" alt="" coords="446,27,547,53"/>
-<area shape="rect" id="node6" href="$namespacebox__factory.html#ada51ecbaebc2791e659d7a3c376c01da" title="box_factory::cartesian\l_product" alt="" coords="421,99,572,141"/>
-</map>

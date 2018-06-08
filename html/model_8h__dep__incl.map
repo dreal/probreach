@@ -1,8 +1,0 @@
-<map id="src/pdrh2smt/model.h" name="src/pdrh2smt/model.h">
-<area shape="rect" id="node2" href="$main_8cpp.html" title="src/main.cpp" alt="" coords="5,80,103,107"/>
-<area shape="rect" id="node3" href="$isat__generator_8h.html" title="src/pdrh2smt/isat_generator.h" alt="" coords="127,80,322,107"/>
-<area shape="rect" id="node5" href="$model_8cpp.html" title="src/pdrh2smt/model.cpp" alt="" coords="346,80,509,107"/>
-<area shape="rect" id="node6" href="$smt2__generator_8h.html" title="src/pdrh2smt/smt2_generator.h" alt="" coords="533,80,735,107"/>
-<area shape="rect" id="node4" href="$isat__generator_8cpp.html" title="src/pdrh2smt/isat_generator.cpp" alt="" coords="120,155,329,181"/>
-<area shape="rect" id="node7" href="$smt2__generator_8cpp.html" title="src/pdrh2smt/smt2_generator.cpp" alt="" coords="525,155,743,181"/>
-</map>

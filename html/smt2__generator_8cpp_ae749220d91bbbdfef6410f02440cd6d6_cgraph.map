@@ -1,6 +1,0 @@
-<map id="generate_init" name="generate_init">
-<area shape="rect" id="node2" href="$classmodel.html#adccb82cf1eb0193c24e0b5ab137a63a5" title="model::get_init" alt="" coords="158,5,265,32"/>
-<area shape="rect" id="node3" href="$classnode.html#a4646877e6854b17ae91b842d6fdcd6bf" title="node::to_prefix" alt="" coords="157,56,265,83"/>
-<area shape="rect" id="node4" href="$smt2__generator_8cpp.html#a9ed59f50b3d01aa8e5c8e876ab133672" title="generate_0_index" alt="" coords="149,107,273,133"/>
-<area shape="rect" id="node5" href="$smt2__generator_8cpp.html#ad166bcacdbef88a93e18c47603022f97" title="generate_index" alt="" coords="321,107,432,133"/>
-</map>

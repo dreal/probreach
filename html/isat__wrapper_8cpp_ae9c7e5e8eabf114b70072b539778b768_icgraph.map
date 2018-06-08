@@ -1,6 +1,0 @@
-<map id="parse_isat_output" name="parse_isat_output">
-<area shape="rect" id="node2" href="$namespaceisat.html#ad041aff0acf4fe2e3880ccca4902387d" title="isat::evaluate" alt="" coords="179,64,279,91"/>
-<area shape="rect" id="node3" href="$namespacesolver.html#a0cc024716bebd025c1a41ebe9a3eaabe" title="solver::evaluate" alt="" coords="337,5,451,32"/>
-<area shape="rect" id="node4" href="$namespacedecision__procedure.html#ae5030e785d4819b025c898b318851d21" title="decision_procedure\l::evaluate_isat" alt="" coords="327,57,461,98"/>
-<area shape="rect" id="node5" href="$namespacedecision__procedure.html#aa6f6c5bccf64ca86506ec9c5ad00cf91" title="decision_procedure\l::evaluate" alt="" coords="327,122,461,163"/>
-</map>

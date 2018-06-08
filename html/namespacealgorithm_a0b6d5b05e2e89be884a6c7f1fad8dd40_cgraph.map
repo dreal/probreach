@@ -1,8 +1,0 @@
-<map id="algorithm::evaluate_ha" name="algorithm::evaluate_ha">
-<area shape="rect" id="node2" href="$namespacedecision__procedure.html#af2de5f5d8854227fd8b2e0fac67eb5c5" title="decision_procedure\l::evaluate_isat" alt="" coords="207,5,341,47"/>
-<area shape="rect" id="node3" href="$namespacepdrh.html#a6d6ebf61b7e591e7e62fb50a369de7dc" title="pdrh::get_paths" alt="" coords="218,71,330,98"/>
-<area shape="rect" id="node7" href="$namespacedecision__procedure.html#a02e37aa270977215477a1851763f730b" title="decision_procedure\l::evaluate" alt="" coords="207,123,341,164"/>
-<area shape="rect" id="node4" href="$namespacepdrh.html#a26dc5bcfdf5ce9cb36686f61a5949f6e" title="pdrh::get_successors" alt="" coords="389,71,536,98"/>
-<area shape="rect" id="node5" href="$namespacepdrh.html#ae58ca7828aa3583858dc4f885bc9b2b8" title="pdrh::get_mode" alt="" coords="585,46,697,73"/>
-<area shape="rect" id="node6" href="$namespacepdrh.html#a71887b71ef4b2623344074b212d6fa8d" title="pdrh::print_jump" alt="" coords="584,97,699,123"/>
-</map>

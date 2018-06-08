@@ -1,6 +1,0 @@
-<map id="measure::integral" name="measure::integral">
-<area shape="rect" id="node2" href="$namespacebox__factory.html#a767cb547ff9f7272f99cd181d38dedb6" title="box_factory::partition" alt="" coords="176,31,320,57"/>
-<area shape="rect" id="node3" href="$classbox.html#ab1b3f88480aa142512f4e12710d0a166" title="box::get_map" alt="" coords="574,5,675,32"/>
-<area shape="rect" id="node4" href="$namespacebox__factory.html#ab7d7eb40c548e859081e5869f24df6dd" title="box_factory::bisect" alt="" coords="368,56,501,83"/>
-<area shape="rect" id="node5" href="$namespacebox__factory.html#ada51ecbaebc2791e659d7a3c376c01da" title="box_factory::cartesian\l_product" alt="" coords="549,57,700,98"/>
-</map>

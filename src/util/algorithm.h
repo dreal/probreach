@@ -12,10 +12,12 @@ using namespace std;
 
 namespace algorithm
 {
+    extern bool use_verified;
+
     // evaluating reachability in hybrid automata (arg: depth)
     //decision_procedure::result evaluate_ha(int);
     // evaluating reachability in hybrid automata (arg1: min depth, arg2: max depth)
-    decision_procedure::result evaluate_ha(int, int);
+    int evaluate_ha(int, int);
     // evaluating reachability in probabilitic hybrid automata (arg: depth)
     capd::interval evaluate_pha(int);
     // evaluating reachability in probabilitic hybrid automata (arg1: min depth, arg2: max depth)
@@ -50,6 +52,9 @@ namespace algorithm
     pair<box, capd::interval> evaluate_npha_sobol(int, int, int);
     pair<box, capd::interval> evaluate_npha_cross_entropy_normal(int, int, int);
     pair<box, capd::interval> evaluate_npha_cross_entropy_beta(int, int, int);
+
+    pair<capd::interval, box> solve_min_max();
+    capd::interval compute_robustness();
 
 }
 

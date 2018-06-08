@@ -24,12 +24,13 @@ bool box::contains(box b) const
 {
     map<string, capd::interval> edges = get_map();
     map<string, capd::interval> b_edges = b.get_map();
-    for(auto it = edges.cbegin(); it != edges.cend(); it++)
+    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
     {
-        if(b_edges.find(it->first) != b_edges.cend())
+        if(edges.find(it->first) != edges.cend())
         {
-            if(!it->second.contains(b.get_map()[it->first]))
+            if(!edges[it->first].contains(it->second))
             {
+                //cout << "Variable \"" << it->first << "\" " << edges[it->first] << " " << it->second << endl;
                 return false;
             }
         }
@@ -86,6 +87,20 @@ box::box(std::map<std::string, capd::interval> e)
     this->edges = e;
 }
 
+box::box(vector<box> boxes)
+{
+    std::map<string, capd::interval> edges;
+    for(box b : boxes)
+    {
+        std::map<string, capd::interval> b_map = b.get_map();
+        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        {
+            edges.insert(make_pair(it->first, it->second));
+        }
+    }
+    this->edges = edges;
+}
+
 box::box(string line)
 {
     // removing whitespaces
@@ -126,6 +141,7 @@ std::ostream& operator<<(std::ostream& os, const box& b)
     std::map<std::string, capd::interval> e = b.get_map();
     for(auto it = e.cbegin(); it != e.cend(); it++)
     {
+        //os << it->first << ":" << it->second << "; | " << capd::intervals::width(it->second) << endl;
         os << it->first << ":" << it->second << "; ";
     }
     return os;
@@ -254,43 +270,21 @@ box operator/(const box& lhs, const box& rhs)
     return box(res);
 }
 
-dd_box::dd_box(std::map<std::string, capd::interval> e)
+box operator/(const box& lhs, double rhs)
 {
-    for(auto it = e.cbegin(); it != e.cend(); it++)
+    if(rhs == 0)
     {
-        if(capd::intervals::width(it->second) > 0)
-        {
-            std::ostringstream s;
-            s << "invalid interval " << it->first << ":" << it->second << " while creating a dd_box";
-            throw std::invalid_argument(s.str());
-        }
+        ostringstream s;
+        s << "cannot devide by 0";
+        throw std::invalid_argument(s.str());
     }
-    this->edges = e;
-}
-
-dd_box::dd_box(box b):box(b.get_map())
-{
-
-}
-
-rv_box::rv_box(std::map<std::string, capd::interval> e):box(e)
-{
-
-}
-
-rv_box::rv_box(box b):box(b.get_map())
-{
-
-}
-
-nd_box::nd_box(std::map<std::string, capd::interval> e):box(e)
-{
-
-}
-
-nd_box::nd_box(box b):box(b.get_map())
-{
-
+    map<string, capd::interval> lhs_map = lhs.get_map();
+    map<string, capd::interval> res;
+    for(auto it = lhs_map.cbegin(); it != lhs_map.cend(); it++)
+    {
+        res.insert(make_pair(it->first, it->second / rhs));
+    }
+    return box(res);
 }
 
 /**
@@ -408,4 +402,9 @@ box box::fmod(int mod)
         res.insert(make_pair(it->first, this->edges[it->first].leftBound()-(long)this->edges[it->first].leftBound()));
     }
     return box(res);
+}
+
+void box::erase(string var)
+{
+    this->edges.erase(var);
 }

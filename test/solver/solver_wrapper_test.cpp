@@ -6,6 +6,7 @@
 #include <fstream>
 #include "node.h"
 #include "model.h"
+#include "box.h"
 #include "solver_wrapper.h"
 #include "isat_generator.h"
 

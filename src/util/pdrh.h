@@ -48,15 +48,27 @@ namespace pdrh
         {
             value = rhs.value;
             operands = rhs.operands;
-
             return *this;
         }
 
+        // implement the correct comparison of two vectors
+        inline bool operator ==(const node &rhs)
+        {
+
+            return (value == rhs.value) && (operands == rhs.operands);
+        }
+
+        inline bool operator !=(const node &rhs)
+        {
+            return !(*this == rhs);
+        }
+
     };
-    node* push_terminal_node(string);
+    node* push_terminal_node(std::string);
     node* push_operation_node(string, vector<node*>);
     node* copy_node(node*);
     void copy_tree(node*&, node*);
+    void delete_node(node*);
 
     node* push_terminal_node(double);
     node* push_operation_node(double, vector<node*>);
@@ -64,8 +76,13 @@ namespace pdrh
     string node_to_string_prefix(node*);
     string node_to_string_infix(node*);
     capd::interval node_to_interval(node*);
+    capd::interval node_to_interval(node*, vector<box>);
+    bool node_to_boolean(node*, vector<box>);
     string node_fix_index(node*, int, string);
     bool is_node_empty(node*);
+    pdrh::node* box_to_node(box);
+    bool check_zero_crossing(node*, vector<box>, box, box);
+
 
     node* get_first_time_node(node*);
     void get_first_time_node(node*, node*);
@@ -102,6 +119,8 @@ namespace pdrh
         map<string, pair<node*, node*>> flow_map;
         map<string, node*> odes;
         pair<node*, node*> time;
+
+        pdrh::mode::jump get_jump(int);
     };
     extern vector<mode> modes;
 
@@ -110,6 +129,21 @@ namespace pdrh
     {
         int id;
         node* prop;
+
+        inline state(const int id, node* prop)
+                : id(id), prop(prop)
+        {
+        }
+
+        inline state()
+        {
+        }
+
+        friend std::ostream& operator<<(std::ostream &os, const pdrh::state &st)
+        {
+            os << st.id << ":" << pdrh::node_to_string_prefix(st.prop) << ";";
+            return os;
+        }
     };
     extern vector<state> init;
     extern vector<state> goal;
@@ -137,6 +171,7 @@ namespace pdrh
     void set_model_type();
 
     box get_nondet_domain();
+    box get_domain();
     box get_psy_domain();
     vector<mode*> get_psy_path(map<string, vector<capd::interval>>);
     vector<mode*> get_psy_path(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);
@@ -146,6 +181,7 @@ namespace pdrh
 
     bool var_exists(string);
     mode* get_mode(int);
+
 
     //void update_resets();
 

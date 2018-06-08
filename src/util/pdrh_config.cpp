@@ -285,6 +285,135 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
             }
         }
+        // controller plan output
+        else if(strcmp(argv[i], "--controller-plant-output") == 0)
+        {
+            i++;
+            bool map_end = false;
+            while(!map_end)
+            {
+                if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                {
+                    map_end = true;
+                    i--;
+                }
+                else
+                {
+                    if(find(global_config.controller.plant_output.begin(), global_config.controller.plant_output.end(), argv[i]) == global_config.controller.plant_output.end())
+                    {
+                        global_config.controller.plant_output.push_back(argv[i]);
+                    }
+                    i++;
+                }
+            }
+        }
+        // controller output
+        else if(strcmp(argv[i], "--controller-output") == 0)
+        {
+            i++;
+            bool map_end = false;
+            while(!map_end)
+            {
+                if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                {
+                    map_end = true;
+                    i--;
+                }
+                else
+                {
+                    if(find(global_config.controller.controller_output.begin(), global_config.controller.controller_output.end(), argv[i]) == global_config.controller.controller_output.end())
+                    {
+                        global_config.controller.controller_output.push_back(argv[i]);
+                    }
+                    i++;
+                }
+            }
+        }
+        // controller output
+        else if(strcmp(argv[i], "--controller-input") == 0)
+        {
+            i++;
+            bool map_end = false;
+            while(!map_end)
+            {
+                if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+                {
+                    map_end = true;
+                    i--;
+                }
+                else
+                {
+                    if(find(global_config.controller.controller_input.begin(), global_config.controller.controller_input.end(), argv[i]) == global_config.controller.controller_input.end())
+                    {
+                        global_config.controller.controller_input.push_back(argv[i]);
+                    }
+                    i++;
+                }
+            }
+        }
+        // noise variance map
+//        else if(strcmp(argv[i], "--noise-variance") == 0)
+//        {
+//            //global_config.partition_nondet = true;
+//            i++;
+//            bool map_end = false;
+//            while (!map_end)
+//            {
+//                if (is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+//                {
+//                    map_end = true;
+//                    i--;
+//                }
+//                else
+//                {
+//                    istringstream var_is(argv[i]);
+//                    string var = var_is.str();
+//                    i++;
+//                    if (is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
+//                    {
+//                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
+//                        exit(EXIT_FAILURE);
+//                    }
+//                    else
+//                    {
+//                        istringstream val_is(argv[i]);
+//                        global_config.controller.noise_variance.insert(
+//                                make_pair(var, capd::interval(val_is.str(), val_is.str()).rightBound()));
+//                        i++;
+//                    }
+//                }
+//            }
+//        }
+        // global_time variable
+        else if(strcmp(argv[i], "--global-time") == 0)
+        {
+            i++;
+            global_config.global_time = argv[i];
+        }
+        // system's output
+        else if(strcmp(argv[i], "--sys-out") == 0)
+        {
+            i++;
+            global_config.controller.sys_out = argv[i];
+        }
+        // sample_time variable
+        else if(strcmp(argv[i], "--sample-time") == 0)
+        {
+            i++;
+            global_config.sample_time = argv[i];
+        }
+        // noise variance
+        else if(strcmp(argv[i], "--noise-variance") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.noise_var;
+            if (global_config.noise_var <= 0)
+            {
+                CLOG(ERROR, "config") << "noise variance should be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
         // chernoff bound accuracy
         else if(strcmp(argv[i], "--chernoff-acc") == 0)
         {

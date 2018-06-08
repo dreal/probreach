@@ -10,17 +10,22 @@
 
 {
 mode 1;
+
+invt:
+	(Sx >= 0);
+	(tau >= 0);
+
 flow:
     d/dt[Sx]    = v * cos(alpha);
     d/dt[Sy]    = v * sin(alpha) - g * tau;
     d/dt[tau]   = 1.0;
     d/dt[v]		= 0.0;
 jump:
-    (and (tau > 1e-6) (Sy <= 0) (Sy >= 0)) ==> @1(and (Sx' = Sx) (Sy' = 0) (tau' = 0) (v' = K * v));
+    (and (tau > 1e-6) (Sy = 0)) ==> @1(and (Sx' = Sx) (Sy' = 0) (tau' = 0) (v' = K * v));
 }
 
 init:
-@1(and (Sx = 0) (Sy = 0) (tau = 0) (v >= 18.2625) (v <= 20));
+@1(and (Sx = 0) (Sy = 0) (tau = 0) (v = 20));
 
 goal:
 //@1(and (Sx >= 100.0) (Sx <= 100.0));

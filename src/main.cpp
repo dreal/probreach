@@ -8,11 +8,14 @@
 #include <iomanip>
 #include <pdrh.h>
 #include <model.h>
+#include <solver/dreal_wrapper.h>
 #include "pdrh_config.h"
 #include "pdrh.h"
 #include "algorithm.h"
 #include "rnd.h"
 #include "parser/output/outputparser.h"
+#include "ap.h"
+#include "box.h"
 
 extern "C"
 {
@@ -93,42 +96,43 @@ int main(int argc, char* argv[])
     {
         cout << pdrh::model_to_string() << endl;
     }
+
     // displaying primary solver
-    CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
-    if(global_config.solver_type == solver::type::DREAL)
-    {
-        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: dReal";
-    }
-    else if(global_config.solver_type == solver::type::ISAT)
-    {
-        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: iSAT";
-    }
-    else if(global_config.solver_type == solver::type::UNKNOWN_SOLVER)
-    {
-        CLOG(ERROR, "parser") << "Primary solver is not defined";
-        return EXIT_FAILURE;
-    }
-    // displaying secondary solver
-    if(global_config.secondary_solver_bin.empty())
-    {
-        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: not defined";
-    }
-    else
-    {
-        if(global_config.secondary_solver_type == solver::type::DREAL)
-        {
-            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: dReal";
-        }
-        else if(global_config.secondary_solver_type == solver::type::ISAT)
-        {
-            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: iSAT";
-        }
-        else if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
-        {
-            CLOG(ERROR, "parser") << "Secondary solver is not recognized";
-            return EXIT_FAILURE;
-        }
-    }
+//    CLOG_IF(global_config.verbose_result, INFO, "parser") << "Model type: " << pdrh::model_type;
+//    if(global_config.solver_type == solver::type::DREAL)
+//    {
+//        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: dReal";
+//    }
+//    else if(global_config.solver_type == solver::type::ISAT)
+//    {
+//        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Primary solver: iSAT";
+//    }
+//    else if(global_config.solver_type == solver::type::UNKNOWN_SOLVER)
+//    {
+//        CLOG(ERROR, "parser") << "Primary solver is not defined";
+//        return EXIT_FAILURE;
+//    }
+//    // displaying secondary solver
+//    if(global_config.secondary_solver_bin.empty())
+//    {
+//        CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: not defined";
+//    }
+//    else
+//    {
+//        if(global_config.secondary_solver_type == solver::type::DREAL)
+//        {
+//            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: dReal";
+//        }
+//        else if(global_config.secondary_solver_type == solver::type::ISAT)
+//        {
+//            CLOG_IF(global_config.verbose_result, INFO, "parser") << "Secondary solver: iSAT";
+//        }
+//        else if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
+//        {
+//            CLOG(ERROR, "parser") << "Secondary solver is not recognized";
+//            return EXIT_FAILURE;
+//        }
+//    }
 
     vector<vector<pdrh::mode*>> paths = pdrh::get_paths();
     cout << "Set of paths to check: " << endl;
@@ -153,24 +157,32 @@ int main(int argc, char* argv[])
         // hybrid automata
         case pdrh::HA:
         {
-            decision_procedure::result res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
-            if (res == decision_procedure::SAT)
-            {
-                std::cout << "sat" << std::endl;
-            }
-            else if (res == decision_procedure::UNDET)
-            {
-                std::cout << "undet" << std::endl;
-            }
-            else if (res == decision_procedure::UNSAT)
-            {
-                std::cout << "unsat" << std::endl;
-            }
-            else if (res == decision_procedure::ERROR)
-            {
-                std::cout << "error" << std::endl;
-                return EXIT_FAILURE;
-            }
+//            int res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
+//            if (res == decision_procedure::SAT)
+//            {
+//                std::cout << "sat" << std::endl;
+//            }
+//            else if (res == decision_procedure::UNDET)
+//            {
+//                std::cout << "undet" << std::endl;
+//            }
+//            else if (res == decision_procedure::UNSAT)
+//            {
+//                std::cout << "unsat" << std::endl;
+//            }
+//            else if (res == decision_procedure::ERROR)
+//            {
+//                std::cout << "error" << std::endl;
+//                return EXIT_FAILURE;
+//            }
+//            break;
+            //cout << "Simulating a path: " << ap::simulate_path(ap::get_all_paths({}).front(), ap::init_to_box({}), {}) << endl;
+            //cout << global_config.global_time << endl;
+            //cout << global_config.sample_time << endl;
+            //global_config.ode_discretisation = 1;
+            //cout << "Noise variance: " << global_config.noise_var << endl;
+            //cout << "Simulation: " << ap::simulate({}) << endl;
+            cout << "Verification: " << ap::verify({}) << endl;
             break;
         }
         // probabilistic hybrid automata
@@ -199,7 +211,12 @@ int main(int argc, char* argv[])
                 probability.setRightBound(1);
             }
             std::cout << scientific << probability << " | " << capd::intervals::width(probability) << std::endl;
-            break;
+//            cout << "UNSAT samples:" << endl;
+//            for(box b : ap::unsat_samples)
+//            {
+//                cout << b << endl;
+//            }
+//            break;
         }
         // nondeterministic probabilistic hybrid automata
         case pdrh::NPHA:
@@ -237,21 +254,100 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                    pair<box, capd::interval> probability;
-                    if(global_config.cross_entropy_normal)
+                    // getting the domain of nondeterministic parameters
+                    box nondet_domain = pdrh::get_nondet_domain();
+                    cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
+                    // copying the parameter map
+                    map<string, pair<pdrh::node*, pdrh::node*>> init_par_map;
+                    for(auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
                     {
-                        probability = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
-                                                                                     global_config.reach_depth_max,
-                                                                                     global_config.sample_size);
+                        init_par_map[it->first] = make_pair(pdrh::copy_node(it->second.first), pdrh::copy_node(it->second.second));
                     }
-                    else if(global_config.cross_entropy_beta)
+                    // nondeterministic parameters names
+                    vector<string> param_names = {"Kp", "Ki", "Kd"};
+                    // changing the domain to start with the simplest controller
+                    pdrh::node *zero_node = new pdrh::node("0");
+                    for(string param : param_names)
                     {
-                        probability = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
-                                                                                   global_config.reach_depth_max,
-                                                                                   global_config.sample_size);
+                        pdrh::par_map[param] = make_pair(zero_node, zero_node);
                     }
-                    std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
+                    pair<box, capd::interval> res = make_pair(box(), capd::interval(0.0));
+                    if(global_config.min_prob) res.second = capd::interval(1.0);
+                    // iterating through all parameter values
+                    for(string param : param_names)
+                    {
+                        // increasing complexity of the controller
+                        pdrh::par_map[param] = init_par_map[param];
+                        cout << "Domain of nondeterministic parameters: " << pdrh::get_nondet_domain() << endl;
+                        capd::interval conf_intersection(0);
+                        // adjusting discretisation until both intervals intersect by more than 80%
+                        // use the size of optimised conf interval instead of the accuracy value of the statistical algorithm
+                        while(capd::intervals::width(conf_intersection) < global_config.bayesian_acc)
+                        {
+                            // cross entropy algorithm is used here
+                            algorithm::use_verified = false;
+                            cout << "Solving optimisation problem for the discretised system" << endl;
+                            cout << "Discretisation using " << global_config.ode_discretisation << " points" << endl;
+//                            pair<box, capd::interval> opt_res = make_pair(box("Kp:[1.77,1.77];Ki:[0,0];Kd:[0,0];"), capd::interval(0));
+                            pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal( global_config.reach_depth_min,
+                                                                                                               global_config.reach_depth_max,
+                                                                                                               global_config.sample_size);
+                            cout << "Optimisation result: " << endl;
+                            cout << opt_res.first << "   |   " << opt_res.second << endl;
+                            algorithm::use_verified = true;
+                            cout << "Computing confidence interval with guarantees:" << endl;
+                            capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
+                                                                                   global_config.bayesian_conf, {opt_res.first});
+//                            capd::interval prob = opt_res.second;
+                            cout << "The verification result:" << endl;
+                            cout << opt_res.first << "   |   " << prob << endl;
+                            capd::intervals::intersection(opt_res.second, prob, conf_intersection);
+                            cout << "Intersection of the two confidence intervals: " << conf_intersection << endl;
+                            // increasing the number of points used for odes discretisation
+                            if(capd::intervals::width(conf_intersection) < global_config.bayesian_acc)
+                            {
+                                global_config.ode_discretisation *= 2;
+                            }
+                            // updating the result
+                            // the case of minimising the probability value
+                            if(global_config.min_prob)
+                            {
+                                // comparing probability intervals by their mid points
+                                if(prob.mid() <= res.second.mid()) res = make_pair(opt_res.first, prob);
+                            }
+                            // maximising the probability
+                            else
+                            {
+                                // comparing probability intervals by their mid points
+                                if(prob.mid() >= res.second.mid()) res = make_pair(opt_res.first, prob);
+                            }
+                            cout << "Best result so far:" << endl;
+                            cout << res.first << "   |   " << res.second << endl;
+                        }
+                        cout << "Updating controller's complexity" << endl << endl;
+                        // doubling the number of samples per iteration
+                        global_config.sample_size *= 2;
+                        // incrementing the number of iterations
+                        global_config.iter_num++;
+                    }
+                    // removing zero node
+                    delete zero_node;
+                    cout << "Final verdict:" << endl;
+                    cout << res.first << "   |   " << res.second << endl;
+
+//                    if(global_config.cross_entropy_beta)
+//                    {
+//                        opt_res = algorithm::evaluate_npha_cross_entropy_beta( global_config.reach_depth_min,
+//                                                                                   global_config.reach_depth_max,
+//                                                                                   global_config.sample_size);
+//                    }
+                    //std::cout << scientific << probability.first << " : " << probability.second << " | " << capd::intervals::width(probability.second) << std::endl;
                 }
+//                cout << "UNSAT samples:" << endl;
+//                for(box b : ap::unsat_samples)
+//                {
+//                    cout << b << endl;
+//                }
             }
             else
             {
@@ -262,6 +358,11 @@ int main(int argc, char* argv[])
                 }
             }
             break;
+
+
+//            pair<capd::interval, box> res = algorithm::solve_min_max();
+//            cout << res.second << " | " << res.first << endl;
+//            break;
         }
         // parameter synthesis
         case pdrh::PSY:

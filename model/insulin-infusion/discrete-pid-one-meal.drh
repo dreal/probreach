@@ -38,7 +38,7 @@
 //#define UG 8 * 180 / 1000 // glucose absorption rate (Sriram)
 //#define UG DG*0.01743 // glucose absorption rate (Fedor 2017)
 
-#define UG (DG/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2) // glucose absorption rate (Hovorka 2004)
+//#define UG (DG/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2) // glucose absorption rate (Hovorka 2004)
 #define Gmolar 180.1559 //[g/mol] molar mass of glucose (Google 2017)
 //dist_uniform(40,100) DG; //[g] amount of carbohydrates digested (Fedor 2017)
 //dist_normal(70,1) DG; //[g] amount of carbohydrates digested (Fedor 2017)
@@ -53,13 +53,13 @@
 
 // dynamics
 #define r_ode 0
-#define Q1_ode (-Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + UG)
-#define Q2_ode x1 * Q1 - (k12 + x2) * Q2
+//#define Q1_ode (-Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (DG/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2))
+//#define Q2_ode x1 * Q1 - (k12 + x2) * Q2
 
 // administration (bolus and infusion) of insulin (Hovorka 2004)
 
-//dist_uniform(300,480) t_meal; // [min] time to the next meal (Fedor 2017)
-//dist_normal(300,5) t_meal; // [min] time to the next meal (Fedor 2017)
+//dist_uniform(300,480) tau_meal; // [min] time to the next meal (Fedor 2017)
+//dist_normal(300,5) tau_meal; // [min] time to the next meal (Fedor 2017)
 
 //#define G_lower 7.36148
 //#define G_upper 8.1472
@@ -92,11 +92,19 @@
 #define x3_init 0.0268115942028984
 
 #define t_sleep 540
-#define t_sample 10
+#define tau_sample 5
 
 // breakfast
-#define DG1 84
-#define t_meal1 300
+#define DG1 80
+#define tau_meal_1 317
+
+// lunch
+#define DG2 80
+#define tau_meal_2 257
+
+// dinner
+#define DG3 80
+#define tau_meal_3 289
 
 #define Q1_lower 64
 #define Q1_upper 256
@@ -113,19 +121,18 @@
 [0,1e6] Q1; //[mmol] mass of glucose in the accessible compartment (where the measurements are made) (Hovorka 2004)
 [0,1e6] Q2; //[mmol] mass of glucose in the non-accessible compartment (Hovorka 2004)
 [0,1e6] r; // reference trajectory
-[0,120] DG; // [g] the amount of consumed carbohydrates
 [-1e9,1e9] e_int_dis; // discrete integral value
 [-1e9,1e9] e_der_dis; // discrete derivative value
 [-1e9,1e9] e_dis; // discrete error value
 [0,1e6] Q1_prev;
 
-[-1e3,1e3] FQ1_hyper_int;
-[-1e3,1e3] FQ1_hypo_int;
+[-1e6,1e6] FQ1_hyper_int;
+[-1e6,1e6] FQ1_hypo_int;
 
 
 [0,1440] tau;
-[0,1440] time;
-[0,1440] counter;
+
+[0,tau_sample] counter;
 
 
 
@@ -136,7 +143,13 @@ mode 1;
 
 time:
 
-[0,t_sample];
+[0,tau_sample];
+
+invt:
+
+(G >= G_lower_unsafe);
+(G <= G_upper_unsafe);
+(u >= 0);
 
 flow:
 
@@ -146,9 +159,6 @@ d/dt[e_der_dis] = 0;
 d/dt[e_dis] = 0;
 d/dt[Q1_prev] = 0;
 
-// d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2) * Q1_ode;
-// d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2) * Q1_ode;
-
 d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
 d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
 
@@ -156,8 +166,8 @@ d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
 d/dt[r] = r_ode;
 
 //glucose-subsystem
-d/dt[Q1]= Q1_ode;
-d/dt[Q2]= Q2_ode;
+d/dt[Q1]= (-Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (DG1/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2));
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
 
 //insulin-subsystem
 d/dt[S1]= u - S1 / tmaxI;
@@ -170,22 +180,135 @@ d/dt[x2]= - ka2 * x2 + kb2 * I;
 d/dt[x3]= - ka3 * x3 + kb3 * I;
 d/dt[tau]= 1;
 d/dt[counter]= 1;
-d/dt[DG] = 0;
 
 jump:
 
 
-(counter = t_sample) ==> @1	(and 	(counter' = 0) (e_int_dis' = e_int_dis + t_sample * (r - Q1)) 
-									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / t_sample) 
-									(e_dis' = r - Q1)
-									(e_dis' = dist_normal(0,1))
-									(e_dis' = [0,1])
-									(e_dis' = dist_discrete(1:0.01, 0:0.99)));
+(counter = tau_sample) ==> @1	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
+									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
+									(e_dis' = r - Q1));
 
+(tau = tau_meal_1) ==> @2	(and 	(counter' = counter) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
+									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
+									(e_dis' = r - Q1)(tau' = 0));
 
 }
 
 
+// lunch
+{
+mode 2;
+
+time:
+
+[0,tau_sample];
+
+invt:
+
+(G >= G_lower_unsafe);
+(G <= G_upper_unsafe);
+(u >= 0);
+
+flow:
+
+//error
+d/dt[e_int_dis] = 0;
+d/dt[e_der_dis] = 0;
+d/dt[e_dis] = 0;
+d/dt[Q1_prev] = 0;
+
+
+d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
+d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
+
+//reference trajectory
+d/dt[r] = r_ode;
+
+//glucose-subsystem
+d/dt[Q1]= (-Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (DG2/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2));
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+
+jump:
+
+
+(counter = tau_sample) ==> @2	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
+									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
+									(e_dis' = r - Q1));
+(tau = tau_meal_2) ==> @3	(and 	(counter' = counter) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
+									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
+									(e_dis' = r - Q1)(tau' = 0));
+
+}
+
+
+// dinner
+{
+mode 3;
+
+time:
+
+[0,tau_sample];
+
+invt:
+
+(G >= G_lower_unsafe);
+(G <= G_upper_unsafe);
+(u >= 0);
+
+flow:
+
+//error
+d/dt[e_int_dis] = 0;
+d/dt[e_der_dis] = 0;
+d/dt[e_dis] = 0;
+d/dt[Q1_prev] = 0;
+
+
+d/dt[FQ1_hyper_int] = - exp((Q1 - Q1_upper)/2);
+d/dt[FQ1_hypo_int] = exp((Q1_lower - Q1)/2);
+
+//reference trajectory
+d/dt[r] = r_ode;
+
+//glucose-subsystem
+d/dt[Q1]= (-Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + (DG3/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2));
+d/dt[Q2]= x1 * Q1 - (k12 + x2) * Q2;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+
+jump:
+
+
+(counter = tau_sample) ==> @3	(and 	(counter' = 0) (e_int_dis' = e_int_dis + tau_sample * (r - Q1)) 
+									(Q1_prev' = Q1) (e_der_dis' = (Q1_prev - Q1) / tau_sample) 
+									(e_dis' = r - Q1));
+
+
+}
+
+// this is hard-coded inside ProbReach
 init:
 
 // breakfast
@@ -200,10 +323,9 @@ init:
 		(tau = 0.0) 
 		(r = Q1_SP) 
 		(counter = 0) 
-		(DG = DG1) 
-		(e_int_dis = t_sample * (r - Q1_init))
+		(e_int_dis = tau_sample * (r - Q1_init))
 		(Q1_prev = Q1_init)
-		(e_der_dis = (Q1_prev - Q1) / t_sample)
+		(e_der_dis = (Q1_prev - Q1) / tau_sample)
 		(e_dis = r - Q1)
 		(FQ1_hyper_int = - exp((Q1 - Q1_upper)/2))
 		(FQ1_hypo_int = exp((Q1_lower - Q1)/2))
@@ -211,15 +333,14 @@ init:
 
 goal:
 
-@1(tau = t_meal1);
+//@1(tau = tau_sample - 0.00000001);
+//@2(tau = tau_meal_2);
+//@3(tau = tau_meal_3);
+@3(tau = 1440 - tau_meal_2 - tau_meal_1);
 
-//@1((or (u < 0) 
-//	(and (G <= G_lower_unsafe) (G >= G_lower_unsafe))
-//	(and (G <= G_upper_unsafe) (G >= G_upper_unsafe))));
-
-
-paths:
+//paths:
 //1,1,1,1,1,1,1,1,1,1;
-1,1,1,1,1,1;
+//1,1,1,1,1,1;
 //1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1;
+//1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3;
 

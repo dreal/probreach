@@ -16,40 +16,52 @@
 #include <omp.h>
 #include <solver/isat_wrapper.h>
 #include "rnd.h"
+#include "ap.h"
+#include "stability.h"
 
+using namespace std;
 
-decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth) {
-    if (global_config.solver_type == solver::type::ISAT) {
-        int res = decision_procedure::evaluate_isat(vector<box>{});
-        if (res == decision_procedure::result::SAT) {
-            return decision_procedure::result::SAT;
-        } else if (res == decision_procedure::result::UNSAT) {
-            return decision_procedure::result::UNSAT;
-        }
-    } else if (global_config.solver_type == solver::type::DREAL) {
-        // generating all paths of lengths [min_depth, max_depth]
-        std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
-//        for(pdrh::state init : pdrh::init)
-//        {
-//            for (pdrh::state goal : pdrh::goal)
-//            {
-//                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
-//                                                                                 pdrh::get_mode(goal.id),
-//                                                                                 depth);
-//                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
-//            }
+bool algorithm::use_verified = true;
+
+int algorithm::evaluate_ha(int min_depth, int max_depth)
+{
+    //vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
+    vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
+
+    //return decision_procedure::evaluate_time_first(paths, {}, global_config.solver_opt);
+    return decision_procedure::evaluate(paths, {}, global_config.solver_opt);
+
+//    if (global_config.solver_type == solver::type::ISAT) {
+//        int res = decision_procedure::evaluate_isat(vector<box>{});
+//        if (res == decision_procedure::result::SAT) {
+//            return decision_procedure::result::SAT;
+//        } else if (res == decision_procedure::result::UNSAT) {
+//            return decision_procedure::result::UNSAT;
 //        }
-        switch (decision_procedure::evaluate(paths, {}, global_config.solver_opt)) {
-            case decision_procedure::result::SAT:
-                return decision_procedure::result::SAT;
-
-            case decision_procedure::result::UNSAT:
-                return decision_procedure::result::UNSAT;
-
-            case decision_procedure::result::UNDET:
-                return decision_procedure::result::UNDET;
-        }
-    }
+//    } else if (global_config.solver_type == solver::type::DREAL) {
+//        // generating all paths of lengths [min_depth, max_depth]
+//        std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
+////        for(pdrh::state init : pdrh::init)
+////        {
+////            for (pdrh::state goal : pdrh::goal)
+////            {
+////                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
+////                                                                                 pdrh::get_mode(goal.id),
+////                                                                                 depth);
+////                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
+////            }
+////        }
+//        switch (decision_procedure::evaluate(paths, {}, global_config.solver_opt)) {
+//            case decision_procedure::result::SAT:
+//                return decision_procedure::result::SAT;
+//
+//            case decision_procedure::result::UNSAT:
+//                return decision_procedure::result::UNSAT;
+//
+//            case decision_procedure::result::UNDET:
+//                return decision_procedure::result::UNDET;
+//        }
+//    }
 }
 
 //decision_procedure::result algorithm::evaluate_ha(int min_depth, int max_depth)
@@ -835,7 +847,8 @@ algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, doubl
                           ((double) (sample_size - unsat) / (double) sample_size) + acc);
 }
 
-capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes) {
+capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes)
+{
     const gsl_rng_type *T;
     gsl_rng *r;
     gsl_rng_env_setup();
@@ -844,16 +857,6 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     r = gsl_rng_alloc(T);
     // setting the seed
     gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
-
-    // initialize Sobol generator
-    gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, pdrh::rv_map.size());//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // getting domain of random parameters
-    map<string, capd::interval> sobol_domain_map2;
-    for (auto it = pdrh::rv_map.begin(); it != pdrh::rv_map.end(); it++) {
-        sobol_domain_map2.insert(make_pair(it->first, capd::interval(0, 1)));
-    }
-    box sobol_domain2(sobol_domain_map2);
-    int ii = 1;
 
     // getting sample size with recalculated confidence
     long int sample_size = 0;
@@ -868,118 +871,125 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     double post_prob = 0;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm started";
     // getting set of all paths
-    std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
-#pragma omp parallel
-    while (post_prob < conf) {
+    //std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
+    #pragma omp parallel
+    while (post_prob < conf)
+    {
         // getting a sample
         box b = rnd::get_random_sample(r);
-        //box sample = rnd::get_sobol_sample(q2, sobol_domain2);
-        //cout << "Sobol sample: " << sample << endl;
-        //box b =rnd::get_icdf(sample);
-        cout << " " << ii << " rnd::get_sobol_ICDF sample---  " << b << endl;
-        ii++;
-        //parameter++; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // increasing the sample size
-#pragma omp critical
+        #pragma omp critical
         {
             sample_size++;
         }
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample: " << b;
         std::vector<box> boxes = {b};
         boxes.insert(boxes.end(), nondet_boxes.begin(), nondet_boxes.end());
-        int undet_counter = 0;
         int timeout_counter = 0;
-        bool sat_flag = false;
         // checking solver type
-        if (global_config.solver_type == solver::type::DREAL) {
+        if (global_config.solver_type == solver::type::DREAL)
+        {
             // evaluating all paths
-            for (std::vector<pdrh::mode *> path : paths) {
-                std::stringstream p_stream;
-                for (pdrh::mode *m : path) {
-                    p_stream << m->id << " ";
-                }
-                // removing trailing whitespace
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0,
-                                                                                                       p_stream.str().find_last_of(
-                                                                                                               " "));
-                int res;
-                if (global_config.delta_sat) {
-                    res = decision_procedure::evaluate_delta_sat(path, boxes);
-                } else {
-                    res = decision_procedure::evaluate(path, boxes);
-                }
-#pragma omp critical
+            vector<vector<pdrh::mode *>> paths = ap::get_all_paths(boxes);
+            int res = decision_procedure::UNDET;
+            // checking what verification method is chosen
+//            int sim_res = ap::simulate(boxes);
+//            int ver_res = ap::verify(boxes);
+//            if(sim_res != ver_res)
+//            {
+//                cout << "Sim: " << sim_res << " Ver: " << ver_res << " Boxes:" << endl;
+//                for(box b : boxes)
+//                {
+//                    cout << b << endl;
+//                }
+//                exit(EXIT_FAILURE);
+//            }
+
+            if(algorithm::use_verified)
+            {
+                //res = decision_procedure::evaluate(paths, boxes, "");
+                res = ap::verify(boxes);
+                //res = ap::simulate_path(ap::get_all_paths(boxes).front(), ap::init_to_box(boxes), boxes);
+            }
+            else
+            {
+                res = ap::simulate(boxes);
+//                // computing maximum robustness for the set of paths
+//                capd::interval rob = ap::compute_max_robustness(paths, ap::init_to_box(boxes), boxes);
+//                if(rob.leftBound() > 0)
+//                {
+//                    res = decision_procedure::SAT;
+//                }
+//                else if(rob.rightBound() < 0)
+//                {
+//                    res = decision_procedure::UNSAT;
+//                }
+            }
+            // updating the counters
+            #pragma omp critical
+            {
+                switch(res)
                 {
-                    if (res == decision_procedure::SAT) {
+                    case decision_procedure::SAT:
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                         sat++;
-                        sat_flag = true;
-                    } else if (res == decision_procedure::UNSAT) {
+                        break;
+
+                    case decision_procedure::UNSAT:
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                    } else if (res == decision_procedure::UNDET) {
+                        unsat++;
+                        //ap::unsat_samples.push_back(b);
+                        break;
+
+                    case decision_procedure::UNDET:
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-                        undet_counter++;
-                    } else if (res == decision_procedure::ERROR) {
+                        break;
+
+                    case decision_procedure::ERROR:
                         CLOG(ERROR, "algorithm") << "Error occured while calling a solver";
                         exit(EXIT_FAILURE);
-                    } else if (res == decision_procedure::SOLVER_TIMEOUT) {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                        timeout_counter++;
-                    }
-                }
-                if (sat_flag) {
-                    break;
                 }
             }
-        } else if (global_config.solver_type == solver::type::ISAT) {
+        }
+        else if (global_config.solver_type == solver::type::ISAT)
+        {
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating with iSAT:";
             int res = decision_procedure::evaluate_isat(boxes);
-            if (res == decision_procedure::SAT) {
+            if (res == decision_procedure::SAT)
+            {
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                 sat++;
-                sat_flag = true;
-            } else if (res == decision_procedure::UNSAT) {
+            } else if (res == decision_procedure::UNSAT)
+            {
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                unsat++;
+                ap::unsat_samples.push_back(b);
             }
-        } else {
+        }
+        else
+        {
             stringstream s;
             s << "Unrecognized solver";
             throw runtime_error(s.str().c_str());
         }
         // updating unsat counter
-#pragma omp critical
+        #pragma omp critical
         {
-            if ((undet_counter == 0) && (timeout_counter == 0) && (!sat_flag)) {
-                unsat++;
-            }
             post_mean_sat = ((double) sat + alpha) / ((double) sample_size + alpha + beta);
             post_mean_unsat = ((double) sample_size - unsat + alpha) / ((double) sample_size + alpha + beta);
-            if (global_config.delta_sat) {
-                if (post_mean_sat >= acc) {
-                    post_prob = gsl_cdf_beta_P(post_mean_sat + acc, sat + alpha, sample_size - sat + beta)
-                                - gsl_cdf_beta_P(post_mean_sat - acc, sat + alpha, sample_size - sat + beta);
-                } else {
-                    post_prob = gsl_cdf_beta_P(post_mean_sat + acc, sat + alpha, sample_size - sat + beta)
-                                - gsl_cdf_beta_P(0, sat + alpha, sample_size - sat + beta);
-                }
-            } else {
-                //cout << "Left: x: " << post_mean_unsat + acc << " alpha: " << sample_size - unsat + alpha << " beta: " << unsat + beta << endl;
-                //cout << "Right: x: " << post_mean_sat - acc << " alpha: " << sat + alpha << " beta: " << sample_size - sat + beta << endl;
-                //cout << "sample_size: " << sample_size << " sat: " << sat << " beta value: " << beta << endl;
-                if (post_mean_sat >= acc) {
-                    post_prob = gsl_cdf_beta_P(post_mean_unsat + acc, sample_size - unsat + alpha, unsat + beta)
-                                - gsl_cdf_beta_P(post_mean_sat - acc, sat + alpha, sample_size - sat + beta);
-                } else {
-                    post_prob = gsl_cdf_beta_P(post_mean_unsat + acc, sample_size - unsat + alpha, unsat + beta)
-                                - gsl_cdf_beta_P(0, sat + alpha, sample_size - sat + beta);
-                }
+            if (post_mean_sat >= acc)
+            {
+                post_prob = gsl_cdf_beta_P(post_mean_unsat + acc, sample_size - unsat + alpha, unsat + beta)
+                            - gsl_cdf_beta_P(post_mean_sat - acc, sat + alpha, sample_size - sat + beta);
             }
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(post_mean_sat - acc,
-                                                                                          post_mean_unsat + acc);
+            else
+            {
+                post_prob = gsl_cdf_beta_P(post_mean_unsat + acc, sample_size - unsat + alpha, unsat + beta)
+                            - gsl_cdf_beta_P(0, sat + alpha, sample_size - sat + beta);
+            }
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(max(post_mean_sat - acc, 0.0), min(post_mean_unsat + acc, 1.0));
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(SAT) mean: " << post_mean_sat;
-            if (!global_config.delta_sat) {
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(UNSAT) mean: " << post_mean_unsat;
-            }
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(UNSAT) mean: " << post_mean_unsat;
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample size: " << sample_size;
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P prob: " << post_prob;
         }
@@ -988,11 +998,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     // displaying sample size if enabled
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Random sample size: " << sample_size;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm finished";
-    if (global_config.delta_sat) {
-        return capd::interval(post_mean_sat - acc, post_mean_sat + acc);
-    } else {
-        return capd::interval(post_mean_sat - acc, post_mean_unsat + acc);
-    }
+    return capd::interval(max(post_mean_sat - acc, 0.0), min(post_mean_unsat + acc, 1.0));
 }
 
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf) {
@@ -1068,7 +1074,8 @@ pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_
     return res;
 }
 
-pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_depth, int max_depth, int size) {
+pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_depth, int max_depth, int size)
+{
     // random number generator for cross entropy
     const gsl_rng_type *T;
     gsl_rng *r;
@@ -1081,7 +1088,8 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
     box domain = pdrh::get_nondet_domain();
     //initializing probability value
     pair<box, capd::interval> res(domain, capd::interval(0.0));
-    if (global_config.min_prob) {
+    if (global_config.min_prob)
+    {
         res = make_pair(domain, capd::interval(1.0));
     }
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;
@@ -1089,39 +1097,60 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
     box sigma = domain.get_stddev();
     box var = sigma * sigma;
     vector<pair<box, capd::interval>> samples;
+    capd::interval size_correction_coef(1e-32);
+    // getting initial mode
+    pdrh::mode* init_mode = pdrh::get_mode(pdrh::init.front().id);
     //#pragma omp parallel
-    while (var.max_coordinate_value() > global_config.cross_entropy_term_arg) {
+    for(int j = 0; j < global_config.iter_num; j++)
+    //while (var.max_coordinate_value() > global_config.cross_entropy_term_arg)
+    {
         var = sigma * sigma;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration number: " << j+1;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Mean: " << mean;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Standard deviation: " << sigma;
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Variance: " << var;
-        unsigned long new_size = (unsigned long) ceil(
-                size / measure::get_sample_prob(domain, mean, sigma).rightBound());
+        // correct the sample size only if the probability of sampling outside the domain is still greater than 0.99999
+        if(size_correction_coef.leftBound() < 0.99999)
+        {
+            size_correction_coef = measure::get_sample_prob(domain, mean, sigma);
+        }
+        unsigned long new_size = (unsigned long) ceil(size / size_correction_coef.leftBound());
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << new_size;
         int outliers = 0;
         //#pragma omp parallel for
-        for (int i = 0; i < new_size; i++) {
+        for (int i = 0; i < new_size; i++)
+        {
             box b = rnd::get_normal_random_sample(r, mean, sigma);
+
             CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
             capd::interval probability;
-            if (domain.contains(b)) {
+            if (domain.contains(b))
+            {
                 CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is inside the domain";
-                if (global_config.bayesian_flag) {
-                    probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc,
-                                                        global_config.bayesian_conf, vector<box>{b});
-                } else if (global_config.chernoff_flag) {
-                    probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc,
-                                                        global_config.chernoff_conf, vector<box>{b});
-                } else {
-                    CLOG(ERROR, "algorithm") << "Unknown setting";
-                    exit(EXIT_FAILURE);
+                if(stability::is_stable(init_mode->odes, pdrh::node_to_interval(init_mode->time.second).rightBound(), ap::init_to_box({}), b))
+                {
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is stable";
+                    if (global_config.bayesian_flag) {
+                        probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc,
+                                                            global_config.bayesian_conf, vector<box>{b});
+                    } else if (global_config.chernoff_flag) {
+                        probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc,
+                                                            global_config.chernoff_conf, vector<box>{b});
+                    } else {
+                        CLOG(ERROR, "algorithm") << "Unknown setting";
+                        exit(EXIT_FAILURE);
+                    }
+                    // fixing probability value
+                    if (probability.leftBound() < 0) {
+                        probability.setLeftBound(0);
+                    }
+                    if (probability.rightBound() > 1) {
+                        probability.setRightBound(1);
+                    }
                 }
-                // fixing probability value
-                if (probability.leftBound() < 0) {
-                    probability.setLeftBound(0);
-                }
-                if (probability.rightBound() > 1) {
-                    probability.setRightBound(1);
+                else
+                {
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is unstable";
                 }
             } else {
                 CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is outside the domain";
@@ -1550,10 +1579,90 @@ capd::interval algorithm::evaluate_pha_qmc() {
     //--------------------------------------------------------------------g
 }
 
+pair<capd::interval, box> algorithm::solve_min_max()
+{
+    const gsl_rng_type *T;
+    gsl_rng *r;
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+    // creating random generator
+    r = gsl_rng_alloc(T);
+    // setting the seed
+    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
 
+    // the first element is the value of the objective function
+    // the second element is the values of the nondet parameters
+    std::map<capd::interval, box> rob_map;
 
+    box nondet_domain = pdrh::get_nondet_domain();
+    //initializing probability value
+    box mean = nondet_domain.get_mean();
+    box sigma = nondet_domain.get_stddev();
+    box var = sigma * sigma;
 
+    unsigned long sample_size = (unsigned long) ceil(global_config.sample_size / measure::get_sample_prob(nondet_domain, mean, sigma).rightBound());
 
+    pair<capd::interval, box> res = make_pair(capd::interval(-numeric_limits<double>::max()), box());
+
+    #pragma omp parallel for
+    for(int i = 0; i < sample_size; i++)
+    {
+        // taking a sample form the nondeterministic parameter space
+        box nondet_box = rnd::get_normal_random_sample(r, mean, sigma);
+        if(nondet_domain.contains(nondet_box))
+        {
+            capd::interval rob(0);
+            for(int j = 0; j < global_config.sample_size; j++)
+            {
+                //cout << "i = " << i << " j = " << j << endl;
+                box random_box = rnd::get_random_sample(r);
+                vector<vector<pdrh::mode *>> paths = ap::get_all_paths({nondet_box, random_box});
+                // computing an objective function over a set of paths as an average value
+                for(vector<pdrh::mode *> path : paths)
+                {
+                    capd::interval sample_rob = ap::compute_robustness(path, ap::init_to_box({nondet_box, random_box}), {nondet_box, random_box}) / (double) paths.size();
+                    # pragma omp critical
+                    {
+                        rob = rob + sample_rob;
+                    }
+                }
+            }
+            # pragma omp critical
+            {
+                // computing the statistical mean of the objective function
+                rob = rob / global_config.sample_size;
+                // updating the result here
+                if(rob.leftBound() > res.first.rightBound())
+                {
+                    res = make_pair(rob, nondet_box);
+                }
+                // adding to the list of objective functions
+                rob_map.insert(make_pair(rob, nondet_box));
+            }
+        }
+    }
+
+    cout << "Means of robustness values:" << endl;
+    for(auto it = rob_map.begin(); it != rob_map.end(); it++)
+    {
+        cout << it->first << " | " << it->second << endl;
+    }
+
+    gsl_rng_free(r);
+    return res;
+}
+
+capd::interval algorithm::compute_robustness()
+{
+    vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
+    // computing an objective function over a set of paths as an average value
+    capd::interval rob(-numeric_limits<double>::max());
+    for(vector<pdrh::mode *> path : paths)
+    {
+        rob = ap::compute_robustness(path, ap::init_to_box({}), {});
+    }
+    return rob;
+}
 
 
 

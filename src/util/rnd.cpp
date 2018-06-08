@@ -105,15 +105,22 @@ box rnd::get_normal_random_sample(gsl_rng* r, box mu, box sigma)
     map<std::string, capd::interval> edges;
     for(auto it = pdrh::par_map.cbegin(); it != pdrh::par_map.cend(); it++)
     {
-        if(find(mu.get_vars().cbegin(), mu.get_vars().cend(), it->first) != mu.get_vars().cend() &&
-                find(sigma.get_vars().cbegin(), sigma.get_vars().cend(), it->first) != sigma.get_vars().cend())
+        if(it->second.first->value != it->second.second->value)
         {
-            edges.insert(make_pair(it->first, mu.get_map()[it->first].mid().leftBound() +
-                                              gsl_ran_gaussian_ziggurat(r, sigma.get_map()[it->first].mid().leftBound())));
+            if(find(mu.get_vars().cbegin(), mu.get_vars().cend(), it->first) != mu.get_vars().cend() &&
+               find(sigma.get_vars().cbegin(), sigma.get_vars().cend(), it->first) != sigma.get_vars().cend())
+            {
+                edges.insert(make_pair(it->first, mu.get_map()[it->first].mid().leftBound() +
+                                                  gsl_ran_gaussian_ziggurat(r, sigma.get_map()[it->first].mid().leftBound())));
+            }
+            else
+            {
+                CLOG(ERROR, "ran_gen") << "Parameter \"" << it->first << "\" is not defined";
+            }
         }
         else
         {
-            CLOG(ERROR, "ran_gen") << "Parameter \"" << it->first << "\" is not defined";
+            edges.insert(make_pair(it->first, pdrh::node_to_interval(it->second.first).mid().leftBound()));
         }
     }
     return box(edges);

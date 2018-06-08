@@ -6,6 +6,7 @@
 #include "pdrh_config.h"
 #include <string.h>
 #include <logging/easylogging++.h>
+#include <iomanip>
 
 using namespace std;
 
@@ -86,31 +87,34 @@ void pdrh::push_mode(pdrh::mode m)
     {
         m.flow_map.insert(make_pair(var, pdrh::var_map[var]));
         m.odes.insert(make_pair(var, pdrh::push_terminal_node("0")));
-        // adding this variable to the list of parameters if it is not there yet,
-        // if it is not a continuous or discrete random variable and
-        // if its domain is an interval of length descending than 0.
-        // There might be a problem as the length of the interval
-        // is always descending than 0 due to overapproximation of
-        // the interval arithmetics
-        if(pdrh::par_map.find(var) == pdrh::par_map.cend() &&
-                pdrh::rv_map.find(var) == pdrh::rv_map.cend() &&
-                    pdrh::dd_map.find(var) == pdrh::dd_map.cend() &&
-                        capd::intervals::width(capd::interval(
-                                node_to_interval(pdrh::var_map[var].first).leftBound(),
-                                node_to_interval(pdrh::var_map[var].second).rightBound())) > 0)
+        if(pdrh::var_map[var].first != pdrh::var_map[var].second)
         {
-            bool insert_flag = true;
-            for(pdrh::mode md : pdrh::modes)
+            // adding this variable to the list of parameters if it is not there yet,
+            // if it is not a continuous or discrete random variable and
+            // if its domain is an interval of length descending than 0.
+            // There might be a problem as the length of the interval
+            // is always descending than 0 due to overapproximation of
+            // the interval arithmetics
+            if(pdrh::par_map.find(var) == pdrh::par_map.cend() &&
+               pdrh::rv_map.find(var) == pdrh::rv_map.cend() &&
+               pdrh::dd_map.find(var) == pdrh::dd_map.cend() &&
+               capd::intervals::width(capd::interval(
+                       node_to_interval(pdrh::var_map[var].first).leftBound(),
+                       node_to_interval(pdrh::var_map[var].second).rightBound())) > 0)
             {
-                if(md.flow_map.find(var) != md.flow_map.cend())
+                bool insert_flag = true;
+                for(pdrh::mode md : pdrh::modes)
                 {
-                    insert_flag = false;
-                    break;
+                    if(md.flow_map.find(var) != md.flow_map.cend())
+                    {
+                        insert_flag = false;
+                        break;
+                    }
                 }
-            }
-            if(insert_flag)
-            {
-                pdrh::par_map.insert(make_pair(var, pdrh::var_map[var]));
+                if(insert_flag)
+                {
+                    pdrh::par_map.insert(make_pair(var, pdrh::var_map[var]));
+                }
             }
         }
     }
@@ -210,7 +214,7 @@ bool pdrh::var_exists(string var)
 // getting pointer to the mode by id
 pdrh::mode* pdrh::get_mode(int id)
 {
-    for(int i = 0; i < pdrh::modes.size(); i++)
+    for(size_t i = 0; i < pdrh::modes.size(); i++)
     {
         if(pdrh::modes.at(i).id == id)
         {
@@ -219,6 +223,19 @@ pdrh::mode* pdrh::get_mode(int id)
     }
     return NULL;
 }
+
+
+pdrh::mode::jump pdrh::mode::get_jump(int id)
+{
+    for(size_t i = 0; i < this->jumps.size(); i++)
+    {
+        if(this->jumps.at(i).next_id == id)
+        {
+            return this->jumps.at(i);
+        }
+    }
+}
+
 
 // getting the shortest path between two modes
 vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* end)
@@ -506,8 +523,11 @@ string pdrh::model_to_string()
         }
         out << ")" << endl;
     }
-    out << "TIME DOMAIN:" << endl;
-    out << "|   [" << pdrh::node_to_string_prefix(pdrh::time.first) << ", " << pdrh::node_to_string_prefix(pdrh::time.second) << "]" << endl;
+//    if(!pdrh::is_node_empty(pdrh::time.first) && !pdrh::is_node_empty(pdrh::time.second))
+//    {
+//        out << "TIME DOMAIN:" << endl;
+//        out << "|   [" << pdrh::node_to_string_prefix(pdrh::time.first) << ", " << pdrh::node_to_string_prefix(pdrh::time.second) << "]" << endl;
+//    }
     out << "MODES:" << endl;
     for(pdrh::mode m : pdrh::modes)
     {
@@ -560,7 +580,6 @@ string pdrh::model_to_string()
                 out << "|   |   |   dd(" << it->first << ") = (";
                 for(auto it2 = it->second.cbegin(); it2 != it->second.cend(); it2++)
                 {
-                    cout << pdrh::node_to_string_prefix(it2->first) << " : " << pdrh::node_to_string_prefix(it2->second) << endl;
                     out << pdrh::node_to_string_prefix(it2->first) << " : " << pdrh::node_to_string_prefix(it2->second) << ", ";
                 }
                 out << ")" << endl;
@@ -850,8 +869,7 @@ string pdrh::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     return s.str();
 }
 
-// getting a string representation of reachability formula in smt2 format for the given initial and goal modes
-/*
+
 string pdrh::reach_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mode*> path, vector<box> boxes)
 {
     stringstream s;
@@ -877,12 +895,12 @@ string pdrh::reach_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mode
             }
         }
     }
-    // declaring time
+    // declaring time pdrh::node_fix_index(reset_it->second, step, "t")
     for(int i = 0; i < path.size(); i++)
     {
         s << "(declare-fun time_" << i << " () Real)" << endl;
-        s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.first) << "))" << endl;
-        s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(path.at(i)->time.second) << "))" << endl;
+        s << "(assert (>= time_" << i << " " << pdrh::node_fix_index(path.at(i)->time.first, i, "0") << "))" << endl;
+        s << "(assert (<= time_" << i << " " << pdrh::node_fix_index(path.at(i)->time.second, i, "0") << "))" << endl;
     }
     // defining odes
     for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
@@ -899,127 +917,21 @@ string pdrh::reach_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mode
     }
     // defining the reachability formula
     s << "(assert (and " << endl;
-    // defining initial states
-    s << "(" << pdrh::node_fix_index(init.prop, 0, "0") << ")";
+    // defining the initial state
+    s << "(" << pdrh::node_fix_index(init.prop, 0, "0") << ")" << endl;
     // defining boxes bounds
     for(box b : boxes)
     {
         map<string, capd::interval> m = b.get_map();
-        for(auto it = m.cbegin(); it != m.cend(); it++)
-        {
-            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << endl;
-            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << endl;
-        }
-    }
-    // defining trajectory
-    int step = 0;
-    for(pdrh::mode* m : path)
-    {
-        // defining integrals
-        s << "(= [";
-        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
-        {
-            s << ode_it->first << "_" << step << "_t ";
-        }
-        s << "] (integral 0.0 time_" << step << " [";
-        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
-        {
-            s << ode_it->first << "_" << step << "_0 ";
-        }
-        s << "] flow_" << m->id << "))" << endl;
-        // defining invariants
-        for(pdrh::node* invt : m->invts)
-        {
-            s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
-        }
-        // checking the current depth
-        if(step < path.size() - 1)
-        {
-            // defining jumps
-            for (pdrh::mode::jump j : m->jumps)
-            {
-                s << pdrh::node_fix_index(j.guard, step, "t") << endl;
-                for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
-                {
-                    s << "(= " << reset_it->first << "_" << step + 1 << "_0 " <<
-                    pdrh::node_fix_index(reset_it->second, step, "t") << ")";
-                }
-            }
-        }
-        step++;
-    }
-    // defining goal
-    s << "(" << pdrh::node_fix_index(goal.prop, path.size() - 1, "t") << ")))" << endl;
-    // final statements
-    s << "(check-sat)" << endl;
-    s << "(exit)" << endl;
-    return s.str();
-}
-*/
-
-/*
-string pdrh::reach_to_smt2_all_paths(vector<box> boxes)
-{
-    stringstream s;
-    // setting logic
-    s << "(set-logic QF_NRA_ODE)" << endl;
-    // declaring variables and defining bounds
-    for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
-    {
-        s << "(declare-fun " << it->first << " () Real)" << endl;
         for(int i = 0; i < path.size(); i++)
         {
-            s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
-            s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-            if(strcmp(it->second.first->value.c_str(), "-infty") != 0)
+            for (auto it = m.cbegin(); it != m.cend(); it++)
             {
-                s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-                s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
+                s << "(>= " << it->first << "_" << i << "_0 " << it->second.leftBound() << ")" << endl;
+                s << "(<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << ")" << endl;
+                s << "(>= " << it->first << "_" << i << "_t " << it->second.leftBound() << ")" << endl;
+                s << "(<= " << it->first << "_" << i << "_t " << it->second.rightBound() << ")" << endl;
             }
-            if(strcmp(it->second.second->value.c_str(), "infty") != 0)
-            {
-                s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
-                s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
-            }
-        }
-    }
-    // declaring time
-    for(int i = 0; i < path.size(); i++)
-    {
-        s << "(declare-fun time_" << i << " () Real)" << endl;
-        s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.first) << "))" << endl;
-        s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.second) << "))" << endl;
-    }
-    // defining odes
-    for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
-    {
-        if(find(path.cbegin(), path_it, *path_it) == path_it)
-        {
-            s << "(define-ode flow_" << (*path_it)->id << " (";
-            for(auto ode_it = (*path_it)->odes.cbegin(); ode_it != (*path_it)->odes.cend(); ode_it++)
-            {
-                s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
-            }
-            s << "))" << endl;
-        }
-    }
-    // defining the reachability formula
-    s << "(assert (and " << endl;
-    // defining initial states
-    s << "(or ";
-    for(pdrh::state st : pdrh::init)
-    {
-        s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")";
-    }
-    s << ")" << endl;
-    // defining boxes bounds
-    for(box b : boxes)
-    {
-        map<string, capd::interval> m = b.get_map();
-        for(auto it = m.cbegin(); it != m.cend(); it++)
-        {
-            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << endl;
-            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << endl;
         }
     }
     // defining trajectory
@@ -1056,7 +968,7 @@ string pdrh::reach_to_smt2_all_paths(vector<box> boxes)
                     for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
                     {
                         s << "(= " << reset_it->first << "_" << step + 1 << "_0 " <<
-                        pdrh::node_fix_index(reset_it->second, step, "t") << ")";
+                          pdrh::node_fix_index(reset_it->second, step, "t") << ")";
                     }
                 }
             }
@@ -1064,18 +976,13 @@ string pdrh::reach_to_smt2_all_paths(vector<box> boxes)
         step++;
     }
     // defining goal
-    s << "(or ";
-    for(pdrh::state st : pdrh::goal)
-    {
-        s << "(" << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << ")";
-    }
-    s << ")))" << endl;
+    s << "(" << pdrh::node_fix_index(goal.prop, path.size() - 1, "t") << ")))" << endl;
     // final statements
     s << "(check-sat)" << endl;
     s << "(exit)" << endl;
     return s.str();
 }
-*/
+
 
 // USED
 string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
@@ -1294,167 +1201,6 @@ string pdrh::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     s << "(exit)" << endl;
     return s.str();
 }
-
-/*
-string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::mode*> path, vector<box> boxes)
-{
-    stringstream s;
-    // setting logic
-    s << "(set-logic QF_NRA_ODE)" << endl;
-    // checking whether either of last jumps have a time node
-    pdrh::node* timed_node_neg;
-    timed_node_neg = pdrh::get_time_node_neg(goal.prop);
-    // declaring local time and bounds
-    if (!timed_node_neg)
-    {
-        for(int i = 0; i < path.size(); i++)
-        {
-            s << "(declare-fun local_time () Real)" << endl;
-            s << "(declare-fun local_time_" << i << "_0 () Real)" << endl;
-            s << "(declare-fun local_time_" << i << "_t () Real)" << endl;
-            s << "(assert (= local_time_" << i << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) <<
-            "))" << endl;
-            s << "(assert (>= local_time_" << i << "_t " << pdrh::node_to_string_prefix(pdrh::time.first) <<
-            "))" << endl;
-            s << "(assert (<= local_time_" << i << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) <<
-            "))" << endl;
-        }
-        // last mode
-        s << "(declare-fun local_time () Real)" << endl;
-        s << "(declare-fun local_time_" << path.size() << "_0 () Real)" << endl;
-        s << "(declare-fun local_time_" << path.size() << "_t () Real)" << endl;
-        s << "(assert (= local_time_" << path.size() << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) <<
-        "))" << endl;
-        s << "(assert (= local_time_" << path.size() << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) <<
-        "))" << endl;
-    }
-    // declaring variables and defining bounds
-    for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
-    {
-        s << "(declare-fun " << it->first << " () Real)" << endl;
-        for(int i = 0; i < path.size(); i++)
-        {
-            s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
-            s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-            if(strcmp(it->second.first->value.c_str(), "-infty") != 0)
-            {
-                s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-                s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-            }
-            if(strcmp(it->second.second->value.c_str(), "infty") != 0)
-            {
-                s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
-                s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
-            }
-        }
-    }
-    // declaring time
-    for(int i = 0; i < path.size(); i++)
-    {
-        s << "(declare-fun time_" << i << " () Real)" << endl;
-        s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.first) << "))" << endl;
-        s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.second) << "))" << endl;
-    }
-    // defining odes
-    for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
-    {
-        if(std::find(path.cbegin(), path_it, *path_it) == path_it)
-        {
-            s << "(define-ode flow_" << (*path_it)->id << " (";
-            for(auto ode_it = (*path_it)->odes.cbegin(); ode_it != (*path_it)->odes.cend(); ode_it++)
-            {
-                s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
-            }
-            // introducing local time if defined
-            if(!timed_node_neg)
-            {
-                s << "(= d/dt[local_time] 1.0)";
-            }
-            s << "))" << endl;
-        }
-    }
-    // defining the negated reachability formula
-    s << "(assert (and (and " << endl;
-    // defining initial states
-    s << "(" << pdrh::node_fix_index(init.prop, 0, "0") << ")" << endl;
-    // defining boxes bounds
-    for(box b : boxes)
-    {
-        std::map<std::string, capd::interval> m = b.get_map();
-        for(auto it = m.cbegin(); it != m.cend(); it++)
-        {
-            s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << endl;
-            s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << endl;
-        }
-    }
-    // defining trajectory
-    int step = 0;
-    for(pdrh::mode* m : path)
-    {
-        // defining integrals
-        s << "(= [";
-        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
-        {
-            s << ode_it->first << "_" << step << "_t ";
-        }
-        // defining local time if enabled
-        if((step == path.size() - 1) && (!timed_node_neg))
-        {
-            s << "local_time_" << step << "_t";
-        }
-        s << "] (integral 0.0 time_" << step << " [";
-        for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
-        {
-            s << ode_it->first << "_" << step << "_0 ";
-        }
-        // defining local time if enabled
-        if((step == path.size() - 1) && (!timed_node_neg))
-        {
-            s << "local_time_" << step << "_0";
-        }
-        s << "] flow_" << m->id << "))" << endl;
-        // defining invariants
-        for(pdrh::node* invt : m->invts)
-        {
-            s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
-        }
-        // checking the current depth
-        if(step < path.size() - 1)
-        {
-            // defining jumps
-            for (pdrh::mode::jump j : m->jumps)
-            {
-                s << pdrh::node_fix_index(j.guard, step, "t") << endl;
-                if(step < path.size() - 1)
-                {
-                    for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
-                    {
-                        s << "(= " << reset_it->first << "_" << step + 1 << "_0 " <<
-                        pdrh::node_fix_index(reset_it->second, step, "t") << ")";
-                    }
-                }
-            }
-        }
-        step++;
-    }
-    s << ")";
-    // defining goal
-    if(!timed_node_neg)
-    {
-        s << "(forall_t " << goal.id << " [0 time_" << path.size() - 1 << "] (not " << pdrh::node_fix_index(goal.prop, path.size() - 1, "t") << "))";
-    }
-    else
-    {
-        s << pdrh::node_fix_index(timed_node_neg, path.size() - 1, "t");
-        delete timed_node_neg;
-    }
-    s << "))" << endl;
-    // final statements
-    s << "(check-sat)" << endl;
-    s << "(exit)" << endl;
-    return s.str();
-}
-*/
 
 // USED
 string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> boxes)
@@ -1694,188 +1440,6 @@ string pdrh::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> b
     }
 }
 
-/*
-string pdrh::reach_c_to_smt2(pdrh::state init, pdrh::state goal, int depth, vector<pdrh::mode *> path, vector<box> boxes)
-{
-    if(depth == path.size() - 1)
-    {
-        return pdrh::reach_c_to_smt2(init, goal, path, boxes);
-    }
-    else
-    {
-        stringstream s;
-        // setting logic
-        s << "(set-logic QF_NRA_ODE)" << endl;
-        // checking whether either of last jumps have a time node
-        pdrh::node* timed_node_neg;
-        for(pdrh::mode::jump j : path.at(depth)->jumps)
-        {
-            timed_node_neg = pdrh::get_time_node_neg(j.guard);
-            if(timed_node_neg)
-            {
-                break;
-            }
-        }
-        // declaring local time and bounds
-        if (!timed_node_neg)
-        {
-            for(int i = 0; i <= depth; i++)
-            {
-                s << "(declare-fun local_time () Real)" << endl;
-                s << "(declare-fun local_time_" << i << "_0 () Real)" << endl;
-                s << "(declare-fun local_time_" << i << "_t () Real)" << endl;
-                s << "(assert (= local_time_" << i << "_0 " << pdrh::node_to_string_prefix(pdrh::time.first) <<
-                "))" << endl;
-                s << "(assert (= local_time_" << i << "_t " << pdrh::node_to_string_prefix(pdrh::time.second) <<
-                "))" << endl;
-            }
-        }
-        // declaring variables and defining bounds
-        for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
-        {
-            s << "(declare-fun " << it->first << " () Real)" << endl;
-            for(int i = 0; i <= depth; i++)
-            {
-                s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
-                s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-                if(strcmp(it->second.first->value.c_str(), "-infty") != 0)
-                {
-                    s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-                    s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-                }
-                if(strcmp(it->second.second->value.c_str(), "infty") != 0)
-                {
-                    s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
-                    s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
-                }
-            }
-        }
-        // declaring time
-        for(int i = 0; i <= depth; i++)
-        {
-            s << "(declare-fun time_" << i << " () Real)" << endl;
-            s << "(assert (>= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.first) << "))" << endl;
-            s << "(assert (<= time_" << i << " " << pdrh::node_to_string_prefix(pdrh::time.second) << "))" << endl;
-        }
-        // defining odes
-        int step = 0;
-        for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
-        {
-            if(std::find(path.cbegin(), path_it, *path_it) == path_it)
-            {
-                s << "(define-ode flow_" << (*path_it)->id << " (";
-                for(auto ode_it = (*path_it)->odes.cbegin(); ode_it != (*path_it)->odes.cend(); ode_it++)
-                {
-                    s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
-                }
-                // introducing local time if defined
-                if((!timed_node_neg))
-                {
-                    s << "(= d/dt[local_time] 1.0)";
-                }
-                s << "))" << endl;
-            }
-            if(step >= depth)
-            {
-                break;
-            }
-            step++;
-        }
-        // defining the negated reachability formula
-        s << "(assert (and (and " << endl;
-        // defining initial states
-        s << "(or ";
-        for(pdrh::state st : pdrh::init)
-        {
-            if(path.front()->id == st.id)
-            {
-                s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")";
-            }
-        }
-        s << ")" << endl;
-        // defining boxes bounds
-        for(box b : boxes)
-        {
-            std::map<std::string, capd::interval> m = b.get_map();
-            for(auto it = m.cbegin(); it != m.cend(); it++)
-            {
-                s << "(>= " << it->first << "_0_0 " << it->second.leftBound() << ")" << endl;
-                s << "(<= " << it->first << "_0_0 " << it->second.rightBound() << ")" << endl;
-            }
-        }
-        // defining trajectory
-        for(int i = 0; i <= depth; i++)
-        {
-            pdrh::mode* m = path.at(i);
-            // defining integrals
-            s << "(= [";
-            for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
-            {
-                s << ode_it->first << "_" << i << "_t ";
-            }
-            // defining local time if enabled
-            if(!timed_node_neg)
-            {
-                s << "local_time_" << i << "_t";
-            }
-            s << "] (integral 0.0 time_" << i << " [";
-            for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
-            {
-                s << ode_it->first << "_" << i << "_0 ";
-            }
-            // defining local time if enabled
-            if(!timed_node_neg)
-            {
-                s << "local_time_" << i << "_0";
-            }
-            s << "] flow_" << m->id << "))" << endl;
-            // defining invariants
-            for(pdrh::node* invt : m->invts)
-            {
-                s << "(forall_t " << m->id << " [0.0 time_" << i << "] " << pdrh::node_fix_index(invt, i, "t") << ")" << endl;
-            }
-            // checking the current depth
-            if(i < depth)
-            {
-                // defining jumps
-                for (pdrh::mode::jump j : m->jumps)
-                {
-                    s << pdrh::node_fix_index(j.guard, i, "t") << endl;
-                    if(i < path.size() - 1)
-                    {
-                        for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend(); reset_it++)
-                        {
-                            s << "(= " << reset_it->first << "_" << i + 1 << "_0 " <<
-                            pdrh::node_fix_index(reset_it->second, i, "t") << ")";
-                        }
-                    }
-                }
-            }
-        }
-        s << ")" << endl;
-        // defining the last jump
-        s << "(and ";
-        for(pdrh::mode::jump j : path.at(depth)->jumps)
-        {
-            if(!timed_node_neg)
-            {
-                s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (not " << pdrh::node_fix_index(j.guard, depth, "t") << "))";
-            }
-            else
-            {
-                s << pdrh::node_fix_index(timed_node_neg, depth, "t");
-                delete timed_node_neg;
-            }
-        }
-        s << ")))" << endl;
-        // asserting the time point for the last mode
-        // final statements
-        s << "(check-sat)" << endl;
-        s << "(exit)" << endl;
-        return s.str();
-    }
-}
-*/
 
 // only works for statistical model checking
 string pdrh::reach_to_isat(vector<box> boxes)
@@ -2053,6 +1617,20 @@ box pdrh::get_nondet_domain()
     }
     return box(m);
 }
+
+
+// domain of system variables
+box pdrh::get_domain()
+{
+    map<std::string, capd::interval> m;
+    for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
+    {
+        m.insert(make_pair(it->first, capd::interval(pdrh::node_to_interval(it->second.first).leftBound(),
+                                                         pdrh::node_to_interval(it->second.second).rightBound())));
+    }
+    return box(m);
+}
+
 
 // domain of parameters to synthesize
 box pdrh::get_psy_domain()
@@ -2266,7 +1844,8 @@ pdrh::node* pdrh::get_first_time_node(pdrh::node * root)
         {
             for(pdrh::node* child : root->operands)
             {
-                if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end())
+                if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end() ||
+                        child->value == global_config.sample_time || child->value == global_config.global_time)
                 {
                     return root;
                 }
@@ -2294,7 +1873,8 @@ void pdrh::get_first_time_node(node* root, node* time_node)
     {
         for(pdrh::node* child : root->operands)
         {
-            if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end())
+            if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end() ||
+               child->value == global_config.sample_time || child->value == global_config.global_time)
             {
                 *time_node = *root;
                 root->value = "true";
@@ -2326,6 +1906,23 @@ void pdrh::copy_tree(pdrh::node * &copy, pdrh::node * origin)
     }
 }
 
+pdrh::node * pdrh::copy_node(node * origin)
+{
+    pdrh::node *copy = new pdrh::node();
+    copy_tree(copy, origin);
+    return copy;
+}
+
+// getting a string representation of the node in prefix notation
+void pdrh::delete_node(pdrh::node* n)
+{
+    for(pdrh::node* op : n->operands)
+    {
+        delete_node(op);
+    }
+    delete n;
+}
+
 bool pdrh::is_node_empty(node* n)
 {
     return n->value.empty() && n->operands.empty();
@@ -2350,17 +1947,133 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
     return res_node;
 }
 
+
 // throws exception in case if one of the terminal modes is not a number
 // evaluates the value of arithmetic expression
-capd::interval pdrh::node_to_interval(pdrh::node *expr)
+bool pdrh::node_to_boolean(pdrh::node *expr, vector<box> boxes)
 {
+    // comparison operators
+    if(expr->value == ">=")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) >= pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == ">")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) > pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == "=")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) == pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == "<")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) < pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == "<=")
+    {
+        return pdrh::node_to_interval(expr->operands.front(), boxes) <= pdrh::node_to_interval(expr->operands.back(), boxes);
+    }
+    else if(expr->value == "and")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res && pdrh::node_to_boolean(n, boxes);
+        }
+    }
+    else if(expr->value == "or")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res || pdrh::node_to_boolean(n, boxes);
+        }
+    }
+    else
+    {
+        CLOG(ERROR, "model") << "Unrecognised or unsupported operation \"" << expr->value << "\"";
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+
+// throws exception in case if one of the terminal modes is not a number
+// evaluates the value of arithmetic expression
+bool pdrh::check_zero_crossing(pdrh::node *expr, vector<box> boxes, box first, box last)
+{
+    // comparison operators
+    if(expr->value == ">=" || expr->value == ">" || expr->value == "=" || expr->value == "<" || expr->value == "<=")
+    {
+//        cout << "Beginning left: " << pdrh::node_to_interval(expr->operands.front(), {boxes, first}) << endl;
+//        cout << "Beginning right: " << pdrh::node_to_interval(expr->operands.back(), {boxes, first}) << endl;
+//        cout << "Beginning left-right: " << pdrh::node_to_interval(expr->operands.front(), {boxes, first}) -
+//                                            pdrh::node_to_interval(expr->operands.back(), {boxes, first}) << endl;
+//        cout << "End left: " << pdrh::node_to_interval(expr->operands.front(), {boxes, last}) << endl;
+//        cout << "End right: " << pdrh::node_to_interval(expr->operands.back(), {boxes, last}) << endl;
+//        cout << "End left-right: " << pdrh::node_to_interval(expr->operands.front(), {boxes, last}) -
+//                                           pdrh::node_to_interval(expr->operands.back(), {boxes, last}) << endl;
+        return (pdrh::node_to_interval(expr->operands.front(), {boxes, first}) - pdrh::node_to_interval(expr->operands.back(), {boxes, first})) *
+                (pdrh::node_to_interval(expr->operands.front(), {boxes, last}) - pdrh::node_to_interval(expr->operands.back(), {boxes, last})) < 0;
+    }
+    else if(expr->value == "and")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res && pdrh::check_zero_crossing(n, boxes, first, last);
+        }
+    }
+    else if(expr->value == "or")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res || pdrh::check_zero_crossing(n, boxes, first, last);
+        }
+    }
+    else
+    {
+        CLOG(ERROR, "model") << "Unrecognised or unsupported operation \"" << expr->value << "\"";
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+
+
+// throws exception in case if one of the terminal modes is not a number
+// evaluates the value of arithmetic expression
+capd::interval pdrh::node_to_interval(pdrh::node *expr, vector<box> boxes)
+{
+    // terminal node
     if(expr->operands.size() == 0)
     {
+        for(box b : boxes)
+        {
+            map<string, capd::interval> b_map = b.get_map();
+            if(b_map.find(expr->value) != b_map.end())
+            {
+                return b_map[expr->value];
+            }
+        }
+        if(expr->value == "-infty")
+        {
+            return capd::interval(-numeric_limits<double>::max(), -numeric_limits<double>::max());
+        }
+        else if(expr->value == "infty")
+        {
+            return capd::interval(numeric_limits<double>::max(), numeric_limits<double>::max());
+        }
         return capd::interval(expr->value, expr->value);
     }
     else if(expr->operands.size() > 2)
     {
-        CLOG(ERROR, "model") << "The number of operands can't be descending than 2";
+//        for(node *n : expr->operands)
+//        {
+//            return pdrh::node_to_interval(n);
+//        }
+        CLOG(ERROR, "model") << "The number of operands can't be greater than 2";
         exit(EXIT_FAILURE);
     }
     else
@@ -2369,80 +2082,75 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr)
         {
             if(expr->operands.size() == 1)
             {
-                return pdrh::node_to_interval(expr->operands.front());
+                return pdrh::node_to_interval(expr->operands.front(), boxes);
             }
             else if(expr->operands.size() == 2)
             {
-                return pdrh::node_to_interval(expr->operands.front()) +
-                        pdrh::node_to_interval(expr->operands.back());
-            }
+                return pdrh::node_to_interval(expr->operands.front(), boxes) + pdrh::node_to_interval(expr->operands.back(), boxes);
+           }
         }
         else if(strcmp(expr->value.c_str(), "-") == 0)
         {
             if(expr->operands.size() == 1)
             {
-                return capd::interval(-1.0) * pdrh::node_to_interval(expr->operands.front());
+                return capd::interval(-1.0) * pdrh::node_to_interval(expr->operands.front(), boxes);
             }
             else if(expr->operands.size() == 2)
             {
-                return pdrh::node_to_interval(expr->operands.front()) -
-                        pdrh::node_to_interval(expr->operands.back());
+                return pdrh::node_to_interval(expr->operands.front(), boxes) - pdrh::node_to_interval(expr->operands.back(), boxes);
             }
         }
         else if(strcmp(expr->value.c_str(), "*") == 0)
         {
-            return pdrh::node_to_interval(expr->operands.front()) *
-                    pdrh::node_to_interval(expr->operands.back());
+            return pdrh::node_to_interval(expr->operands.front(), boxes) * pdrh::node_to_interval(expr->operands.back(), boxes);
         }
         else if(strcmp(expr->value.c_str(), "/") == 0)
         {
-            return pdrh::node_to_interval(expr->operands.front()) /
-                    pdrh::node_to_interval(expr->operands.back());
+            return pdrh::node_to_interval(expr->operands.front(), boxes) / pdrh::node_to_interval(expr->operands.back(), boxes);
         }
         else if(strcmp(expr->value.c_str(), "^") == 0)
         {
-            return capd::intervals::power(pdrh::node_to_interval(expr->operands.front()),
-                                          pdrh::node_to_interval(expr->operands.back()));
+            return capd::intervals::power(pdrh::node_to_interval(expr->operands.front(), boxes), pdrh::node_to_interval(expr->operands.back(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "sqrt") == 0)
         {
-            return capd::intervals::sqrt(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::sqrt(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "abs") == 0)
         {
-            return capd::intervals::iabs(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::iabs(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "exp") == 0)
         {
-            return capd::intervals::exp(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::exp(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "log") == 0)
         {
-            return capd::intervals::log(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::log(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "sin") == 0)
         {
-            return capd::intervals::sin(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::sin(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "cos") == 0)
         {
-            return capd::intervals::cos(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::cos(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "tan") == 0)
         {
-            return capd::intervals::tan(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::tan(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "asin") == 0)
         {
-            return capd::intervals::asin(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::asin(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "acos") == 0)
         {
-            return capd::intervals::acos(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::acos(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else if(strcmp(expr->value.c_str(), "atan") == 0)
         {
-            return capd::intervals::atan(pdrh::node_to_interval(expr->operands.front()));
+            return capd::intervals::atan(pdrh::node_to_interval(expr->operands.front(), boxes));
         }
         else
         {
@@ -2451,6 +2159,17 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr)
         }
     }
 }
+
+
+
+// throws exception in case if one of the terminal modes is not a number
+// evaluates the value of arithmetic expression
+capd::interval pdrh::node_to_interval(pdrh::node *expr)
+{
+    return pdrh::node_to_interval(expr, {box()});
+}
+
+
 
 void pdrh::distribution::push_uniform(string var, pdrh::node* a, pdrh::node* b)
 {
@@ -2577,7 +2296,32 @@ void pdrh::set_model_type()
 //}
 
 
-
+pdrh::node* pdrh::box_to_node(box b)
+{
+    pdrh::node *res = new pdrh::node();
+    res->value = "and";
+    map<string, capd::interval> b_map = b.get_map();
+    for(auto it = b_map.begin(); it != b_map.end(); it++)
+    {
+        // adding left node
+        pdrh::node *node_left = new pdrh::node();
+        node_left->value = ">=";
+        node_left->operands.push_back(new node(it->first));
+        stringstream ss;
+        ss << std::setprecision(16) << it->second.leftBound();
+        node_left->operands.push_back(new node(ss.str()));
+        res->operands.push_back(node_left);
+        // adding right node
+        pdrh::node *node_right = new pdrh::node();
+        node_right->value = "<=";
+        node_right->operands.push_back(new node(it->first));
+        ss.str("");
+        ss << std::setprecision(16) << it->second.rightBound();
+        node_right->operands.push_back(new node(ss.str()));
+        res->operands.push_back(node_right);
+    }
+    return res;
+}
 
 
 

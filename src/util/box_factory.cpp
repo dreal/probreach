@@ -62,7 +62,7 @@ vector<box> box_factory::partition(box b, double e)
         box tmp_b = q.front();
         q.erase(q.cbegin());
         vector<box> tmp_v = bisect(tmp_b, e_map);
-        if(tmp_v.empty())
+        if(tmp_v.size() <= 1)
         {
             res.push_back(tmp_b);
         }
@@ -119,6 +119,38 @@ vector<box> box_factory::partition(box b, map<string, capd::interval> e_map)
         }
     }
     return res;
+}
+
+/**
+ * Dividing the box in all n dimensions producing 2^n boxes of the same size
+ */
+std::vector<box> box_factory::bisect(box b, vector<string> vars, double prec)
+{
+    std::map<std::string, capd::interval> e;
+    std::map<std::string, capd::interval> m = b.get_map();
+    for(auto it = m.cbegin(); it != m.cend(); it++)
+    {
+        if(find(vars.begin(), vars.end(), it->first) != vars.end())
+        {
+            e.insert(make_pair(it->first, capd::interval(prec)));
+        }
+        else
+        {
+            e.insert(make_pair(it->first, capd::intervals::width(it->second)));
+        }
+
+    }
+
+    return box_factory::bisect(b,e);
+}
+
+
+/**
+ * Dividing the box in all n dimensions producing 2^n boxes of the same size
+ */
+std::vector<box> box_factory::bisect(box b, vector<string> vars)
+{
+    return bisect(b, vars, 0);
 }
 
 /**
@@ -440,4 +472,18 @@ bool box_factory::intersect(capd::interval lhs, capd::interval rhs)
 {
     return lhs.contains(rhs.leftBound()) || lhs.contains(rhs.rightBound()) ||
             rhs.contains(lhs.leftBound()) || rhs.contains(lhs.rightBound());
+}
+
+box box_factory::box_hull(vector<box> boxes)
+{
+    map<string, capd::interval> res_map = boxes.front().get_map();
+    for(int i = 1; i < boxes.size(); i++)
+    {
+        map<string, capd::interval> b_map = boxes.at(i).get_map();
+        for(auto it = res_map.begin(); it != res_map.end(); it++)
+        {
+            res_map[it->first] = capd::intervals::intervalHull(res_map[it->first], b_map[it->first]);
+        }
+    }
+    return box(res_map);
 }

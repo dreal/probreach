@@ -17,7 +17,8 @@ struct pdrh_config
     double integral_inf_coeff = 1e-01;
     double integral_pdf_step = 1e-01;
     // solver options
-    string solver_bin = SOLVER_BIN;
+    //string solver_bin = SOLVER_BIN;
+    string solver_bin = "dReal";
     string solver_opt = "";
     solver::type solver_type = solver::type::UNKNOWN_SOLVER;
     string secondary_solver_bin = "";
@@ -64,7 +65,6 @@ struct pdrh_config
 
     bool delta_sat = false;
     vector<string> time_var_name = {"tau"};
-    int sample_size = 10;
     double elite_ratio = 0.1;
     double sobol_term_arg = 1e-2;
     bool max_prob = true;
@@ -78,6 +78,23 @@ struct pdrh_config
     bool debug = false;
     bool sort_rv_flag = false;
     bool show_model = false;
+    int sample_size = 20;
+    int iter_num = 3;
+    size_t ode_discretisation = 4;
+
+    std::string global_time = "tau";
+    std::string sample_time = "counter";
+    double noise_var = 1;
+
+    struct ctrl
+    {
+        string sys_out;
+        std::vector<std::string> plant_output;
+        std::vector<std::string> controller_output;
+        std::vector<std::string> controller_input;
+        std::map<std::string, double> noise_variance;
+    } controller;
+
 } extern global_config;
 
 void parse_pdrh_config(int, char**);

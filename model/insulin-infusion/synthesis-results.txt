@@ -1,0 +1,14 @@
+Optimisation with 1 point discretisation:
+
+Optimisation result: 
+Kd:[-0.04207645550561465,-0.04207645550561465]; Ki:[-2.970046378230937e-07,-2.970046378230937e-07]; Kp:[-0.0005169081503112029,-0.0005169081503112029];    |   [0.3822627879734479,0.4322627879734479]
+Computing confidence interval with guarantees:
+2018-03-07 17:48:46,806 INFO  [algorithm] Bayesian estimations algorithm started
+2018-03-07 22:33:00,523 INFO  [algorithm] Random sample size: 2432
+2018-03-07 22:33:00,523 INFO  [algorithm] Bayesian estimations algorithm finished
+The verification result:
+Kd:[-0.04207645550561465,-0.04207645550561465]; Ki:[-2.970046378230937e-07,-2.970046378230937e-07]; Kp:[-0.0005169081503112029,-0.0005169081503112029];    |   [0.6224938373048481,0.672493837304848]
+
+
+
+

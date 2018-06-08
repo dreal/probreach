@@ -21,6 +21,8 @@ namespace box_factory
     vector<box> partition(box, int);
     vector<box> bisect(box, map<string, capd::interval>);
     vector<box> bisect(box, map<string, pdrh::node*>);
+    vector<box> bisect(box, vector<string>, double);
+    vector<box> bisect(box, vector<string>);
     vector<box> merge(std::vector<box>);
     box merge(box, box);
     box get_mean(vector<box>);
@@ -32,6 +34,7 @@ namespace box_factory
     bool compatible(vector<box>);
     box map_box(box, box);
     bool intersect(capd::interval, capd::interval);
+    box box_hull(vector<box>);
 
     // checks map for intersection conflicts
     // first argument the initial map

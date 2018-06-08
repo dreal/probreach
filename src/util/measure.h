@@ -17,16 +17,10 @@ namespace measure
     capd::interval volume(box);
     capd::interval p_measure(box, double);
     capd::interval p_measure(box);
-    std::vector<box> partition(box, double);
-
-    std::vector<rv_box> partition(rv_box, double);
-    capd::interval p_measure(rv_box, double);
-    capd::interval p_measure(rv_box);
-    capd::interval p_measure(dd_box);
     capd::interval p_dd_measure(box);
-    capd::interval get_sample_prob(box, box, box);
 
-    //bool compare_pairs_acs(const pair<box, capd::interval> &, const pair<box, capd::interval> &);
+    std::vector<box> partition(box, double);
+    capd::interval get_sample_prob(box, box, box);
 
     namespace compare_pairs
     {
@@ -35,8 +29,6 @@ namespace measure
     }
 
     bool compare_boxes_by_p_measure(const box, const box);
-
-    //bool compare_pairs_acs(const prob_pair&, const prob_pair&);
 
     // obtain the partition of the parameter space
     std::vector<box> get_rv_partition();
@@ -51,7 +43,6 @@ namespace measure
         capd::interval exp(double, double);
         std::pair<capd::interval, std::vector<capd::interval>> pdf(std::string, std::string, capd::interval, double, double);
         box get_rv_domain();
-        void update();
     }
 
     namespace distribution
@@ -59,10 +50,6 @@ namespace measure
         std::string gaussian(std::string, capd::interval, capd::interval);
         std::string uniform(capd::interval, capd::interval);
         std::string exp(std::string, capd::interval);
-
-        //pdrh::node* gaussian(std::string, double, double);
-        //pdrh::node* uniform(double, double);
-        //pdrh::node* exp(std::string, double);
     }
 }
 

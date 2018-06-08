@@ -1,0 +1,315 @@
+/**
+ * Insulin action subsystem kinetics.
+ * Sources: Sriram, Hovorka 2002, Hovorka 2004
+ */
+#define w 100 //[kg] weight of the patient
+#define ka1 0.006 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+#define ka2 0.06 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+#define ka3 0.03 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+
+#define Sf1T 51.2 * 0.0001 //[min^(-1) per mU * L^(-1)] insulin sensitivity of distribution/transport (Hovorka 2004)
+#define Sf1D 8.2 * 0.0001 //[min^(-1) per mU * L^(-1)] insulin sensitivity of disposal (Hovorka 2004)
+#define Sf1E 520 * 0.0001 //[min^(-1) per mU * L^(-1)] insulin sensitivity of EGP (Hovorka 2004)
+
+//#define kb1 Sf1T * ka1 // [min^(-2) / (mU / L)] activation rate constant (Hovorka 2004)
+//#define kb2 Sf1D * ka2 // [min^(-2) / (mU / L)] activation rate constant (Hovorka 2004)
+//#define kb3 Sf1E * ka3 // [min^(-2) / (mU / L)] activation rate constant (Hovorka 2004)
+
+#define kb1 0.0034 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+#define kb2 0.056 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+#define kb3 0.024 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+
+#define tmaxI 55 //[min] time-to-maximum insulin absorption (Hovorka 2004)
+#define VI (0.12 * w)//[L * kg^(-1)] insulin distribution volume (Hovorka 2004)
+#define ke 0.138//[min^(-1)] insulin elimination from plasma (Hovorka 2004)
+
+#define k12 0.066 //[min^(-1)] transfer rate constant from the non-accessible to the accessible compartment (Hovorka 2004)
+#define VG (0.16 * w) //[L * kg^(-1)] distribution volume of the accessible compartment (Hovorka 2004)
+#define G (Q1 / VG) //[mmol/L] glucose concentration (Hovorka 2004)
+#define F01 (0.0097 * w) //[mmol * kg^(-1) * min^(-1)] non-insulin-dependent glucose flux (Hovorka 2004)
+//#define Fc01 (F01 * G/(G + 1) / 0.85) //total non-insulin-dependent glucose flux corrected for the ambient glucose concentration (Hovorka 2004)
+#define Fc01 F01 //total non-insulin-dependent glucose flux corrected for the ambient glucose concentration (Hovorka 2004)
+//#define FR (0.003 * (G - 9) * VG) //renal glucose clearance above the glucose threshold of 9 mmol/L^(-1) (Hovorka 2004)
+#define FR 0
+#define EGP0 (0.0161 * w) //[mmol * kg^(-1) * min^(-1)] endogenous glucose production 
+
+// Glucose Absorption
+
+#define Gmolar 180.1559 			//[g/mol] molar mass of glucose (Google 2017)
+#define AG 0.8 						//carbohydrate bioavailability (Hovorka 2004)
+#define tmaxG 40 					//[min] time-of-maximum appearance rate of glucose in the accessible glucose compartment (Hovorka 2004)
+
+#define G_upper_unsafe 16 // [mmol/L] glucose concentration upper shut off bound (Fedor 2017)
+#define G_lower_unsafe 4 // [mmol/L] glucose concentration upper shut off bound (Fedor 2017)
+
+#define u_basal 0.055485957306259535484277955219043 			// basal insulin infusion rate (Fedor 2017). Approximation of symbolic MATLAB solution
+
+//#define Kp 0
+//#define Ki 0
+//#define Kd 0
+
+[-1e-3, 0] Kp;
+[-1e-6, 0] Ki;
+[-1e-1, 0] Kd;
+
+
+#define Q1_SP (110 * VG) / 18
+
+#define Q1_init 97.777777777777777777777777777778 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define Q2_init 19.085409849110653871810249291894 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define S1_init 3.0517276518442744516352875370474 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define S2_init 3.0517276518442744516352875370474 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define I_init 0.033506012866098753311762050253045 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define x1_init 0.018986740624122626876665161810059 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define x2_init 0.031272278675025503090977913569509 // approximation of symbolic MATLAB solution (Fedor 2017)
+#define x3_init 0.026804810292879002649409640202436 // approximation of symbolic MATLAB solution (Fedor 2017)
+
+
+// PID controller sampling rate
+#define tau_sample 5
+
+// breakfast
+dist_normal(40, 10) DG1;
+dist_normal(300, 10) tau_meal_1;
+
+
+// lunch
+dist_normal(90, 10) DG2;
+dist_normal(300, 10) tau_meal_2;
+
+// dinner
+dist_normal(70, 10) DG3;
+//dist_normal(300, 10) tau_meal_3;
+
+#define Q1_lower 64
+#define Q1_upper 256
+
+#define n_coeff 16
+
+
+[0,1e3] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
+[0,1e3] x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
+[0,1e3] x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
+[0,1e3] I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
+[0,1e3] S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[0,1e3] S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[0,1e3] Q1; //[mmol] mass of glucose in the accessible compartment (where the measurements are made) (Hovorka 2004)
+[0,1e3] Q2; //[mmol] mass of glucose in the non-accessible compartment (Hovorka 2004)
+[0,1e3] G1; // models food absoption rate
+[0,1e3] G2; // models food absoption rate
+
+[0,1e3] r; // reference trajectory
+
+[-1e9,1e9] e_2;
+[-1e9,1e9] e_1;
+[-1e9,1e9] e;
+[-1e9,1e9] u_1;
+[-1e9,1e9] u;
+
+[0,1440] tau;
+
+[0,1440] counter;
+
+
+// breakfast 
+{
+mode 1;
+
+time:
+[0,tau_sample];
+
+invt:
+(G - G_lower_unsafe >= 0);
+(G_upper_unsafe - G >=0);
+(u + u_basal >= 0);
+
+flow:
+
+// controller
+d/dt[e_2] = 0;
+d/dt[e_1] = 0;
+d/dt[e] = 0;
+d/dt[u_1] = 0;
+d/dt[u] = 0;
+
+// reference trajectory
+d/dt[r] = 0;
+
+// glucose-subsystem
+d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
+d/dt[Q2] = x1 * Q1 - (k12 + x2) * Q2;
+
+// insulin-subsystem
+d/dt[S1] = u + u_basal - S1 / tmaxI;
+d/dt[S2] = (S1 - S2) / tmaxI;
+d/dt[I] = S2 / (tmaxI * VI) - ke * I;
+
+// insulin-action-subsystem
+d/dt[x1] = - ka1 * x1 + kb1 * I;
+d/dt[x2] = - ka2 * x2 + kb2 * I;
+d/dt[x3] = - ka3 * x3 + kb3 * I;
+
+// food absorption
+d/dt[G1] = - G1 / tmaxG;
+d/dt[G2] = (G1 - G2) / tmaxG;
+
+// counters
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+
+jump:
+
+
+(counter = tau_sample) ==> @1	(and 	(counter' = 0) 
+										(e_2' = e_1)
+										(e_1' = e)
+										(e' = r - Q1)
+										(u_1' = u)(u' = u_1 + Kp*(e - e_1) + Kd*(e - 2*e_1 + e_2)/tau_sample + Ki*e*tau_sample));
+
+(tau = tau_meal_1) ==> @2	(and 	(tau' = 0) (G1' = AG*DG2*1000/Gmolar));
+
+}
+
+
+// lunch
+{
+mode 2;
+
+time:
+[0,tau_sample];
+
+invt:
+(G - G_lower_unsafe >= 0);
+(G_upper_unsafe - G >=0);
+(u + u_basal >= 0);
+
+flow:
+
+// controller
+d/dt[e_2] = 0;
+d/dt[e_1] = 0;
+d/dt[e] = 0;
+d/dt[u_1] = 0;
+d/dt[u] = 0;
+
+// reference trajectory
+d/dt[r] = 0;
+
+// glucose-subsystem
+d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
+d/dt[Q2] = x1 * Q1 - (k12 + x2) * Q2;
+
+// insulin-subsystem
+d/dt[S1] = u + u_basal - S1 / tmaxI;
+d/dt[S2] = (S1 - S2) / tmaxI;
+d/dt[I] = S2 / (tmaxI * VI) - ke * I;
+
+// insulin-action-subsystem
+d/dt[x1] = - ka1 * x1 + kb1 * I;
+d/dt[x2] = - ka2 * x2 + kb2 * I;
+d/dt[x3] = - ka3 * x3 + kb3 * I;
+
+// food absorption
+d/dt[G1] = - G1 / tmaxG;
+d/dt[G2] = (G1 - G2) / tmaxG;
+
+// counters
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+
+jump:
+
+
+(counter = tau_sample) ==> @2	(and 	(counter' = 0) 
+										(e_2' = e_1)
+										(e_1' = e)
+										(e' = r - Q1)
+										(u_1' = u)(u' = u_1 + Kp*(e - e_1) + Kd*(e - 2*e_1 + e_2)/tau_sample + Ki*e*tau_sample));
+
+(tau = tau_meal_1) ==> @3	(and 	(tau' = 0) (G1' = AG*DG3*1000/Gmolar));
+
+}
+
+
+// dinner
+{
+mode 3;
+
+time:
+[0,tau_sample];
+
+invt:
+(G - G_lower_unsafe >= 0);
+(G_upper_unsafe - G >=0);
+(u + u_basal >= 0);
+
+flow:
+
+// controller
+d/dt[e_2] = 0;
+d/dt[e_1] = 0;
+d/dt[e] = 0;
+d/dt[u_1] = 0;
+d/dt[u] = 0;
+
+// reference trajectory
+d/dt[r] = 0;
+
+// glucose-subsystem
+d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
+d/dt[Q2] = x1 * Q1 - (k12 + x2) * Q2;
+
+// insulin-subsystem
+d/dt[S1] = u + u_basal - S1 / tmaxI;
+d/dt[S2] = (S1 - S2) / tmaxI;
+d/dt[I] = S2 / (tmaxI * VI) - ke * I;
+
+// insulin-action-subsystem
+d/dt[x1] = - ka1 * x1 + kb1 * I;
+d/dt[x2] = - ka2 * x2 + kb2 * I;
+d/dt[x3] = - ka3 * x3 + kb3 * I;
+
+// food absorption
+d/dt[G1] = - G1 / tmaxG;
+d/dt[G2] = (G1 - G2) / tmaxG;
+
+// counters
+d/dt[tau]= 1;
+d/dt[counter]= 1;
+
+jump:
+
+
+(counter = tau_sample) ==> @3	(and 	(counter' = 0) 
+										(e_2' = e_1)
+										(e_1' = e)
+										(e' = r - Q1)
+										(u_1' = u)(u' = u_1 + Kp*(e - e_1) + Kd*(e - 2*e_1 + e_2)/tau_sample + Ki*e*tau_sample));
+
+}
+
+init:
+
+@1(and	(I = I_init) 
+		(x1 = x1_init) 
+		(x2 = x2_init) 
+		(x3 = x3_init) 
+		(S1 = S1_init) 
+		(S2 = S2_init) 
+		(Q1 = Q1_init) 
+		(Q2 = Q2_init) 
+		(G1 = AG*DG1*1000/Gmolar)
+		(G2 = 0)
+		(tau = 0.0) 
+		(r = Q1_init) 
+		(counter = 0.0) 
+		(e_2 = 0.0)
+		(e_1 = 0.0)
+		(e = 0.0)
+		(u_1 = 0.0)
+		(u = 0.0)
+		);
+
+goal:
+
+@3(tau = 1440 - tau_meal_2 - tau_meal_1);

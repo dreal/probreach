@@ -6,7 +6,6 @@
 #include <sstream>
 #include <iomanip>
 #include <pdrh.h>
-#include <model.h>
 #include "pdrh_config.h"
 #include "pdrh.h"
 

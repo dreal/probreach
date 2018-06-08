@@ -1,0 +1,9 @@
+<map id="el::Loggers::reconfigureLogger" name="el::Loggers::reconfigureLogger">
+<area shape="rect" id="node2" href="$classel_1_1_logger.html#ad9db621dbf8977bf814dc7baea8dcee4" title="Configures the logger using specified configurations. " alt="" coords="212,103,352,130"/>
+<area shape="rect" id="node3" href="$classel_1_1_configurations.html#a1e812370f896b6429bf46b31fcd4e3e0" title="Determines whether or not specified configuration type exists in the repository. " alt="" coords="400,63,528,104"/>
+<area shape="rect" id="node6" href="$classel_1_1_configurations.html#a4c6db218908b39d23cc09b1a16a18e83" title="Sets configuration based&#45;off an existing configurations. " alt="" coords="402,128,526,169"/>
+<area shape="rect" id="node4" href="$classel_1_1_level_helper.html#a94449b79778145f4c58fd1da6bcaf45d" title="Applies specified function to each level starting from startIndex. " alt="" coords="588,5,751,47"/>
+<area shape="rect" id="node5" href="$classel_1_1_level_helper.html#a1279f27df29a003df5ecc3d0bf4dacbb" title="Casts int(ushort) to level, useful for iterating through enum. " alt="" coords="576,71,763,98"/>
+<area shape="rect" id="node7" href="$classel_1_1base_1_1threading_1_1_thread_safe.html#affb45b35790a7305d0a659562c8104fc" title="el::base::threading\l::ThreadSafe::lock" alt="" coords="605,125,734,167"/>
+<area shape="rect" id="node8" href="$classel_1_1base_1_1utils_1_1_abstract_registry.html#a072859d3728a75f910c2898f62fd12da" title="Returns underlying container by reference. " alt="" coords="591,191,748,232"/>
+</map>

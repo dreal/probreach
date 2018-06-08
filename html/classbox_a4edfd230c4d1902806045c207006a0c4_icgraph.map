@@ -1,0 +1,19 @@
+<map id="box::empty" name="box::empty">
+<area shape="rect" id="node2" href="$namespacealgorithm.html#a1cc29dbbc0fd4938905663bb8dbf1c29" title="algorithm::evaluate_pha" alt="" coords="143,5,303,32"/>
+<area shape="rect" id="node3" href="$namespacealgorithm.html#aa4492db22a9b09affa1aa7e966d6ef0f" title="algorithm::evaluate_npha" alt="" coords="140,56,307,83"/>
+<area shape="rect" id="node4" href="$classbox.html#a1834fc925ce861aef56d2cde6d91667b" title="box::compatible" alt="" coords="166,107,281,133"/>
+<area shape="rect" id="node9" href="$box_8cpp.html#a9f83194e70a90dfd3cf3f83d043cf8e5" title="operator+" alt="" coords="185,259,262,285"/>
+<area shape="rect" id="node10" href="$box_8cpp.html#a065ea1fd64165ec143cac21b5cc756b8" title="operator&#45;" alt="" coords="187,309,260,336"/>
+<area shape="rect" id="node11" href="$box_8cpp.html#a45185ec74df74b11828ae9bdfb436add" title="operator*" alt="" coords="186,360,261,387"/>
+<area shape="rect" id="node12" href="$box_8cpp.html#a4d1d852ab1f636d00842d312f8444f0f" title="operator/" alt="" coords="187,411,260,437"/>
+<area shape="rect" id="node13" href="$namespacebox__factory.html#aaf1e49cb48deecc4b49c1e0033ce47d3" title="box_factory::partition" alt="" coords="151,461,295,488"/>
+<area shape="rect" id="node14" href="$namespacebox__factory.html#a424b0f2b6f3d268acb602207ff517c8b" title="box_factory::merge" alt="" coords="156,512,291,539"/>
+<area shape="rect" id="node15" href="$namespacemeasure_1_1compare__pairs.html#a6d528b2a4d3d7bf18f116a1c3abe10eb" title="measure::compare_pairs\l::ascending" alt="" coords="571,215,736,257"/>
+<area shape="rect" id="node18" href="$namespacemeasure_1_1compare__pairs.html#a106231dc35a33789975fd61ed7fefdfe" title="measure::compare_pairs\l::descending" alt="" coords="571,150,736,191"/>
+<area shape="rect" id="node5" href="$namespacebox__factory.html#abd09a7e0a61a8c7fb0d5b862ecb24cde" title="box_factory::compatible" alt="" coords="355,103,516,129"/>
+<area shape="rect" id="node6" href="$namespacemeasure.html#a1f33831376dcc8976364312df62e7bdd" title="measure::get_sample_prob" alt="" coords="564,99,743,125"/>
+<area shape="rect" id="node7" href="$namespacealgorithm.html#adeef2b4d1816dbe12def72676f1963dc" title="algorithm::evaluate\l_npha_cross_entropy\l_normal" alt="" coords="807,84,953,140"/>
+<area shape="rect" id="node8" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="1017,172,1068,199"/>
+<area shape="rect" id="node16" href="$namespacealgorithm.html#a742fbc261fdd5ff80696511cb79e04da" title="algorithm::evaluate\l_npha_sobol" alt="" coords="814,230,946,271"/>
+<area shape="rect" id="node17" href="$namespacealgorithm.html#a48f13c46ec805c783877e166f80b69fa" title="algorithm::evaluate\l_npha_cross_entropy_beta" alt="" coords="791,165,969,206"/>
+</map>

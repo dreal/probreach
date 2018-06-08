@@ -1,0 +1,4 @@
+<map id="el::base::HitCounter::increment" name="el::base::HitCounter::increment">
+<area shape="rect" id="node2" href="$classel_1_1base_1_1_registered_hit_counters.html#af6fa32ffd76776863d8bd2f0e9b341fc" title="Validates counter for hits &gt;= N, i.e, registers new if does not exist otherwise updates original one..." alt="" coords="192,5,401,47"/>
+<area shape="rect" id="node3" href="$classel_1_1base_1_1_registered_hit_counters.html#aa270c1b9a8cc3a4d12cea45e07560d98" title="Validates counter for hits are &lt;= n, i.e, registers new if does not exist otherwise updates original ..." alt="" coords="192,71,401,112"/>
+</map>

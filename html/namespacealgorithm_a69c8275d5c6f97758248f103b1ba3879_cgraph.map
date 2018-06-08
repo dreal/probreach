@@ -1,0 +1,14 @@
+<map id="algorithm::evaluate_pha_bayesian" name="algorithm::evaluate_pha_bayesian">
+<area shape="rect" id="node2" href="$namespacepdrh.html#a6d6ebf61b7e591e7e62fb50a369de7dc" title="pdrh::get_paths" alt="" coords="212,56,324,83"/>
+<area shape="rect" id="node6" href="$namespacernd.html#a31d8f208ddefcb08f5e54ab2f7713d1e" title="rnd::get_random_sample" alt="" coords="185,107,351,133"/>
+<area shape="rect" id="node11" href="$namespacedecision__procedure.html#a04859fbe9411b338b4ceaf722c2050f6" title="decision_procedure\l::evaluate_delta_sat" alt="" coords="199,158,337,199"/>
+<area shape="rect" id="node12" href="$namespacedecision__procedure.html#a02e37aa270977215477a1851763f730b" title="decision_procedure\l::evaluate" alt="" coords="201,223,335,265"/>
+<area shape="rect" id="node13" href="$namespacedecision__procedure.html#af2de5f5d8854227fd8b2e0fac67eb5c5" title="decision_procedure\l::evaluate_isat" alt="" coords="201,289,335,330"/>
+<area shape="rect" id="node3" href="$namespacepdrh.html#a26dc5bcfdf5ce9cb36686f61a5949f6e" title="pdrh::get_successors" alt="" coords="401,56,547,83"/>
+<area shape="rect" id="node4" href="$namespacepdrh.html#ae58ca7828aa3583858dc4f885bc9b2b8" title="pdrh::get_mode" alt="" coords="601,5,713,32"/>
+<area shape="rect" id="node5" href="$namespacepdrh.html#a71887b71ef4b2623344074b212d6fa8d" title="pdrh::print_jump" alt="" coords="600,56,715,83"/>
+<area shape="rect" id="node7" href="$namespacepdrh.html#aa4f2173c40c59858af52948ef37f12e6" title="pdrh::node_to_interval" alt="" coords="399,107,549,133"/>
+<area shape="rect" id="node8" href="$namespacebox__factory.html#a270c930f220f7b1d388bd9cf828e4442" title="box_factory::sqrt" alt="" coords="597,107,717,133"/>
+<area shape="rect" id="node10" href="$namespacebox__factory.html#aec0a591c02a0d47226ddc5fe2793720b" title="box_factory::log" alt="" coords="600,157,715,184"/>
+<area shape="rect" id="node9" href="$classbox.html#ab1b3f88480aa142512f4e12710d0a166" title="box::get_map" alt="" coords="765,132,867,159"/>
+</map>

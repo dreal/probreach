@@ -1,0 +1,5 @@
+<map id="el::Loggers::reconfigureAllLoggers" name="el::Loggers::reconfigureAllLoggers">
+<area shape="rect" id="node2" href="$classel_1_1_logger.html#aeb57aeaddbb3dcd0cb96114019817142" title="el::Logger::configurations" alt="" coords="212,5,380,32"/>
+<area shape="rect" id="node3" href="$classel_1_1_configurations.html#a332717de96efc851a202b7afcc5e395c" title="Sets value of configuration for specified level. " alt="" coords="221,56,371,83"/>
+<area shape="rect" id="node4" href="$classel_1_1_logger.html#adfd57ab27fb398cc980a3edfab92927e" title="Reconfigures logger using existing configurations. " alt="" coords="221,107,371,133"/>
+</map>

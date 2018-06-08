@@ -1,0 +1,5 @@
+<map id="model::var_exists" name="model::var_exists">
+<area shape="rect" id="node2" href="$classmodel.html#ac9e9e0112340225ceced07589767dd59" title="model::push_var" alt="" coords="186,5,305,32"/>
+<area shape="rect" id="node4" href="$classmodel.html#a0bc6b10aa58ad60cedef512ed010eedc" title="model::remove_var" alt="" coords="179,56,312,83"/>
+<area shape="rect" id="node3" href="$classmodel.html#a8db6d7633b2d2b7c05a4bb6f1810da47" title="model::set_var_bounds" alt="" coords="360,31,517,57"/>
+</map>

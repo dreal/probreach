@@ -1,0 +1,16 @@
+<map id="algorithm::evaluate_npha_sobol" name="algorithm::evaluate_npha_sobol">
+<area shape="rect" id="node2" href="$namespacepdrh.html#aaf38b998440be988b3b88fa840efad06" title="pdrh::get_nondet_domain" alt="" coords="185,56,353,83"/>
+<area shape="rect" id="node7" href="$classbox.html#a238aec85de5c03a1efbb48b65751a11b" title="box::max_side_width" alt="" coords="625,107,771,133"/>
+<area shape="rect" id="node8" href="$namespacernd.html#a0adaf9d1941d64f2ef6ff06fe542fae4" title="rnd::get_sobol_sample" alt="" coords="413,157,566,184"/>
+<area shape="rect" id="node9" href="$namespacealgorithm.html#a6d4bdae48130b2bfb3ecb860a4f29313" title="algorithm::evaluate\l_pha_bayesian" alt="" coords="203,390,335,431"/>
+<area shape="rect" id="node10" href="$namespacealgorithm.html#a4b90af849878369b5dbda14ab912ae0b" title="algorithm::evaluate\l_pha_chernoff" alt="" coords="203,455,335,497"/>
+<area shape="rect" id="node11" href="$namespacemeasure_1_1compare__pairs.html#a106231dc35a33789975fd61ed7fefdfe" title="measure::compare_pairs\l::descending" alt="" coords="187,259,352,301"/>
+<area shape="rect" id="node14" href="$namespacemeasure_1_1compare__pairs.html#a6d528b2a4d3d7bf18f116a1c3abe10eb" title="measure::compare_pairs\l::ascending" alt="" coords="187,325,352,366"/>
+<area shape="rect" id="node15" href="$namespacebox__factory.html#a405c8838c954547e730b693f355c1af3" title="box_factory::get_cover" alt="" coords="192,208,347,235"/>
+<area shape="rect" id="node3" href="$namespacepdrh.html#aa4f2173c40c59858af52948ef37f12e6" title="pdrh::node_to_interval" alt="" coords="414,56,565,83"/>
+<area shape="rect" id="node4" href="$namespacebox__factory.html#a270c930f220f7b1d388bd9cf828e4442" title="box_factory::sqrt" alt="" coords="638,5,758,32"/>
+<area shape="rect" id="node6" href="$namespacebox__factory.html#aec0a591c02a0d47226ddc5fe2793720b" title="box_factory::log" alt="" coords="641,56,755,83"/>
+<area shape="rect" id="node5" href="$classbox.html#ab1b3f88480aa142512f4e12710d0a166" title="box::get_map" alt="" coords="819,132,920,159"/>
+<area shape="rect" id="node12" href="$namespacebox__factory.html#a4176cc198e532cb72c8996a11d55e913" title="box_factory::get_keys_diff" alt="" coords="401,265,577,292"/>
+<area shape="rect" id="node13" href="$classbox.html#a4edfd230c4d1902806045c207006a0c4" title="box::empty" alt="" coords="446,323,533,349"/>
+</map>

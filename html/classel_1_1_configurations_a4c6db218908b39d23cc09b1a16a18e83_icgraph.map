@@ -1,0 +1,10 @@
+<map id="el::Configurations::setFromBase" name="el::Configurations::setFromBase">
+<area shape="rect" id="node2" href="$classel_1_1_configurations_1_1_parser.html#a45def5007bf368c4d2a505af58cd94c2" title="Parses configuration from file. " alt="" coords="180,5,339,47"/>
+<area shape="rect" id="node3" href="$classel_1_1_configurations_1_1_parser.html#a39ec1b06f673e8155a83d66e08229129" title="Parse configurations from configuration string. " alt="" coords="177,71,341,112"/>
+<area shape="rect" id="node4" href="$classel_1_1_logger.html#ad9db621dbf8977bf814dc7baea8dcee4" title="Configures the logger using specified configurations. " alt="" coords="189,137,329,163"/>
+<area shape="rect" id="node5" href="$classel_1_1_loggers.html#a888aca5bdccccc322da2eed430909d04" title="Reconfigures specified logger with new configurations. " alt="" coords="399,96,557,137"/>
+<area shape="rect" id="node9" href="$classel_1_1_loggers.html#a9992995a85745639aa9aa5a2df2255f5" title="Sets configurations from global configuration file. " alt="" coords="389,161,567,203"/>
+<area shape="rect" id="node6" href="$classel_1_1_loggers.html#a105f776fe19cb7fa2fccd2993d9f7a7c" title="Reconfigures logger with new configurations after looking it up using identity. " alt="" coords="615,64,773,105"/>
+<area shape="rect" id="node7" href="$classel_1_1_loggers.html#ac834df0f5e9e3dab18e70321a2543af7" title="Reconfigures all the existing loggers with new configurations. " alt="" coords="615,129,773,171"/>
+<area shape="rect" id="node8" href="$classel_1_1_loggers.html#ab9fb62a8ff904ff887fefde3282f46a4" title="Sets default configurations. This configuration is used for future (and conditionally for existing) l..." alt="" coords="821,137,1060,163"/>
+</map>

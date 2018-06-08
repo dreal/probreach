@@ -1,0 +1,28 @@
+<map id="el::base::threading::ThreadSafe" name="el::base::threading::ThreadSafe">
+<area shape="rect" id="node2" href="$classel_1_1base_1_1utils_1_1_abstract_registry.html" title="el::base::utils::Abstract\lRegistry\&lt; base::HitCounter,\l std::vector\&lt; base::HitCounter *\&gt; \&gt;" alt="" coords="183,5,411,61"/>
+<area shape="rect" id="node5" href="$classel_1_1base_1_1utils_1_1_abstract_registry.html" title="el::base::utils::Abstract\lRegistry\&lt; Configuration,\l std::vector\&lt; Configuration *\&gt; \&gt;" alt="" coords="193,85,400,141"/>
+<area shape="rect" id="node8" href="$classel_1_1base_1_1utils_1_1_abstract_registry.html" title="el::base::utils::Abstract\lRegistry\&lt; Logger, std::\lmap\&lt; std::string, Logger *\&gt; \&gt;" alt="" coords="200,165,393,221"/>
+<area shape="rect" id="node11" href="$classel_1_1base_1_1utils_1_1_abstract_registry.html" title="el::base::utils::Abstract\lRegistry\&lt; T_Ptr, std::map\l\&lt; T_Key, T_Ptr *\&gt; \&gt;" alt="" coords="209,245,384,301"/>
+<area shape="rect" id="node13" href="$classel_1_1base_1_1utils_1_1_abstract_registry.html" title="el::base::utils::Abstract\lRegistry\&lt; T_Ptr, std::vector\l\&lt; T_Ptr *\&gt; \&gt;" alt="" coords="204,325,389,381"/>
+<area shape="rect" id="node15" href="$classel_1_1_callback.html" title="el::Callback\&lt; LogDispatch\lData \&gt;" alt="" coords="209,406,385,447"/>
+<area shape="rect" id="node18" href="$classel_1_1_callback.html" title="el::Callback\&lt; Performance\lTrackingData \&gt;" alt="" coords="208,471,385,513"/>
+<area shape="rect" id="node21" href="$classel_1_1base_1_1_performance_tracker.html" title="Represents performanceTracker block of code that conditionally adds performance status to log either ..." alt="" coords="199,537,394,564"/>
+<area shape="rect" id="node22" href="$classel_1_1base_1_1_storage.html" title="Easylogging++ management storage. " alt="" coords="236,588,357,615"/>
+<area shape="rect" id="node23" href="$classel_1_1base_1_1_typed_configurations.html" title="Configurations with data types. " alt="" coords="199,639,395,665"/>
+<area shape="rect" id="node24" href="$classel_1_1base_1_1utils_1_1_abstract_registry.html" title="Abstract registry (aka repository) that provides basic interface for pointer repository specified by ..." alt="" coords="201,690,392,731"/>
+<area shape="rect" id="node25" href="$classel_1_1base_1_1_v_registry.html" title="Represents registries for verbose logging. " alt="" coords="229,756,364,783"/>
+<area shape="rect" id="node26" href="$classel_1_1_callback.html" title="el::Callback\&lt; T \&gt;" alt="" coords="235,807,358,833"/>
+<area shape="rect" id="node27" href="$classel_1_1_logger.html" title="Represents a logger holding ID and configurations we need to write logs. " alt="" coords="257,857,336,884"/>
+<area shape="rect" id="node3" href="$classel_1_1base_1_1utils_1_1_registry_with_pred.html" title="el::base::utils::Registry\lWithPred\&lt; base::HitCounter,\l base::HitCounter::Predicate \&gt;" alt="" coords="466,5,666,61"/>
+<area shape="rect" id="node4" href="$classel_1_1base_1_1_registered_hit_counters.html" title="Repository for hit counters used across the application. " alt="" coords="721,20,931,47"/>
+<area shape="rect" id="node6" href="$classel_1_1base_1_1utils_1_1_registry_with_pred.html" title="el::base::utils::Registry\lWithPred\&lt; Configuration,\l Configuration::Predicate \&gt;" alt="" coords="477,85,655,141"/>
+<area shape="rect" id="node7" href="$classel_1_1_configurations.html" title="Thread&#45;safe Configuration repository. " alt="" coords="764,100,888,127"/>
+<area shape="rect" id="node9" href="$classel_1_1base_1_1utils_1_1_registry.html" title="el::base::utils::Registry\l\&lt; Logger, std::string \&gt;" alt="" coords="487,173,645,214"/>
+<area shape="rect" id="node10" href="$classel_1_1base_1_1_registered_loggers.html" title="Loggers repository. " alt="" coords="733,180,919,207"/>
+<area shape="rect" id="node12" href="$classel_1_1base_1_1utils_1_1_registry.html" title="A pointer registry mechanism to manage memory and provide search functionalities. (non&#45;predicate vers..." alt="" coords="487,253,645,294"/>
+<area shape="rect" id="node14" href="$classel_1_1base_1_1utils_1_1_registry_with_pred.html" title="A pointer registry mechanism to manage memory and provide search functionalities. (predicate version)..." alt="" coords="483,333,649,374"/>
+<area shape="rect" id="node16" href="$classel_1_1_log_dispatch_callback.html" title="el::LogDispatchCallback" alt="" coords="484,413,648,440"/>
+<area shape="rect" id="node17" href="$classel_1_1base_1_1_default_log_dispatch_callback.html" title="el::base::DefaultLogDispatch\lCallback" alt="" coords="731,406,921,447"/>
+<area shape="rect" id="node19" href="$classel_1_1_performance_tracking_callback.html" title="el::PerformanceTrackingCallback" alt="" coords="459,479,673,505"/>
+<area shape="rect" id="node20" href="$classel_1_1base_1_1_default_performance_tracking_callback.html" title="el::base::DefaultPerformance\lTrackingCallback" alt="" coords="730,471,922,513"/>
+</map>

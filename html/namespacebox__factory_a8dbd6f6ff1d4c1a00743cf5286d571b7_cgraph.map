@@ -1,0 +1,5 @@
+<map id="box_factory::get_intersection_conflicts" name="box_factory::get_intersection_conflicts">
+<area shape="rect" id="node2" href="$classbox.html#aeda13326a0a813801def1453b4f77a6b" title="box::intersects" alt="" coords="264,5,372,32"/>
+<area shape="rect" id="node4" href="$namespacebox__factory.html#ab5a37b577784d84641ed5e92912b98d0" title="box_factory::intersect" alt="" coords="244,56,392,83"/>
+<area shape="rect" id="node3" href="$classbox.html#ab1b3f88480aa142512f4e12710d0a166" title="box::get_map" alt="" coords="440,5,541,32"/>
+</map>

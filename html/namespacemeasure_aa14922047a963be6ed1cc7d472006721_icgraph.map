@@ -1,0 +1,9 @@
+<map id="measure::binomial" name="measure::binomial">
+<area shape="rect" id="node2" href="$namespacemeasure.html#ad505739962da84a36aab0c1f7845985c" title="measure::precision" alt="" coords="181,56,313,83"/>
+<area shape="rect" id="node3" href="$namespacemeasure.html#a3a2114917621300beaa451f2a537fb2b" title="measure::partition" alt="" coords="383,5,509,32"/>
+<area shape="rect" id="node4" href="$namespacemeasure.html#a47d3569a9a069a8a06b56101f6210799" title="measure::p_measure" alt="" coords="374,56,518,83"/>
+<area shape="rect" id="node5" href="$namespacemeasure.html#aff9dc4e19e55efa41cf10f833e60809f" title="measure::get_rv_partition" alt="" coords="361,107,531,133"/>
+<area shape="rect" id="node6" href="$namespacealgorithm.html#a1cc29dbbc0fd4938905663bb8dbf1c29" title="algorithm::evaluate_pha" alt="" coords="778,80,938,107"/>
+<area shape="rect" id="node7" href="$namespacealgorithm.html#aa4492db22a9b09affa1aa7e966d6ef0f" title="algorithm::evaluate_npha" alt="" coords="775,135,941,161"/>
+<area shape="rect" id="node8" href="$namespacemeasure_1_1bounds.html#a44010a00e7a25bf822120d96607d7be7" title="measure::bounds::get\l_rv_domain" alt="" coords="579,99,727,141"/>
+</map>

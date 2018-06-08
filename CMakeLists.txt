@@ -259,11 +259,11 @@ if(GTEST_FOUND)
     add_test(box_test ${PROBREACH_BINARY_DIR}/test/box_test)
 
     # unit test for stability.cpp
-    add_executable(stability_test ${PROBREACH_TEST_DIR}/util/stability_test.cpp
-            ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_SOURCE_DIR}/util/stability.cpp)
-    target_link_libraries(stability_test ${DREAL_LIBRARIES} -lgtest)
-    add_test(stability_test ${PROBREACH_BINARY_DIR}/test/stability_test)
+#    add_executable(stability_test ${PROBREACH_TEST_DIR}/util/stability_test.cpp
+#            ${PROBREACH_TEST_DIR}/main_test.cpp
+#            ${PROBREACH_SOURCE_DIR}/util/stability.cpp)
+#    target_link_libraries(stability_test ${DREAL_LIBRARIES} -lgtest)
+#    add_test(stability_test ${PROBREACH_BINARY_DIR}/test/stability_test)
 
     # unit test for box_factory.cpp
 #    add_executable(box_factory_test ${PROBREACH_TEST_DIR}/util/box_factory_test.cpp

@@ -162,11 +162,6 @@ std::vector<box> measure::partition(box b, double e)
     return box_factory::cartesian_product(m);
 }
 
-capd::interval measure::p_measure(rv_box b)
-{
-    return measure::p_measure(b, global_config.precision_prob);
-}
-
 capd::interval measure::p_dd_measure(box b)
 {
     std::map<std::string, capd::interval> edges = b.get_map();

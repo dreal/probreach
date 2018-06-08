@@ -1,0 +1,84 @@
+model: npha;
+/*
+ * the model is accurate for 0-100 km/h period
+ */
+#define v_max 55.56 // [200 km/h] maximum speed of a car (m/s)
+#define v_100 27.78 // m/s
+#define drag 3.028e-4 // some average value (1/m)
+#define a_d 5.25
+#define mu 1
+#define alpha 0.05776 
+#define beta 4
+#define t_react 1.2
+
+[0,1000] s; // distance m
+[0,v_100] v; // velocity m/s (16.67 m/s = 60 km/h)
+[0,30] tau; // time in seconds
+[0,30] time;
+
+#define tau_sample 1
+
+[0, tau_sample] counter;
+
+
+// accelerating
+{
+mode 1;
+flow:
+d/dt[s]= v;
+d/dt[v]= alpha*exp(-alpha*tau+beta)-drag*v*v;
+d/dt[tau]= 1.0;
+d/dt[counter] = 1;
+jump:
+(v >= v_100)==>@2(and(s'=s)(v'=v)(tau'=0));
+(counter >= tau_sample)==>@1(counter' = 0);
+}
+
+// reacting
+{
+mode 2;
+flow:
+d/dt[s]= v;
+d/dt[v]= -drag*v*v;
+d/dt[tau]= 1.0;
+d/dt[counter] = 1;
+jump:
+(tau >= t_react)==>@3(and(s'=s)(v'=v)(tau'=0));
+(counter >= tau_sample)==>@2(counter' = 0);
+}
+
+// braking
+{
+mode 3;
+flow:
+d/dt[s]= v;
+d/dt[v]= -a_d;
+//d/dt[v]= -a_d-drag*v*v;
+d/dt[tau]= 1.0;
+d/dt[counter] = 1;
+jump:
+(v <= 0)==>@4(and(s'=s)(v'=v)(tau'=0));
+(counter >= tau_sample)==>@3(counter' = 0);
+}
+
+// stopped
+{
+mode 4;
+flow:
+d/dt[s]= v;
+d/dt[v]= 0.0;
+d/dt[tau]= 1.0;
+d/dt[counter] = 1;
+jump:
+(counter >= tau_sample)==>@4(counter' = 0);
+}
+
+init:
+@1(and (s = 0) (v = 0) (tau = 0));
+
+goal:
+@4(s>=400);
+//@4(and(tau=0)(s>=300));
+//@1(and (v=v_100));
+//@2(and (tau = t_react)(s>=500));
+//@3(and(v<=0));

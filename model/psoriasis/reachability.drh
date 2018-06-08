@@ -91,7 +91,6 @@ d/dt[SP_d] = k3d*GA_d-k4d*SP_d-beta4d*SP_d;
 d/dt[CC_d] = k4d*SP_d-alphad*CC_d;
 d/dt[tau] = 1;
 jump:
-(and (tau = 2000)) ==> @2(and (SC'=SC)(TA'=TA)(GA'=GA)(SP'=SP)(GC'=GC)(CC'=CC)(SC_d'=SC_d)(TA_d'=TA_d)(GA_d'=GA_d)(SP_d'=SP_d)(CC_d'=CC_d)(tau' = 0));
 }
 
 init:

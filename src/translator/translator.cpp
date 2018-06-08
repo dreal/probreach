@@ -709,12 +709,20 @@ string translator::get_initial_value(string variable_name){
 
     if (located) {
         return lower_bound + "+(" + upper_bound + "-" + lower_bound + ").*rand(1,1)";
+    // If we didn't find the variable above...
     } else {
+        CLOG(WARNING, "translator" ) << "Initial condition for " << variable_name
+                                     << " not defined - using lower bound of its domain as initial condition.";
+        // Look in the var-map for its interval and use the lower bound as default value
         auto iter = pdrh::var_map.find(variable_name);
         if (iter != pdrh::var_map.end()){
             return iter->second.first->value;
         }
-        else return "0";
+        // as a further fail-safe, return 0
+        else {
+            CLOG(WARNING, "translator" ) << "Variable " << variable_name << "not found in variable map, setting initial value to 0";
+            return "0";
+        }
     }
 }
 

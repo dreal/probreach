@@ -715,7 +715,6 @@ string translator::get_initial_value(string variable_name){
             return iter->second.first->value;
         }
         else return "0";
-//        return "0";
     }
 }
 

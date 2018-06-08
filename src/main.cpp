@@ -134,23 +134,23 @@ int main(int argc, char* argv[])
 //        }
 //    }
 
-//    vector<vector<pdrh::mode*>> paths = pdrh::get_paths();
-//    cout << "Set of paths to check: " << endl;
-//    if(paths.size() > 0)
-//    {
-//        for(vector<pdrh::mode*> path : paths)
-//        {
-//            for(pdrh::mode* m : path)
-//            {
-//                cout << m->id << ", ";
-//            }
-//            cout << endl;
-//        }
-//    }
-//    else
-//    {
-//        cout << "To determine from the command line options" << endl;
-//    }
+    vector<vector<pdrh::mode*>> paths = pdrh::get_paths();
+    cout << "Set of paths to check: " << endl;
+    if(paths.size() > 0)
+    {
+        for(vector<pdrh::mode*> path : paths)
+        {
+            for(pdrh::mode* m : path)
+            {
+                cout << m->id << ", ";
+            }
+            cout << endl;
+        }
+    }
+    else
+    {
+        cout << "To determine from the command line options" << endl;
+    }
 
     switch(pdrh::model_type)
     {
@@ -404,20 +404,20 @@ int main(int argc, char* argv[])
         }
     }
 
-//    capd::interval alpha("0.7854","0.7854");
-//    capd::interval v0("25","25");
-//    capd::interval g("9.8","9.8");
-//    capd::interval Sx("100","100");
-//
-//    capd::interval ref_interval = sqrt((Sx*g) / (2*v0*v0*cos(alpha)*sin(alpha))-1);
-//    map<string, capd::interval> ref_map;
-//    ref_map.insert(make_pair("K", ref_interval));
-//    box ref_box(ref_map);
-//    cout << "Ref box:" << endl;
-//    cout << setprecision(16) << ref_box << endl;
+    capd::interval alpha("0.7854","0.7854");
+    capd::interval v0("25","25");
+    capd::interval g("9.8","9.8");
+    capd::interval Sx("100","100");
 
-//    capd::interval lower_bound = sqrt( (Sx * g) / (sin(2 * alpha) * (0.7*0.7 + 1)) );
-//    cout << setprecision(16) << lower_bound << endl;
+    capd::interval ref_interval = sqrt((Sx*g) / (2*v0*v0*cos(alpha)*sin(alpha))-1);
+    map<string, capd::interval> ref_map;
+    ref_map.insert(make_pair("K", ref_interval));
+    box ref_box(ref_map);
+    cout << "Ref box:" << endl;
+    cout << setprecision(16) << ref_box << endl;
+
+    capd::interval lower_bound = sqrt( (Sx * g) / (sin(2 * alpha) * (0.7*0.7 + 1)) );
+    cout << setprecision(16) << lower_bound << endl;
 
     // unregister the loggers
     el::Loggers::unregisterLogger("parser");

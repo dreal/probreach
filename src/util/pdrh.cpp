@@ -1476,8 +1476,10 @@ string pdrh::reach_to_isat(vector<box> boxes)
     }
 
     // defining time and delta_time
-    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << (pdrh::node_to_interval(pdrh::time.second) * global_config.reach_depth_max).rightBound() << "] time;" << endl;
-    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << (pdrh::node_to_interval(pdrh::time.second) * global_config.reach_depth_max).rightBound() << "] delta_time;" << endl;
+    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << (
+            pdrh::node_to_interval(pdrh::time.second) * global_config.reach_depth_max).rightBound() << "] time;" << endl;
+    s << "float [" << pdrh::node_to_string_infix(pdrh::time.first) << ", " << (
+            pdrh::node_to_interval(pdrh::time.second) * global_config.reach_depth_max).rightBound() << "] delta_time;" << endl;
 
     // Generating init
     s << "INIT" << endl;
@@ -1637,7 +1639,7 @@ box pdrh::get_psy_domain()
     for(auto it = pdrh::syn_map.cbegin(); it != pdrh::syn_map.cend(); it++)
     {
         m.insert(make_pair(it->first, capd::interval(pdrh::node_to_interval(pdrh::var_map[it->first].first).leftBound(),
-                                                         pdrh::node_to_interval(pdrh::var_map[it->first].second).rightBound())));
+                                                     pdrh::node_to_interval(pdrh::var_map[it->first].second).rightBound())));
     }
     return box(m);
 }
@@ -2085,7 +2087,7 @@ capd::interval pdrh::node_to_interval(pdrh::node *expr, vector<box> boxes)
             else if(expr->operands.size() == 2)
             {
                 return pdrh::node_to_interval(expr->operands.front(), boxes) + pdrh::node_to_interval(expr->operands.back(), boxes);
-            }
+           }
         }
         else if(strcmp(expr->value.c_str(), "-") == 0)
         {

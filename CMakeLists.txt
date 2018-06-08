@@ -10,10 +10,12 @@ find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(GSL REQUIRED)
 find_package(GTest)
+# Needed for using the translator tool
+find_package(Matlab)
 
 # setting compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-return-type -Wno-unused-function -std=c++11 -fopenmp -frounding-math")
-#set(CMAKE_EXE_LINKER_FLAGS "-static-libstdc++")
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 # setting some environment variables
 set(PROBREACH_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
@@ -178,17 +180,59 @@ set(PDRH2SMT_INCLUDE
 
 add_library(pdrh2smt ${PDRH2SMT_SRC})
 target_link_libraries(pdrh2smt -lfl)
+
 file(COPY ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
 make_directory(${PROBREACH_BINARY_DIR}/include/pdrh2smt/parser)
 add_custom_command(TARGET pdrh2smt
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhparser.hpp ${PROBREACH_BINARY_DIR}/include/pdrh2smt/parser)
+
+file(GLOB PDRH2SIMULINK_SRC   ${PROBREACH_SOURCE_DIR}/util/*.cpp
+        ${PROBREACH_SOURCE_DIR}/parser/csv/*.cpp
+        ${PROBREACH_SOURCE_DIR}/parser/output/*.cpp
+        ${PROBREACH_SOURCE_DIR}/solver/*.cpp
+        ${PROBREACH_SOURCE_DIR}/translator/*.cpp)
+
+
+file(GLOB PDRH2SIMULINK_INCLUDE   ${PROBREACH_SOURCE_DIR}/util/*.h
+        ${PROBREACH_SOURCE_DIR}/parser/csv/*.h
+        ${PROBREACH_SOURCE_DIR}/parser/output/*.h
+        ${PROBREACH_SOURCE_DIR}/solver/*.h
+        ${PROBREACH_SOURCE_DIR}/translator/*.h)
+
+set(PDRH2SIMULINK_INCLUDE ${PDRH2SIMULINK_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.h)
+
+set(PDRH2SIMULINK_SRC ${PDRH2SIMULINK_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
+        ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
+        ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
+
+add_library(pdrh2simulink_lib ${PDRH2SIMULINK_SRC})
+target_link_libraries(pdrh2simulink_lib ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas)
 #install(FILES ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
 
 # adding executable
+# If Matlab is installed on the target machine, link its libraries
+IF(MATLAB_FOUND)
+    message(STATUS "MATLAB Found, MATLAB MEX will be additionally compiled to enable Simulink Translator.")
+
+    INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
+
+    message(STATUS "MATLAB root dir: $ENV{MATLAB_ROOT}")
+    message(STATUS "OUTPUT DIR: ${PROBREACH_BINARY_DIR}")
+    message(STATUS "MATLAB include dir: ${MATLAB_INCLUDE_DIR}")
+    message(STATUS "MATLAB libraries included: ${MATLAB_LIBRARIES}")
+
+    add_executable(pdrh2simulink ${PROBREACH_SOURCE_DIR}/translator/translator_main.cpp)
+    target_compile_options(pdrh2simulink PRIVATE)
+    target_link_libraries(pdrh2simulink pdrh2simulink_lib ${MATLAB_LIBRARIES})
+ELSE(MATLAB_FOUND)
+    MESSAGE("MATLAB not found, translator functionality won't be available.")
+ENDIF(MATLAB_FOUND)
+
 add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
 #target_compile_options(ProbReach PRIVATE -static)
 target_link_libraries(ProbReach probreach)
+
 
 
 install(FILES ${PROBREACH_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/probreach)

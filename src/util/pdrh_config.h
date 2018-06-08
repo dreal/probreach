@@ -78,7 +78,6 @@ struct pdrh_config
     bool debug = false;
     bool sort_rv_flag = false;
     bool show_model = false;
-
     int sample_size = 20;
     int iter_num = 3;
     size_t ode_discretisation = 4;
@@ -95,9 +94,6 @@ struct pdrh_config
         std::vector<std::string> controller_input;
         std::map<std::string, double> noise_variance;
     } controller;
-
-
-
 
 } extern global_config;
 

@@ -109,8 +109,9 @@
 //#define G_SP 4.504131
 //#define G_lower 7.23951
 //#define G_upper 8.01374
-//#define Kd -0.0764588
-//#define Kp -0.001201454
+#define Kd -0.0764588
+#define Kp -0.001201454
+#define Ki -1e-7
 //#define u_basal 0.0575666
 
 #define t_sleep 540

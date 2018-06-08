@@ -92,6 +92,7 @@ int main(int argc, char* argv[])
         cout << pdrh::model_to_string() << endl;
     }
 
+//    cout<<"Var map: " << pdrh::var_map.at("counter").first->value << endl;
     // runs the translator
     translator::translate();
 

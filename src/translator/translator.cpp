@@ -662,10 +662,16 @@ string translator::get_initial_value(string variable_name){
             }
         }
     }
+
     if (located) {
         return lower_bound + "+(" + upper_bound + "-" + lower_bound + ").*rand(1,1)";
     } else {
-        return "0";
+        auto iter = pdrh::var_map.find(variable_name);
+        if (iter != pdrh::var_map.end()){
+            return iter->second.first->value;
+        }
+        else return "0";
+//        return "0";
     }
 }
 

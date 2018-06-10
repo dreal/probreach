@@ -17,7 +17,7 @@
 #include <solver/isat_wrapper.h>
 #include "rnd.h"
 #include "ap.h"
-#include "stability.h"
+//#include "stability.h"
 
 using namespace std;
 
@@ -1127,9 +1127,11 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
             if (domain.contains(b))
             {
                 CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is inside the domain";
-                if(stability::is_stable(init_mode->odes, pdrh::node_to_interval(init_mode->time.second).rightBound(), ap::init_to_box({}), b))
+//                if(stability::is_stable(init_mode->odes, pdrh::node_to_interval(init_mode->time.second).rightBound(), ap::init_to_box({}), b))
+                if(true)
                 {
-                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is stable";
+//                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is stable";
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Stability check is switched off";
                     if (global_config.bayesian_flag) {
                         probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc,
                                                             global_config.bayesian_conf, vector<box>{b});

@@ -113,7 +113,7 @@ ADD_FLEX_BISON_DEPENDENCY(pdrh_scanner pdrh_parser)
 
 # header files
 #include_directories("/opt/Matlab/R2014a/extern/include")
-include_directories("/usr/local/MATLAB/R2017b/extern/include")
+#include_directories("/usr/local/MATLAB/R2017b/extern/include")
 include_directories("${DREAL_INCLUDE_DIR}")
 include_directories("${DREAL_INCLUDE_DIR}/ibex")
 include_directories("${PROBREACH_SOURCE_DIR}/pdrh2smt")
@@ -133,6 +133,7 @@ include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 file(GLOB PROBREACH_SRC
         ${PROBREACH_SOURCE_DIR}/util/*.cpp
         ${PROBREACH_SOURCE_DIR}/util/generators/*.cpp
+        # ${PROBREACH_SOURCE_DIR}/stability/*.cpp
         ${PROBREACH_SOURCE_DIR}/parser/csv/*.cpp
         ${PROBREACH_SOURCE_DIR}/parser/output/*.cpp
         ${PROBREACH_SOURCE_DIR}/solver/*.cpp)
@@ -140,6 +141,7 @@ file(GLOB PROBREACH_SRC
 file(GLOB PROBREACH_INCLUDE
         ${PROBREACH_SOURCE_DIR}/util/*.h
         ${PROBREACH_SOURCE_DIR}/util/generators/*.h
+        # ${PROBREACH_SOURCE_DIR}/stability/*.h
         ${PROBREACH_SOURCE_DIR}/parser/csv/*.h
         ${PROBREACH_SOURCE_DIR}/parser/output/*.h
         ${PROBREACH_SOURCE_DIR}/solver/*.h)
@@ -148,7 +150,7 @@ set(PROBREACH_INCLUDE ${PROBREACH_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/p
 
 set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
         ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
-        ${PROBREACH_BINARY_DIR}/git_sha1.cpp src/util/ap.cpp src/util/ap.h src/util/stability.cpp src/util/stability.h)
+        ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
 #link_directories(/opt/Matlab/R2014a/bin/glnxa64/)
 #link_directories(/opt/Matlab/R2014a/sys/os/glnxa64)
@@ -157,8 +159,8 @@ link_directories(/usr/local/MATLAB/R2017b/bin/glnxa64/)
 
 # creating a library
 add_library(probreach ${PROBREACH_SRC})
-target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas -pthread -lmx -leng)
-#target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas)
+#target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas -pthread -lmx -leng)
+target_link_libraries(probreach ${DREAL_LIBRARIES} -lfl -lgsl -lgslcblas)
 
 set(PDRH2SMT_SRC
         ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp

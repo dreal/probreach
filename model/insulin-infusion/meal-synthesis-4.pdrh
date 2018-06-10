@@ -1,0 +1,218 @@
+/**
+ * Insulin action subsystem kinetics.
+ * Sources: Sriram, Hovorka 2002, Hovorka 2004
+ */
+#define w 100 //[kg] weight of the patient
+#define ka1 0.006 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+#define ka2 0.06 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+#define ka3 0.03 //[min^(-1)] deactivation rate constant (Hovorka 2004)
+
+#define Sf1T 51.2 * 0.0001 //[min^(-1) per mU * L^(-1)] insulin sensitivity of distribution/transport (Hovorka 2004)
+#define Sf1D 8.2 * 0.0001 //[min^(-1) per mU * L^(-1)] insulin sensitivity of disposal (Hovorka 2004)
+#define Sf1E 520 * 0.0001 //[min^(-1) per mU * L^(-1)] insulin sensitivity of EGP (Hovorka 2004)
+
+//#define kb1 Sf1T * ka1 // [min^(-2) / (mU / L)] activation rate constant (Hovorka 2004)
+//#define kb2 Sf1D * ka2 // [min^(-2) / (mU / L)] activation rate constant (Hovorka 2004)
+//#define kb3 Sf1E * ka3 // [min^(-2) / (mU / L)] activation rate constant (Hovorka 2004)
+
+#define kb1 0.0034 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+#define kb2 0.056 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+#define kb3 0.024 //[min^(-2) / (mU / L)] activation rate constant (Sriram)
+
+#define tmaxI 55 //[min] time-to-maximum insulin absorption (Hovorka 2004)
+#define VI (0.12 * w)//[L * kg^(-1)] insulin distribution volume (Hovorka 2004)
+#define ke 0.138//[min^(-1)] insulin elimination from plasma (Hovorka 2004)
+
+#define k12 0.066 //[min^(-1)] transfer rate constant from the non-accessible to the accessible compartment (Hovorka 2004)
+#define VG (0.16 * w) //[L * kg^(-1)] distribution volume of the accessible compartment (Hovorka 2004)
+#define G (Q1 / VG) //[mmol/L] glucose concentration (Hovorka 2004)
+#define F01 (0.0097 * w) //[mmol * kg^(-1) * min^(-1)] non-insulin-dependent glucose flux (Hovorka 2004)
+//#define Fc01 (F01 * G/(G + 1) / 0.85) //total non-insulin-dependent glucose flux corrected for the ambient glucose concentration (Hovorka 2004)
+#define Fc01 F01 //total non-insulin-dependent glucose flux corrected for the ambient glucose concentration (Hovorka 2004)
+//#define FR (0.003 * (G - 9) * VG) //renal glucose clearance above the glucose threshold of 9 mmol/L^(-1) (Hovorka 2004)
+#define FR 0
+#define EGP0 (0.0161 * w) //[mmol * kg^(-1) * min^(-1)] endogenous glucose production 
+
+// Glucose Absorption
+
+//#define UG 8 * 180 / 1000 // glucose absorption rate (Sriram)
+//#define UG DG*0.01743 // glucose absorption rate (Fedor 2017)
+
+#define UG (DG/Gmolar)*1000*AG*tau*exp(-tau/tmaxG)/(tmaxG^2) // glucose absorption rate (Hovorka 2004)
+#define Gmolar 180.1559 //[g/mol] molar mass of glucose (Google 2017)
+//dist_uniform(40,100) DG; //[g] amount of carbohydrates digested (Fedor 2017)
+//dist_normal(70,1) DG; //[g] amount of carbohydrates digested (Fedor 2017)
+
+#define AG 0.8 //carbohydrate bioavailability (Hovorka 2004)
+#define tmaxG 40 //[min] time-of-maximum appearance rate of glucose in the accessible glucose compartment (Hovorka 2004)
+
+#define t_pid 180
+
+#define G_upper_unsafe 16 //[mmol/L] glucose concentration upper shut off bound (Fedor 2017)
+#define G_lower_unsafe 4 //[mmol/L] glucose concentration upper shut off bound (Fedor 2017)
+
+// dynamics
+#define r_ode 0
+#define Q1_ode (-Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + UG)
+#define Q2_ode x1 * Q1 - (k12 + x2) * Q2
+#define e_der (r_ode - Q1_ode)
+
+//#define G_lower 7.36148
+//#define G_upper 8.1472
+
+#define u Kp*e + Kd*e_der + Ki*e_int + u_basal
+
+//[5.4e-02,5.7e-02] u_basal; // basal insulin infusion rate (Fedor 2017)
+#define u_basal 5.5500000000000001e-02
+
+#define Kd -0.062413
+#define Kp -0.00054226
+#define Ki -7.55182e-7
+
+//[-0.07, -0.05] Kd;
+//[-0.0007, -0.0005] Kp;
+//[-1e-6, -1e-7] Ki;
+
+//#define Kd 0
+//#define Kp 0
+
+#define Q1_SP (110 * VG) / 18
+
+//#define Q1_init Q1_SP
+//#define Q2_init (x1_init * Q1_SP) / (k12 + x2_init)
+//#define S1_init u_basal * tmaxI
+//#define S2_init S1_init
+//#define I_init (ke / tmaxI) * S2_init
+//#define x1_init (kb1 / ka1) * I_init
+//#define x2_init (kb2 / ka2) * I_init
+//#define x3_init (kb3 / ka3) * I_init
+
+#define Q1_init Q1_SP
+#define Q2_init 19.08024296516837
+#define S1_init 3.0525
+#define S2_init 3.0525
+#define I_init 0.03351449275362304
+#define x1_init 0.01899154566043506
+#define x2_init 0.03128019323671478
+#define x3_init 0.0268115942028984
+
+// the best so far
+//#define G_SP 4.504131
+//#define G_lower 7.23951
+//#define G_upper 8.01374
+//#define Kd -0.0764588
+//#define Kp -0.001201454
+//#define u_basal 0.0575666
+
+#define t_sleep 540
+
+
+[0,1e6] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
+[0,1e6] x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
+[0,1e6] x3; //[min^(-1)] (remote) effect of insulin on endogenous glucose production (Hovorka 2004)
+[0,1e6] I; //[mU/L] plasma inslulin concentration (Hovorka 2002)
+[0,1e6] S1; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[0,1e6] S2; //absorption of subcutaneously administered short-acting (e.g. Lispro) insulin (Hovorka 2004)
+[0,1e6] Q1; //[mmol] mass of glucose in the accessible compartment (where the measurements are made) (Hovorka 2004)
+[0,1e6] Q2; //[mmol] mass of glucose in the non-accessible compartment (Hovorka 2004)
+[0,1e6] r; // reference trajectory
+[-1e6,1e6] e; // error
+[-1e9,1e9] e_int; // error
+[0,120] DG; // [g] the amount of consumed carbohydrates
+[0,1e6] e_ise; // Integral of square error (ISE)
+[0,1e6] e_istse; // Integral of square time weighted square error (ISTSE)
+[87,120] DG1;
+
+[0,2000] tau;
+[0,2000] time;
+[0,2000] tau_unsafe;
+
+// breakfast
+{
+mode 1;
+
+time:
+
+[0,300];
+
+flow:
+
+//error
+d/dt[e] = r_ode - Q1_ode;
+d/dt[e_int] = r - Q1;
+d/dt[e_ise] = 1e-6*e*e;
+d/dt[e_istse] = 1e-9*e*e*tau*tau;
+
+//reference trajectory
+d/dt[r] = r_ode;
+
+//glucose-subsystem
+d/dt[Q1]= Q1_ode;
+d/dt[Q2]= Q2_ode;
+
+//insulin-subsystem
+d/dt[S1]= u - S1 / tmaxI;
+d/dt[S2]= (S1 - S2) / tmaxI;
+d/dt[I]= S2 / (tmaxI * VI) - ke * I;
+
+//insulin-action-subsystem
+d/dt[x1]= - ka1 * x1 + kb1 * I;
+d/dt[x2]= - ka2 * x2 + kb2 * I;
+d/dt[x3]= - ka3 * x3 + kb3 * I;
+d/dt[tau]= 1;
+d/dt[tau_unsafe]= 0;
+d/dt[DG] = 0;
+
+jump:
+
+(and (G <= G_upper_unsafe) (G >= G_upper_unsafe))==> @10(and (tau' = 0));
+}
+
+// critical state
+{
+mode 10;
+
+time:
+
+[0,1];
+
+flow:
+
+//error
+d/dt[e] = 0;
+d/dt[e_int] = 0;
+
+//reference trajectory
+d/dt[r] = 0;
+
+//glucose-subsystem
+d/dt[Q1]= 0;
+d/dt[Q2]= 0;
+
+//insulin-subsystem
+d/dt[S1]= 0;
+d/dt[S2]= 0;
+d/dt[I]= 0;
+
+//insulin-action-subsystem
+d/dt[x1]= 0;
+d/dt[x2]= 0;
+d/dt[x3]= 0;
+d/dt[tau]= 1;
+d/dt[tau_unsafe]= 1;
+d/dt[DG] = 0;
+
+jump:
+
+}
+
+init:
+
+// breakfast
+@1(and	(I = I_init) (x1 = x1_init) (x2 = x2_init) (x3 = x3_init) (tau = 0.0) (S1 = S1_init) (S2 = S2_init) (Q1 = Q1_init) (Q2 = Q2_init) 
+(r = Q1_SP) (e = r - Q1) (e_int = 0) (e_ise = 1e-6*e*e) (e_istse = 1e-9*e*e*tau*tau) (tau_unsafe = 0) (DG = DG1));
+
+goal:
+
+@10(tau = 1);
+

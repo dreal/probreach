@@ -13,7 +13,7 @@
 #include <chrono>
 #include "generators/smt2_generator.h"
 #include "decision_procedure.h"
-#include "stability.h"
+//#include "stability.h"
 
 pdrh::type ap::model_type;
 pair<pdrh::node*, pdrh::node*> ap::time;

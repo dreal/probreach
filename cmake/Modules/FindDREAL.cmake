@@ -40,21 +40,16 @@ else(DREAL_INCLUDE_DIR AND DREAL_LIBRARIES)
                 if(NOT CAPD_LIBRARIES AND EXISTS ${DREAL_DIR}/${BUILD}/lib/libcapd.a)
                     set(CAPD_LIBRARIES ${DREAL_DIR}/${BUILD}/lib/libcapd.a)
                 endif(NOT CAPD_LIBRARIES AND EXISTS ${DREAL_DIR}/${BUILD}/lib/libcapd.a)
-                # finding IBEX
-                if(NOT IBEX_LIBRARIES AND EXISTS ${DREAL_DIR}/${BUILD}/lib/libibex.a)
-                    set(IBEX_LIBRARIES ${DREAL_DIR}/${BUILD}/lib/libibex.a)
-                endif(NOT IBEX_LIBRARIES AND EXISTS ${DREAL_DIR}/${BUILD}/lib/libibex.a)
                 # finding PRIM
                 if(NOT PRIM_LIBRARIES AND EXISTS ${DREAL_DIR}/${BUILD}/lib/libprim.a)
                     set(PRIM_LIBRARIES ${DREAL_DIR}/${BUILD}/lib/libprim.a)
                 endif(NOT PRIM_LIBRARIES AND EXISTS ${DREAL_DIR}/${BUILD}/lib/libprim.a)
                 # setting libraries
                 if(NOT DREAL_LIBRARIES)
-                    if(CAPD_LIBRARIES AND IBEX_LIBRARIES AND PRIM_LIBRARIES)
+                    if(CAPD_LIBRARIES AND PRIM_LIBRARIES)
                         set(DREAL_LIBRARIES ${DREAL_LIBRARIES} ${CAPD_LIBRARIES})
-                        set(DREAL_LIBRARIES ${DREAL_LIBRARIES} ${IBEX_LIBRARIES})
                         set(DREAL_LIBRARIES ${DREAL_LIBRARIES} ${PRIM_LIBRARIES})
-                    endif(CAPD_LIBRARIES AND IBEX_LIBRARIES AND PRIM_LIBRARIES)
+                    endif(CAPD_LIBRARIES AND PRIM_LIBRARIES)
                 endif(NOT DREAL_LIBRARIES)
             endif(EXISTS ${DREAL_DIR}/${BUILD}/lib)
             # finding dReal executable

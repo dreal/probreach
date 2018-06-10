@@ -2,7 +2,7 @@
 // Created by fedor on 27/12/15.
 //
 #include<capd/capdlib.h>
-#include<ibex.h>
+//#include<ibex.h>
 #include<tuple>
 #include "measure.h"
 #include "box_factory.h"
@@ -71,20 +71,38 @@ double measure::binomial(int k, int n)
 
 double measure::precision(double e, int n)
 {
-    std::stringstream s;
-    for(int i = 0; i < n; i++)
+//    std::stringstream s;
+//    for(int i = 0; i < n; i++)
+//    {
+//        s << binomial(i + 1, n) << "*e^" << i + 1 << "+";
+//    }
+//    s << "-" << e;
+//    //std::cout << "expression: " << s.str() << std::endl;
+//    ibex::Function f("e", s.str().c_str());
+//    ibex::IntervalVector b(1, ibex::Interval(0, 1));
+//    ibex::CtcFwdBwd c(f);
+//    ibex::CtcFixPoint fp(c, e);
+//    fp.contract(b);
+//
+//    return b[0].lb();
+    double xi = e;
+    double lb = 0;
+    double ub = e;
+    // 100 iterations is more than enough for n = 100
+    for(int i = 0; i < 100; i++)
     {
-        s << binomial(i + 1, n) << "*e^" << i + 1 << "+";
+        if(pow((1+xi),n)-1 <= e)
+        {
+            lb = xi;
+            xi = (ub+xi)/2;
+        }
+        else
+        {
+            ub = xi;
+            xi = (lb+xi)/2;
+        }
     }
-    s << "-" << e;
-    //std::cout << "expression: " << s.str() << std::endl;
-    ibex::Function f("e", s.str().c_str());
-    ibex::IntervalVector b(1, ibex::Interval(0, 1));
-    ibex::CtcFwdBwd c(f);
-    ibex::CtcFixPoint fp(c, e);
-    fp.contract(b);
-
-    return b[0].lb();
+    return xi;
 }
 
 capd::interval measure::p_measure(box b, double e)
@@ -334,11 +352,11 @@ std::vector<box> measure::get_rv_partition()
         //cout << "RV: " << it->first << endl;
         // setting initial rv bounds
         capd::interval init_domain(-numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
-        if(strcmp(get<1>(it->second)->value.c_str(), "-infty") != 0)
+        if(get<1>(it->second)->value != "-infty")
         {
             init_domain.setLeftBound(pdrh::node_to_interval(std::get<1>(it->second)).leftBound());
         }
-        if(strcmp(get<2>(it->second)->value.c_str(), "infty") != 0)
+        if(get<2>(it->second)->value != "infty")
         {
             init_domain.setRightBound(pdrh::node_to_interval(std::get<2>(it->second)).rightBound());
         }

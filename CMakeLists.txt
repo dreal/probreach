@@ -198,8 +198,6 @@ add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
 #target_compile_options(ProbReach PRIVATE -static)
 target_link_libraries(ProbReach probreach)
 
-
-
 install(FILES ${PROBREACH_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/probreach)
 install(TARGETS ProbReach DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 

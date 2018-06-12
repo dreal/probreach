@@ -12,6 +12,7 @@
 //#include "solver_wrapper.h"
 #include "isat_wrapper.h"
 #include "ap.h"
+#include "pdrh2box.h"
 
 using namespace std;
 
@@ -47,7 +48,7 @@ int decision_procedure::evaluate_isat(string solver_bin, vector<box> boxes)
     // writing to the file
     ofstream isat_file;
     isat_file.open(isat_filename.c_str());
-    isat_file << pdrh::reach_to_isat(boxes);
+    isat_file << pdrh2box::reach_to_isat(boxes);
     isat_file.close();
     stringstream solver_opt_stream;
     solver_opt_stream << global_config.solver_opt << " --start-depth " << (global_config.reach_depth_min * 2 + 1) <<
@@ -124,14 +125,14 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
 
     smt_file.open(smt_filename.c_str());
     // will work for one initial and one state only
-    smt_file << pdrh::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes);
+    smt_file << pdrh2box::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes);
     smt_file.close();
 
     if(global_config.debug)
     {
         cout << "Thread: " << omp_get_thread_num() << endl;
         cout << "First formula:" << endl;
-        cout << pdrh::reach_to_smt2(path, boxes) << endl;
+        cout << pdrh2box::reach_to_smt2(path, boxes) << endl;
     }
 
 
@@ -458,7 +459,7 @@ int decision_procedure::evaluate_flow_by_flow(vector<pdrh::mode *> path, vector<
             goal = pdrh::goal.front();
         }
 
-        smt_file << pdrh::reach_to_smt2(init, goal, {path.at(i)}, boxes);
+        smt_file << pdrh2box::reach_to_smt2(init, goal, {path.at(i)}, boxes);
         smt_file.close();
 
         int first_res = dreal::execute(solver_bin, smt_filename, solver_opt);
@@ -481,9 +482,9 @@ int decision_procedure::evaluate_flow_by_flow(vector<pdrh::mode *> path, vector<
                     map<string, capd::interval> init_map;
                     for (auto it = reset_map.begin(); it != reset_map.end(); it++)
                     {
-                        init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, {sol_box})));
+                        init_map.insert(make_pair(it->first, pdrh2box::node_to_interval(it->second, {sol_box})));
                     }
-                    init = pdrh::state(path.at(i + 1)->id, pdrh::box_to_node(box(init_map)));
+                    init = pdrh::state(path.at(i + 1)->id, pdrh2box::box_to_node(box(init_map)));
                 }
             }
             break;
@@ -580,12 +581,12 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
         // writing to the file
         ofstream smt_c_file;
         smt_c_file.open(smt_c_filename.c_str());
-        smt_c_file << pdrh::reach_c_to_smt2(i, path, boxes);
+        smt_c_file << pdrh2box::reach_c_to_smt2(i, path, boxes);
         if(global_config.debug)
         {
             cout << "Thread: " << omp_get_thread_num() << endl;
             cout << "Second formula (" << i << "):" << endl;
-            cout << pdrh::reach_c_to_smt2(i, path, boxes) << endl;
+            cout << pdrh2box::reach_c_to_smt2(i, path, boxes) << endl;
         }
         smt_c_file.close();
         // calling dreal here

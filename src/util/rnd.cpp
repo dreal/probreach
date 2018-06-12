@@ -5,6 +5,7 @@
 #include "rnd.h"
 #include "pdrh.h"
 #include "box_factory.h"
+#include "pdrh2box.h"
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 #include<capd/capdlib.h>
@@ -25,29 +26,29 @@ box rnd::get_random_sample(gsl_rng* r)
         if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
         {
             edges.insert(make_pair(it->first,
-                                   pdrh::node_to_interval(pdrh::distribution::uniform[it->first].first) + gsl_rng_uniform(r) *
-                                            (pdrh::node_to_interval(
+                                   pdrh2box::node_to_interval(pdrh::distribution::uniform[it->first].first) + gsl_rng_uniform(r) *
+                                            (pdrh2box::node_to_interval(
                                                     pdrh::distribution::uniform[it->first].second) -
-                                                    pdrh::node_to_interval(
+                                                    pdrh2box::node_to_interval(
                                                             pdrh::distribution::uniform[it->first].first))));
         }
         else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())
         {
             edges.insert(make_pair(it->first,
-                                   pdrh::node_to_interval(pdrh::distribution::normal[it->first].first) +
-                                            gsl_ran_gaussian_ziggurat(r, pdrh::node_to_interval(
+                                   pdrh2box::node_to_interval(pdrh::distribution::normal[it->first].first) +
+                                            gsl_ran_gaussian_ziggurat(r, pdrh2box::node_to_interval(
                                                     pdrh::distribution::normal[it->first].second).mid().leftBound())));
         }
         else if(pdrh::distribution::exp.find(it->first) != pdrh::distribution::exp.cend())
         {
-            edges.insert(make_pair(it->first, gsl_ran_exponential(r, pdrh::node_to_interval(
+            edges.insert(make_pair(it->first, gsl_ran_exponential(r, pdrh2box::node_to_interval(
                     pdrh::distribution::exp[it->first]).mid().leftBound())));
         }
         else if(pdrh::distribution::gamma.find(it->first) != pdrh::distribution::gamma.cend())
         {
-            edges.insert(make_pair(it->first, gsl_ran_gamma(r, pdrh::node_to_interval(
+            edges.insert(make_pair(it->first, gsl_ran_gamma(r, pdrh2box::node_to_interval(
                     pdrh::distribution::gamma[it->first].first).mid().leftBound(),
-                                                            pdrh::node_to_interval(
+                                                            pdrh2box::node_to_interval(
                                                                     pdrh::distribution::gamma[it->first].second).mid().leftBound())));
         }
         else
@@ -66,14 +67,14 @@ box rnd::get_random_sample(gsl_rng* r)
         for(auto it2 = mass_map.cbegin(); it2 != mass_map.cend(); it2++)
         {
             p_value[i] = it2->first;
-            p_mass[i] = pdrh::node_to_interval(it2->second).mid().leftBound();
+            p_mass[i] = pdrh2box::node_to_interval(it2->second).mid().leftBound();
             i++;
         }
         // getting a pointer to the look up table
         gsl_ran_discrete_t* g = gsl_ran_discrete_preproc(mass_map.size(), p_mass);
         // getting a value index
         size_t index = gsl_ran_discrete(r, g);
-        edges.insert(std::make_pair(it->first, pdrh::node_to_interval(p_value[index])));
+        edges.insert(std::make_pair(it->first, pdrh2box::node_to_interval(p_value[index])));
         // releasing memory
         delete p_value;
         delete p_mass;
@@ -120,7 +121,7 @@ box rnd::get_normal_random_sample(gsl_rng* r, box mu, box sigma)
         }
         else
         {
-            edges.insert(make_pair(it->first, pdrh::node_to_interval(it->second.first).mid().leftBound()));
+            edges.insert(make_pair(it->first, pdrh2box::node_to_interval(it->second.first).mid().leftBound()));
         }
     }
     return box(edges);
@@ -274,9 +275,9 @@ box rnd::get_icdf(box b)
     {
         if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
         {
-            double value = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh::node_to_interval(
+            double value = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh2box::node_to_interval(
                     pdrh::distribution::uniform[it->first].first).leftBound(),
-                                             pdrh::node_to_interval(
+                                             pdrh2box::node_to_interval(
                                                      pdrh::distribution::uniform[it->first].second).leftBound());
             //value += pdrh::node_to_interval(pdrh::distribution::normal[it->first].first).leftBound();
 
@@ -285,9 +286,9 @@ box rnd::get_icdf(box b)
         else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())
         {
             double value = gsl_cdf_gaussian_Pinv(it->second.leftBound(),
-                                                 pdrh::node_to_interval(
+                                                 pdrh2box::node_to_interval(
                                                          pdrh::distribution::normal[it->first].second).leftBound());
-            value += pdrh::node_to_interval(pdrh::distribution::normal[it->first].first).leftBound();
+            value += pdrh2box::node_to_interval(pdrh::distribution::normal[it->first].first).leftBound();
             edges.insert(make_pair(it->first, capd::interval(value,value)));
         }
         else if(pdrh::distribution::exp.find(it->first) != pdrh::distribution::exp.cend())

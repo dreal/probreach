@@ -13,6 +13,7 @@
 #include <chrono>
 #include "generators/smt2_generator.h"
 #include "decision_procedure.h"
+#include "pdrh2box.h"
 //#include "stability.h"
 
 pdrh::type ap::model_type;
@@ -211,13 +212,13 @@ capd::interval ap::get_sample_rate(pdrh::node* n)
         {
             if(time_node->operands.front()->value == global_config.sample_time)
             {
-                result = pdrh::node_to_interval(time_node->operands.back());
+                result = pdrh2box::node_to_interval(time_node->operands.back());
                 pdrh::delete_node(time_node);
                 return result;
             }
             if(time_node->operands.back()->value == global_config.sample_time)
             {
-                result = pdrh::node_to_interval(time_node->operands.front());
+                result = pdrh2box::node_to_interval(time_node->operands.front());
                 pdrh::delete_node(time_node);
                 return result;
             }
@@ -258,13 +259,13 @@ capd::interval ap::get_meal_time(pdrh::node *n, vector<box> boxes)
         {
             if(time_node->operands.front()->value == "tau")
             {
-                result = pdrh::node_to_interval(time_node->operands.back(), boxes);
+                result = pdrh2box::node_to_interval(time_node->operands.back(), boxes);
                 pdrh::delete_node(time_node);
                 return result;
             }
             if(time_node->operands.back()->value == "tau")
             {
-                result = pdrh::node_to_interval(time_node->operands.front(), boxes);
+                result = pdrh2box::node_to_interval(time_node->operands.front(), boxes);
                 pdrh::delete_node(time_node);
                 return result;
             }
@@ -397,14 +398,14 @@ box ap::init_to_box(vector<box> boxes)
             (pdrh::rv_map.find(n->operands.front()->value) != pdrh::rv_map.end()) ||
             (pdrh::dd_map.find(n->operands.front()->value) != pdrh::dd_map.end()))
         {
-            b_map.insert(make_pair(n->operands.front()->value, pdrh::node_to_interval(n->operands.back(), boxes)));
+            b_map.insert(make_pair(n->operands.front()->value, pdrh2box::node_to_interval(n->operands.back(), boxes)));
         }
         else if((pdrh::var_map.find(n->operands.back()->value) != pdrh::var_map.end()) ||
                 (pdrh::par_map.find(n->operands.back()->value) != pdrh::par_map.end()) ||
                 (pdrh::rv_map.find(n->operands.back()->value) != pdrh::rv_map.end()) ||
                 (pdrh::dd_map.find(n->operands.back()->value) != pdrh::dd_map.end()))
         {
-            b_map.insert(make_pair(n->operands.back()->value, pdrh::node_to_interval(n->operands.front(), boxes)));
+            b_map.insert(make_pair(n->operands.back()->value, pdrh2box::node_to_interval(n->operands.front(), boxes)));
         }
     }
     return box(b_map);
@@ -865,7 +866,7 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
     capd::interval prev_mode_time(0);
     int window_size = 1;
 
-    box domain = pdrh::get_domain();
+    box domain = pdrh2box::get_domain();
 
     // going through all modes in the path
     for(size_t j = 0; j < path.size() - 1; j = j + window_size)
@@ -950,7 +951,7 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
                    (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
                    (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
                 {
-                    init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
+                    init_map.insert(make_pair(it->first, pdrh2box::node_to_interval(it->second, reset_boxes)));
                 }
             }
             // can add random error here
@@ -1000,7 +1001,7 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
                 throw invalid_argument(s.str());
             }
 //            cout << "Representation: OK" << endl;
-            capd::interval rob = pdrh::node_to_interval(n->operands.front(), {sol, boxes});
+            capd::interval rob = pdrh2box::node_to_interval(n->operands.front(), {sol, boxes});
 //            cout << "Invariant robustness: " << rob << endl;
             if(rob < min_rob)
             {
@@ -1063,7 +1064,7 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
                     throw invalid_argument(s.str());
                 }
 //                cout << "Representation: OK" << endl;
-                capd::interval rob = pdrh::node_to_interval(n->operands.front(), {sol, boxes});
+                capd::interval rob = pdrh2box::node_to_interval(n->operands.front(), {sol, boxes});
 //                cout << "Invariant robustness: " << rob << endl;
                 if(rob < min_rob)
                 {
@@ -1089,7 +1090,7 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
                    (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
                    (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
                 {
-                    init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
+                    init_map.insert(make_pair(it->first, pdrh2box::node_to_interval(it->second, reset_boxes)));
                 }
             }
             // can add random error here
@@ -1114,7 +1115,7 @@ capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vecto
             throw invalid_argument(s.str());
         }
 //        cout << "Representation: OK" << endl;
-        capd::interval rob = pdrh::node_to_interval(n->operands.front(), {sol, boxes});
+        capd::interval rob = pdrh2box::node_to_interval(n->operands.front(), {sol, boxes});
 //        cout << "Invariant robustness: " << rob << endl;
         if(rob < min_rob)
         {
@@ -1162,7 +1163,7 @@ bool ap::check_invariants(pdrh::mode *m, box b, vector<box> boxes)
     bool res = true;
     for(pdrh::node *n : m->invts)
     {
-        res = res && pdrh::node_to_boolean(n, {boxes, b});
+        res = res && pdrh2box::node_to_boolean(n, {boxes, b});
     }
     return res;
 }
@@ -1273,8 +1274,8 @@ int ap::verify(vector<box> boxes)
         //cout << "Path global time: " << global_time << endl;
         // check global time here. could be changed to goal statement later
         capd::interval glob_time_intersection;
-        if(global_time >= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
-                capd::intervals::intersection(global_time, pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
+        if(global_time >= pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
+                capd::intervals::intersection(global_time, pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
                     path.size() - 1 >= global_config.reach_depth_max)
         {
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
@@ -1285,10 +1286,10 @@ int ap::verify(vector<box> boxes)
         {
             //cout << "Checking invariants in terminal mode " << cur_mode->id << endl;
             // getting the time bound for the current mode
-            capd::interval time_bound = pdrh::node_to_interval(cur_mode->time.second);
-            if(global_time + time_bound > pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second))
+            capd::interval time_bound = pdrh2box::node_to_interval(cur_mode->time.second);
+            if(global_time + time_bound > pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second))
             {
-                time_bound = pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second) - global_time;
+                time_bound = pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second) - global_time;
             }
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time bound: " << time_bound;
             //cout << "Initial condition: " << init << endl;
@@ -1297,8 +1298,8 @@ int ap::verify(vector<box> boxes)
             {
                 // returning SAT if global time is reached for the current path
                 case decision_procedure::SAT:
-                    if(global_time + time_bound>= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
-                       capd::intervals::intersection(global_time + time_bound, pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
+                    if(global_time + time_bound>= pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
+                       capd::intervals::intersection(global_time + time_bound, pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
                             path.size() - 1 >= global_config.reach_depth_max)
                     {
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
@@ -1337,8 +1338,8 @@ int ap::verify(vector<box> boxes)
                 {
                     case decision_procedure::SAT:
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                        if(global_time >= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
-                           capd::intervals::intersection(global_time, pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
+                        if(global_time >= pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
+                           capd::intervals::intersection(global_time, pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
                            path.size() - 1 >= global_config.reach_depth_max)
                         {
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
@@ -1456,7 +1457,7 @@ box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> box
            (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
            (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
         {
-            init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, reset_boxes)));
+            init_map.insert(make_pair(it->first, pdrh2box::node_to_interval(it->second, reset_boxes)));
         }
     }
     return box(init_map);
@@ -1491,7 +1492,7 @@ int ap::simulate(vector<box> boxes)
         map<int, pair<capd::interval, box>> jumps_times;
         //capd::interval sample_rate = ap::get_sample_rate(cur_mode);
         //cout << "Sampling rate: " << sample_rate << endl;
-        capd::interval integration_step = pdrh::node_to_interval(cur_mode->time.second).rightBound()/global_config.ode_discretisation;
+        capd::interval integration_step = pdrh2box::node_to_interval(cur_mode->time.second).rightBound()/global_config.ode_discretisation;
         //cout << "Integration step: " << integration_step << endl;
         // represents a jump due to sampling
         pair<int, pair<capd::interval, box>> sample_jump = make_pair(0, make_pair(capd::interval(0.0), box()));
@@ -1513,7 +1514,7 @@ int ap::simulate(vector<box> boxes)
                 //return decision_procedure::UNSAT;
             }
             // checking if the time horizon is reached
-            if(init.get_map()[global_config.global_time].leftBound() >= pdrh::node_to_interval(pdrh::var_map[global_config.global_time].second).rightBound() ||
+            if(init.get_map()[global_config.global_time].leftBound() >= pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second).rightBound() ||
                     path.size() - 1 >= global_config.reach_depth_max)
             {
                 vector<pair<int, box>> new_path = path;
@@ -1538,7 +1539,7 @@ int ap::simulate(vector<box> boxes)
                 if(ap::is_sample_jump(jump))
                 {
                     //cout << "Checking (sampling) jump to mode " << jump.next_id;
-                    if(pdrh::check_zero_crossing(jump.guard, boxes, init, sol))
+                    if(pdrh2box::check_zero_crossing(jump.guard, boxes, init, sol))
                     {
                         sample_jump = make_pair(jump.next_id, make_pair(cur_time, ap::apply_reset(jump.reset, sol, boxes)));
                         //cout << ". Enabled at or before " << cur_time << endl;
@@ -1558,7 +1559,7 @@ int ap::simulate(vector<box> boxes)
                 {
                     //cout << "Checking jump to mode " << jump.next_id;
                     // checking if either of the jumps is enabled
-                    if(pdrh::check_zero_crossing(jump.guard, boxes, init, sol))
+                    if(pdrh2box::check_zero_crossing(jump.guard, boxes, init, sol))
                     {
                         // if sample jump is enabled as well then we apply the sampling reset first
                         if(sample_jump.first != 0)

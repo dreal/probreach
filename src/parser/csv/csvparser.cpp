@@ -6,6 +6,7 @@
 #include <string.h>
 #include <easylogging++.h>
 #include <pdrh_config.h>
+#include <util/pdrh2box.h>
 #include "csvparser.h"
 
 using namespace std;
@@ -51,7 +52,7 @@ map<string, vector<pair<pdrh::node*, pdrh::node*>>> csvparser::parse(string file
             {
                 var_name = col.substr(0, col_pos);
                 noise = pdrh::push_terminal_node(col.substr(col_pos + 1, col.length() - 1));
-                if(pdrh::node_to_interval(noise).leftBound() <= 0)
+                if(pdrh2box::node_to_interval(noise).leftBound() <= 0)
                 {
                     CLOG(ERROR, "series-parser") << "Noise value for " << var_name << " should be positive";
                     exit(EXIT_FAILURE);

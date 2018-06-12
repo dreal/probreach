@@ -5,6 +5,7 @@
 #include<capd/capdlib.h>
 #include "box.h"
 #include "box_factory.h"
+#include "pdrh2box.h"
 
 /**
  * Cartesian product
@@ -231,7 +232,7 @@ vector<box> box_factory::bisect(box b, map<string, pdrh::node*> e)
     for(auto it = m.cbegin(); it != m.cend(); it++)
     {
         //cout << it->first << ":" << it->second;
-        if(capd::intervals::width(it->second) > pdrh::node_to_interval(e[it->first]).leftBound())
+        if(capd::intervals::width(it->second) > pdrh2box::node_to_interval(e[it->first]).leftBound())
         {
             //cout << " yes" << endl;
             std::vector<capd::interval> tmp_v;

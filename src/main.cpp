@@ -9,6 +9,7 @@
 #include <pdrh.h>
 #include <model.h>
 #include <solver/dreal_wrapper.h>
+#include <util/pdrh2box.h>
 #include "pdrh_config.h"
 #include "pdrh.h"
 #include "algorithm.h"
@@ -255,7 +256,7 @@ int main(int argc, char* argv[])
                 else
                 {
                     // getting the domain of nondeterministic parameters
-                    box nondet_domain = pdrh::get_nondet_domain();
+                    box nondet_domain = pdrh2box::get_nondet_domain();
                     cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
                     // copying the parameter map
                     map<string, pair<pdrh::node*, pdrh::node*>> init_par_map;
@@ -278,7 +279,7 @@ int main(int argc, char* argv[])
                     {
                         // increasing complexity of the controller
                         pdrh::par_map[param] = init_par_map[param];
-                        cout << "Domain of nondeterministic parameters: " << pdrh::get_nondet_domain() << endl;
+                        cout << "Domain of nondeterministic parameters: " << pdrh2box::get_nondet_domain() << endl;
                         capd::interval conf_intersection(0);
                         // adjusting discretisation until both intervals intersect by more than 80%
                         // use the size of optimised conf interval instead of the accuracy value of the statistical algorithm

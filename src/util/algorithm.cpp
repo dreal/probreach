@@ -17,6 +17,7 @@
 #include <solver/isat_wrapper.h>
 #include "rnd.h"
 #include "ap.h"
+#include "pdrh2box.h"
 //#include "stability.h"
 
 using namespace std;
@@ -280,7 +281,7 @@ capd::interval algorithm::evaluate_pha(int depth) {
 std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_depth) {
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining domain of nondeterministic parameters";
     // getting parameter domain
-    box nd_domain = pdrh::get_nondet_domain();
+    box nd_domain = pdrh2box::get_nondet_domain();
     // initially partition is the entire parameter domain
     std::vector<box> nd_partition{nd_domain};
     // if flag is enabled the domain is partitioned up to precision_nondet
@@ -1026,7 +1027,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_
     } else {
         res = make_pair(box(), capd::interval(1.0));
     }
-    box domain = pdrh::get_nondet_domain();
+    box domain = pdrh2box::get_nondet_domain();
     vector<pair<box, capd::interval>> samples;
     while (domain.max_side_width() > global_config.sobol_term_arg) {
         CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Explored space: " << domain << " | "
@@ -1085,7 +1086,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(int min_
     r = gsl_rng_alloc(T);
     // setting the seed
     gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
-    box domain = pdrh::get_nondet_domain();
+    box domain = pdrh2box::get_nondet_domain();
     //initializing probability value
     pair<box, capd::interval> res(domain, capd::interval(0.0));
     if (global_config.min_prob)
@@ -1209,7 +1210,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_beta(int min_de
     gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
     //initializing probability value
     pair<box, capd::interval> res;
-    box domain = pdrh::get_nondet_domain();
+    box domain = pdrh2box::get_nondet_domain();
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;
     map<string, capd::interval> one_map, two_map, d_map, half_map;
     d_map = domain.get_map();
@@ -1596,7 +1597,7 @@ pair<capd::interval, box> algorithm::solve_min_max()
     // the second element is the values of the nondet parameters
     std::map<capd::interval, box> rob_map;
 
-    box nondet_domain = pdrh::get_nondet_domain();
+    box nondet_domain = pdrh2box::get_nondet_domain();
     //initializing probability value
     box mean = nondet_domain.get_mean();
     box sigma = nondet_domain.get_stddev();

@@ -87,6 +87,16 @@ vector<box> box_factory::partition(box b, int amount)
     return res;
 }
 
+vector<box> box_factory::partition(box b, map<string, string> e_map)
+{
+    map<string, capd::interval> res_map;
+    for(auto it = e_map.begin(); it != e_map.end(); it++)
+    {
+        res_map.insert(make_pair(it->first, capd::interval(it->second, it->second)));
+    }
+    return box_factory::partition(b, res_map);
+}
+
 vector<box> box_factory::partition(box b, map<string, capd::interval> e_map)
 {
     // checking if precision map is empty
@@ -167,6 +177,18 @@ std::vector<box> box_factory::bisect(box b)
 
     return box_factory::bisect(b,e);
 }
+
+
+vector<box> box_factory::bisect(box b, map<std::string, string> e_map)
+{
+    map<string, capd::interval> res_map;
+    for(auto it = e_map.begin(); it != e_map.end(); it++)
+    {
+        res_map.insert(make_pair(it->first, capd::interval(it->second, it->second)));
+    }
+    return box_factory::bisect(b, res_map);
+}
+
 
 /**
  * Dividing the box in all n dimensions producing 2^n boxes of the same size

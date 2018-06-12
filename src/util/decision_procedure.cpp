@@ -9,7 +9,7 @@
 #include "decision_procedure.h"
 #include "solver/dreal_wrapper.h"
 #include "pdrh_config.h"
-#include "solver_wrapper.h"
+//#include "solver_wrapper.h"
 #include "isat_wrapper.h"
 #include "ap.h"
 
@@ -505,29 +505,29 @@ int decision_procedure::evaluate_flow_by_flow(vector<pdrh::mode *> path, vector<
 // implements evaluate for all paths
 int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_opt)
 {
-    if(global_config.secondary_solver_type == solver::type::ISAT)
-    {
-        int first_res = decision_procedure::evaluate_isat(global_config.secondary_solver_bin, boxes);
-        if(first_res == decision_procedure::result::UNSAT)
-        {
-            return decision_procedure::result::UNSAT;
-        }
-        else if(first_res == decision_procedure::result::SAT)
-        {
-            int undet_counter = 0;
-            for(vector<pdrh::mode*> path : paths)
-            {
-                int res = evaluate_complement(path, boxes, global_config.solver_bin, solver_opt);
-                if(res == decision_procedure::result::UNSAT)
-                {
-                    return decision_procedure::result::SAT;
-                }
-            }
-            return decision_procedure::result::UNDET;
-        }
-    }
-    else if(global_config.secondary_solver_type == solver::type::DREAL)
-    {
+//    if(global_config.secondary_solver_type == solver::type::ISAT)
+//    {
+//        int first_res = decision_procedure::evaluate_isat(global_config.secondary_solver_bin, boxes);
+//        if(first_res == decision_procedure::result::UNSAT)
+//        {
+//            return decision_procedure::result::UNSAT;
+//        }
+//        else if(first_res == decision_procedure::result::SAT)
+//        {
+//            int undet_counter = 0;
+//            for(vector<pdrh::mode*> path : paths)
+//            {
+//                int res = evaluate_complement(path, boxes, global_config.solver_bin, solver_opt);
+//                if(res == decision_procedure::result::UNSAT)
+//                {
+//                    return decision_procedure::result::SAT;
+//                }
+//            }
+//            return decision_procedure::result::UNDET;
+//        }
+//    }
+//    else if(global_config.secondary_solver_type == solver::type::DREAL)
+//    {
         int undet_counter = 0;
         for(vector<pdrh::mode*> path : paths)
         {
@@ -556,7 +556,7 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
             return decision_procedure::result::UNDET;
         }
         return decision_procedure::result::UNSAT;
-    }
+//    }
 }
 
 int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)

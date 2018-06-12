@@ -4,11 +4,10 @@
 
 #ifndef PROBREACH_PDRH_CONTEXT_H
 #define PROBREACH_PDRH_CONTEXT_H
-#include "config.h"
-#include "solver_wrapper.h"
-#include<capd/capdlib.h>
 
-using namespace std;
+#include <string>
+#include <map>
+#include <vector>
 
 struct pdrh_config
 {
@@ -18,19 +17,19 @@ struct pdrh_config
     double integral_pdf_step = 1e-01;
     // solver options
     //string solver_bin = SOLVER_BIN;
-    string solver_bin = "dReal";
-    string solver_opt = "";
-    solver::type solver_type = solver::type::UNKNOWN_SOLVER;
-    string secondary_solver_bin = "";
-    solver::type secondary_solver_type = solver::type::UNKNOWN_SOLVER;
+    std::string solver_bin = "dReal";
+    std::string solver_opt = "";
+//    solver::type solver_type = solver::type::UNKNOWN_SOLVER;
+    std::string secondary_solver_bin = "";
+//    solver::type secondary_solver_type = solver::type::UNKNOWN_SOLVER;
     // algorithm options
     double precision_prob = 1e-03;
     double precision_prob_single = 1e-03;
     double precision_nondet = 1e-03;
     bool partition_prob = false;
     bool partition_nondet = false;
-    map<string, capd::interval> partition_prob_map;
-    map<string, capd::interval> partition_nondet_map;
+    std::map<std::string, std::string> partition_prob_map;
+    std::map<std::string, std::string> partition_nondet_map;
     bool partition_psy = false;
     double solver_precision_ratio = 1e-03;
     unsigned int solver_timeout = 10; // seconds
@@ -42,8 +41,8 @@ struct pdrh_config
     bool boxes_prepartition = false;
     bool boxes_merge = false;
     // model options
-    string model_filename;
-    string series_filename;
+    std::string model_filename;
+    std::string series_filename;
     // output options
     bool verbose = false;
     bool xml_output = false;
@@ -64,7 +63,7 @@ struct pdrh_config
     long qmc_sample_size = 10000;
 
     bool delta_sat = false;
-    vector<string> time_var_name = {"tau"};
+    std::vector<std::string> time_var_name = {"tau"};
     double elite_ratio = 0.1;
     double sobol_term_arg = 1e-2;
     bool max_prob = true;
@@ -88,7 +87,7 @@ struct pdrh_config
 
     struct ctrl
     {
-        string sys_out;
+        std::string sys_out;
         std::vector<std::string> plant_output;
         std::vector<std::string> controller_output;
         std::vector<std::string> controller_input;

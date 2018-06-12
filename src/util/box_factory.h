@@ -18,8 +18,10 @@ namespace box_factory
     vector<box> bisect(box);
     vector<box> partition(box, double);
     vector<box> partition(box, map<string, capd::interval>);
+    vector<box> partition(box, std::map<std::string, std::string>);
     vector<box> partition(box, int);
     vector<box> bisect(box, map<string, capd::interval>);
+    vector<box> bisect(box, std::map<std::string, std::string>);
     vector<box> bisect(box, map<string, pdrh::node*>);
     vector<box> bisect(box, vector<string>, double);
     vector<box> bisect(box, vector<string>);

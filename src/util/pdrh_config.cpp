@@ -3,9 +3,9 @@
 //
 
 #include "pdrh_config.h"
-#include<iostream>
-#include<sstream>
-#include<string.h>
+#include <iostream>
+#include <sstream>
+#include <string.h>
 
 #ifdef _OPENMP
     #include<omp.h>
@@ -13,7 +13,6 @@
 #include <easylogging++.h>
 
 #include "version.h"
-#include "pdrh.h"
 #include "git_sha1.h"
 
 using namespace std;
@@ -211,8 +210,9 @@ void parse_pdrh_config(int argc, char* argv[])
                     }
                     else
                     {
-                        istringstream val_is(argv[i]);
-                        pdrh::push_nondet_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
+                        //istringstream val_is(argv[i]);
+                        //pdrh::push_nondet_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
+                        global_config.partition_nondet_map.insert(make_pair(var, argv[i]));
                         i++;
                     }
                 }
@@ -254,14 +254,14 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             i++;
             global_config.solver_bin = string(argv[i]);
-            global_config.solver_type = solver::detect_solver(global_config.solver_bin);
+//            global_config.solver_type = solver::detect_solver(global_config.solver_bin);
         }
         // solver binary
         else if(strcmp(argv[i], "--secondary-solver") == 0)
         {
             i++;
             global_config.secondary_solver_bin = string(argv[i]);
-            global_config.secondary_solver_type = solver::detect_solver(global_config.secondary_solver_bin);
+//            global_config.secondary_solver_type = solver::detect_solver(global_config.secondary_solver_bin);
         }
         // time variable name
         else if(strcmp(argv[i], "--time-var-name") == 0)
@@ -549,8 +549,9 @@ void parse_pdrh_config(int argc, char* argv[])
                     }
                     else
                     {
-                        istringstream val_is(argv[i]);
-                        pdrh::push_prob_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
+//                        istringstream val_is(argv[i]);
+//                        pdrh::push_prob_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
+                        global_config.partition_prob_map.insert(make_pair(var, argv[i]));
                         i++;
                     }
                 }
@@ -679,11 +680,11 @@ void parse_pdrh_config(int argc, char* argv[])
     }
     CLOG_IF(global_config.verbose, INFO, "config") << "OK";
     // checking secondary solver type
-    if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
-    {
-        global_config.secondary_solver_type = global_config.solver_type;
-        global_config.secondary_solver_bin = global_config.solver_bin;
-    }
+//    if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
+//    {
+//        global_config.secondary_solver_type = global_config.solver_type;
+//        global_config.secondary_solver_bin = global_config.solver_bin;
+//    }
 }
 
 void print_usage()
@@ -708,7 +709,9 @@ void print_usage()
     cout << "--solver <path> - full path to the solver (default: " << global_config.solver_bin << ")" << endl;
     cout << endl;
     cout << "special options:" << endl;
-    cout << "--time-var-name <string> - the name of the variable representing time in the model (default: " << global_config.time_var_name << ")" << endl;
+    cout << "--time-var-name <string> - the name of the variable representing time in the model (default: ";
+    for(string var : global_config.time_var_name) cout << var << ", ";
+    cout <<  ")" << endl;
     cout << endl;
     cout << "statistical model checking options:" << endl;
     cout << "--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default: " << global_config.bayesian_acc << ")" << endl;

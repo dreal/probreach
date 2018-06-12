@@ -2223,15 +2223,15 @@ pdrh::node* pdrh::distribution::exp_to_node(string var, node* lambda)
     return pdrh::push_operation_node("*", vector<pdrh::node*>{exp_node, lambda});
 }
 
-void pdrh::push_prob_partition_prec(string var, capd::interval prec)
-{
-    global_config.partition_prob_map.insert(make_pair(var, prec));
-}
-
-void pdrh::push_nondet_partition_prec(string var, capd::interval prec)
-{
-    global_config.partition_nondet_map.insert(make_pair(var, prec));
-}
+//void pdrh::push_prob_partition_prec(string var, capd::interval prec)
+//{
+//    global_config.partition_prob_map.insert(make_pair(var, prec));
+//}
+//
+//void pdrh::push_nondet_partition_prec(string var, capd::interval prec)
+//{
+//    global_config.partition_nondet_map.insert(make_pair(var, prec));
+//}
 
 void pdrh::set_model_type()
 {

@@ -887,8 +887,8 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         boxes.insert(boxes.end(), nondet_boxes.begin(), nondet_boxes.end());
         int timeout_counter = 0;
         // checking solver type
-        if (global_config.solver_type == solver::type::DREAL)
-        {
+//        if (global_config.solver_type == solver::type::DREAL)
+//        {
             // evaluating all paths
             vector<vector<pdrh::mode *>> paths = ap::get_all_paths(boxes);
             int res = decision_procedure::UNDET;
@@ -950,28 +950,28 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
                         exit(EXIT_FAILURE);
                 }
             }
-        }
-        else if (global_config.solver_type == solver::type::ISAT)
-        {
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating with iSAT:";
-            int res = decision_procedure::evaluate_isat(boxes);
-            if (res == decision_procedure::SAT)
-            {
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-                sat++;
-            } else if (res == decision_procedure::UNSAT)
-            {
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                unsat++;
-                ap::unsat_samples.push_back(b);
-            }
-        }
-        else
-        {
-            stringstream s;
-            s << "Unrecognized solver";
-            throw runtime_error(s.str().c_str());
-        }
+//        }
+//        else if (global_config.solver_type == solver::type::ISAT)
+//        {
+//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating with iSAT:";
+//            int res = decision_procedure::evaluate_isat(boxes);
+//            if (res == decision_procedure::SAT)
+//            {
+//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+//                sat++;
+//            } else if (res == decision_procedure::UNSAT)
+//            {
+//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+//                unsat++;
+//                ap::unsat_samples.push_back(b);
+//            }
+//        }
+//        else
+//        {
+//            stringstream s;
+//            s << "Unrecognized solver";
+//            throw runtime_error(s.str().c_str());
+//        }
         // updating unsat counter
         #pragma omp critical
         {

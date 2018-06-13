@@ -699,10 +699,8 @@ string translator::get_initial_value(string variable_name){
                 } else {
                     if (node->value == ">="){
                         lower_bound = translator::resolve_variable_initial_condition(node->operands.at(1));
-//                        lower_bound = node->operands.at(1)->value;
                     } else if (node->value == "<="){
                         upper_bound = translator::resolve_variable_initial_condition(node->operands.at(1));
-//                        upper_bound = node->operands.at(1)->value;
                     }
                 }
             }

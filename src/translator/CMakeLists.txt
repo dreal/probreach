@@ -13,13 +13,13 @@ IF(MATLAB_FOUND)
     file(GLOB PDRH2SIMULINK_SRC   ${PROBREACH_SOURCE_DIR}/util/*.cpp
             #            ${PROBREACH_SOURCE_DIR}/parser/csv/*.cpp
             #            ${PROBREACH_SOURCE_DIR}/parser/output/*.cpp
-            ${PROBREACH_SOURCE_DIR}/solver/*.cpp
+#            ${PROBREACH_SOURCE_DIR}/solver/*.cpp
             ${PROBREACH_SOURCE_DIR}/translator/*.cpp)
 
     file(GLOB PDRH2SIMULINK_INCLUDE   ${PROBREACH_SOURCE_DIR}/util/*.h
             #            ${PROBREACH_SOURCE_DIR}/parser/csv/*.h
             #            ${PROBREACH_SOURCE_DIR}/parser/output/*.h
-            ${PROBREACH_SOURCE_DIR}/solver/*.h
+#            ${PROBREACH_SOURCE_DIR}/solver/*.h
             ${PROBREACH_SOURCE_DIR}/translator/*.h)
 
     set(PDRH2SIMULINK_INCLUDE ${PDRH2SIMULINK_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.h)

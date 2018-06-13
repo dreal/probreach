@@ -524,8 +524,12 @@ void translator::Translator::translate_model(){
         add_state_transition(m);
     }
 
-    CLOG_IF(global_config.verbose, INFO, "translator") << "Setting simulation time... ";
-    this->engine->eval(convertUTF8StringToUTF16String("set_param(mdlName, 'StopTime', '" + pdrh::time.second->value +"');"));
+    if (pdrh::time.first != NULL && pdrh::time.second != NULL){
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Setting simulation time to " << pdrh::time.second->value;
+        this->engine->eval(convertUTF8StringToUTF16String("set_param(mdlName, 'StopTime', '" + pdrh::time.second->value +"');"));
+    } else {
+        CLOG(INFO, "translator") << "Simulation time not set, using default value of 10.";
+    }
 
     this->engine->eval(convertUTF8StringToUTF16String("save_system(mdlName);"));
     CLOG(INFO, "translator" ) << "Completed translating model";

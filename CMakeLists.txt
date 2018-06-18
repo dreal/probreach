@@ -80,7 +80,7 @@ set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c GEN
 set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c GENERATED PROPERTIES LANGUAGE CXX)
 set_source_files_properties(${PROBREACH_BINARY_DIR}/git_sha1.cpp GENERATED PROPERTIES LANGUAGE CXX)
 
-
+IF(DREAL_FOUND)
 ## create custom command for flex/lex (note the outputs)
 #add_custom_command(
 #        COMMAND ${FLEX_EXECUTABLE}
@@ -191,8 +191,6 @@ add_custom_command(TARGET pdrh2smt
 
 #install(FILES ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
 
-# Adds the option to build the translator if MATLAB is located
-include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 
 add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
 #target_compile_options(ProbReach PRIVATE -static)
@@ -206,6 +204,13 @@ add_custom_target(install_probreach
         $(MAKE) install
         DEPENDS ProbReach
         COMMENT "Installing ProbReach")
+ELSE(DREAL_FOUND)
+message(STATUS "DReal libraries not found, option to build ProbReach won't be available. Refer to installation guide available on Github or ./doc/build")
+
+ENDIF(DREAL_FOUND)
+
+# Adds the option to build the translator if MATLAB is located
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 
 if(GTEST_FOUND)
     # Building tests

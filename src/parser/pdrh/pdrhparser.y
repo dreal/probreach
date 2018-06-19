@@ -6,8 +6,8 @@
 #include <sstream>
 #include <cmath>
 #include <limits>
-#include <capd/capdlib.h>
-#include <capd/intervals/lib.h>
+//#include <capd/capdlib.h>
+//#include <capd/intervals/lib.h>
 #include "pdrh.h"
 #include "pdrh_config.h"
 

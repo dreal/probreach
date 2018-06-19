@@ -96,7 +96,7 @@ dist_normal(90, 10) DG2;
 dist_normal(300, 10) tau_meal_2;
 
 // dinner
-dist_normal(70, 10) DG3
+dist_normal(70, 10) DG3;
 dist_normal(300, 10) tau_meal_3;
 
 #define Q1_lower 64

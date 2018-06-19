@@ -9,7 +9,6 @@
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
 #include "pdrh.h"
-#include "measure.h"
 #include "pdrh_config.h"
 
 // stuff from flex that bison needs to know about:
@@ -72,6 +71,8 @@ std::vector<pdrh::state> cur_states;
 std::vector<pdrh::mode*> cur_path;
 std::map<pdrh::node*, pdrh::node*> cur_dd;
 std::tuple<std::string, pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*> cur_dist;
+
+using namespace std;
 %}
 
 %%

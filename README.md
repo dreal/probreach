@@ -8,11 +8,12 @@
 
 * **NOW ON [DOCKER](https://docker.com)!!!**
 
+    ```
+    docker pull dreal/probreach
+    ```
+
 * **pdrh2simulink** - allows translation of .pdrh models to equivalent MATLAB Simulink models. 
 Usage guide available [here](doc/translator.md).   
-```
-docker pull dreal/probreach
-```
 
 # Install
 

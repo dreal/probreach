@@ -10,8 +10,8 @@ IF( "$ENV{MATLAB_ROOT}" STREQUAL "" )
     MESSAGE(STATUS " " )
     MESSAGE(STATUS " " )
     MESSAGE(STATUS " " )
-    MESSAGE(STATUS " MATLAB_ROOT environment variable not set." )
-    MESSAGE(STATUS " In Linux append the following to your .bashrc file or set it for the current session:" )
+    MESSAGE(STATUS " MATLAB not found. If you wish to use the translator utility, make sure MATLAB is installed and configured on the system." )
+    MESSAGE(STATUS " On Linux, append the following to your .bashrc file or set it for the current session:" )
     MESSAGE(STATUS " >>> export MATLAB_ROOT=/usr/local/MATLAB/R2018a <<<" )
     MESSAGE(STATUS " be sure to pick the correct version of Matlab if you have one installed." )
     MESSAGE(STATUS " " )
@@ -50,9 +50,6 @@ ELSE("$ENV{MATLAB_ROOT}" STREQUAL "" )
                       PATHS $ENV{MATLAB_ROOT}/extern/bin/glnxa64
                       PATHS SUFFIXES libMatlabDataArray)
 
-    MESSAGE (STATUS "MATLAB_ROOT: $ENV{MATLAB_ROOT}")
-    MESSAGE (STATUS "MATLAB_INCLUDE_DIR: ${MATLAB_INCLUDE_DIR}")
-
 ENDIF("$ENV{MATLAB_ROOT}" STREQUAL "" )
 
 # This is common to UNIX and Win32:
@@ -66,7 +63,6 @@ SET(MATLAB_LIBRARIES
 
 IF(MATLAB_INCLUDE_DIR AND MATLAB_LIBRARIES)
   SET(MATLAB_FOUND 1)
-  MESSAGE(STATUS "Matlab libraries will be used")
 ENDIF(MATLAB_INCLUDE_DIR AND MATLAB_LIBRARIES)
 
 MARK_AS_ADVANCED(

@@ -1,12 +1,12 @@
 # adding executable
 # If Matlab is installed on the target machine, link its libraries
 IF(MATLAB_FOUND)
-    message(STATUS "MATLAB Found, MATLAB MEX will be additionally compiled to enable Simulink Translator.")
+    message(STATUS "MATLAB found, compilation of pdrh2Simulink translator is enabled.")
 
     INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
 
     message(STATUS "MATLAB root dir: $ENV{MATLAB_ROOT}")
-    message(STATUS "OUTPUT DIR: ${PROBREACH_BINARY_DIR}")
+    message(STATUS "Output dir: ${PROBREACH_BINARY_DIR}")
     message(STATUS "MATLAB include dir: ${MATLAB_INCLUDE_DIR}")
     message(STATUS "MATLAB libraries included: ${MATLAB_LIBRARIES}")
 

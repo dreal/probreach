@@ -66,7 +66,7 @@ namespace translator{
 
     void translate();
     string get_initial_value(string variable_name);
-    string resolve_variable_initial_condition(pdrh::node *node);
+    string resolve_variable_init_expr(pdrh::node *node);
     void translate_ode_expression(pdrh::node *expr);
 
     void translate_model();

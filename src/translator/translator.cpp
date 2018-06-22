@@ -723,8 +723,9 @@ string translator::get_initial_value(string variable_name){
         // Look in the var-map for its interval and use the lower bound as default value
         auto iter = pdrh::var_map.find(variable_name);
         if (iter != pdrh::var_map.end() && iter->second.first != nullptr){
-            CLOG(INFO, "translator") << "Lower bound: " << iter->second.first->value << endl;
-            return iter->second.first->value;
+            string init_value = resolve_variable_init_expr(iter->second.first);
+            CLOG(INFO, "translator") << "Lower bound: " << init_value << endl;
+            return init_value;
         }
         // as a further fail-safe, return 0
         else {

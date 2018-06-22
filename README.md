@@ -12,7 +12,7 @@
     docker pull dreal/probreach
     ```
 
-* **pdrh2simulink** - translates .pdrh (ProbReach) models to equivalent MATLAB Simulink models. Usage guide available [here](doc/translator.md).   
+* **pdrh2simulink** - translates .pdrh (ProbReach) models to equivalent MATLAB Simulink models. See the [usage guide](doc/translator.md).   
 
 # Install
 

@@ -3,12 +3,24 @@
 The translator from *.pdrh* to *Simulink®/Stateflow®* models is available as a separate tool alongside ProbReach.
 
 ## Requirements
+    
+   #### Required Packages
+   
+   - [gcc/g++](https://gcc.gnu.org/) 4.9 or greater. Ideally, consult the [MATLAB support page](https://uk.mathworks.com/support/compilers.html),
+   and base your choice depending on the MATLAB version you are running, more on that [here](#matlab-version).
+   
+   - Only [GNU Bison](https://www.gnu.org/software/bison/) and [Flex](https://github.com/westes/flex)
+   are required to build the translator. If you wish build the entire project, refer to 
+   [these instructions](https://github.com/dreal/probreach/blob/master/doc/build.md).
+   
+        ```sudo apt-get install bison flex``` 
+        
+   - [CMake](https://cmake.org/), if not already present on your system.
 
- - The packages already listed under [How to Build](https://github.com/dreal/probreach/blob/master/doc/build.md)
+ - Currently, the translator is only available for Linux, tested on Ubuntu 16.04, 17.10, 18.04 and Fedora 26
 
- - Currently only available for Linux, tested on Ubuntu 16.04, 17.10, 18.04 and Fedora 26
-
- - And a local installation of MATLAB (version 2017b or later) with Simulink and Stateflow addons installed, 
+  #### MATLAB Version
+ - Local installation of MATLAB (version 2017b or later) with Simulink and Stateflow add-ons installed, 
  as described [here](https://uk.mathworks.com/help/install/ug/install-mathworks-software.html).
 
 
@@ -34,7 +46,7 @@ The translator from *.pdrh* to *Simulink®/Stateflow®* models is available as a
 	```
 	make pdrh2simulink
 	```
-	Otherwise,
+	Otherwise, assuming all packages required by ProbReach are installed.
 	```
 	make
 	```

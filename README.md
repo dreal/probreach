@@ -7,9 +7,13 @@
 * *The parameter set synthesis is not currently supported.*
 
 * **NOW ON [DOCKER](https://docker.com)!!!**
-```
-docker pull dreal/probreach
-```
+
+    ```
+    docker pull dreal/probreach
+    ```
+
+* **pdrh2simulink** - allows translation of .pdrh models to equivalent MATLAB Simulink models. 
+Usage guide available [here](doc/translator.md).   
 
 # Install
 
@@ -19,4 +23,4 @@ Latest version of static binary for Linux and Mac can be downloaded from **ProbR
 
 # [How to Use](doc/usage.md)
 
-# [Translator Guide](doc/translator.md)
+# [Pdrh2simulink Setup](doc/translator.md)

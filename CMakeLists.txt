@@ -5,10 +5,9 @@ project(ProbReach)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
 # checking for packages
-find_package(DREAL REQUIRED)
+find_package(DREAL)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
-find_package(GSL REQUIRED)
 find_package(GTest)
 # Needed for using the translator tool
 find_package(Matlab)
@@ -36,17 +35,6 @@ get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 configure_file(
         "${PROBREACH_SOURCE_DIR}/util/git_sha1.cpp.in"
         "${PROBREACH_BINARY_DIR}/git_sha1.cpp" @ONLY)
-
-set(PROBREACH_VERSION ${PROBREACH_VERSION_MAJOR}.${PROBREACH_VERSION_MINOR})
-configure_file(
-        "${PROBREACH_SOURCE_DIR}/version.h.in"
-        "${PROBREACH_SOURCE_DIR}/version.h"
-)
-
-configure_file(
-        "${PROBREACH_SOURCE_DIR}/config.h.in"
-        "${PROBREACH_SOURCE_DIR}/config.h"
-)
 
 # creating a directory for the lexer and parser files
 add_custom_target(pdrhparser
@@ -80,6 +68,26 @@ set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c GEN
 set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c GENERATED PROPERTIES LANGUAGE CXX)
 set_source_files_properties(${PROBREACH_BINARY_DIR}/git_sha1.cpp GENERATED PROPERTIES LANGUAGE CXX)
 
+include_directories("${PROBREACH_SOURCE_DIR}")
+include_directories("${PROBREACH_SOURCE_DIR}/util")
+include_directories("${PROBREACH_SOURCE_DIR}/parser/pdrh")
+include_directories("${PROBREACH_SOURCE_DIR}/logging")
+include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
+
+IF(DREAL_FOUND)
+
+find_package(GSL REQUIRED)
+
+set(PROBREACH_VERSION ${PROBREACH_VERSION_MAJOR}.${PROBREACH_VERSION_MINOR})
+configure_file(
+        "${PROBREACH_SOURCE_DIR}/version.h.in"
+        "${PROBREACH_SOURCE_DIR}/version.h"
+)
+
+configure_file(
+        "${PROBREACH_SOURCE_DIR}/config.h.in"
+        "${PROBREACH_SOURCE_DIR}/config.h"
+)
 
 ## create custom command for flex/lex (note the outputs)
 #add_custom_command(
@@ -119,14 +127,9 @@ include_directories("${DREAL_INCLUDE_DIR}/ibex")
 include_directories("${PROBREACH_SOURCE_DIR}/pdrh2smt")
 include_directories("${PROBREACH_BINARY_DIR}/pdrh2smt/parser")
 include_directories("${PROBREACH_BINARY_DIR}/pdrh2smt/measure")
-include_directories("${PROBREACH_SOURCE_DIR}")
-include_directories("${PROBREACH_SOURCE_DIR}/util")
 include_directories("${PROBREACH_SOURCE_DIR}/solver")
 include_directories("${PROBREACH_SOURCE_DIR}/parser/csv")
 include_directories("${PROBREACH_SOURCE_DIR}/parser/output")
-include_directories("${PROBREACH_SOURCE_DIR}/parser/pdrh")
-include_directories("${PROBREACH_SOURCE_DIR}/logging")
-include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 
 # Building ProbReach
 # putting all source files together
@@ -191,8 +194,6 @@ add_custom_command(TARGET pdrh2smt
 
 #install(FILES ${PDRH2SMT_INCLUDE} DESTINATION ${PROBREACH_BINARY_DIR}/include/pdrh2smt)
 
-# Adds the option to build the translator if MATLAB is located
-include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 
 add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
 #target_compile_options(ProbReach PRIVATE -static)
@@ -206,6 +207,13 @@ add_custom_target(install_probreach
         $(MAKE) install
         DEPENDS ProbReach
         COMMENT "Installing ProbReach")
+ELSE(DREAL_FOUND)
+message(STATUS "DReal libraries not found, option to build ProbReach won't be available. Refer to installation guide available on Github or ./doc/build")
+
+ENDIF(DREAL_FOUND)
+
+# Adds the option to build the translator if MATLAB is located
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 
 if(GTEST_FOUND)
     # Building tests

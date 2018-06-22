@@ -146,10 +146,9 @@ void translator::Translator::set_system_time_interval(const string& subsys, doub
 void translator::Translator::generate_init_var_blocks(const pdrh::mode &m){
 
     for(auto it = m.odes.cbegin(); it != m.odes.cend(); it++){
+        CLOG_IF(global_config.verbose, INFO, "translator") <<  "Initialing integrator block " << it->first;
         string init_value = translator::get_initial_value(it->first);
-        CLOG_IF(global_config.verbose, INFO, "translator") <<  "Initialing integrator blocks...";
         if (strcmp(it->second->value.c_str(), "0") == 0){
-            //TODO: Change constant block to integrator block,
             this->addBlock(this->currentSubSystemHandler, "simulink/Continuous/Integrator", it->first);
             this->set_block_param(this->currentSubSystemHandler, it->first, "InitialCondition", init_value);
             this->set_block_param(this->currentSubSystemHandler, it->first, "ContinuousStateAttributes", "''" + it->first + "''");
@@ -699,12 +698,12 @@ string translator::get_initial_value(string variable_name){
             if (node->operands.at(0)->value == variable_name){
                 located = true;
                 if (node->value == "="){
-                    return translator::resolve_variable_initial_condition(node->operands.at(1));
+                    return translator::resolve_variable_init_expr(node->operands.at(1));
                 } else {
                     if (node->value == ">="){
-                        lower_bound = translator::resolve_variable_initial_condition(node->operands.at(1));
+                        lower_bound = translator::resolve_variable_init_expr(node->operands.at(1));
                     } else if (node->value == "<="){
-                        upper_bound = translator::resolve_variable_initial_condition(node->operands.at(1));
+                        upper_bound = translator::resolve_variable_init_expr(node->operands.at(1));
                     }
                 }
             }
@@ -715,11 +714,16 @@ string translator::get_initial_value(string variable_name){
         return lower_bound + "+(" + upper_bound + "-" + lower_bound + ").*rand(1,1)";
     // If we didn't find the variable above...
     } else {
+        if (pdrh::rv_map.find(variable_name) != pdrh::rv_map.end()){
+            pdrh::node rv = pdrh::node(variable_name);
+            return resolve_variable_init_expr(&rv);
+        }
         CLOG(WARNING, "translator" ) << "Initial condition for " << variable_name
                                      << " not defined - using lower bound of its domain as initial condition.";
         // Look in the var-map for its interval and use the lower bound as default value
         auto iter = pdrh::var_map.find(variable_name);
-        if (iter != pdrh::var_map.end()){
+        if (iter != pdrh::var_map.end() && iter->second.first != nullptr){
+            CLOG(INFO, "translator") << "Lower bound: " << iter->second.first->value << endl;
             return iter->second.first->value;
         }
         // as a further fail-safe, return 0
@@ -736,15 +740,50 @@ void translator::translate(){
     delete translator1;
 }
 
+string translate_distributions(pdrh::node *node){
+    stringstream value;
+    auto normal_iter = pdrh::distribution::normal.find(node->value);
+    if (normal_iter != pdrh::distribution::normal.end()){
+        value << "normrnd(" <<  translator::resolve_variable_init_expr(normal_iter->second.first)
+              << ", " << translator::resolve_variable_init_expr(normal_iter->second.second) << ")";
+        return value.str();
+    }
+
+    auto exp_iter = pdrh::distribution::exp.find(node->value);
+    if (exp_iter != pdrh::distribution::exp.end()){
+        value << "exprnd(" <<  translator::resolve_variable_init_expr(exp_iter->second) << ")";
+        return value.str();
+    }
+
+    auto gamma_iter = pdrh::distribution::gamma.find(node->value);
+    if (gamma_iter != pdrh::distribution::gamma.end()){
+        value << "gammarnd(" <<  translator::resolve_variable_init_expr(gamma_iter->second.first)
+              << ", " << translator::resolve_variable_init_expr(gamma_iter->second.second) << ")";
+        return value.str();
+    }
+
+    auto uniform_iter = pdrh::distribution::uniform.find(node->value);
+    if (uniform_iter != pdrh::distribution::uniform.end()){
+        value << "unifrnd(" <<  translator::resolve_variable_init_expr(uniform_iter->second.first)
+              << ", " << translator::resolve_variable_init_expr(uniform_iter->second.second) << ")";
+        return value.str();
+    }
+    return "";
+}
+
 /**
  * Translates a variables initial condition right-hand side expression to infix notation as used in MATLAB.
  * @param node - root of the expression tree
  * @return - string containing the infix representation
  */
-string translator::resolve_variable_initial_condition(pdrh::node *node) {
+string translator::resolve_variable_init_expr(pdrh::node *node) {
     stringstream s, value;
     if (pdrh::var_exists(node->value)){
-        value << translator::get_initial_value(node->value);
+        if (pdrh::rv_map.find(node->value) != pdrh::rv_map.end()){
+            value << translate_distributions(node);
+        } else {
+            value << translator::get_initial_value(node->value);
+        }
     }
     else {
         value << node->value;
@@ -756,21 +795,21 @@ string translator::resolve_variable_initial_condition(pdrh::node *node) {
         s << "(";
         for(int i = 0; i < node->operands.size() - 1; i++)
         {
-            s << resolve_variable_initial_condition(node->operands.at(i));
+            s << resolve_variable_init_expr(node->operands.at(i));
             s << value.str();
 
         }
-        s << resolve_variable_initial_condition(node->operands.at(node->operands.size() - 1)) << ")";
+        s << resolve_variable_init_expr(node->operands.at(node->operands.size() - 1)) << ")";
     }
     else if(node->operands.size() == 1)
     {
         if(value.str() ==  "-")
         {
-            s << "(" << value.str() << resolve_variable_initial_condition(node->operands.front()) << ")";
+            s << "(" << value.str() << resolve_variable_init_expr(node->operands.front()) << ")";
         }
         else
         {
-            s << value.str() << "(" << resolve_variable_initial_condition(node->operands.front()) << ")";
+            s << value.str() << "(" << resolve_variable_init_expr(node->operands.front()) << ")";
         }
     }
     else

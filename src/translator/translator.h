@@ -43,6 +43,7 @@ namespace translator{
         Translator();
 
         void translate_model();
+        void translate_model_decomposed();
 
         ~Translator();
 
@@ -55,18 +56,20 @@ namespace translator{
         string translate_reset_condition(pdrh::mode::jump& jump, int source_mode_id);
         void translate_ode_expression(pdrh::node *expr, block_connection parent_block);
         void generate_init_var_blocks(const pdrh::mode &m);
-        void set_system_time_interval(const string& subsys, double start_time, double end_time);
         string addBlock(string subSysHandler, string srcPath, string blkName);
         string addBlock(string subSysHandler, string srcPath, string blkName,
-                      translator::block_connection &connect_to);
+                        translator::block_connection &connect_to);
         void connect_blocks(string subSysHandler, block_connection out_block, block_connection in_block);
         void set_block_param(string subSysHandler, string blkName, string parameter, string value);
+
+        void add_plant_transitions(const pdrh::mode &mode);
     };
 
 
     void translate();
     string get_initial_value(string variable_name);
     string resolve_variable_init_expr(pdrh::node *node);
+
     void translate_ode_expression(pdrh::node *expr);
 
     void translate_model();

@@ -63,6 +63,19 @@ namespace translator{
         void set_block_param(string subSysHandler, string blkName, string parameter, string value);
 
         void add_plant_transitions(const pdrh::mode &mode);
+
+        void add_controller_transitions(const pdrh::mode &mode);
+
+        string controller_jump_guard(pdrh::node *guard, int mode_id);
+
+        string controller_reset_condition(const pdrh::mode::jump &jump, const int source_mode_id);
+
+        string controller_reset_expression(pdrh::node *reset_expr, int mode_id);
+
+        void add_chart_data(string id, string scope);
+
+        void connect_blocks(string &subSysHandler, string out_block, string out_block_port_name, string dest_block,
+                        string dest_block_port_name);
     };
 
 

@@ -731,6 +731,8 @@ void translator::Translator::translate_model_decomposed(){
     string plant_ref_name = "Plant";
     string controller_ref_name = "Controller";
 
+    this->modelName = modelName + "_decomposed";
+
     /**
      * Setup the system environment
      */
@@ -932,7 +934,8 @@ void translator::Translator::translate_model_decomposed(){
                      << "', 'autorouting', 'smart');";
     engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
 
-    cout<<"let's see";
+    this->engine->eval(convertUTF8StringToUTF16String("save_system(mdlName);"));
+    CLOG(INFO, "translator" ) << "Completed translating model";
 }
 
 /**

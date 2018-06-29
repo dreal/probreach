@@ -630,6 +630,11 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             print_version();
         }
+        // decompose model into plant and controller (used by transaltor
+        else if(strcmp(argv[i], "--decompose") == 0)
+        {
+            global_config.decompose = true;
+        }
         // number of threads
         else if(strcmp(argv[i], "-t") == 0)
         {

@@ -17,11 +17,11 @@ const string translator::subSysHandlerBase = "subSysHandler";
  * MATLAB syntax.
  */
 translator::Translator::Translator() {
-    cout<< "Starting MATLAB engine" << endl;
+    CLOG(INFO, "translator") << "Starting MATLAB engine" << endl;
 
     this->engine = matlab::engine::startMATLAB();
 
-    cout<< "MATLAB engine started" << endl;
+    CLOG(INFO, "translator") << "MATLAB engine started" << endl;
 
     vector<string> tokenised_filepath = split(global_config.model_filename, '/');
     vector<string> filename = split(tokenised_filepath.at(tokenised_filepath.size() - 1), '.');
@@ -132,15 +132,22 @@ void translator::Translator::connect_blocks(string subSysHandler, translator::bl
     this->engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
 }
 
-void translator::Translator::set_system_time_interval(const string& subsys, double start_time, double end_time){
-    ostringstream strs;
-    strs << "set_param(";
-    strs <<  subsys << ", 'StartTime', '" << start_time << "');";
-    this->engine->eval(convertUTF8StringToUTF16String(strs.str()));
-    strs.clear();
-    strs << "set_param(";
-    strs << subsys << ", 'EndTime', '" << end_time << "');";
-    this->engine->eval(convertUTF8StringToUTF16String(strs.str()));
+/**
+ * Connects any two blocks and automatically routes the line.
+ * @param subSysHandler - handle to subsystem/state
+ * @param out_block - name of the root of the line
+ * @param out_block_port_name - specific port of the root block
+ * @param dest_block - name of the destination of the line
+ * @param dest_block_port_name - specific port of the destination block
+ */
+void translator::Translator::connect_blocks(string &subSysHandler, string out_block, string out_block_port_name,
+                                            string dest_block, string dest_block_port_name) {
+    ostringstream add_line_command;
+    add_line_command << "add_line(fullfile(" << subSysHandler << ".Path, " << subSysHandler << ".Name), '"
+                     << out_block << "/" << out_block_port_name << "', '"
+                     << dest_block << "/" << dest_block_port_name
+                     << "', 'autorouting', 'smart');";
+    this->engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
 }
 
 void translator::Translator::generate_init_var_blocks(const pdrh::mode &m){
@@ -168,14 +175,11 @@ void translator::Translator::generate_init_var_blocks(const pdrh::mode &m){
  * @param parent_block
  */
 void translator::Translator::translate_ode_expression(pdrh::node *expr, block_connection parent_block) {
-//    cout<< "ODE translation: value: " << expr->value << " and " << expr->operands.size() << " operands." << endl;
     if(expr->operands.size() == 0)
     {
         // the node is a reference to a variable
         if(pdrh::var_exists(expr->value))
         {
-//            cout<< "Connect " << expr->value << " to already defined variable: " << parent_block.block_name
-//                << " " << parent_block.port_id <<endl;
             connect_blocks(this->currentSubSystemHandler, block_connection(expr->value, 1), parent_block);
         }
         // the node is a reference to a constant number
@@ -404,7 +408,7 @@ string translator::Translator::translate_jump_guard(pdrh::node *guard, int mode_
  * @param mode - source mode
  * @return
  */
-string translator::Translator::add_state_transition(pdrh::mode& mode){
+string translator::Translator::add_state_transition(pdrh::mode &mode){
     stringstream slSourceState;
     slSourceState << slStateBase << mode.id;
     for (pdrh::mode::jump jump : mode.jumps){
@@ -447,8 +451,6 @@ void translator::Translator::translate_model(){
     matlab::data::ArrayFactory factory;
     int xStatePosition = 40;
     int yStatePosition = 120;
-    const int yIncrement = 140;
-    const int xIncrement = 100;
 
     /**
      * Setup the system environment
@@ -466,7 +468,7 @@ void translator::Translator::translate_model(){
     /**
      * Build states and the corresponding ODEs for each state
      */
-    for (pdrh::mode m : pdrh::modes){
+    for (const pdrh::mode &m : pdrh::modes){
         ostringstream slState, subSysHandler, positioningCommand;
         slState << translator::slStateBase << m.id;
         subSysHandler << translator::subSysHandlerBase << m.id;
@@ -513,7 +515,6 @@ void translator::Translator::translate_model(){
         }
     }
 
-
     /**
      * Connect all states and set all guards/reset conditions
      */
@@ -529,6 +530,456 @@ void translator::Translator::translate_model(){
     } else {
         CLOG(INFO, "translator") << "Simulation time not set, using default value of 10.";
     }
+
+    this->engine->eval(convertUTF8StringToUTF16String("save_system(mdlName);"));
+    CLOG(INFO, "translator" ) << "Completed translating model";
+}
+
+string translator::Translator::add_transition(const string &parentChartRef, const string &sourceState,
+                      const string &destState, const string &label, const int source_oclock /* = 6 */,
+                      const int dest_oclock /* = 0 */){
+
+    engine->eval(convertUTF8StringToUTF16String("new_transition = Stateflow.Transition(" + parentChartRef + ");"));
+    engine->eval(convertUTF8StringToUTF16String("new_transition.Source = " + sourceState + ";"));
+    engine->eval(convertUTF8StringToUTF16String("new_transition.Destination = " + destState + ";"));
+    engine->eval(convertUTF8StringToUTF16String("new_transition.SourceOClock = " + to_string(source_oclock) + ";"));
+    engine->eval(convertUTF8StringToUTF16String("new_transition.DestinationOClock = " + to_string(dest_oclock)+ ";"));
+
+    engine->eval(convertUTF8StringToUTF16String("new_transition.LabelString = " + label + ";"));
+
+    return "new_transition";
+}
+
+
+void translator::Translator::add_plant_transitions(const pdrh::mode &mode){
+    stringstream slSourceState;
+    slSourceState << slStateBase << mode.id;
+    for (pdrh::mode::jump jump : mode.jumps){
+        stringstream slDestState, destId, reset_conditions, transition_label;
+        if (jump.next_id == mode.id){
+            // If it's a looping transition
+            // create a dummy state to resolve the infinite loop which will otherwise form
+            stringstream positioningCommand;
+            stringstream dummy_to_slState;
+            string slDummyState = slSourceState.str() + to_string(mode.id);
+            CLOG(INFO, "translator") << "Creating dummy state " << slDummyState;
+
+            positioningCommand << slDummyState << ".Position = [ "
+                               << slSourceState.str() << ".Position(1) - 60 "
+                               << slSourceState.str() << ".Position(2) + " << yIncrement
+                               << " 90 60];";
+            engine->eval(convertUTF8StringToUTF16String(slDummyState + " = Stateflow.State(" + parentChart + ");"));
+            engine->eval(convertUTF8StringToUTF16String(slDummyState + ".Name = '" + slDummyState + "';"));
+            engine->eval(convertUTF8StringToUTF16String(positioningCommand.str()));
+            // this sets up the transition from the dummy state to the main state.
+            // The transition from main to dummy is handled in the block after the if-statement (propagates).
+            slDestState << slDummyState;
+            destId << jump.next_id << jump.next_id;
+            for (auto it = mode.odes.cbegin(); it != mode.odes.cend(); it++){
+                reset_conditions << slSourceState.str() << "." << it->first << " = " << it->first << "_in;";
+            }
+            dummy_to_slState << "'[mode == " << 0 << "]{"
+                             << reset_conditions.str() << "}'";
+            add_transition(parentChart, slDestState.str(), slSourceState.str(), dummy_to_slState.str(), 9);
+        } else
+        {
+            slDestState << slStateBase << jump.next_id;
+            destId << jump.next_id;
+            for (auto it = mode.odes.cbegin(); it != mode.odes.cend(); it++){
+                reset_conditions << slDestState.str() << "." << it->first << " = " << it->first << "_in;";
+            }
+        }
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Adding transition to mode " << jump.next_id << ":";
+
+        transition_label << "'[mode == " << destId.str() << "]{"
+                         << reset_conditions.str() << "}'";
+
+        add_transition(parentChart, slSourceState.str(), slDestState.str(), transition_label.str());
+
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Jump guard: " << translate_jump_guard(jump.guard, mode.id)<<endl;
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Jump resets: " << translate_reset_condition(jump, mode.id)<<endl;
+    }
+}
+
+/**
+ * Translates a node expression to a stateflow jump condition. Converts the expression tree to infix notation and
+ * peforms substitution of logical operators.
+ * @param guard
+ * @param mode_id
+ * @return Stateflow jump guard string
+ */
+string translator::Translator::controller_jump_guard(pdrh::node *guard, int mode_id)
+{
+    stringstream s, value;
+    if (pdrh::var_map.count(guard->value)){
+        value << guard->value << "_in";
+    } else if (guard->value == "="){
+        value << "==";
+    } else if (guard->value == "and"){
+        if (guard->operands.size() == 1){
+            controller_jump_guard(guard->operands.front(), mode_id);
+        } else {
+            value << " & ";
+        }
+    } else if (guard->value == "or"){
+        value << " | ";
+    }
+    else {
+        value << guard->value;
+    }
+    // checking whether it is an operation node
+    if(guard->operands.size() > 1)
+
+    {
+        s << "(";
+        for(int i = 0; i < guard->operands.size() - 1; i++)
+        {
+            s << controller_jump_guard(guard->operands.at(i), mode_id);
+            s << value.str();
+
+        }
+        s << controller_jump_guard(guard->operands.at(guard->operands.size() - 1), mode_id) << ")";
+    }
+    else if(guard->operands.size() == 1)
+    {
+        if(value.str() ==  "-")
+        {
+            s << "(" << value.str() << controller_jump_guard(guard->operands.front(), mode_id) << ")";
+        }
+        else
+        {
+            s << value.str() << "(" << controller_jump_guard(guard->operands.front(), mode_id) << ")";
+        }
+    }
+    else
+    {
+        s << value.str();
+    }
+    return s.str();
+}
+
+string translator::Translator::controller_reset_condition(const pdrh::mode::jump &jump, const int source_mode_id){
+    stringstream reset_condition;
+    string targetState = slStateBase + to_string(jump.next_id);
+    for(auto it = jump.reset.cbegin(); it != jump.reset.cend(); it++){
+        reset_condition << it->first << "_out" << "="
+                        << controller_reset_expression(it->second, source_mode_id) << ";";
+    }
+    reset_condition << "mode = " << jump.next_id << ";";
+
+    return reset_condition.str();
+}
+
+/**
+ * Translates the right-hand side of a reset condition in MATLAB syntax. Accepts a node pointer to an expression tree
+ * which is then converted in infix notation.
+ * @param reset_expr - pointer to the beginning of the syntax tree
+ * @param mode_id - number label of the mode that's currently being translated
+ * @return - string containing the translated expression
+ */
+string translator::Translator::controller_reset_expression(pdrh::node* reset_expr, int mode_id){
+    stringstream s, value;
+    if (pdrh::var_exists(reset_expr->value)){
+        value << reset_expr->value << "_in";
+    }
+    else {
+        value << reset_expr->value;
+    }
+    // checking if an operation is contained in the reset expression
+    if(reset_expr->operands.size() > 1)
+
+    {
+        s << "(";
+        for(int i = 0; i < reset_expr->operands.size() - 1; i++)
+        {
+            s << controller_reset_expression(reset_expr->operands.at(i), mode_id);
+            s << value.str();
+
+        }
+        s << controller_reset_expression(reset_expr->operands.at(reset_expr->operands.size() - 1), mode_id) << ")";
+    }
+    else if(reset_expr->operands.size() == 1)
+    {
+        if(value.str() ==  "-")
+        {
+            s << "(" << value.str() << controller_reset_expression(reset_expr->operands.front(), mode_id) << ")";
+        }
+        else
+        {
+            s << value.str() << "(" << controller_reset_expression(reset_expr->operands.front(), mode_id) << ")";
+        }
+    }
+    else
+    {
+        s << value.str();
+    }
+    return s.str();
+};
+
+void translator::Translator::add_controller_transitions(const pdrh::mode &mode){
+    stringstream slSourceState;
+    slSourceState << slStateBase << mode.id;
+    for (pdrh::mode::jump jump : mode.jumps){
+        stringstream destId, slDestState, transition_label, reset_condition;
+        if (jump.next_id == mode.id){
+            // If it's a looping transition
+            // create a dummy state to resolve the infinite loop which will otherwise form
+            stringstream positioningCommand;
+            string slDummyState = slSourceState.str() + to_string(jump.next_id);
+
+            CLOG(INFO, "translator") << "Creating dummy state " << slDummyState;
+            positioningCommand << slDummyState << ".Position = [ "
+                               << slSourceState.str() << ".Position(1) - 60 "
+                               << slSourceState.str() << ".Position(2) + " << yIncrement
+                               << " 90 60];";
+
+            engine->eval(convertUTF8StringToUTF16String(slDummyState + " = Stateflow.State(" + parentChart + ");"));
+            engine->eval(convertUTF8StringToUTF16String(slDummyState + ".Name = '" + slDummyState + "';"));
+            engine->eval(convertUTF8StringToUTF16String(positioningCommand.str()));
+            slDestState<< slDummyState;
+            destId << jump.next_id << jump.next_id;
+
+            /** State to dummy transition */
+            transition_label << "'[" << controller_jump_guard(jump.guard, mode.id)
+                             << "]{ mode = " << destId.str() << "}'";
+            add_transition(parentChart, slSourceState.str(), slDestState.str(), transition_label.str());
+
+            /** Dummy to actual state transition */
+            for(auto it = jump.reset.cbegin(); it != jump.reset.cend(); it++){
+                reset_condition << it->first << "_out" << "="
+                                << controller_reset_expression(it->second, mode.id) << ";";
+            }
+            transition_label.str("");
+
+            reset_condition << "mode = " <<  0 << ";";
+            transition_label << "'[true]{" << reset_condition.str() << "}'";
+            add_transition(parentChart, slDestState.str(), slSourceState.str(), transition_label.str());
+
+        } else {
+            // else translate the transition as normal
+            slDestState << slStateBase << jump.next_id;
+            CLOG_IF(global_config.verbose, INFO, "translator") << "Adding transition to mode " << jump.next_id << ":";
+            transition_label << "'[" << controller_jump_guard(jump.guard, mode.id)
+                             << "]{" << controller_reset_condition(jump, mode.id) << "}'";
+
+            add_transition(parentChart, slSourceState.str(), slDestState.str(), transition_label.str());
+        }
+
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Jump guard: " << controller_jump_guard(jump.guard, mode.id)<<endl;
+        CLOG_IF(global_config.verbose, INFO, "translator") << "Jump resets: " << controller_reset_condition(jump, mode.id)<<endl;
+    }
+}
+
+void translator::Translator::add_chart_data(string id, string scope){
+        engine->eval(convertUTF8StringToUTF16String("d = Stateflow.Data(" + parentChart + ");"));
+        engine->eval(convertUTF8StringToUTF16String("d.Scope = '" + scope + "';"));
+        engine->eval(convertUTF8StringToUTF16String("d.Name = '" + id + "';"));
+}
+
+void translator::Translator::translate_model_decomposed(){
+    int xStatePosition = 40;
+    int yStatePosition = 120;
+
+    // Names of chard object handlers
+    string plant_ref_name = "Plant";
+    string controller_ref_name = "Controller";
+
+    this->modelName = modelName + "_decomposed";
+
+    /**
+     * Setup the system environment
+     */
+    this->engine->eval(convertUTF8StringToUTF16String("mdlName = '" + modelName + "'"));
+    this->engine->eval(convertUTF8StringToUTF16String(systemHandlerName + " = new_system('" + modelName + "');"));
+    this->engine->eval(convertUTF8StringToUTF16String("open_system(" + systemHandlerName + ");"));
+    this->engine->eval(convertUTF8StringToUTF16String("load_system('sflib');"));
+    this->engine->eval(convertUTF8StringToUTF16String("add_block('sflib/Chart', ['" + modelName + "' '/" + plant_ref_name + "']);"));
+//    this->engine->eval(convertUTF8StringToUTF16String(plant_ref_name + ".Name = Plant;"));
+//    this->engine->eval(convertUTF8StringToUTF16String(controller_ref_name + " = add_block('sflib/Chart', ['" + modelName + "' '/Chart']);"));
+//    this->engine->eval(convertUTF8StringToUTF16String(controller_ref_name + ".Name = Controller;"));
+    this->engine->eval(convertUTF8StringToUTF16String("rt = sfroot;"));
+    this->engine->eval(convertUTF8StringToUTF16String("m = rt.find('-isa', 'Stateflow.Machine', 'name', '" + modelName + "');"));
+    this->engine->eval(convertUTF8StringToUTF16String(parentChart + " = m.find('-isa', 'Stateflow.Chart');"));
+    this->engine->eval(convertUTF8StringToUTF16String(parentChart + ".ChartUpdate = 'CONTINUOUS';"));
+
+    /**
+     * Add output ports to plant chart
+     */
+    for (auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++){
+        add_chart_data(it->first + "_out", "Output");
+    };
+
+    /**
+     * Build states and the corresponding ODEs for each Plant state
+     */
+    CLOG(INFO, "translator") << "Beginning plant translation...";
+    for (const pdrh::mode &m : pdrh::modes) {
+        ostringstream slState, subSysHandler, positioningCommand;
+        slState << translator::slStateBase << m.id;
+        subSysHandler << translator::subSysHandlerBase << m.id;
+        currentSubSystemHandler = subSysHandler.str();
+
+        CLOG(INFO, "translator") << "*** Beginning translation of " << slState.str();
+
+        positioningCommand << slState.str() << ".Position = [ " << xStatePosition << " " << yStatePosition
+                           << " 90 60];";
+        yStatePosition += yIncrement;
+        xStatePosition += xIncrement;
+        this->engine->eval(convertUTF8StringToUTF16String(slState.str() + " = Stateflow.SimulinkBasedState(" + parentChart + ");"));
+        this->engine->eval(convertUTF8StringToUTF16String(slState.str() + ".Name = '" + slState.str() + "';"));
+        this->engine->eval(convertUTF8StringToUTF16String(positioningCommand.str()));
+        this->engine->eval(
+                convertUTF8StringToUTF16String(subSysHandler.str() + " = " + slState.str() + ".getDialogProxy;"));
+
+        /**
+         * Add default transitions
+         */
+        for (pdrh::state s : pdrh::init) {
+            if (m.id == s.id) {
+                add_default_transition(s.id);
+            }
+        }
+        this->generate_init_var_blocks(m);
+
+        /**
+         * Scope blocks for simulink states
+         */
+        string scope_block_name = slState.str() + "_Scope";
+        this->add_scope_block(this->currentSubSystemHandler, scope_block_name, m.odes.size());
+
+        int scope_inport_counter = 1;
+        for (const auto &ode : m.odes) {
+            CLOG(INFO, "translator") << "Translating equation d[\"" << ode.first << "\"]/dt" << endl;
+
+            block_connection parent_ode_block = block_connection(ode.first, 1);
+
+            string outport_name = ode.first + "_out";
+//            addBlock(this->currentSubSystemHandler, "simulink/Sinks/Out1", outport_name);
+
+            this->translate_ode_expression(ode.second, parent_ode_block);
+            this->connect_blocks(this->currentSubSystemHandler, parent_ode_block,
+                                 block_connection(scope_block_name, scope_inport_counter++));
+            this->connect_blocks(this->currentSubSystemHandler, parent_ode_block, block_connection(outport_name, 1));
+
+            CLOG(INFO, "translator") << "Completed translation of equation d[\"" << ode.first << "\"]/dt" << endl;
+        }
+    }
+
+    /**
+     * Build plant transitions, includes dummy states
+     */
+
+    for(const pdrh::mode &m: pdrh::modes){
+        add_plant_transitions(m);
+    }
+
+    /**
+     * Add input ports to plant chart
+     */
+    for (auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++){
+        add_chart_data(it->first + "_in", "Input");
+    }
+
+    /**
+     * Add mode input (not included in the var_map)
+     */
+    add_chart_data("mode", "Input");
+
+
+    CLOG(INFO, "translator") << "Beginning controller translation...";
+    /**
+     * Add the controller chart
+     */
+    this->engine->eval(convertUTF8StringToUTF16String("add_block('sflib/Chart', ['" + modelName + "' '/" + controller_ref_name + "']);"));
+    this->engine->eval(convertUTF8StringToUTF16String(parentChart + " = m.find('-isa', 'Stateflow.Chart', "
+                                                                    "'-and', 'Name', '" + controller_ref_name + "');"));
+
+    /**
+     * Add controller states
+     */
+    for (const pdrh::mode &m : pdrh::modes) {
+        ostringstream slState, subSysHandler, positioningCommand;
+        slState << translator::slStateBase << m.id;
+        subSysHandler << translator::subSysHandlerBase << m.id;
+        currentSubSystemHandler = subSysHandler.str();
+
+        CLOG(INFO, "translator") << "*** Beginning translation of " << slState.str();
+
+        positioningCommand << slState.str() << ".Position = [ " << xStatePosition << " " << yStatePosition
+                           << " 90 60];";
+        yStatePosition += yIncrement;
+        xStatePosition += xIncrement;
+        this->engine->eval(convertUTF8StringToUTF16String(slState.str() + " = Stateflow.State(" + parentChart + ");"));
+        this->engine->eval(convertUTF8StringToUTF16String(slState.str() + ".Name = '" + slState.str() + "';"));
+        this->engine->eval(convertUTF8StringToUTF16String(positioningCommand.str()));
+        this->engine->eval(
+                convertUTF8StringToUTF16String(subSysHandler.str() + " = " + slState.str() + ".getDialogProxy;"));
+
+        /**
+         * Add default transitions
+         */
+        for (pdrh::state &s : pdrh::init) {
+            if (m.id == s.id) {
+                add_default_transition(s.id);
+            }
+        }
+    }
+
+    /**
+     * Add controller transitions
+     */
+    for (pdrh::mode &m : pdrh::modes){
+        add_controller_transitions(m);
+    }
+
+    /**
+     * Add controller chart input/outputs
+     */
+    for(auto var: pdrh::var_map){
+        add_chart_data(var.first + "_in", "Input");
+        add_chart_data(var.first + "_out", "Output");
+    }
+    add_chart_data("mode", "Output");
+
+    /**
+     * Connect plant to controller and vice-versa
+     */
+//    engine->eval(convertUTF8StringToUTF16String(currentSubSystemHandler + " = rt.find('-isa','Simulink.BlockDiagram');"));
+    currentSubSystemHandler = "m";
+    ostringstream add_line_command;
+    int port_counter = 1;
+    for (const auto &var : pdrh::var_map){
+        string mem_block_name = var.first + "_mem";
+        this->engine->eval(convertUTF8StringToUTF16String("add_block('simulink/Discrete/Memory', "
+                                                          "['" + modelName + "' '/" + mem_block_name + "']);"));
+        add_line_command << "add_line('" + modelName + "', '"
+                         << plant_ref_name << "/" << port_counter << "', '"
+                         << mem_block_name << "/" << "1"
+                         << "', 'autorouting', 'smart');";
+
+        add_line_command << "add_line('" + modelName + "', '"
+                         << mem_block_name << "/" << "1" << "', '"
+                         << controller_ref_name << "/" << port_counter
+                         << "', 'autorouting', 'smart');";
+
+        add_line_command << "add_line('" + modelName + "', '"
+                         << controller_ref_name << "/" << port_counter << "', '"
+                         << plant_ref_name << "/" << port_counter
+                         << "', 'autorouting', 'smart');";
+
+//        connect_blocks(currentSubSystemHandler, plant_ref_name, var.first + "_out", mem_block_name, "1");
+//        connect_blocks(currentSubSystemHandler, mem_block_name, "1", controller_ref_name, var.first + "_in");
+//        connect_blocks(currentSubSystemHandler, controller_ref_name, var.first + "_out", plant_ref_name, var.first + "_in");
+        engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
+        add_line_command.str("");
+        port_counter++;
+    }
+    // connect the mode output from the controller
+    add_line_command << "add_line('" + modelName + "', '"
+                     << controller_ref_name << "/" << port_counter << "', '"
+                     << plant_ref_name << "/" << port_counter
+                     << "', 'autorouting', 'smart');";
+    engine->eval(convertUTF8StringToUTF16String(add_line_command.str()));
 
     this->engine->eval(convertUTF8StringToUTF16String("save_system(mdlName);"));
     CLOG(INFO, "translator" ) << "Completed translating model";
@@ -581,7 +1032,7 @@ string translator::Translator::translate_reset_expression(pdrh::node* reset_expr
 };
 
 /**
- * Builds the entire reset condition by joining together left-hand side identifies to their expressions.
+ * Builds the entire reset condition by joining together left-hand side identifiers to their expressions.
  * @param jump - the transition in question
  * @param source_mode_id - the number label of the source transition
  * @return - a complete reset condition string
@@ -736,9 +1187,15 @@ string translator::get_initial_value(string variable_name){
 }
 
 void translator::translate(){
-    translator::Translator* translator1 = new Translator();
-    translator1->translate_model();
-    delete translator1;
+    translator::Translator* translator = new Translator();
+//    translator->translate_model();
+    if (global_config.decompose){
+        CLOG(INFO, "translator") << "Plant and controller will be split in separate subsystems. ";
+        translator->translate_model_decomposed();
+    } else {
+        translator->translate_model();
+    }
+    delete translator;
 }
 
 string translate_distributions(pdrh::node *node){

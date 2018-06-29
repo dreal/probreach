@@ -85,6 +85,9 @@ struct pdrh_config
     std::string sample_time = "counter";
     double noise_var = 1;
 
+    //Used by translator
+    bool decompose = false;
+
     struct ctrl
     {
         std::string sys_out;

@@ -47,6 +47,19 @@ namespace translator{
         Translator();
 
         void translate_model();
+
+        /**
+         * Translates the model in two distinct subsystems: Plant and Controller
+         * The aim of this translation is to have the controller logic contained within a
+         * dedicated subsystem so that it can be separately compiled and executed on hardware
+         * in a PIl (processor-in-the-loop) block/simulation.
+         *
+         * This method introduces dummy states for loop-back transitions (jumps that have as
+         * destination the originating state). These dummy state incur some cost on the execution speed
+         * and precision of the simulation, however, testing so far shows that this can be overcome by
+         * manually selecting a small-enough step size (at the expense of additional simulation time).
+         *
+         */
         void translate_model_decomposed();
 
         ~Translator();
@@ -67,26 +80,28 @@ namespace translator{
         void set_block_param(string subSysHandler, string blkName, string parameter, string value);
 
 
-        string controller_jump_guard(pdrh::node *guard, int mode_id);
-
-        string controller_reset_condition(const pdrh::mode::jump &jump, const int source_mode_id);
-
-        string controller_reset_expression(pdrh::node *reset_expr, int mode_id);
 
         void add_chart_data(string id, string scope);
 
         void connect_blocks(string &subSysHandler, string out_block, string out_block_port_name, string dest_block,
                         string dest_block_port_name);
 
+        string add_transition(const string &parentChartRef, const string &sourceState, const string &destState, const string &label,
+                   const int source_oclock = 6, const int dest_oclock = 0);
+
         /*
-         *
+         *The methods below are all used to decompose the model by translate_model_decomposed();
          * */
         void add_plant_transitions(const pdrh::mode &mode);
 
         void add_controller_transitions(const pdrh::mode &mode);
-        string
-    add_transition(const string &parentChartRef, const string &sourceState, const string &destState, const string &label,
-                   const int source_oclock = 6, const int dest_oclock = 0);
+
+        string controller_jump_guard(pdrh::node *guard, int mode_id);
+
+        string controller_reset_condition(const pdrh::mode::jump &jump, const int source_mode_id);
+
+        string controller_reset_expression(pdrh::node *reset_expr, int mode_id);
+
     };
 
 

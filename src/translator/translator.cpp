@@ -571,6 +571,8 @@ void translator::Translator::add_plant_transitions(const pdrh::mode &mode){
             engine->eval(convertUTF8StringToUTF16String(slDummyState + " = Stateflow.State(" + parentChart + ");"));
             engine->eval(convertUTF8StringToUTF16String(slDummyState + ".Name = '" + slDummyState + "';"));
             engine->eval(convertUTF8StringToUTF16String(positioningCommand.str()));
+            // this sets up the transition from the dummy state to the main state.
+            // The transition from main to dummy is handled in the block after the if-statement (propagates).
             slDestState << slDummyState;
             destId << jump.next_id << jump.next_id;
             for (auto it = mode.odes.cbegin(); it != mode.odes.cend(); it++){

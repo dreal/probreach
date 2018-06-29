@@ -70,6 +70,9 @@ This mode of operation is enabled by providing the `--decompose` flag preceding 
 Having two distinct subsystems allows the user to create a processor-in-the-loop block (using MATLAB Simulink Coder)
 of the controller and subsequently execute that on hardware of choice.
 
+Whenever the fixed time-step is changed, a new controller PIL block has to be generated from the 
+controller subsystem in order to pick-up the changes.
+
 However, it should be noted that this mode of operation is not as precise in comparison to the regular
 translation method and the Simulink states formalism used. This difference is owed to the creation of dummy states
 used to resolve the loops found in .(p)drh by transitions to the same state.

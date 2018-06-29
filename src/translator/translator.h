@@ -39,6 +39,10 @@ namespace translator{
         matlab::data::ArrayFactory arrayFactory;
         string modelName, systemHandlerName, parentChart, currentSubSystemHandler;
 
+        // Used for positioning blocks
+        const int yIncrement = 140;
+        const int xIncrement = 100;
+
     public:
         Translator();
 
@@ -62,9 +66,6 @@ namespace translator{
         void connect_blocks(string subSysHandler, block_connection out_block, block_connection in_block);
         void set_block_param(string subSysHandler, string blkName, string parameter, string value);
 
-        void add_plant_transitions(const pdrh::mode &mode);
-
-        void add_controller_transitions(const pdrh::mode &mode);
 
         string controller_jump_guard(pdrh::node *guard, int mode_id);
 
@@ -76,6 +77,16 @@ namespace translator{
 
         void connect_blocks(string &subSysHandler, string out_block, string out_block_port_name, string dest_block,
                         string dest_block_port_name);
+
+        /*
+         *
+         * */
+        void add_plant_transitions(const pdrh::mode &mode);
+
+        void add_controller_transitions(const pdrh::mode &mode);
+        string
+    add_transition(const string &parentChartRef, const string &sourceState, const string &destState, const string &label,
+                   const int source_oclock = 6, const int dest_oclock = 0);
     };
 
 

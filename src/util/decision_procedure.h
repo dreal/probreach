@@ -19,6 +19,9 @@ namespace decision_procedure
     // used for formal verification
     int evaluate(vector<pdrh::mode*>, vector<box>, string);
 
+    // used for formal verification
+    int evaluate_formal(vector<pdrh::mode*>, vector<box>, string);
+
     // used for parameter set synthesis
     int evaluate(pdrh::state, pdrh::state, vector<pdrh::mode*>, vector<box>);
     int evaluate_delta_sat(vector<pdrh::mode*>, vector<box>);
@@ -38,6 +41,9 @@ namespace decision_procedure
 
     // evaluating all paths
     int evaluate(vector<vector<pdrh::mode*>>, vector<box>, string);
+
+    // evaluating all paths
+    int evaluate_formal(vector<vector<pdrh::mode*>>, vector<box>, string);
 
     // first argument contains the odes to compute and the invariants to check
     // second arguments is the time horizon for ode integration

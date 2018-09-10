@@ -1313,7 +1313,7 @@ capd::interval algorithm::evaluate_pha_qmc() {
             box icdf_sample = rnd::get_icdf(sample);
             cout << "ICDF sample: " << icdf_sample << endl;
             // computing value of indicator function
-            switch (decision_procedure::evaluate(paths, {icdf_sample}, "")) {
+            switch (decision_procedure::evaluate_formal(paths, {icdf_sample}, "")) {
                 // hybrid automata
                 case decision_procedure::SAT: {
                     sat++;
@@ -1407,7 +1407,7 @@ capd::interval algorithm::evaluate_pha_qmc() {
                 box icdf_sample = rnd::get_icdf(sample);
                 cout << "ICDF sample: " << icdf_sample << endl;
                 // computing value of indicator function
-                switch (decision_procedure::evaluate(paths, {icdf_sample}, "")) {
+                switch (decision_procedure::evaluate_formal(paths, {icdf_sample}, "")) {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;

@@ -514,6 +514,21 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
+
+            // qmc randomisation and CI type
+        else if (strcmp(argv[i], "--CI") == 0) {
+            global_config.qmc_flag = true;
+            global_config.stat_flag = true;
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.CI_flag;
+            if (global_config.CI_flag < 0) {
+                CLOG(ERROR, "config")
+                        << "choose CI type: 0 for single QMC, 1 for RQMC+CLT, 2 for RQMC+ADG-COUL, 3 for RQMC+WILSON, 4 FOR RQMC+LOGIT, 5 FOR RQMC+ANSCOMBE, 6 FOR RQMC_ARCSINE, 7 FOR QMC+QUINT, 8 FOR RQMC+JEFFREYS";
+                exit(EXIT_FAILURE);
+            }
+        }
+
         // merge flag
         else if(strcmp(argv[i], "--delta-sat") == 0)
         {

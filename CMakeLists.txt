@@ -153,7 +153,7 @@ set(PROBREACH_INCLUDE ${PROBREACH_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/p
 
 set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
         ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
-        ${PROBREACH_BINARY_DIR}/git_sha1.cpp src/util/pdrh2box.cpp src/util/pdrh2box.h)
+        ${PROBREACH_BINARY_DIR}/git_sha1.cpp src/util/pdrh2box.cpp src/util/pdrh2box.h src/util/qmc.h src/util/qmc.cpp)
 
 #link_directories(/opt/Matlab/R2014a/bin/glnxa64/)
 #link_directories(/opt/Matlab/R2014a/sys/os/glnxa64)

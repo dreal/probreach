@@ -12,7 +12,7 @@ using namespace std;
 
 namespace algorithm
 {
-    extern bool use_verified;
+//    extern bool use_verified;
 
     // evaluating reachability in hybrid automata (arg: depth)
     //decision_procedure::result evaluate_ha(int);
@@ -28,7 +28,7 @@ namespace algorithm
     capd::interval evaluate_pha_chernoff_delta_sat(int, int, double, double);
 
     // method to implement
-    capd::interval evaluate_pha_qmc();
+//    capd::interval evaluate_pha_qmc(int);
 
 
     // evaluating reachability in nondeterministic probabilistic hybrid automata (arg: depth)

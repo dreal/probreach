@@ -17,6 +17,7 @@
 #include "parser/output/outputparser.h"
 #include "ap.h"
 #include "box.h"
+#include "qmc.h"
 
 extern "C"
 {
@@ -245,7 +246,25 @@ int main(int argc, char* argv[])
                     }
                     else if(global_config.qmc_flag)
                     {
-                        probability = algorithm::evaluate_pha_qmc();
+                        if (global_config.CI_flag==1) {
+                            probability = algorithm::evaluate_pha_qmc(1);
+                        } else if (global_config.CI_flag==2){
+                            probability = algorithm::evaluate_pha_qmc(2);
+                        } else if (global_config.CI_flag==3){
+                            probability = algorithm::evaluate_pha_qmc(3);
+                        } else if (global_config.CI_flag==4){
+                            probability = algorithm::evaluate_pha_qmc(4);
+                        } else if (global_config.CI_flag==5){
+                            probability = algorithm::evaluate_pha_qmc(5);
+                        } else if (global_config.CI_flag==6){
+                            probability = algorithm::evaluate_pha_qmc(6);
+                        } else if (global_config.CI_flag==7){
+                            probability = algorithm::evaluate_pha_qmc(7);
+                        } else if (global_config.CI_flag==8){
+                            probability = algorithm::evaluate_pha_qmc(8);
+                        } else
+                            probability = algorithm::evaluate_pha_qmc(0);
+
                     } else
                     {
                         cout << "Statistical method is not chosen" << endl;
@@ -286,7 +305,7 @@ int main(int argc, char* argv[])
                         while(capd::intervals::width(conf_intersection) < global_config.bayesian_acc)
                         {
                             // cross entropy algorithm is used here
-                            algorithm::use_verified = false;
+                            global_config.use_verified = false;
                             cout << "Solving optimisation problem for the discretised system" << endl;
                             cout << "Discretisation using " << global_config.ode_discretisation << " points" << endl;
 //                            pair<box, capd::interval> opt_res = make_pair(box("Kp:[1.77,1.77];Ki:[0,0];Kd:[0,0];"), capd::interval(0));
@@ -295,7 +314,7 @@ int main(int argc, char* argv[])
                                                                                                                global_config.sample_size);
                             cout << "Optimisation result: " << endl;
                             cout << opt_res.first << "   |   " << opt_res.second << endl;
-                            algorithm::use_verified = true;
+                            global_config.use_verified = true;
                             cout << "Computing confidence interval with guarantees:" << endl;
                             capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max, global_config.bayesian_acc,
                                                                                    global_config.bayesian_conf, {opt_res.first});
@@ -405,20 +424,20 @@ int main(int argc, char* argv[])
         }
     }
 
-    capd::interval alpha("0.7854","0.7854");
-    capd::interval v0("25","25");
-    capd::interval g("9.8","9.8");
-    capd::interval Sx("100","100");
-
-    capd::interval ref_interval = sqrt((Sx*g) / (2*v0*v0*cos(alpha)*sin(alpha))-1);
-    map<string, capd::interval> ref_map;
-    ref_map.insert(make_pair("K", ref_interval));
-    box ref_box(ref_map);
-    cout << "Ref box:" << endl;
-    cout << setprecision(16) << ref_box << endl;
-
-    capd::interval lower_bound = sqrt( (Sx * g) / (sin(2 * alpha) * (0.7*0.7 + 1)) );
-    cout << setprecision(16) << lower_bound << endl;
+//    capd::interval alpha("0.7854","0.7854");
+//    capd::interval v0("25","25");
+//    capd::interval g("9.8","9.8");
+//    capd::interval Sx("100","100");
+//
+//    capd::interval ref_interval = sqrt((Sx*g) / (2*v0*v0*cos(alpha)*sin(alpha))-1);
+//    map<string, capd::interval> ref_map;
+//    ref_map.insert(make_pair("K", ref_interval));
+//    box ref_box(ref_map);
+//    cout << "Ref box:" << endl;
+//    cout << setprecision(16) << ref_box << endl;
+//
+//    capd::interval lower_bound = sqrt( (Sx * g) / (sin(2 * alpha) * (0.7*0.7 + 1)) );
+//    cout << setprecision(16) << lower_bound << endl;
 
     // unregister the loggers
     el::Loggers::unregisterLogger("parser");

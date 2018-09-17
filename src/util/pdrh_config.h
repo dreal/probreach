@@ -61,6 +61,7 @@ struct pdrh_config
     double qmc_conf = 0.99;
     double qmc_acc = 1e-2;
     long qmc_sample_size = 10000;
+    double CI_flag = 0;
 
     bool delta_sat = false;
     std::vector<std::string> time_var_name = {"tau"};
@@ -80,6 +81,8 @@ struct pdrh_config
     int sample_size = 20;
     int iter_num = 3;
     size_t ode_discretisation = 4;
+
+    bool use_verified = false;
 
     std::string global_time = "tau";
     std::string sample_time = "counter";

@@ -33,6 +33,7 @@ namespace rnd
     };
     pair<box, box> update_beta_dist(vector<box>, box, box, box);
     pair<double, double> solve_beta_system(double, double, double, double);
+    double sobol_vector(box); //new
 }
 
 #endif //PROBREACH_RANDOM_H

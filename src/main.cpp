@@ -247,23 +247,23 @@ int main(int argc, char* argv[])
                     else if(global_config.qmc_flag)
                     {
                         if (global_config.CI_flag==1) {
-                            probability = algorithm::evaluate_pha_qmc(1);
+                            probability = algorithm::evaluate_rqmc_CLT();
                         } else if (global_config.CI_flag==2){
-                            probability = algorithm::evaluate_pha_qmc(2);
+                            probability = algorithm::evaluate_rqmc_AC();
                         } else if (global_config.CI_flag==3){
-                            probability = algorithm::evaluate_pha_qmc(3);
+                            probability = algorithm::evaluate_rqmc_Will();
                         } else if (global_config.CI_flag==4){
-                            probability = algorithm::evaluate_pha_qmc(4);
+                            probability = algorithm::evaluate_rqmc_Log();
                         } else if (global_config.CI_flag==5){
-                            probability = algorithm::evaluate_pha_qmc(5);
+                            probability = algorithm::evaluate_rqmc_Ans();
                         } else if (global_config.CI_flag==6){
-                            probability = algorithm::evaluate_pha_qmc(6);
+                            probability = algorithm::evaluate_rqmc_Arc();
                         } else if (global_config.CI_flag==7){
-                            probability = algorithm::evaluate_pha_qmc(7);
+                            probability = algorithm::evaluate_Qint();
                         } else if (global_config.CI_flag==8){
-                            probability = algorithm::evaluate_pha_qmc(8);
+                            probability = algorithm::evaluate_mixCI();
                         } else
-                            probability = algorithm::evaluate_pha_qmc(0);
+                            probability = algorithm::evaluate_qmc();
 
                     } else
                     {

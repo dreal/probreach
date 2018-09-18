@@ -174,8 +174,7 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     else if(first_res == 1)
     {
         if((std::remove(smt_filename.c_str()) == 0) &&
-           (std::remove(std::string(smt_filename + ".output").c_str()) == 0) &&
-           (std::remove(std::string(smt_filename + ".model").c_str()) == 0))
+           (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
         {
             //LOG(DEBUG) << "Removed auxiliary files";
             return decision_procedure::UNSAT;

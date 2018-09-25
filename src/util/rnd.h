@@ -18,6 +18,7 @@ namespace rnd
     box get_randomuni_sample(gsl_rng*); // for RQMC algorithm
     box get_sobol_sample(gsl_qrng*, box);
     box get_icdf(box);
+    box get_GPicdf(box, box);
    // double find_sample_var(box b);
     // the first argument is a random number generator,
     // the second argument is the mean vector

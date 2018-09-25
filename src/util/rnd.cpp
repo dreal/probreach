@@ -326,6 +326,46 @@ box rnd::get_icdf(box b)
     return box(edges);
 }
 
+box rnd::get_GPicdf(box b, box params)
+{
+    map<std::string, capd::interval> b_edges, edges;
+    b_edges = b.get_map();
+    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+    {
+        if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
+        {
+            double value = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh2box::node_to_interval(
+                    pdrh::distribution::uniform[it->first].first, {params}).leftBound(),
+                                             pdrh2box::node_to_interval(
+                                                     pdrh::distribution::uniform[it->first].second, {params}).leftBound());
+            //value += pdrh::node_to_interval(pdrh::distribution::normal[it->first].first).leftBound();
+
+            edges.insert(make_pair(it->first, capd::interval(value,value)));
+        }
+        else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())
+        {
+            double value = gsl_cdf_gaussian_Pinv(it->second.leftBound(),
+                                                 pdrh2box::node_to_interval(
+                                                         pdrh::distribution::normal[it->first].second, {params}).leftBound());
+            value += pdrh2box::node_to_interval(pdrh::distribution::normal[it->first].first, {params}).leftBound();
+            edges.insert(make_pair(it->first, capd::interval(value,value)));
+        }
+        else if(pdrh::distribution::exp.find(it->first) != pdrh::distribution::exp.cend())
+        {
+
+        }
+        else if(pdrh::distribution::gamma.find(it->first) != pdrh::distribution::gamma.cend())
+        {
+
+        }
+        else
+        {
+            CLOG(ERROR, "ran_gen") << "Random number generator for the variable \"" << it->first << "\" is not supported";
+        }
+    }
+    return box(edges);
+}
+
 box rnd::get_randomuni_sample(gsl_rng* r)
 {
     map<std::string, capd::interval> edges;

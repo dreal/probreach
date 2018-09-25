@@ -10,7 +10,7 @@
 using namespace std;
 
 class box
-{
+        : public vector<::box> {
 protected:
     std::map<std::string, capd::interval> edges;
 

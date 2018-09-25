@@ -170,7 +170,7 @@ dist_declaration:
                                                                                        yyerror(s.str().c_str());
                                                                                     }
                                                                                 }
-    | G_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
+    | G_DIST '(' expr ',' expr ')' identifier ';'                   {
                                                                                     if(!pdrh::var_exists($7))
                                                                                     {
                                                                                         pdrh::push_var($7, pdrh::push_terminal_node("-infty"),
@@ -184,7 +184,7 @@ dist_declaration:
                                                                                        yyerror(s.str().c_str());
                                                                                     }
                                                                                 }
-    | N_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
+    | N_DIST '(' expr ',' expr ')' identifier ';'                   {
                                                                                     if(!pdrh::var_exists($7))
                                                                                     {
                                                                                         pdrh::push_var($7, pdrh::push_terminal_node("-infty"), pdrh::push_terminal_node("infty"));
@@ -199,7 +199,7 @@ dist_declaration:
                                                                                        yyerror(s.str().c_str());
                                                                                     }
                                                                                 }
-    | U_DIST '(' arthm_expr ',' arthm_expr ')' identifier ';'                   {
+    | U_DIST '(' expr ',' expr ')' identifier ';'                   {
                                                                                     if(!pdrh::var_exists($7))
                                                                                     {
                                                                                         pdrh::push_var($7, $3, $5);
@@ -213,7 +213,7 @@ dist_declaration:
                                                                                        yyerror(s.str().c_str());
                                                                                     }
                                                                                 }
-    | E_DIST '(' arthm_expr ')' identifier ';'                                  {
+    | E_DIST '(' expr ')' identifier ';'                                  {
                                                                                     if(!pdrh::var_exists($5))
                                                                                     {
                                                                                         pdrh::push_var($5, pdrh::push_terminal_node("0"), pdrh::push_terminal_node("infty"));
@@ -250,16 +250,16 @@ dist_rv:
     PDF '(' pdf_expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')'             {
                                                                                     cur_dist = make_tuple(std::string("PDF"), $3, $5, $7, $9);
                                                                                 }
-    | G_DIST '(' arthm_expr ',' arthm_expr ')'                                  {
+    | G_DIST '(' expr ',' expr ')'                                  {
                                                                                     cur_dist = make_tuple(std::string("GAMMA"), $3, $5, new pdrh::node, new pdrh::node);
                                                                                 }
-    | N_DIST '(' arthm_expr ',' arthm_expr ')'                                  {
+    | N_DIST '(' expr ',' expr ')'                                  {
                                                                                     cur_dist = make_tuple(std::string("NORMAL"), $3, $5, new pdrh::node, new pdrh::node);
                                                                                 }
-    | U_DIST '(' arthm_expr ',' arthm_expr ')'                                  {
+    | U_DIST '(' expr ',' expr ')'                                  {
                                                                                     cur_dist = make_tuple(std::string("UNIFORM"), $3, $5, new pdrh::node, new pdrh::node);
                                                                                 }
-    | E_DIST '(' arthm_expr ')'                                                 {
+    | E_DIST '(' expr ')'                                                 {
                                                                                     cur_dist = make_tuple(std::string("EXP"), $3, new pdrh::node, new pdrh::node, new pdrh::node);
                                                                                 }
 
@@ -378,7 +378,7 @@ dd_pairs:
     | dd_pair { ; }
 
 dd_pair:
-    arthm_expr ':' arthm_expr   {
+    expr ':' expr   {
                                     cur_dd.insert(std::make_pair($1, $3));
                                     //delete($1); delete($3);
                                 }

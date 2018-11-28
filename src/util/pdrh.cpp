@@ -7,6 +7,8 @@
 #include <string.h>
 #include <logging/easylogging++.h>
 #include <iomanip>
+#include <cmath>
+#include <random>
 
 using namespace std;
 
@@ -624,127 +626,6 @@ string pdrh::print_jump(mode::jump j)
     return out.str();
 }
 
-// creating a terminal node
-pdrh::node* pdrh::push_terminal_node(string value)
-{
-    pdrh::node* n = new pdrh::node(value);
-    //n->value = value;
-    return n;
-}
-
-// creating an operation node
-pdrh::node* pdrh::push_operation_node(string value, vector<pdrh::node*> operands)
-{
-    pdrh::node* n = new pdrh::node(value, operands);
-    //n->value = value;
-    //n->operands = operands;
-    return n;
-}
-
-// creating a terminal node
-pdrh::node* pdrh::push_terminal_node(double value)
-{
-    stringstream s;
-    s << value;
-
-    pdrh::node* n = new pdrh::node(s.str());
-    //n->value = s.str();
-    return n;
-}
-
-// creating an operation node
-pdrh::node* pdrh::push_operation_node(double value, vector<pdrh::node*> operands)
-{
-    stringstream s;
-    s << value;
-
-    pdrh::node* n = new pdrh::node(s.str(), operands);
-    //n->value = s.str();
-    //n->operands = operands;
-    return n;
-}
-
-// getting a string representation of the node in prefix notation
-string pdrh::node_to_string_prefix(pdrh::node* n)
-{
-    stringstream s;
-    // checking whether n is an operation node
-    if(n->operands.size() > 0)
-    {
-        s << "(" << n->value;
-        for(pdrh::node* op : n->operands)
-        {
-            s << pdrh::node_to_string_prefix(op);
-        }
-        s << ")";
-    }
-    else
-    {
-        s  << " " << n->value;
-    }
-    return s.str();
-}
-
-// getting a string representation of the node in prefix notation with the fixed index
-string pdrh::node_fix_index(pdrh::node* n, int step, string index)
-{
-    stringstream s;
-    // checking whether n is an operation node
-    if(n->operands.size() > 0)
-    {
-        s << "(" << n->value;
-        for(pdrh::node* op : n->operands)
-        {
-            s << pdrh::node_fix_index(op, step, index);
-        }
-        s << ")";
-    }
-    else
-    {
-        s  << " " << n->value;
-        if(pdrh::var_exists(n->value))
-        {
-            s  << "_" << step << "_" << index;
-        }
-    }
-    return s.str();
-}
-
-// getting a string representation of the node in infix notation
-string pdrh::node_to_string_infix(pdrh::node* n)
-{
-    stringstream s;
-    // checking whether n is an operation node
-    if(n->operands.size() > 1)
-    {
-        s << "(";
-        for(int i = 0; i < n->operands.size() - 1; i++)
-        {
-            s << pdrh::node_to_string_infix(n->operands.at(i));
-            s << n->value;
-        }
-        s << pdrh::node_to_string_infix(n->operands.at(n->operands.size() - 1)) << ")";
-    }
-    else if(n->operands.size() == 1)
-    {
-        if(strcmp(n->value.c_str(), "-") == 0)
-        {
-            s << "(" << n->value << pdrh::node_to_string_infix(n->operands.front()) << ")";
-        }
-        else
-        {
-            s << n->value << "(" << pdrh::node_to_string_infix(n->operands.front()) << ")";
-        }
-    }
-    else
-    {
-        s << n->value;
-    }
-    return s.str();
-}
-
-
-
 /*
 void pdrh::push_psy_goal(int mode_id, box b)
 {
@@ -994,39 +875,6 @@ void pdrh::get_first_time_node(node* root, node* time_node)
             pdrh::get_first_time_node(child, time_node);
         }
     }
-}
-
-void pdrh::copy_tree(pdrh::node * &copy, pdrh::node * origin)
-{
-    copy->value = origin->value;
-    for(pdrh::node* child : origin->operands)
-    {
-        pdrh::node* copy_operand = new pdrh::node;
-        pdrh::copy_tree(copy_operand, child);
-        copy->operands.push_back(copy_operand);
-    }
-}
-
-pdrh::node * pdrh::copy_node(node * origin)
-{
-    pdrh::node *copy = new pdrh::node();
-    copy_tree(copy, origin);
-    return copy;
-}
-
-// getting a string representation of the node in prefix notation
-void pdrh::delete_node(pdrh::node* n)
-{
-    for(pdrh::node* op : n->operands)
-    {
-        delete_node(op);
-    }
-    delete n;
-}
-
-bool pdrh::is_node_empty(node* n)
-{
-    return n->value.empty() && n->operands.empty();
 }
 
 pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)

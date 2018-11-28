@@ -153,7 +153,7 @@ set(PROBREACH_INCLUDE ${PROBREACH_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/p
 
 set(PROBREACH_SRC ${PROBREACH_SRC}    ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
         ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
-        ${PROBREACH_BINARY_DIR}/git_sha1.cpp src/util/pdrh2box.cpp src/util/pdrh2box.h src/util/qmc.h src/util/qmc.cpp)
+        ${PROBREACH_BINARY_DIR}/git_sha1.cpp src/util/pdrh2box.cpp src/util/pdrh2box.h src/util/qmc.h src/util/qmc.cpp src/util/node.cpp src/util/node.h)
 
 #link_directories(/opt/Matlab/R2014a/bin/glnxa64/)
 #link_directories(/opt/Matlab/R2014a/sys/os/glnxa64)
@@ -214,63 +214,5 @@ ENDIF(DREAL_FOUND)
 
 # Adds the option to build the translator if MATLAB is located
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/test/util/CMakeLists.txt)
 
-if(GTEST_FOUND)
-    # Building tests
-    enable_testing()
-
-    # setting the output directory for ProbReach
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROBREACH_BINARY_DIR}/test)
-
-    # unit test for box.cpp
-    add_executable(box_test ${PROBREACH_TEST_DIR}/util/box_test.cpp
-            ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_SOURCE_DIR}/util/box.cpp)
-    target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
-    add_test(box_test ${PROBREACH_BINARY_DIR}/test/box_test)
-
-    # unit test for stability.cpp
-#    add_executable(stability_test ${PROBREACH_TEST_DIR}/util/stability_test.cpp
-#            ${PROBREACH_TEST_DIR}/main_test.cpp
-#            ${PROBREACH_SOURCE_DIR}/util/stability.cpp)
-#    target_link_libraries(stability_test ${DREAL_LIBRARIES} -lgtest)
-#    add_test(stability_test ${PROBREACH_BINARY_DIR}/test/stability_test)
-
-    # unit test for box_factory.cpp
-#    add_executable(box_factory_test ${PROBREACH_TEST_DIR}/util/box_factory_test.cpp
-#            ${PROBREACH_TEST_DIR}/main_test.cpp
-#            ${PROBREACH_SOURCE_DIR}/util/box.cpp
-#            ${PROBREACH_SOURCE_DIR}/util/box_factory.cpp)
-#    target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
-#    add_test(box_factory_test ${PROBREACH_BINARY_DIR}/test/box_factory_test)
-
-    # unit test for node.cpp
-    add_executable(node_test ${PROBREACH_TEST_DIR}/pdrh2smt/node_test.cpp
-            ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/node.cpp)
-    target_link_libraries(node_test ${DREAL_LIBRARIES} -lgtest)
-    add_test(node_test ${PROBREACH_BINARY_DIR}/test/node_test)
-
-    # unit test for pdrhparser.cpp
-    add_executable(pdrhparser_test ${PROBREACH_TEST_DIR}/pdrh2smt/parser/pdrhparser_test.cpp
-            ${PROBREACH_TEST_DIR}/main_test.cpp)
-    target_link_libraries(pdrhparser_test ${DREAL_LIBRARIES} -lgtest -lfl pdrh2smt)
-    add_test(pdrhparser_test ${PROBREACH_BINARY_DIR}/test/pdrhparser_test)
-
-    # unit test for isat_generator.cpp
-    add_executable(isat_generator_test ${PROBREACH_TEST_DIR}/pdrh2smt/isat_generator_test.cpp
-            ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_SOURCE_DIR}/pdrh2smt/isat_generator.cpp)
-    target_link_libraries(isat_generator_test ${DREAL_LIBRARIES} -lgtest -lfl pdrh2smt)
-    add_test(isat_generator_test ${PROBREACH_BINARY_DIR}/test/isat_generator_test)
-
-    # unit test for solver_wrapper.cpp
-#    add_executable(solver_wrapper_test ${PROBREACH_TEST_DIR}/solver/solver_wrapper_test.cpp
-#            ${PROBREACH_TEST_DIR}/main_test.cpp
-#            ${PROBREACH_SOURCE_DIR}/solver/solver_wrapper.cpp
-#            ${PROBREACH_SOURCE_DIR}/solver/isat_wrapper.cpp
-#            ${PROBREACH_SOURCE_DIR}/solver/dreal_wrapper.cpp)
-#    target_link_libraries(solver_wrapper_test ${DREAL_LIBRARIES} -lgtest -lfl pdrh2smt)
-#    add_test(solver_wrapper_test ${PROBREACH_BINARY_DIR}/test/solver_wrapper_test)
-
-endif(GTEST_FOUND)

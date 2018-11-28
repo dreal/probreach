@@ -57,8 +57,8 @@ void yyerror(const char *s);
 %right POWER
 
 %type<sval> reset_var
-%type<nval_list> props
-%type<nval> pdf_expr prop expr arthm_expr pdf_bound
+%type<nval_list> props dd_pairs
+%type<nval> pdf_expr prop expr arthm_expr pdf_bound dist dd_pair
 
 // to compile
 //bison -d -o pdrhparser.c pdrhparser.y && flex -o pdrhlexer.c pdrhlexer.l && g++ -O2 -std=c++11 `/home/fedor/dreal3/build/release/bin/capd-config --cflags` pdrhparser.h pdrhparser.c pdrhlexer.c ../../model.cpp -lfl `/home/fedor/dreal3/build/release/bin/capd-config --libs` -o pdrh && ./pdrh ../../test/parser/test1.pdrh
@@ -70,7 +70,6 @@ pdrh::mode::jump *cur_jump = new pdrh::mode::jump;
 std::vector<pdrh::state> cur_states;
 std::vector<pdrh::mode*> cur_path;
 std::map<pdrh::node*, pdrh::node*> cur_dd;
-std::tuple<std::string, pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*> cur_dist;
 
 using namespace std;
 %}
@@ -245,22 +244,32 @@ dist_declaration:
                                                                                 }
 
 
+// SORT THIS BIT OUT!!!
 
-dist_rv:
+dist:
     PDF '(' pdf_expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')'             {
-                                                                                    cur_dist = make_tuple(std::string("PDF"), $3, $5, $7, $9);
+                                                                                    $$ = pdrh::push_operation_node("dist_pdf", {$3, $5, $7, $9});
                                                                                 }
-    | G_DIST '(' expr ',' expr ')'                                  {
-                                                                                    cur_dist = make_tuple(std::string("GAMMA"), $3, $5, new pdrh::node, new pdrh::node);
+    | G_DIST '(' expr ',' expr ')'                                              {
+                                                                                    $$ = pdrh::push_operation_node("dist_gamma", {$3, $5});
                                                                                 }
-    | N_DIST '(' expr ',' expr ')'                                  {
-                                                                                    cur_dist = make_tuple(std::string("NORMAL"), $3, $5, new pdrh::node, new pdrh::node);
+    | N_DIST '(' expr ',' expr ')'                                              {
+                                                                                    $$ = pdrh::push_operation_node("dist_normal", {$3, $5});
                                                                                 }
-    | U_DIST '(' expr ',' expr ')'                                  {
-                                                                                    cur_dist = make_tuple(std::string("UNIFORM"), $3, $5, new pdrh::node, new pdrh::node);
+    | U_DIST '(' expr ',' expr ')'                                              {
+                                                                                    $$ = pdrh::push_operation_node("dist_uniform", {$3, $5});
                                                                                 }
-    | E_DIST '(' expr ')'                                                 {
-                                                                                    cur_dist = make_tuple(std::string("EXP"), $3, new pdrh::node, new pdrh::node, new pdrh::node);
+    | E_DIST '(' expr ')'                                                       {
+                                                                                    $$ = pdrh::push_operation_node("dist_exp", {$3});
+                                                                                }
+    | DD_DIST '(' dd_pairs ')'                                                  {
+                                                                                    std::vector<pdrh::node*> tmp;
+                                                                                    for(size_t i = 0; i < $3->size(); i++)
+                                                                                    {
+                                                                                        tmp.push_back($3->at(i));
+                                                                                    }
+                                                                                    delete $3;
+                                                                                    $$ = pdrh::push_operation_node("dist_discrete", tmp);
                                                                                 }
 
 
@@ -374,11 +383,19 @@ pdf_expr:
     ;
 
 dd_pairs:
-    dd_pairs ',' dd_pair { ; }
-    | dd_pair { ; }
+    dd_pairs ',' dd_pair        {
+                                    $1->push_back($3);
+                                    $$ = $1;
+                                }
+    | dd_pair                   {
+                                    std::vector<pdrh::node*>* tmp = new std::vector<pdrh::node*>();
+                                    tmp->push_back($1);
+                                    $$ = tmp;
+                                }
 
 dd_pair:
-    expr ':' expr   {
+    expr ':' expr               {
+                                    $$ = pdrh::push_operation_node(":", {$1, $3});
                                     cur_dd.insert(std::make_pair($1, $3));
                                     //delete($1); delete($3);
                                 }
@@ -612,6 +629,9 @@ expr:
     | number                    {
                                     $$ = pdrh::push_terminal_node($1);
                                 }
+    | dist                      {
+                                    $$ = $1;
+                                }
     | MINUS expr %prec UMINUS   {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($2);
@@ -814,14 +834,7 @@ reset_props:
 
 reset_prop:
     reset_var EQ expr { pdrh::push_reset(*cur_mode, *cur_jump, $1, $3); }
-    | reset_var EQ dist_rv  {
-                                cur_jump->reset_rv.insert(make_pair($1, cur_dist));
-                            }
-    | reset_var EQ DD_DIST '(' dd_pairs ')' {
-                                                cur_jump->reset_dd.insert(make_pair($1, cur_dd));
-                                                cur_dd.clear();
-                                            }
-    | reset_var EQ '[' arthm_expr ',' arthm_expr ']'    {
+    | reset_var EQ '[' expr ',' expr ']'                {
                                                             cur_jump->reset_nondet.insert(make_pair($1, make_pair($4, $6)));
                                                         }
     | TRUE { ; }

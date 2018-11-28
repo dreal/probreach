@@ -1,0 +1,26 @@
+#define g 9.8
+[0,100]Sy;
+[-10,1000]Sx;
+[0,15]t;
+[0,15]time;
+dist_normal(20.0,3.0) v0;
+dist_discrete(0.5236:0.3,0.7854:0.5,1.0472:0.2) alpha;
+{
+mode 1;
+
+flow:
+d/dt[Sx]=v0 * cos(alpha);
+d/dt[Sy]=v0 * sin(alpha) - g * t;
+d/dt[t]=1.0;
+
+jump:
+(and(t > 0.000001) (Sy = 0))==>@1(and 	(Sx' = Sx+dist_normal(0,1)) 
+										(Sy' = dist_uniform(1,2)) 
+										(t' = 0) 
+										(v0' = 0.9 * v0 * dist_discrete(1:0.1,2:0.4,3:0.5)));
+}
+
+init:
+@1(and(Sx=0)(Sy=0)(t=0));
+goal:
+@1(and(Sx>=100.0)(Sy>=0));

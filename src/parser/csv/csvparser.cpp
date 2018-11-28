@@ -43,7 +43,7 @@ map<string, vector<pair<pdrh::node*, pdrh::node*>>> csvparser::parse(string file
             // var name
             string col = cols.at(i);
             // default noise value
-            pdrh::node* noise = pdrh::push_terminal_node(0.1);
+            pdrh::node* noise = new pdrh::node(0.1);
             // default variable name
             string var_name = col;
             // checking if noise value is specified
@@ -51,7 +51,7 @@ map<string, vector<pair<pdrh::node*, pdrh::node*>>> csvparser::parse(string file
             if(col_pos != string::npos)
             {
                 var_name = col.substr(0, col_pos);
-                noise = pdrh::push_terminal_node(col.substr(col_pos + 1, col.length() - 1));
+                noise = new pdrh::node(col.substr(col_pos + 1, col.length() - 1));
                 if(pdrh2box::node_to_interval(noise).leftBound() <= 0)
                 {
                     CLOG(ERROR, "series-parser") << "Noise value for " << var_name << " should be positive";
@@ -62,7 +62,7 @@ map<string, vector<pair<pdrh::node*, pdrh::node*>>> csvparser::parse(string file
                     (strcmp(var_name.c_str(), "Step") == 0) ||
                         (strcmp(var_name.c_str(), "Time") == 0))
             {
-                noise = pdrh::push_terminal_node(0);
+                noise = new pdrh::node(0);
             }
             noise_vector[var_name].push_back(noise);
             vars.push_back(var_name);
@@ -73,14 +73,14 @@ map<string, vector<pair<pdrh::node*, pdrh::node*>>> csvparser::parse(string file
             for(int i = 0; i < vars.size() - 1; i++)
             {
                 pos = line.find(delimiter);
-                pdrh::node* value_node = pdrh::push_terminal_node(line.substr(0, pos));
+                pdrh::node* value_node = new pdrh::node(line.substr(0, pos));
                 pair<pdrh::node*, pdrh::node*> interval_node;
                 if((strcmp(vars.at(i).c_str(), "Time") != 0) &&
                           (strcmp(vars.at(i).c_str(), "Mode") != 0) &&
                                (strcmp(vars.at(i).c_str(), "Step") != 0) && (!value_node->value.empty()))
                 {
-                    interval_node = make_pair(pdrh::push_operation_node("-", vector<pdrh::node*>{value_node, noise_vector[vars.at(i)].at(0)}),
-                                                  pdrh::push_operation_node("+", vector<pdrh::node*>{value_node, noise_vector[vars.at(i)].at(0)}));
+                    interval_node = make_pair(new pdrh::node("-", vector<pdrh::node*>{value_node, noise_vector[vars.at(i)].at(0)}),
+                                              new pdrh::node("+", vector<pdrh::node*>{value_node, noise_vector[vars.at(i)].at(0)}));
                 }
                 else
                 {
@@ -91,14 +91,14 @@ map<string, vector<pair<pdrh::node*, pdrh::node*>>> csvparser::parse(string file
                 line.erase(0, pos + delimiter.length());
             }
             // last value in data
-            pdrh::node* value_node = pdrh::push_terminal_node(line.substr(0, pos));
+            pdrh::node* value_node = new pdrh::node(line.substr(0, pos));
             pair<pdrh::node*, pdrh::node*> interval_node;
             if((strcmp(vars.at(vars.size() - 1).c_str(), "Time") != 0) &&
                   (strcmp(vars.at(vars.size() - 1).c_str(), "Mode") != 0) &&
                        (strcmp(vars.at(vars.size() - 1).c_str(), "Step") != 0) && (!value_node->value.empty()))
             {
-                interval_node = make_pair(pdrh::push_operation_node("-", vector<pdrh::node*>{value_node, noise_vector[vars.at(vars.size() - 1)].at(0)}),
-                                              pdrh::push_operation_node("+", vector<pdrh::node*>{value_node, noise_vector[vars.at(vars.size() - 1)].at(0)}));
+                interval_node = make_pair(new pdrh::node("-", vector<pdrh::node*>{value_node, noise_vector[vars.at(vars.size() - 1)].at(0)}),
+                                          new pdrh::node("+", vector<pdrh::node*>{value_node, noise_vector[vars.at(vars.size() - 1)].at(0)}));
             }
             else
             {

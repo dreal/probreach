@@ -39,6 +39,7 @@ bool pdrh2box::node_to_boolean(pdrh::node *expr, vector<box> boxes)
         {
             res = res && pdrh2box::node_to_boolean(n, boxes);
         }
+        return res;
     }
     else if(expr->value == "or")
     {
@@ -47,6 +48,7 @@ bool pdrh2box::node_to_boolean(pdrh::node *expr, vector<box> boxes)
         {
             res = res || pdrh2box::node_to_boolean(n, boxes);
         }
+        return res;
     }
     else
     {

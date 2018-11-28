@@ -172,8 +172,7 @@ dist_declaration:
     | G_DIST '(' expr ',' expr ')' identifier ';'                   {
                                                                                     if(!pdrh::var_exists($7))
                                                                                     {
-                                                                                        pdrh::push_var($7, pdrh::push_terminal_node("-infty"),
-                                                                                                                            pdrh::push_terminal_node("infty"));
+                                                                                        pdrh::push_var($7, new pdrh::node("-infty"), new pdrh::node("infty"));
                                                                                         pdrh::distribution::push_gamma($7, $3, $5);
                                                                                     }
                                                                                     else
@@ -186,9 +185,9 @@ dist_declaration:
     | N_DIST '(' expr ',' expr ')' identifier ';'                   {
                                                                                     if(!pdrh::var_exists($7))
                                                                                     {
-                                                                                        pdrh::push_var($7, pdrh::push_terminal_node("-infty"), pdrh::push_terminal_node("infty"));
+                                                                                        pdrh::push_var($7, new pdrh::node("-infty"), new pdrh::node("infty"));
                                                                                         pdrh::push_rv($7, pdrh::distribution::normal_to_node($7, $3, $5),
-                                                                                                        pdrh::push_terminal_node("-infty"), pdrh::push_terminal_node("infty"), $3);
+                                                                                                        new pdrh::node("-infty"), new pdrh::node("infty"), $3);
                                                                                         pdrh::distribution::push_normal($7, $3, $5);
                                                                                     }
                                                                                     else
@@ -215,10 +214,10 @@ dist_declaration:
     | E_DIST '(' expr ')' identifier ';'                                  {
                                                                                     if(!pdrh::var_exists($5))
                                                                                     {
-                                                                                        pdrh::push_var($5, pdrh::push_terminal_node("0"), pdrh::push_terminal_node("infty"));
+                                                                                        pdrh::push_var($5, new pdrh::node("0"), new pdrh::node("infty"));
                                                                                         pdrh::push_rv($5, pdrh::distribution::exp_to_node($5, $3),
-                                                                                                                  pdrh::push_terminal_node("0"), pdrh::push_terminal_node("infty"),
-                                                                                                                    pdrh::push_terminal_node("0"));
+                                                                                                                  new pdrh::node("0"), new pdrh::node("infty"),
+                                                                                                                    new pdrh::node("0"));
                                                                                         pdrh::distribution::push_exp($5, $3);
                                                                                     }
                                                                                     else
@@ -231,7 +230,7 @@ dist_declaration:
     | DD_DIST '(' dd_pairs ')' identifier ';'                                   {
                                                                                     if(!pdrh::var_exists($5))
                                                                                     {
-                                                                                        pdrh::push_var($5, pdrh::push_terminal_node("-infty"), pdrh::push_terminal_node("infty"));
+                                                                                        pdrh::push_var($5, new pdrh::node("-infty"), new pdrh::node("infty"));
                                                                                         pdrh::push_dd($5, cur_dd);
                                                                                         cur_dd.clear();
                                                                                     }
@@ -248,19 +247,19 @@ dist_declaration:
 
 dist:
     PDF '(' pdf_expr ',' pdf_bound ',' pdf_bound ',' arthm_expr ')'             {
-                                                                                    $$ = pdrh::push_operation_node("dist_pdf", {$3, $5, $7, $9});
+                                                                                    $$ = new pdrh::node("dist_pdf", {$3, $5, $7, $9});
                                                                                 }
     | G_DIST '(' expr ',' expr ')'                                              {
-                                                                                    $$ = pdrh::push_operation_node("dist_gamma", {$3, $5});
+                                                                                    $$ = new pdrh::node("dist_gamma", {$3, $5});
                                                                                 }
     | N_DIST '(' expr ',' expr ')'                                              {
-                                                                                    $$ = pdrh::push_operation_node("dist_normal", {$3, $5});
+                                                                                    $$ = new pdrh::node("dist_normal", {$3, $5});
                                                                                 }
     | U_DIST '(' expr ',' expr ')'                                              {
-                                                                                    $$ = pdrh::push_operation_node("dist_uniform", {$3, $5});
+                                                                                    $$ = new pdrh::node("dist_uniform", {$3, $5});
                                                                                 }
     | E_DIST '(' expr ')'                                                       {
-                                                                                    $$ = pdrh::push_operation_node("dist_exp", {$3});
+                                                                                    $$ = new pdrh::node("dist_exp", {$3});
                                                                                 }
     | DD_DIST '(' dd_pairs ')'                                                  {
                                                                                     std::vector<pdrh::node*> tmp;
@@ -269,7 +268,7 @@ dist:
                                                                                         tmp.push_back($3->at(i));
                                                                                     }
                                                                                     delete $3;
-                                                                                    $$ = pdrh::push_operation_node("dist_discrete", tmp);
+                                                                                    $$ = new pdrh::node("dist_discrete", tmp);
                                                                                 }
 
 
@@ -277,105 +276,105 @@ dist:
 
 pdf_bound:
     arthm_expr 		{ $$ = $1; }
-    | INFTY 		{ $$ = pdrh::push_terminal_node("infty"); }
-    | MINUS INFTY 	{ $$ = pdrh::push_terminal_node("-infty"); }
+    | INFTY 		{ $$ = new pdrh::node("infty"); }
+    | MINUS INFTY 	{ $$ = new pdrh::node("-infty"); }
 
 pdf_expr:
     identifier                      {
-                                        $$ = pdrh::push_terminal_node($1);
+                                        $$ = new pdrh::node($1);
                                     }
     | number                        {
-                                        $$ = pdrh::push_terminal_node($1);
+                                        $$ = new pdrh::node($1);
                                     }
     | MINUS pdf_expr %prec UMINUS   {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($2);
-                                        $$ = pdrh::push_operation_node("-", operands);
+                                        $$ = new pdrh::node("-", operands);
                                     }
     | PLUS pdf_expr %prec UPLUS     {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($2);
-                                        $$ = pdrh::push_operation_node("+", operands);
+                                        $$ = new pdrh::node("+", operands);
                                     }
     | pdf_expr MINUS pdf_expr       {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("-", operands);
+                                        $$ = new pdrh::node("-", operands);
                                     }
     | pdf_expr PLUS pdf_expr        {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("+", operands);
+                                        $$ = new pdrh::node("+", operands);
                                     }
     | pdf_expr TIMES pdf_expr       {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("*", operands);
+                                        $$ = new pdrh::node("*", operands);
                                     }
     | pdf_expr DIVIDE pdf_expr      {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("/", operands);
+                                        $$ = new pdrh::node("/", operands);
                                     }
     | pdf_expr POWER pdf_expr       {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("^", operands);
+                                        $$ = new pdrh::node("^", operands);
                                     }
     | ABS '(' pdf_expr ')'          {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("abs", operands);
+                                        $$ = new pdrh::node("abs", operands);
                                     }
     | SQRT '(' pdf_expr ')'         {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("sqrt", operands);
+                                        $$ = new pdrh::node("sqrt", operands);
                                     }
     | EXP '(' pdf_expr ')'          {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("exp", operands);
+                                        $$ = new pdrh::node("exp", operands);
                                     }
     | LOG '(' pdf_expr ')'          {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("log", operands);
+                                        $$ = new pdrh::node("log", operands);
                                     }
     | SIN '(' pdf_expr ')'          {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("sin", operands);
+                                        $$ = new pdrh::node("sin", operands);
                                     }
     | COS '(' pdf_expr ')'          {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("cos", operands);
+                                        $$ = new pdrh::node("cos", operands);
                                     }
     | TAN '(' pdf_expr ')'          {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("tan", operands);
+                                        $$ = new pdrh::node("tan", operands);
                                     }
     | ASIN '(' pdf_expr ')'         {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("asin", operands);
+                                        $$ = new pdrh::node("asin", operands);
                                     }
     | ACOS '(' pdf_expr ')'         {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("acos", operands);
+                                        $$ = new pdrh::node("acos", operands);
                                     }
     | ATAN '(' pdf_expr ')'         {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("atan", operands);
+                                        $$ = new pdrh::node("atan", operands);
                                     }
     | '(' pdf_expr ')'              {
                                         $$ = $2;
@@ -395,7 +394,7 @@ dd_pairs:
 
 dd_pair:
     expr ':' expr               {
-                                    $$ = pdrh::push_operation_node(":", {$1, $3});
+                                    $$ = new pdrh::node(":", {$1, $3});
                                     cur_dd.insert(std::make_pair($1, $3));
                                     //delete($1); delete($3);
                                 }
@@ -538,43 +537,43 @@ prop:
                                 std::vector<pdrh::node*> operands;
                                 operands.push_back($1);
                                 operands.push_back($3);
-                                $$ = pdrh::push_operation_node("=", operands);
+                                $$ = new pdrh::node("=", operands);
                             }
     | expr GT expr          {
                                 std::vector<pdrh::node*> operands;
                                 operands.push_back($1);
                                 operands.push_back($3);
-                                $$ = pdrh::push_operation_node(">", operands);
+                                $$ = new pdrh::node(">", operands);
                             }
     | expr LT expr          {
                                 std::vector<pdrh::node*> operands;
                                 operands.push_back($1);
                                 operands.push_back($3);
-                                $$ = pdrh::push_operation_node("<", operands);
+                                $$ = new pdrh::node("<", operands);
                             }
     | expr GE expr          {
                                 std::vector<pdrh::node*> operands;
                                 operands.push_back($1);
                                 operands.push_back($3);
-                                $$ = pdrh::push_operation_node(">=", operands);
+                                $$ = new pdrh::node(">=", operands);
                             }
     | expr LE expr          {
                                 std::vector<pdrh::node*> operands;
                                 operands.push_back($1);
                                 operands.push_back($3);
-                                $$ = pdrh::push_operation_node("<=", operands);
+                                $$ = new pdrh::node("<=", operands);
                             }
     | expr NE expr          {
                                 std::vector<pdrh::node*> operands;
                                 operands.push_back($1);
                                 operands.push_back($3);
-                                $$ = pdrh::push_operation_node("!=", operands);
+                                $$ = new pdrh::node("!=", operands);
                             }
     | TRUE                  {
-                                $$ = pdrh::push_terminal_node("(true)");
+                                $$ = new pdrh::node("(true)");
                             }
     | FALSE                 {
-                                $$ = pdrh::push_terminal_node("(false)");
+                                $$ = new pdrh::node("(false)");
                             }
     | '(' prop ')'          {
                                 $$ = $2;
@@ -582,22 +581,22 @@ prop:
     | NOT prop              {
                                 std::vector<pdrh::node*> operands;
                                 operands.push_back($2);
-                                $$ = pdrh::push_operation_node("not", operands);
+                                $$ = new pdrh::node("not", operands);
                             }
     | '(' AND props ')'     {
-                                $$ = pdrh::push_operation_node("and", *($3));
+                                $$ = new pdrh::node("and", *($3));
                             }
     | '(' OR props ')'      {
-                                $$ = pdrh::push_operation_node("or", *($3));
+                                $$ = new pdrh::node("or", *($3));
                             }
     | '(' XOR props ')'     {
-                                $$ = pdrh::push_operation_node("xor", *($3));
+                                $$ = new pdrh::node("xor", *($3));
                             }
     | '(' IMPLY prop prop ')'   {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
                                     operands.push_back($4);
-                                    $$ = pdrh::push_operation_node("=>", operands);
+                                    $$ = new pdrh::node("=>", operands);
                                 }
 
 flow:
@@ -617,7 +616,7 @@ expr:
     identifier                  {
                                     if(pdrh::var_exists($1))
                                     {
-                                        $$ = pdrh::push_terminal_node($1);
+                                        $$ = new pdrh::node($1);
                                     }
                                     else
                                     {
@@ -627,7 +626,7 @@ expr:
                                     }
                                 }
     | number                    {
-                                    $$ = pdrh::push_terminal_node($1);
+                                    $$ = new pdrh::node($1);
                                 }
     | dist                      {
                                     $$ = $1;
@@ -635,7 +634,7 @@ expr:
     | MINUS expr %prec UMINUS   {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($2);
-                                    $$ = pdrh::push_operation_node("-", operands);
+                                    $$ = new pdrh::node("-", operands);
                                 }
     | PLUS expr %prec UPLUS     {
                                     $$ = $2;
@@ -644,82 +643,82 @@ expr:
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($1);
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("-", operands);
+                                    $$ = new pdrh::node("-", operands);
                                 }
     | expr PLUS expr            {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($1);
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("+", operands);
+                                    $$ = new pdrh::node("+", operands);
                                 }
     | expr TIMES expr           {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($1);
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("*", operands);
+                                    $$ = new pdrh::node("*", operands);
                                 }
     | expr DIVIDE expr          {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($1);
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("/", operands);
+                                    $$ = new pdrh::node("/", operands);
                                 }
     | expr POWER expr           {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($1);
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("^", operands);
+                                    $$ = new pdrh::node("^", operands);
                                 }
     | ABS '(' expr ')'          {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("abs", operands);
+                                    $$ = new pdrh::node("abs", operands);
                                 }
     | SQRT '(' expr ')'         {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    operands.push_back(pdrh::push_terminal_node("0.5"));
-                                    $$ = pdrh::push_operation_node("^", operands);
+                                    operands.push_back(new pdrh::node("0.5"));
+                                    $$ = new pdrh::node("^", operands);
                                 }
     | EXP '(' expr ')'          {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("exp", operands);
+                                    $$ = new pdrh::node("exp", operands);
                                 }
     | LOG '(' expr ')'          {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("log", operands);
+                                    $$ = new pdrh::node("log", operands);
                                 }
     | SIN '(' expr ')'          {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("sin", operands);
+                                    $$ = new pdrh::node("sin", operands);
                                 }
     | COS '(' expr ')'          {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("cos", operands);
+                                    $$ = new pdrh::node("cos", operands);
                                 }
     | TAN '(' expr ')'          {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("tan", operands);
+                                    $$ = new pdrh::node("tan", operands);
                                 }
     | ASIN '(' expr ')'         {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("asin", operands);
+                                    $$ = new pdrh::node("asin", operands);
                                 }
     | ACOS '(' expr ')'         {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("acos", operands);
+                                    $$ = new pdrh::node("acos", operands);
                                 }
     | ATAN '(' expr ')'         {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("atan", operands);
+                                    $$ = new pdrh::node("atan", operands);
                                 }
     | '(' expr ')'              {
                                     $$ = $2;
@@ -729,12 +728,12 @@ expr:
 
 arthm_expr:
     number                      {
-                                    $$ = pdrh::push_terminal_node($1);
+                                    $$ = new pdrh::node($1);
                                 }
     | MINUS arthm_expr %prec UMINUS {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($2);
-                                        $$ = pdrh::push_operation_node("-", operands);
+                                        $$ = new pdrh::node("-", operands);
                                     }
     | PLUS arthm_expr %prec UPLUS   {
                                         $$ = $2;
@@ -743,82 +742,82 @@ arthm_expr:
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("-", operands);
+                                        $$ = new pdrh::node("-", operands);
                                     }
     | arthm_expr PLUS arthm_expr    {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("+", operands);
+                                        $$ = new pdrh::node("+", operands);
                                     }
     | arthm_expr TIMES arthm_expr   {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("*", operands);
+                                        $$ = new pdrh::node("*", operands);
                                     }
     | arthm_expr DIVIDE arthm_expr  {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("/", operands);
+                                        $$ = new pdrh::node("/", operands);
                                     }
     | arthm_expr POWER arthm_expr   {
                                         std::vector<pdrh::node*> operands;
                                         operands.push_back($1);
                                         operands.push_back($3);
-                                        $$ = pdrh::push_operation_node("^", operands);
+                                        $$ = new pdrh::node("^", operands);
                                     }
     | ABS '(' arthm_expr ')'    {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("abs", operands);
+                                    $$ = new pdrh::node("abs", operands);
                                 }
     | SQRT '(' arthm_expr ')'   {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    operands.push_back(pdrh::push_terminal_node("0.5"));
-                                    $$ = pdrh::push_operation_node("^", operands);
+                                    operands.push_back(new pdrh::node("0.5"));
+                                    $$ = new pdrh::node("^", operands);
                                 }
     | EXP '(' arthm_expr ')'    {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("exp", operands);
+                                    $$ = new pdrh::node("exp", operands);
                                 }
     | LOG '(' arthm_expr ')'    {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("log", operands);
+                                    $$ = new pdrh::node("log", operands);
                                 }
     | SIN '(' arthm_expr ')'    {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("sin", operands);
+                                    $$ = new pdrh::node("sin", operands);
                                 }
     | COS '(' arthm_expr ')'    {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("cos", operands);
+                                    $$ = new pdrh::node("cos", operands);
                                 }
     | TAN '(' arthm_expr ')'    {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("tan", operands);
+                                    $$ = new pdrh::node("tan", operands);
                                 }
     | ASIN '(' arthm_expr ')'   {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("asin", operands);
+                                    $$ = new pdrh::node("asin", operands);
                                 }
     | ACOS '(' arthm_expr ')'   {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("acos", operands);
+                                    $$ = new pdrh::node("acos", operands);
                                 }
     | ATAN '(' arthm_expr ')'   {
                                     std::vector<pdrh::node*> operands;
                                     operands.push_back($3);
-                                    $$ = pdrh::push_operation_node("atan", operands);
+                                    $$ = new pdrh::node("atan", operands);
                                 }
     | '(' arthm_expr ')'        {
                                     $$ = $2;

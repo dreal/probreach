@@ -90,7 +90,7 @@ void pdrh::push_mode(pdrh::mode m)
     for(string var : extra_vars)
     {
         m.flow_map.insert(make_pair(var, pdrh::var_map[var]));
-        m.odes.insert(make_pair(var, pdrh::push_terminal_node("0")));
+        m.odes.insert(make_pair(var, new node("0")));
         if(pdrh::var_map[var].first != pdrh::var_map[var].second)
         {
             // adding this variable to the list of parameters if it is not there yet,
@@ -889,9 +889,9 @@ pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
         return NULL;
     }
     // creating a negation node
-    pdrh::node* not_node = pdrh::push_operation_node("not", vector<pdrh::node*>{root_copy});
+    pdrh::node* not_node = new node("not", {root_copy});
     // creating a resulting node
-    pdrh::node* res_node = pdrh::push_operation_node("and", vector<pdrh::node*>{time_node, not_node});
+    pdrh::node* res_node = new node("and", {time_node, not_node});
     //cout << "RES TIME NODE: " << pdrh::node_to_string_prefix(res_node) << endl;
     return res_node;
 }
@@ -923,34 +923,33 @@ void pdrh::distribution::push_exp(string var, pdrh::node* lambda)
 
 pdrh::node* pdrh::distribution::uniform_to_node(node* a, node* b)
 {
-    pdrh::node* n1 = pdrh::push_terminal_node("1");
-    pdrh::node* op1 = pdrh::push_operation_node("-", vector<pdrh::node*>{b, a});
-    return pdrh::push_operation_node("/", vector<pdrh::node*>{n1, op1});
+    node* n1 = new node("1");
+    node* op1 = new node("-", {b, a});
+    return new node("/", {n1, op1});
 }
 
 pdrh::node* pdrh::distribution::normal_to_node(string var, node* mu, node* sigma)
 {
-    pdrh::node* power_node_1 = pdrh::push_operation_node("^", vector<pdrh::node*>{sigma, pdrh::push_terminal_node("2")});
-    pdrh::node* mult_node_1 = pdrh::push_operation_node("*", vector<pdrh::node*>{pdrh::push_terminal_node("2"), power_node_1});
-    pdrh::node* minus_node = pdrh::push_operation_node("-", vector<pdrh::node*>{pdrh::push_terminal_node(var), mu});
-    pdrh::node* power_node_2 = pdrh::push_operation_node("^", vector<pdrh::node*>{minus_node, pdrh::push_terminal_node("2")});
-    pdrh::node* divide_node_1 = pdrh::push_operation_node("/", vector<pdrh::node*>{power_node_2, mult_node_1});
-    pdrh::node* unary_minus_node = pdrh::push_operation_node("-", vector<pdrh::node*>{divide_node_1});
-    pdrh::node* exp_node = pdrh::push_operation_node("exp", vector<pdrh::node*>{unary_minus_node});
-    pdrh::node* mult_node_2 = pdrh::push_operation_node("*", vector<pdrh::node*>{pdrh::push_terminal_node("2"),
-                                                                                 pdrh::push_terminal_node("3.14159265359")});
-    pdrh::node* sqrt_node = pdrh::push_operation_node("sqrt", vector<pdrh::node*>{mult_node_2});
-    pdrh::node* mult_node_3 = pdrh::push_operation_node("*", vector<pdrh::node*>{sigma, sqrt_node});
-    pdrh::node* divide_node_2 = pdrh::push_operation_node("/", vector<pdrh::node*>{pdrh::push_terminal_node("1"), mult_node_3});
-    return pdrh::push_operation_node("*", vector<pdrh::node*>{exp_node, divide_node_2});
+    node* power_node_1 = new node("^", {sigma, new node("2")});
+    node* mult_node_1 = new node("*", {new node("2"), power_node_1});
+    node* minus_node = new node("-", {new node(var), mu});
+    node* power_node_2 = new node("^", {minus_node, new node("2")});
+    node* divide_node_1 = new node("/", {power_node_2, mult_node_1});
+    node* unary_minus_node = new node("-", {divide_node_1});
+    node* exp_node = new node("exp", {unary_minus_node});
+    node* mult_node_2 = new node("*", {new node("2"), new node("3.14159265359")});
+    node* sqrt_node = new node("sqrt", {mult_node_2});
+    node* mult_node_3 = new node("*", {sigma, sqrt_node});
+    node* divide_node_2 = new node("/", {new node("1"), mult_node_3});
+    return new node("*", {exp_node, divide_node_2});
 }
 
 pdrh::node* pdrh::distribution::exp_to_node(string var, node* lambda)
 {
-    pdrh::node* plus_node = pdrh::push_operation_node("+", vector<pdrh::node*>{lambda, pdrh::push_terminal_node(var)});
-    pdrh::node* unary_minus_node = pdrh::push_operation_node("-", vector<pdrh::node*>{plus_node});
-    pdrh::node* exp_node = pdrh::push_operation_node("exp", vector<pdrh::node*>{unary_minus_node});
-    return pdrh::push_operation_node("*", vector<pdrh::node*>{exp_node, lambda});
+    pdrh::node* plus_node = new node("+", {lambda, new node(var)});
+    pdrh::node* unary_minus_node = new node("-", {plus_node});
+    pdrh::node* exp_node = new node("exp", {unary_minus_node});
+    return new node("*", {exp_node, lambda});
 }
 
 //void pdrh::push_prob_partition_prec(string var, capd::interval prec)

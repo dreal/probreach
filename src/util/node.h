@@ -34,6 +34,11 @@ namespace pdrh
         {
         }
 
+        inline node(const double value)
+                : value(std::to_string(value))
+        {
+        }
+
         inline node()
         {
         }
@@ -58,9 +63,9 @@ namespace pdrh
 
     };
 
-    node* push_terminal_node(std::string);
-    node* push_terminal_node(double);
-    node* push_operation_node(std::string, std::vector<node*>);
+    //node* push_terminal_node(std::string);
+    //node* push_terminal_node(double);
+    //node* push_operation_node(std::string, std::vector<node*>);
 
     node* copy_node(node*);
     void copy_tree(node*&, node*);
@@ -68,6 +73,7 @@ namespace pdrh
 
     double node_to_double(pdrh::node*);
     double node_to_double(pdrh::node*, std::map<std::string, double>);
+    bool node_to_boolean(pdrh::node*, std::map<std::string, double>);
 
     std::string node_to_string_prefix(node*);
     std::string node_to_string_infix(node*);

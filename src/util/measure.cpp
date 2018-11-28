@@ -7,10 +7,12 @@
 #include "measure.h"
 #include "box_factory.h"
 #include "pdrh.h"
+#include "node.h"
 #include "pdrh_config.h"
 #include "pdrh2box.h"
 
 using namespace std;
+using namespace pdrh;
 
 std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::string var, std::string fun, capd::interval it, double e)
 {
@@ -368,10 +370,10 @@ std::vector<box> measure::get_rv_partition()
                                                                                                     get<3>(it->second)).mid().leftBound(),
                                                                                          measure::precision(global_config.precision_prob, pdrh::rv_map.size()));
         // updating rv bounds
-        pdrh::rv_map[it->first] = make_tuple(std::get<0>(it->second), pdrh::push_terminal_node(bound.first.leftBound()),
-                                                         pdrh::push_terminal_node(bound.first.rightBound()), get<3>(it->second));
+        pdrh::rv_map[it->first] = make_tuple(std::get<0>(it->second), new node(bound.first.leftBound()),
+                                                         new node(bound.first.rightBound()), get<3>(it->second));
         // updating var bounds
-        pdrh::var_map[it->first] = make_pair(pdrh::push_terminal_node(bound.first.leftBound()), pdrh::push_terminal_node(bound.first.rightBound()));
+        pdrh::var_map[it->first] = make_pair(new node(bound.first.leftBound()), new node(bound.first.rightBound()));
         // updating partition map
         partition_map.insert(make_pair(it->first, bound.second));
     }

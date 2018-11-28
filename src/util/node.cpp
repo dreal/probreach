@@ -9,44 +9,44 @@
 
 using namespace std;
 
-/**
- * Creating a terminal node from string.
- *
- * @param value - value of the node.
- * @return terminal node.
- */
-pdrh::node* pdrh::push_terminal_node(string value)
-{
-    pdrh::node* n = new pdrh::node(value);
-    //n->value = value;
-    return n;
-}
-
-/**
- * Creating a terminal node from double.
- *
- * @param value - value of the node.
- * @return terminal node.
- */
-pdrh::node* pdrh::push_terminal_node(double value)
-{
-    stringstream s;
-    s << value;
-    return push_terminal_node(s.str());
-}
-
-/**
- * Creating an operation node.
- *
- * @param value - operation as string.
- * @param operands - list of operands.
- * @return operation node.
- */
-pdrh::node* pdrh::push_operation_node(string value, vector<pdrh::node*> operands)
-{
-    pdrh::node* n = new pdrh::node(value, operands);
-    return n;
-}
+///**
+// * Creating a terminal node from string.
+// *
+// * @param value - value of the node.
+// * @return terminal node.
+// */
+//pdrh::node* pdrh::push_terminal_node(string value)
+//{
+//    pdrh::node* n = new pdrh::node(value);
+//    //n->value = value;
+//    return n;
+//}
+//
+///**
+// * Creating a terminal node from double.
+// *
+// * @param value - value of the node.
+// * @return terminal node.
+// */
+//pdrh::node* pdrh::push_terminal_node(double value)
+//{
+//    stringstream s;
+//    s << value;
+//    return push_terminal_node(s.str());
+//}
+//
+///**
+// * Creating an operation node.
+// *
+// * @param value - operation as string.
+// * @param operands - list of operands.
+// * @return operation node.
+// */
+//pdrh::node* pdrh::push_operation_node(string value, vector<pdrh::node*> operands)
+//{
+//    pdrh::node* n = new pdrh::node(value, operands);
+//    return n;
+//}
 
 /**
  * Getting a string representation of the node in prefix notation.
@@ -174,57 +174,7 @@ double pdrh::node_to_double(pdrh::node *n, std::map<std::string, double> vals)
         s >> val;
         return val;
     }
-        // more than two operands are only possible in case of distributions
-        // otherwise it's an unexpected behaviour
-    else if(n->operands.size() > 2)
-    {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        if(n->value == "dist_normal")
-        {
-            double mean = node_to_double(n->operands[0], vals);
-            double stddev = node_to_double(n->operands[1], vals);
-
-            std::normal_distribution<> dist(mean, stddev);
-            return dist(gen);
-        }
-        else if(n->value == "dist_uniform")
-        {
-            double left = node_to_double(n->operands[0], vals);
-            double right = node_to_double(n->operands[1], vals);
-
-            std::uniform_real_distribution<> dist(left, right);
-            return dist(gen);
-        }
-        else if(n->value == "dist_gamma")
-        {
-            double param = node_to_double(n->operands[0], vals);
-
-            std::gamma_distribution<> dist(param);
-            return dist(gen);
-        }
-        else if(n->value == "dist_exp")
-        {
-            double param = node_to_double(n->operands[0], vals);
-
-            std::exponential_distribution<> dist(param);
-            return dist(gen);
-        }
-        else if(n->value == "dist_discrete")
-        {
-            vector<double> weights;
-            for(node* op : n->operands)
-            {
-                weights.push_back(node_to_double(op->operands[1], vals));
-            }
-
-            std::discrete_distribution<int> dist(weights.begin(), weights.end());
-            int i = dist(gen);
-            return node_to_double(n->operands[i]->operands[0], vals);
-        }
-        cerr << "The number of operands can't be greater than 2";
-        exit(EXIT_FAILURE);
-    }
+    // operation node
     else
     {
         if(n->value == "+")
@@ -305,6 +255,59 @@ double pdrh::node_to_double(pdrh::node *n, std::map<std::string, double> vals)
         {
             return std::atan(node_to_double(n->operands.front(), vals));
         }
+        if(n->value == "dist_normal")
+        {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            double mean = node_to_double(n->operands[0], vals);
+            double stddev = node_to_double(n->operands[1], vals);
+
+            std::normal_distribution<> dist(mean, stddev);
+            return dist(gen);
+        }
+        else if(n->value == "dist_uniform")
+        {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            double left = node_to_double(n->operands[0], vals);
+            double right = node_to_double(n->operands[1], vals);
+
+            std::uniform_real_distribution<> dist(left, right);
+            return dist(gen);
+        }
+        else if(n->value == "dist_gamma")
+        {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            double a = node_to_double(n->operands[0], vals);
+            double b = node_to_double(n->operands[1], vals);
+
+            std::gamma_distribution<> dist(a, b);
+            return dist(gen);
+        }
+        else if(n->value == "dist_exp")
+        {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            double param = node_to_double(n->operands[0], vals);
+
+            std::exponential_distribution<> dist(param);
+            return dist(gen);
+        }
+        else if(n->value == "dist_discrete")
+        {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            vector<double> weights;
+            for(node* op : n->operands)
+            {
+                weights.push_back(node_to_double(op->operands[1], vals));
+            }
+
+            std::discrete_distribution<int> dist(weights.begin(), weights.end());
+            int i = dist(gen);
+            return node_to_double(n->operands[i]->operands[0], vals);
+        }
         else
         {
             cerr << "Unknown function \"" << n->value << "\"";
@@ -322,6 +325,62 @@ double pdrh::node_to_double(pdrh::node *n, std::map<std::string, double> vals)
 double pdrh::node_to_double(pdrh::node *n)
 {
     return node_to_double(n, std::map<string, double>());
+}
+
+/**
+ * Evaluates the value of a predicate at the point. Throws an exception in case
+ * if one of the terminal modes is not a number.
+ *
+ * @param n - predicate to be evaluated.
+ * @param vals - point for which the evaluation is performed
+ * @return
+ */
+bool pdrh::node_to_boolean(pdrh::node *n, std::map<std::string, double> vals)
+{
+    // comparison operators
+    if(n->value == ">=")
+    {
+        return node_to_double(n->operands.front(), vals) >= node_to_double(n->operands.back(), vals);
+    }
+    else if(n->value == ">")
+    {
+        return node_to_double(n->operands.front(), vals) > node_to_double(n->operands.back(), vals);
+    }
+    else if(n->value == "=")
+    {
+        return node_to_double(n->operands.front(), vals) == node_to_double(n->operands.back(), vals);
+    }
+    else if(n->value == "<")
+    {
+        return node_to_double(n->operands.front(), vals) < node_to_double(n->operands.back(), vals);
+    }
+    else if(n->value == "<=")
+    {
+        return node_to_double(n->operands.front(), vals) <= node_to_double(n->operands.back(), vals);
+    }
+    else if(n->value == "and")
+    {
+        bool res = true;
+        for(pdrh::node* nd : n->operands)
+        {
+            res = res && node_to_boolean(nd, vals);
+        }
+        return res;
+    }
+    else if(n->value == "or")
+    {
+        bool res = true;
+        for(pdrh::node* nd : n->operands)
+        {
+            res = res || node_to_boolean(nd, vals);
+        }
+        return res;
+    }
+    else
+    {
+        cerr << "Unrecognised or unsupported operation \"" << n->value << "\"";
+        exit(EXIT_FAILURE);
+    }
 }
 
 /**

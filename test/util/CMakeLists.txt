@@ -12,13 +12,20 @@ if(GTEST_FOUND)
     target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
     add_test(box_test ${PROBREACH_BINARY_DIR}/test/util/box_test)
 
-    # unit test for node methods in pdrh.cpp
+    # unit test for the methods in node.cpp
     add_executable(node_test ${PROBREACH_TEST_DIR}/util/node_test.cpp
             ${PROBREACH_TEST_DIR}/main_test.cpp
             ${PROBREACH_SOURCE_DIR}/util/node.cpp)
     target_link_libraries(node_test -lgtest)
     add_test(node_test ${PROBREACH_BINARY_DIR}/test/util/node_test)
 
+    # unit test for the methods in naive_ivp.cpp
+    add_executable(naive_ivp_test ${PROBREACH_TEST_DIR}/util/naive_ivp_test.cpp
+            ${PROBREACH_TEST_DIR}/main_test.cpp
+            ${PROBREACH_SOURCE_DIR}/util/node.cpp
+            ${PROBREACH_SOURCE_DIR}/util/naive_ivp.cpp)
+    target_link_libraries(naive_ivp_test -lgtest)
+    add_test(naive_ivp_test ${PROBREACH_BINARY_DIR}/test/util/naive_ivp_test)
 
     # unit test for stability.cpp
 #    add_executable(stability_test ${PROBREACH_TEST_DIR}/util/stability_test.cpp

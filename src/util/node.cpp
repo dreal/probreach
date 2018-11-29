@@ -8,45 +8,7 @@
 #include <cmath>
 
 using namespace std;
-
-///**
-// * Creating a terminal node from string.
-// *
-// * @param value - value of the node.
-// * @return terminal node.
-// */
-//pdrh::node* pdrh::push_terminal_node(string value)
-//{
-//    pdrh::node* n = new pdrh::node(value);
-//    //n->value = value;
-//    return n;
-//}
-//
-///**
-// * Creating a terminal node from double.
-// *
-// * @param value - value of the node.
-// * @return terminal node.
-// */
-//pdrh::node* pdrh::push_terminal_node(double value)
-//{
-//    stringstream s;
-//    s << value;
-//    return push_terminal_node(s.str());
-//}
-//
-///**
-// * Creating an operation node.
-// *
-// * @param value - operation as string.
-// * @param operands - list of operands.
-// * @return operation node.
-// */
-//pdrh::node* pdrh::push_operation_node(string value, vector<pdrh::node*> operands)
-//{
-//    pdrh::node* n = new pdrh::node(value, operands);
-//    return n;
-//}
+using namespace pdrh;
 
 /**
  * Getting a string representation of the node in prefix notation.

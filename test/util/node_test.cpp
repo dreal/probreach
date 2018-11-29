@@ -11,6 +11,9 @@ using namespace pdrh;
 
 size_t iter_num = 100000;
 
+/**
+ * Computing the mean and the variance of the normal distribution via sampling.
+ */
 TEST(node_to_double_normal_distribution, mean_and_variance_check)
 {
     node* mu = new node("0");
@@ -36,6 +39,9 @@ TEST(node_to_double_normal_distribution, mean_and_variance_check)
     EXPECT_NEAR(var, pow(node_to_double(sigma), 2), 1e-2);
 }
 
+/**
+ * Computing the mean and the variance of the exponential distribution via sampling.
+ */
 TEST(node_to_double_exp_distribution, mean_and_variance_check)
 {
     node *lambda = new node("2");
@@ -60,6 +66,9 @@ TEST(node_to_double_exp_distribution, mean_and_variance_check)
     EXPECT_NEAR(var, pow(node_to_double(lambda),-2), 1e-2);
 }
 
+/**
+ * Computing the mean and the variance of the gamma distribution via sampling.
+ */
 TEST(node_to_double_gamma_distribution, mean_and_variance_check)
 {
     node *a = new node("2");
@@ -85,6 +94,9 @@ TEST(node_to_double_gamma_distribution, mean_and_variance_check)
     EXPECT_NEAR(var, node_to_double(a) * pow(node_to_double(b), 2), 1e-1);
 }
 
+/**
+ * Computing the mean and the variance of the uniform distribution via sampling.
+ */
 TEST(node_to_double_uniform_distribution, mean_and_variance_check)
 {
     node *a = new node("0");
@@ -110,6 +122,9 @@ TEST(node_to_double_uniform_distribution, mean_and_variance_check)
     EXPECT_NEAR(var, pow(node_to_double(b) - node_to_double(a), 2) / 12, 1e-1);
 }
 
+/**
+ * Computing the probability values of the discrete distribution via sampling.
+ */
 TEST(node_to_double_discrete_distribution, mass_test)
 {
     node* v[] = {new node("0"), new node("1"), new node("2")};

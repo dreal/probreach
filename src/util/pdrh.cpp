@@ -18,6 +18,7 @@ map<string, tuple<pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*>> pdrh::rv_
 map<string, string> pdrh::rv_type_map;
 map<string, map<pdrh::node*, pdrh::node*>> pdrh::dd_map;
 map<string, pair<pdrh::node*, pdrh::node*>> pdrh::var_map;
+map<string, string> pdrh::const_map;
 map<string, pair<pdrh::node*, pdrh::node*>> pdrh::par_map;
 map<string, pdrh::node*> pdrh::syn_map;
 vector<pdrh::mode> pdrh::modes;
@@ -62,6 +63,7 @@ void pdrh::push_var(string var, pdrh::node* left, pdrh::node* right)
         pdrh::var_map.insert(make_pair(var, make_pair(left, right)));
     }
 }
+
 
 // adding time bounds
 void pdrh::push_time_bounds(pdrh::node* left, pdrh::node* right)

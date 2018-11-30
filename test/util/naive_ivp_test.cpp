@@ -12,7 +12,7 @@ using namespace pdrh;
 using namespace naive_ivp;
 
 /**
- * Testing the solve method of the naive solver.
+ * Testing the solve method of the naive IVP solver.
  */
 TEST(naive_ivp_solve, OK)
 {
@@ -47,7 +47,7 @@ TEST(naive_ivp_solve, OK)
 
 
 /**
- * Testing the trajectory method of the naive solver.
+ * Testing the trajectory method of the naive IVP solver.
  */
 TEST(naive_ivp_trajectory, OK)
 {

@@ -15,7 +15,7 @@ int line_num = 1;
 <COMMENT>\n    			{ ++line_num; }
 <COMMENT>.    			;
 
-"#define"               { ++line_num; }
+"#define"               { return DEFINE; }
 
 "+"                     { return PLUS; }
 "-"                     { return MINUS; }

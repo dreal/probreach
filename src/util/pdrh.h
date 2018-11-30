@@ -25,6 +25,7 @@ namespace pdrh
     extern std::map<std::string, std::map<node*, node*>> dd_map;
     extern std::map<std::string, std::pair<node*, node*>> var_map;
     extern std::map<std::string, std::pair<node*, node*>> par_map;
+    extern std::map<std::string, std::string> const_map;
     extern std::map<std::string, node*> syn_map;
     // mode struct
     struct mode

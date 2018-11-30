@@ -40,33 +40,36 @@ void parse_pdrh(string filename)
         CLOG(ERROR, "parser") << "Couldn't open " << filename;
         exit(EXIT_FAILURE);
     }
-    std::stringstream s, pdrhnameprep;
-    pdrhnameprep << filename << ".preprocessed";
-    s << "cpp -w -P " << filename << " > " << pdrhnameprep.str().c_str();
-    int res = system(s.str().c_str());
-    // cheking the result of system call
-    if(res != 0)
-    {
-        CLOG(ERROR, "parser") << "Problem occured while preprocessing " << filename;
-        exit(EXIT_FAILURE);
-    }
-    // parsing the preprocessed file
-    FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
-    // make sure it's valid:
-    if (!pdrhfileprep)
-    {
-        CLOG(ERROR, "parser") << "Couldn't open " << pdrhnameprep.str();
-        exit(EXIT_FAILURE);
-    }
+
+//    std::stringstream s, pdrhnameprep;
+//    pdrhnameprep << filename << ".preprocessed";
+//    s << "cpp -w -P " << filename << " > " << pdrhnameprep.str().c_str();
+//    int res = system(s.str().c_str());
+//    // cheking the result of system call
+//    if(res != 0)
+//    {
+//        CLOG(ERROR, "parser") << "Problem occured while preprocessing " << filename;
+//        exit(EXIT_FAILURE);
+//    }
+//    // parsing the preprocessed file
+//    FILE *pdrhfileprep = pdrhfile;
+//    FILE *pdrhfileprep = fopen(pdrhnameprep.str().c_str(), "r");
+//    // make sure it's valid:
+//    if (!pdrhfileprep)
+//    {
+//        CLOG(ERROR, "parser") << "Couldn't open " << pdrhnameprep.str();
+//        exit(EXIT_FAILURE);
+//    }
+
     // set lex to read from it instead of defaulting to STDIN:
-    yyin = pdrhfileprep;
+    yyin = pdrhfile;
     // parse through the input until there is no more:
     do
     {
         yyparse();
     }
     while (!feof(yyin));
-    remove(pdrhnameprep.str().c_str());
+//    remove(pdrhnameprep.str().c_str());
     CLOG_IF(global_config.verbose, INFO, "parser") << "OK";
 }
 

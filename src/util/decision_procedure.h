@@ -5,7 +5,7 @@
 #ifndef PROBREACH_DECISION_PROCEDURE_H
 #define PROBREACH_DECISION_PROCEDURE_H
 #include<iostream>
-#include "pdrh.h"
+#include "model.h"
 #include "box.h"
 
 using namespace std;

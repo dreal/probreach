@@ -1,7 +1,8 @@
 %{
 #include <iostream>
 #define YY_DECL extern "C" int yylex()
-#include "pdrh.h"
+#include "node.h"
+#include "model.h"
 #include "pdrhparser.h"
 int line_num = 1;
 %}

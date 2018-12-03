@@ -2,8 +2,8 @@
 // Created by fedor on 24/01/16.
 //
 
-#include "pdrh.h"
-#include "pdrh_config.h"
+#include "model.h"
+//#include "pdrh_config.h"
 #include <string.h>
 #include <logging/easylogging++.h>
 #include <iomanip>
@@ -350,10 +350,10 @@ vector<vector<pdrh::mode*>> pdrh::get_paths()
     {
         return pdrh::paths;
     }
-    else
-    {
-        return get_all_paths();
-    }
+//    else
+//    {
+//        return get_all_paths();
+//    }
 }
 
 // comparing two paths alphabetically
@@ -405,10 +405,10 @@ vector<vector<pdrh::mode*>> pdrh::get_all_paths(int path_length)
     return res;
 }
 
-vector<vector<pdrh::mode*>> pdrh::get_all_paths()
+vector<vector<pdrh::mode*>> pdrh::get_all_paths(int min_depth, int max_depth)
 {
     vector<vector<pdrh::mode*>> res;
-    for(int i = global_config.reach_depth_min; i <= global_config.reach_depth_max; i++)
+    for(int i = min_depth; i <= max_depth; i++)
     {
         vector<vector<pdrh::mode*>> paths = pdrh::get_all_paths(i);
         res.insert(res.end(), paths.begin(), paths.end());
@@ -818,89 +818,6 @@ std::vector<pdrh::mode*> pdrh::get_psy_path(std::map<std::string, std::vector<ca
     return path;
 }
 */
-
-pdrh::node* pdrh::get_first_time_node(pdrh::node * root)
-{
-    //cout << pdrh::node_to_string_prefix(root) << endl;
-    if(root->operands.size() > 0)
-    {
-        if(strcmp(root->value.c_str(), "=") == 0)
-        {
-            for(pdrh::node* child : root->operands)
-            {
-                if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end() ||
-                        child->value == global_config.sample_time || child->value == global_config.global_time)
-                {
-                    return root;
-                }
-                else
-                {
-                    return pdrh::get_first_time_node(child);
-                }
-            }
-        }
-        else
-        {
-            for(pdrh::node* child : root->operands)
-            {
-                return pdrh::get_first_time_node(child);
-            }
-        }
-    }
-    return NULL;
-}
-
-void pdrh::get_first_time_node(node* root, node* time_node)
-{
-    //cout << "IN FUNCTION: " << pdrh::node_to_string_prefix(root) << " " << &root << endl;
-    if(strcmp(root->value.c_str(), "=") == 0)
-    {
-        for(pdrh::node* child : root->operands)
-        {
-            if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end() ||
-               child->value == global_config.sample_time || child->value == global_config.global_time)
-            {
-                *time_node = *root;
-                root->value = "true";
-                root->operands.clear();
-            }
-            else
-            {
-                pdrh::get_first_time_node(child, time_node);
-            }
-        }
-    }
-    else
-    {
-        for(pdrh::node* child : root->operands)
-        {
-            pdrh::get_first_time_node(child, time_node);
-        }
-    }
-}
-
-pdrh::node* pdrh::get_time_node_neg(pdrh::node* root)
-{
-    pdrh::node *root_copy = new pdrh::node();
-    pdrh::copy_tree(root_copy, root);
-    pdrh::node* time_node = new pdrh::node;
-    pdrh::get_first_time_node(root_copy, time_node);
-    //cout << "Node before removing time node: " << pdrh::node_to_string_prefix(root) << endl;
-    if(pdrh::is_node_empty(time_node))
-    {
-        return NULL;
-    }
-    // creating a negation node
-    pdrh::node* not_node = new node("not", {root_copy});
-    // creating a resulting node
-    pdrh::node* res_node = new node("and", {time_node, not_node});
-    //cout << "RES TIME NODE: " << pdrh::node_to_string_prefix(res_node) << endl;
-    return res_node;
-}
-
-
-
-
 
 
 void pdrh::distribution::push_uniform(string var, pdrh::node* a, pdrh::node* b)

@@ -7,7 +7,7 @@
 
 #include <capd/intervals/lib.h>
 #include <map>
-#include "pdrh.h"
+#include "model.h"
 
 using namespace std;
 

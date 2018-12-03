@@ -6,12 +6,12 @@
 #include <sstream>
 #include "parser/csv/csvparser.h"
 #include <iomanip>
-#include <pdrh.h>
+#include <model.h>
 #include <model.h>
 #include <solver/dreal_wrapper.h>
 #include <util/pdrh2box.h>
 #include "pdrh_config.h"
-#include "pdrh.h"
+#include "model.h"
 #include "algorithm.h"
 #include "rnd.h"
 #include "parser/output/outputparser.h"

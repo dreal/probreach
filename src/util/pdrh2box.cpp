@@ -6,6 +6,7 @@
 #include "pdrh_config.h"
 #include <easylogging++.h>
 #include <iomanip>
+#include "ap.h"
 
 // throws exception in case if one of the terminal modes is not a number
 // evaluates the value of arithmetic expression
@@ -720,7 +721,7 @@ string pdrh2box::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
     {
         if(path.back()->id == st.id)
         {
-            pdrh::node* timed_node_neg = pdrh::get_time_node_neg(st.prop);
+            pdrh::node* timed_node_neg = ap::get_time_node_neg(st.prop);
             if(!timed_node_neg)
             {
                 // checking if there is a not in front of the guard predicate because dReal does not work nicely
@@ -948,7 +949,7 @@ string pdrh2box::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<bo
         {
             if(j.next_id == path.at(depth+1)->id)
             {
-                pdrh::node* timed_node_neg = pdrh::get_time_node_neg(j.guard);
+                pdrh::node* timed_node_neg = ap::get_time_node_neg(j.guard);
                 if (!timed_node_neg)
                 {
                     // checking if there is a not in front of the guard predicate because dReal does not work nicely

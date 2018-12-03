@@ -2,7 +2,7 @@
 // Created by fedor on 29/11/18.
 //
 
-#include "naive_ivp.h"
+#include "naive.h"
 
 using namespace std;
 using namespace pdrh;
@@ -17,8 +17,9 @@ using namespace pdrh;
  * @param step - integration step.
  * @return solution of the IVP.
  */
-std::map<std::string, double> naive_ivp::solve(std::map<std::string, pdrh::node *> odes, std::map<std::string, double> init,
-                                                    std::map<std::string, double> param, double time, double dt)
+std::map<std::string, double> naive::solve_ivp(std::map<std::string, pdrh::node *> odes,
+                                               std::map<std::string, double> init,
+                                               std::map<std::string, double> param, double time, double dt)
 {
     // if step is greater than time, then step becomes time
     if(dt > time)
@@ -66,7 +67,7 @@ std::map<std::string, double> naive_ivp::solve(std::map<std::string, pdrh::node 
  * @param step - integration step.
  * @return trajectories for the given IVP.
  */
-std::vector<std::map<std::string, double>> naive_ivp::trajectory(std::map<std::string, pdrh::node *> odes,
+std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::string, pdrh::node *> odes,
                                                                  std::map<std::string, double> init,
                                                                  std::map<std::string, double> param, double time, double dt)
 {
@@ -87,7 +88,7 @@ std::vector<std::map<std::string, double>> naive_ivp::trajectory(std::map<std::s
             dt = time - t;
         }
         // solving the ODE system
-        map<string, double> sol = solve(odes, init, param, dt, dt);
+        map<string, double> sol = solve_ivp(odes, init, param, dt, dt);
         // adding the solution into trajectory
         traj.push_back(sol);
         // updating the initial condition for the next iteration

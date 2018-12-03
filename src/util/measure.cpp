@@ -6,7 +6,7 @@
 #include<tuple>
 #include "measure.h"
 #include "box_factory.h"
-#include "pdrh.h"
+#include "model.h"
 #include "node.h"
 #include "pdrh_config.h"
 #include "pdrh2box.h"

@@ -4,7 +4,7 @@
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include "box.h"
-#include "pdrh.h"
+#include "model.h"
 #include<gsl/gsl_multiroots.h>
 
 #ifndef PROBREACH_BOX_FACTORY_H

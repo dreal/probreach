@@ -13,10 +13,6 @@
 
 namespace pdrh
 {
-    node* get_first_time_node(node*);
-    void get_first_time_node(node*, node*);
-    node* get_time_node_neg(node*);
-
     enum type {HA, PHA, NHA, NPHA, PSY};
     extern type model_type;
     extern std::pair<node*, node*> time;
@@ -72,6 +68,7 @@ namespace pdrh
             return os;
         }
     };
+
     extern std::vector<state> init;
     extern std::vector<state> goal;
     extern std::vector<std::vector<mode*>> paths;
@@ -106,9 +103,6 @@ namespace pdrh
     bool var_exists(std::string);
     mode* get_mode(int);
 
-
-    //void update_resets();
-
     std::vector<mode*> get_init_modes();
     std::vector<mode*> get_goal_modes();
     std::vector<mode*> get_successors(mode*);
@@ -116,7 +110,7 @@ namespace pdrh
     std::vector<std::vector<mode*>> get_paths(mode*, mode*, int);
     std::vector<std::vector<mode*>> get_paths();
     std::vector<std::vector<mode*>> get_all_paths(int);
-    std::vector<std::vector<mode*>> get_all_paths();
+    std::vector<std::vector<mode*>> get_all_paths(int, int);
 
     // returns <first_map_keys> \ <second_map_keys>
     std::vector<std::string> get_keys_diff(std::map<std::string, std::pair<node*, node*>>, std::map<std::string, std::pair<node*, node*>>);

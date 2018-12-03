@@ -25,7 +25,7 @@ capd::interval algorithm::evaluate_qmc() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
 
     // initialize sobol generator
     gsl_qrng *q = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
@@ -112,7 +112,7 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 
@@ -263,7 +263,7 @@ capd::interval algorithm::evaluate_rqmc_AC() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 
@@ -392,7 +392,7 @@ capd::interval algorithm::evaluate_rqmc_Will() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 
@@ -529,7 +529,7 @@ capd::interval algorithm::evaluate_rqmc_Log() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
 
     cout << endl << "RQMC LOGIT ALGORITHM" << endl;
@@ -672,7 +672,7 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
 
     cout << endl << "RQMC ANSCOMBE ALGORITHM" << endl;
@@ -816,7 +816,7 @@ capd::interval algorithm::evaluate_rqmc_Arc() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
 
     cout << endl << "RQMC ARCSIN ALGORITHM" << endl;
@@ -947,7 +947,7 @@ capd::interval algorithm::evaluate_Qint() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 
@@ -1189,7 +1189,7 @@ capd::interval algorithm::evaluate_mixCI() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double result = 0;
 
     cout << endl << "ALL  ALGORITHMS" << endl;
@@ -1717,7 +1717,7 @@ capd::interval algorithm::evaluate_mixCI() {
 //    cout << "Confidence = " << global_config.qmc_conf << endl;
 //    cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
 //    cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-//    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+//    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
 //
 //    // initialize mu generator
 //    gsl_qrng *m = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
@@ -1804,7 +1804,7 @@ capd::interval algorithm::evaluate_GPmain() {
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Confidence = " << global_config.qmc_conf;
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample size = " << global_config.qmc_sample_size; //n
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Accuracy = " << global_config.qmc_acc; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 

@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <capd/capdlib.h>
-#include "util/pdrh.h"
+#include "util/model.h"
 #include "box.h"
 
 namespace smt2_generator

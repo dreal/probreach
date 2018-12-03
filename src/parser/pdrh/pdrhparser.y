@@ -8,7 +8,8 @@
 #include <limits>
 //#include <capd/capdlib.h>
 //#include <capd/intervals/lib.h>
-#include "pdrh.h"
+#include "node.h"
+#include "model.h"
 #include "pdrh_config.h"
 
 // stuff from flex that bison needs to know about:

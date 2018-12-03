@@ -8,7 +8,8 @@
 #include "MatlabEngine.hpp"
 #include "MatlabDataArray.hpp"
 #include "pdrh_config.h"
-#include <pdrh.h>
+#include "model.h"
+#include "node.h"
 #include "translator_util.h"
 #include <sstream>
 #include <logging/easylogging++.h>

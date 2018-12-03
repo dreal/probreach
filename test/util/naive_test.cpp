@@ -5,11 +5,11 @@
 #include <gtest/gtest.h>
 #include "node.h"
 #include <cmath>
-#include <util/naive_ivp.h>
+#include <util/naive.h>
 
 using namespace std;
 using namespace pdrh;
-using namespace naive_ivp;
+using namespace naive;
 
 /**
  * Testing the solve method of the naive IVP solver.
@@ -40,7 +40,7 @@ TEST(naive_ivp_solve, OK)
     double dt = 1e-1;
 
     // solving the ODEs system
-    map<string, double> sol = solve(odes, init, param, time, dt);
+    map<string, double> sol = solve_ivp(odes, init, param, time, dt);
 
     EXPECT_EQ(sol["t"], 3);
 }

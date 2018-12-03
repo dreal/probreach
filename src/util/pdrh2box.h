@@ -12,7 +12,7 @@
 //#include <capd/intervals/lib.h>
 #include <tuple>
 #include <box.h>
-#include "pdrh.h"
+#include "model.h"
 
 namespace pdrh2box
 {

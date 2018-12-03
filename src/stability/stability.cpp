@@ -3,7 +3,7 @@
 //
 
 #include "stability.h"
-#include "pdrh.h"
+#include "model.h"
 #include "pdrh_config.h"
 #include <cmath>
 #include <algorithm>

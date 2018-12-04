@@ -36,7 +36,7 @@ void yyerror(const char *s);
 %token PDF N_DIST U_DIST E_DIST G_DIST DD_DIST
 %token INFTY
 
-%token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE TIME_PREC PATHS
+%token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE TIME_PREC PATHS SAMPLE
 %token D_DT TRANS PRIME
 
 %token SQRT EXP LOG SIN COS TAN ASIN ACOS ATAN ABS
@@ -338,40 +338,6 @@ mode:
                                                                         yyerror(s.str().c_str());
                                                                     }
                                                                 }
-	| '{' MODE number ';' timeprec flow jumps_section '}'       {
-	                                                                if(pdrh::get_mode(atoi($3)) == NULL)
-                                                                    {
-                                                                        cur_dd.clear();
-                                                                        cur_mode->id = atoi($3);
-                                                                        cur_mode->time = pdrh::time;
-                                                                        pdrh::push_mode(*cur_mode);
-                                                                        delete cur_mode;
-                                                                        cur_mode = new pdrh::mode;
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        std::stringstream s;
-                                                                        s << "multiple declaration of mode \"" << $3 << "\"";
-                                                                        yyerror(s.str().c_str());
-                                                                    }
-                                                                }
-	| '{' MODE number ';' timeprec invt flow jumps_section '}'  {
-	                                                                if(pdrh::get_mode(atoi($3)) == NULL)
-                                                                    {
-                                                                        cur_dd.clear();
-                                                                        cur_mode->id = atoi($3);
-                                                                        cur_mode->time = pdrh::time;
-                                                                        pdrh::push_mode(*cur_mode);
-                                                                        delete cur_mode;
-                                                                        cur_mode = new pdrh::mode;
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        std::stringstream s;
-                                                                        s << "multiple declaration of mode \"" << $3 << "\"";
-                                                                        yyerror(s.str().c_str());
-                                                                    }
-                                                                }
     | '{' MODE number ';' TIME ':' '[' expr ',' expr ']' ';' flow jumps_section '}'
                                                                 {
                                                                     if(pdrh::get_mode(atoi($3)) == NULL)
@@ -461,6 +427,7 @@ ode:
 	                                            free($3);
 	                                        }
 
+// ADD INTERVAL INTO THE EXPRESSION
 expr:
     identifier                  {
                                     if(define_map.find($1) != define_map.end()) $$ = define_map[$1];
@@ -554,6 +521,24 @@ reset_state:
                                         cur_jump->reset.insert(make_pair(it->first, new pdrh::node(it->first)));
                                     }
 	 	                        }
+
+// THIS HAS NOT BEEN INCLUDED YET
+samples:
+    samples sample { ; }
+    | sample { ; }
+
+sample:
+    SAMPLE '(' number ')' ':'
+
+sample_resets:
+    sample_resets sample_reset { ; }
+    | sample_reset { ; }
+
+sample_reset:
+    reset_var '=' expr ';' { ; }
+
+
+
 
 jumps_section:
 	JUMP ':' jumps { ; }

@@ -2,8 +2,6 @@
 // Created by fedor on 29/12/15.
 //
 
-#include<capd/capdlib.h>
-#include "box.h"
 #include "box_factory.h"
 #include "pdrh2box.h"
 

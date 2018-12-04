@@ -61,6 +61,7 @@ flow                    { return FLOW; }
 jump                    { return JUMP; }
 init                    { return INIT; }
 goal                    { return GOAL; }
+sample                  { return SAMPLE; }
 paths                   { return PATHS; }
 synthesize              { return SYNTHESIZE; }
 

@@ -398,3 +398,53 @@ bool pdrh::is_node_empty(node* n)
 {
     return n->value.empty() && n->operands.empty();
 }
+
+/**
+ * Returns true if zero-crossing happens between the left-handside and the right-handside points.
+ *
+ *
+ * @param expr - expression to check.
+ * @param left - left point.
+ * @param right - right point.
+ * @return the result of zero-crossing check
+ */
+bool pdrh::node_zero_crossing(pdrh::node * expr, std::map<std::string, double> left, std::map<std::string, double> right)
+{
+    // comparison operators
+    if(expr->value == ">=" || expr->value == ">" || expr->value == "=" || expr->value == "<" || expr->value == "<=")
+    {
+//        cout << "Subnode: " << node_to_string_infix(expr) << endl;
+//        cout << "Left:" << endl;
+//        for(auto it = left.begin(); it != left.end(); it++) cout << it->first << ": " << it->second << endl;
+//        cout << "Right:" << endl;
+//        for(auto it = right.begin(); it != right.end(); it++) cout << it->first << ": " << it->second << endl;
+//        cout << (node_to_double(expr->operands.front(), left) - node_to_double(expr->operands.back(), left)) << " | " <<
+//                    (node_to_double(expr->operands.front(), right) - node_to_double(expr->operands.back(), right)) << endl;
+//        cout << "==========" << endl;
+        return (node_to_double(expr->operands.front(), left) - node_to_double(expr->operands.back(), left)) *
+               (node_to_double(expr->operands.front(), right) - node_to_double(expr->operands.back(), right)) < 0;
+    }
+    else if(expr->value == "and")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res && node_zero_crossing(n, left, right);
+        }
+        return res;
+    }
+    else if(expr->value == "or")
+    {
+        bool res = true;
+        for(pdrh::node* n : expr->operands)
+        {
+            res = res || node_zero_crossing(n, left, right);
+        }
+        return res;
+    }
+    else
+    {
+        cerr << "Unrecognised or unsupported operation \"" << expr->value << "\"";
+        exit(EXIT_FAILURE);
+    }
+}

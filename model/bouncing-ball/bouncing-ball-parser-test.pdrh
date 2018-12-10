@@ -4,11 +4,8 @@ multiline
 comment
 here
 */
-#define g a
 #define a 9.8
-#define val 100
-#define G Sx/val
-[0,val] Sy;
+[0,100] Sy;
 [-10,1000] Sx;
 [0,15] t;
 [0,15] time;
@@ -23,13 +20,10 @@ d/dt[Sy]=v0 * sin(alpha) - g * t;
 d/dt[t]=1.0;
 
 jump:
-(and(t > 0.000001) (Sy = 0))==>@1(and 	(Sx' = Sx+dist_normal(0,1)) 
-										(Sy' = dist_uniform(1,2)) 
-										(t' = [0,1]) 
-										(v0' = 0.9 * v0 * dist_discrete(1:0.1,2:0.4,3:0.5)));
+(and(t > 0.000001) (Sy = 0))==>@1(and 	(Sx' = Sx) (Sy' = 0) (t' = 0) (v0' = 0.9 * v0));
 }
 
 init:
 @1(and(Sx=0)(Sy=0)(t=0));
 goal:
-@1(and(Sx>=100.0)(Sy>=0)(G >= 0));
+@1(and(Sx>=100.0)(Sy>=0));

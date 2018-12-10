@@ -11,11 +11,12 @@
 
 namespace naive
 {
-    std::map<std::string, double> solve_ivp(std::map<std::string, pdrh::node *>, std::map<std::string, double>,
-                                            std::map<std::string, double>, double, double);
-    std::vector<std::map<std::string, double>> trajectory(std::map<std::string, pdrh::node*>, std::map<std::string, double>,
-                                                          std::map<std::string, double>, double, double);
-    int verify(std::vector<pdrh::mode*>);
+    std::map<std::string, double> solve_ivp(std::map<std::string, pdrh::node *>, std::map<std::string, double>, double, double);
+
+    std::vector<std::map<std::string, double>> trajectory(std::map<std::string, pdrh::node*>, std::map<std::string, pdrh::node*>, double, double);
+
+    std::vector<std::map<std::string, double>> trajectory(std::map<std::string, pdrh::node*>, std::map<std::string, pdrh::node*>, pdrh::node*, double, double);
+
 }
 
 #endif //PROBREACH_NAIVE_IVP_H

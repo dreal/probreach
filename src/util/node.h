@@ -70,6 +70,7 @@ namespace pdrh
     double node_to_double(pdrh::node*);
     double node_to_double(pdrh::node*, std::map<std::string, double>);
     bool node_to_boolean(pdrh::node*, std::map<std::string, double>);
+    bool node_zero_crossing(pdrh::node*, std::map<std::string, double>, std::map<std::string, double>);
 
     std::string node_to_string_prefix(node*);
     std::string node_to_string_infix(node*);

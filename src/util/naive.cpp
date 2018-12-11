@@ -118,6 +118,8 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
         t += dt;
         // increasing the value of integration time in the result
         sol[".time"] = t;
+        // increasing the value of global time counter
+        sol[".global_time"] += dt;
         // adding the solution into trajectory
         traj.push_back(sol);
         // checking if the guard condition is satisfied
@@ -138,7 +140,7 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
  */
 std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vector<pdrh::mode *> modes,
                                                                 std::map<std::string, pdrh::node *> init,
-                                                                    size_t depth, double dt)
+                                                                    size_t depth, size_t max_paths, double dt)
 {
     // change init from node map into a double map
     map<string, double> init_map;
@@ -147,7 +149,7 @@ std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vec
     int init_mode_id = (int) init_map[".mode"];
     init_map[".step"] = 0;
     init_map[".time"] = 0;
-    for(auto it = init_map.begin(); it != init_map.end(); it++) cout << it->first << ": " << it->second << endl;
+    init_map[".global_time"] = 0;
     // setting the temporary set of paths
     vector<vector<map<string, double>>> paths = {{ init_map }};
     vector<vector<map<string, double>>> res_paths;
@@ -159,6 +161,7 @@ std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vec
         paths.erase(paths.begin());
         // getting the current initial value in the path
         init_map = path.back();
+        path.erase(path.end());
         // getting current mode
         mode* cur_mode;
         for(mode* m : modes)

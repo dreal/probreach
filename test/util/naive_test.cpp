@@ -116,6 +116,7 @@ TEST(naive_ivp_simulate, OK)
     map<string, node*> reset;
     reset["Sy"] = new node("0");
     reset["t"] = new node("0");
+    reset["v0"] = new node("*", {new node("v0"), new node("0.9")});
     mode::jump* j = new mode::jump(1, guard, reset);
     // creating the mode
     mode* m = new mode();
@@ -128,8 +129,7 @@ TEST(naive_ivp_simulate, OK)
     // setting the initial mode before the simulation
     init[".mode"] = new node("1");
     // solving the ODEs system
-    cout << "Before the simulation" << endl;
-    vector<vector<map<string, double>>> trajs = simulate({m}, init, 1, 1e-3);
+    vector<vector<map<string, double>>> trajs = simulate({m}, init, 1, 10, 1e-1);
     // printing out the trajectories
     for(vector<map<string, double>> traj : trajs)
     {

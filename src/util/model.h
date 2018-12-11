@@ -37,6 +37,12 @@ namespace pdrh
             std::map<std::string, std::tuple<std::string, pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*>> reset_rv;
             std::map<std::string, std::map<node*, node*>> reset_dd;
             std::map<std::string, std::pair<node*, node*>> reset_nondet;
+            inline jump(const int next_id, node* guard, std::map<std::string, node*> reset)
+                    : next_id(next_id), guard(guard), reset(reset)
+            {
+
+            }
+
         };
         std::vector<jump> jumps;
         std::map<std::string, std::pair<node*, node*>> flow_map;

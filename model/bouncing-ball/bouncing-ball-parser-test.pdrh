@@ -4,7 +4,7 @@ multiline
 comment
 here
 */
-#define a 9.8
+#define g 9.8
 [0,100] Sy;
 [-10,1000] Sx;
 [0,15] t;

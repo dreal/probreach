@@ -6,6 +6,7 @@
 #include "node.h"
 #include <cmath>
 #include <util/naive.h>
+#include <fstream>
 
 using namespace std;
 using namespace pdrh;
@@ -116,7 +117,8 @@ TEST(naive_ivp_simulate, OK)
     map<string, node*> reset;
     reset["Sy"] = new node("0");
     reset["t"] = new node("0");
-    reset["v0"] = new node("*", {new node("v0"), new node("0.9")});
+//    reset["v0"] = new node("*", {new node("v0"), new node("0.9")});
+    reset["v0"] = new node("*", {new node("v0"), new node("dist_uniform", {new node("0.9"), new node("1.1")})});
     mode::jump* j = new mode::jump(1, guard, reset);
     // creating the mode
     mode* m = new mode();
@@ -128,21 +130,40 @@ TEST(naive_ivp_simulate, OK)
     m->jumps = {*j};
     // setting the initial mode before the simulation
     init[".mode"] = new node("1");
+    size_t depth = 1000;
+    size_t max_paths = 10;
+    double dt = 1e-2;
     // solving the ODEs system
-    vector<vector<map<string, double>>> trajs = simulate({m}, init, 1, 10, 1e-1);
-    // printing out the trajectories
+    vector<vector<map<string, double>>> trajs = simulate({m}, init, depth, max_paths, dt);
+    // printing out the trajectories and writing them into a file
+    ofstream outfile;
+    outfile.open ("/home/fedor/python/trajectories.json");
+    outfile << "{ \"trajectories\" : [" << endl;
     for(vector<map<string, double>> traj : trajs)
     {
+        outfile << "[" << endl;
         // printing out the trajectory
         for(map<string, double> t : traj)
         {
+            outfile << "{" << endl;
             for(auto it = t.begin(); it != t.end(); it++)
             {
-                cout << it->first << ": " << it->second << endl;
+                outfile << "\"" << it->first << "\" : " << it->second;
+                if(it != prev(t.end())) outfile << ",";
+                outfile << endl;
+//                cout << it->first << ": " << it->second << endl;
             }
-            cout << "-----" << endl;
+            outfile << "}";
+            if(t != traj.back()) outfile << ",";
+            outfile << endl;
+//            cout << "-----" << endl;
         }
+        outfile << "]" << endl;
+        if(traj != trajs.back()) outfile << ",";
+        outfile << endl;
     }
+    outfile << "]}" << endl;
+    outfile.close();
 //    EXPECT_NEAR(traj.back()["Sy"], 0, 1e-2);
 //    EXPECT_EQ(traj.size(), ceil(time / dt)+1);
 }

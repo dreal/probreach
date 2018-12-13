@@ -138,7 +138,7 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
  * @param dt
  * @return
  */
-std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vector<pdrh::mode *> modes,
+std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vector<pdrh::mode> modes,
                                                                 std::map<std::string, pdrh::node *> init,
                                                                     size_t depth, size_t max_paths, double dt)
 {
@@ -163,18 +163,18 @@ std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vec
         init_map = path.back();
         path.erase(path.end());
         // getting current mode
-        mode* cur_mode;
-        for(mode* m : modes)
-            if(m->id == (int) init_map[".mode"])
+        mode cur_mode;
+        for(mode m : modes)
+            if(m.id == (int) init_map[".mode"])
             {
                 cur_mode = m;
                 break;
             }
         // getting through all the jumps in the trajectory
-        for(mode::jump j : cur_mode->jumps)
+        for(mode::jump j : cur_mode.jumps)
         {
             // getting the trajectory up to the jump or until the time bound
-            vector<map<string, double>> traj = trajectory(cur_mode->odes, init_map, j.guard, node_to_double(cur_mode->time.second), dt);
+            vector<map<string, double>> traj = trajectory(cur_mode.odes, init_map, j.guard, node_to_double(cur_mode.time.second), dt);
             // adding the computed trajectory to the end
             path.insert(path.end(), traj.begin(), traj.end());
             // if the jump condition has not been satisfied, then this is the end of simulation for this path

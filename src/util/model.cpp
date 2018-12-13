@@ -628,6 +628,34 @@ string pdrh::print_jump(mode::jump j)
     return out.str();
 }
 
+std::map<std::string, pdrh::node*> pdrh::init_to_map(pdrh::state init)
+{
+    node* prop = init.prop;
+    // checking if init is a conjunction of assignments
+    if(prop->value != "and")
+    {
+        cerr << "could not translate init into a map: the outer operation is not an \"and\"" << endl;
+        exit(EXIT_FAILURE);
+    }
+    // setting up some auxiliary variables
+    map<string, node*> res;
+    res[".mode"] = new node(init.id);
+    res[".time"] = new node("0");
+    res[".step"] = new node("0");
+    res[".global_time"] = new node("0");
+    // parsing the assignments in the init
+    for(node* n : prop->operands)
+    {
+        if(n->value != ("="))
+        {
+            cerr << "could not translate init into a map: on of the operations is not an \"=\"" << endl;
+            exit(EXIT_FAILURE);
+        }
+        res[node_to_string_infix(n->operands.front())] = n->operands.back();
+    }
+    return res;
+}
+
 /*
 void pdrh::push_psy_goal(int mode_id, box b)
 {
@@ -942,6 +970,8 @@ void pdrh::set_model_type()
 //        }
 //    }
 //}
+
+
 
 
 

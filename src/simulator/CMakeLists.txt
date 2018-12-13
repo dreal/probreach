@@ -17,6 +17,6 @@ set(SIMULATOR_SRC ${SIMULATOR_SRC} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparse
 add_library(simulator_lib ${SIMULATOR_SRC})
 target_link_libraries(simulator_lib -lfl)
 
-add_executable(simulator ${PROBREACH_SOURCE_DIR}/simulator/main.cpp)
-target_compile_options(simulator PRIVATE)
-target_link_libraries(simulator simulator_lib)
+add_executable(simulate ${PROBREACH_SOURCE_DIR}/simulator/main.cpp)
+target_compile_options(simulate PRIVATE)
+target_link_libraries(simulate simulator_lib)

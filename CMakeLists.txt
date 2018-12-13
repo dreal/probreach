@@ -8,6 +8,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/
 find_package(DREAL)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
+find_package(GSL)
 find_package(GTest)
 # Needed for using the translator tool
 find_package(Matlab)
@@ -75,8 +76,6 @@ include_directories("${PROBREACH_SOURCE_DIR}/logging")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 
 IF(DREAL_FOUND)
-
-find_package(GSL REQUIRED)
 
 set(PROBREACH_VERSION ${PROBREACH_VERSION_MAJOR}.${PROBREACH_VERSION_MINOR})
 configure_file(
@@ -208,11 +207,12 @@ add_custom_target(install_probreach
         DEPENDS ProbReach
         COMMENT "Installing ProbReach")
 ELSE(DREAL_FOUND)
-message(STATUS "DReal libraries not found, option to build ProbReach won't be available. Refer to installation guide available on Github or ./doc/build")
+message(STATUS "dReal libraries not found, option to build ProbReach won't be available. Refer to installation guide available on Github or ./doc/build")
 
 ENDIF(DREAL_FOUND)
 
 # Adds the option to build the translator if MATLAB is located
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/simulator/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/test/util/CMakeLists.txt)
 

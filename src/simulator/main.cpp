@@ -8,6 +8,14 @@
 #include "model.h"
 #include "naive.h"
 
+extern "C"
+{
+#include "pdrhparser.h"
+}
+
+extern "C" int yyparse();
+extern "C" FILE *yyin;
+
 using namespace std;
 using namespace pdrh;
 using namespace naive;

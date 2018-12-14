@@ -45,13 +45,14 @@
 
 #define u_basal 0.055485957306259535484277955219043 			// basal insulin infusion rate (Fedor 2017). Approximation of symbolic MATLAB solution
 
-//#define Kp 0
-//#define Ki 0
-//#define Kd 0
+#define Kp -5.716e-3
+#define Ki -1.88e-7
+#define Kd -2.002e-1
 
-[-1e-3, 1e-3] Kp;
-[-1e-6, 1e-6] Ki;
-[-1e-1, 1e-1] Kd;
+//[-1e-2, 1e-3] Kp;
+//[-0.0048, -0.0046] Kp;
+//[-1e-5, 1e-6] Ki;
+//[-1e-0, 1e-1] Kd;
 
 
 #define Q1_SP (110 * VG) / 18
@@ -70,16 +71,24 @@
 #define tau_sample 5
 
 // breakfast
-dist_normal(40, 10) DG1;
-dist_normal(300, 10) tau_meal_1;
+dist_normal(50, 10) DG1;
+//dist_normal(300, 10) tau_meal_1;
+
+//#define DG1 50
+#define tau_meal_1 300
 
 // lunch
-dist_normal(90, 10) DG2;
-dist_normal(300, 10) tau_meal_2;
+dist_normal(70, 10) DG2;
+//dist_normal(300, 10) tau_meal_2;
+
+//#define DG2 70
+#define tau_meal_2 300
 
 // dinner
-dist_normal(70, 10) DG3;
+dist_normal(60, 10) DG3;
 //dist_normal(300, 10) tau_meal_3;
+
+#define DG3 60
 
 #define Q1_lower 64
 #define Q1_upper 256
@@ -139,7 +148,7 @@ d/dt[u] = 0;
 d/dt[r] = 0;
 
 // measured glucose
-d/dt[C] = k*(Q1 - C);
+d/dt[C] = k*(G - C);
 
 // glucose-subsystem
 d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
@@ -166,11 +175,11 @@ d/dt[counter]= 1;
 jump:
 
 
-(counter = tau_sample) ==> @1	(and 	(counter' = 0)	(e_der' = (C_prev-C)/tau_sample) 
+(and (counter >= tau_sample) (tau < tau_meal_1)) ==> @1	(and 	(counter' = 0)	(e_der' = (C_prev-C)/tau_sample) 
 					(e' = r - C) 	(e_int' = e_int + (r - C)*tau_sample)
 					(C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
-(tau = tau_meal_1) ==> @2	(and (tau' = tau) (G1' = AG*DG2*1000/Gmolar));
+(tau >= tau_meal_1) ==> @2	(and (tau' = tau) (G1' = G1 + AG*dist_normal(70, 10)*1000/Gmolar));
 
 }
 
@@ -200,7 +209,7 @@ d/dt[u] = 0;
 d/dt[r] = 0;
 
 // measured glucose
-d/dt[C] = k*(Q1 - C);
+d/dt[C] = k*(G - C);
 
 // glucose-subsystem
 d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
@@ -226,12 +235,12 @@ d/dt[counter]= 1;
 
 jump:
 
-(counter = tau_sample) ==> @2   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
+(and (counter >= tau_sample) (tau <  tau_meal_1 + tau_meal_2)) ==> @2   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
                                         (e' = r - C)   (e_int' = e_int + (r - C)*tau_sample)
                                         (C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
 
-(tau = tau_meal_1 + tau_meal_2) ==> @3	(and 	(tau' = tau) (G1' = AG*DG3*1000/Gmolar));
+(tau >= tau_meal_1 + tau_meal_2) ==> @3	(and 	(tau' = tau) (G1' = G1 + AG*dist_normal(60, 10)*1000/Gmolar));
 
 }
 
@@ -261,7 +270,7 @@ d/dt[u] = 0;
 d/dt[r] = 0;
 
 // measured glucose
-d/dt[C] = k*(Q1 - C);
+d/dt[C] = k*(G - C);
 
 // glucose-subsystem
 d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
@@ -288,12 +297,12 @@ d/dt[counter]= 1;
 jump:
 
 
-(counter = tau_sample) ==> @3   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
+(and (counter >= tau_sample) (tau <= 1410)) ==> @3   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
                                         (e' = r - C)   (e_int' = e_int + (r - C)*tau_sample)
                                         (C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
 
-(tau = 1440) ==> @4 (and (tau' = tau));
+(tau >= 1410) ==> @4 (and (tau' = tau));
 
 }
 
@@ -307,6 +316,8 @@ time:
 invt:
 (G - (Q1_init / VG) + sp_thresh >= 0);
 ((Q1_init / VG) - G + sp_thresh >= 0);
+//(u >= -0.001);
+//(u <= 0.001);
 
 flow:
 
@@ -321,7 +332,7 @@ d/dt[u] = 0;
 d/dt[r] = 0;
 
 // measured glucose
-d/dt[C] = k*(Q1 - C);
+d/dt[C] = k*(G - C);
 
 // glucose-subsystem
 d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
@@ -347,7 +358,9 @@ d/dt[counter]= 1;
 
 jump:
 
-
+(counter >= tau_sample) ==> @4   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample)
+                                        (e' = r - C)   (e_int' = e_int + (r - C)*tau_sample)
+                                        (C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
 }
 
@@ -377,7 +390,7 @@ d/dt[u] = 0;
 d/dt[r] = 0;
 
 // measured glucose
-d/dt[C] = k*(Q1 - C);
+d/dt[C] = k*(G - C);
 
 // glucose-subsystem
 d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
@@ -404,7 +417,7 @@ d/dt[counter]= 1;
 jump:
 
 
-(tau = tau_sample) ==> @1	(and (tau' = 0) (G1' = AG*DG1*1000/Gmolar) (counter' = 0));
+(tau >= tau_sample) ==> @1	(and (tau' = 0) (G1' = AG*dist_normal(50, 10)*1000/Gmolar) (counter' = 0));
 
 }
 
@@ -421,14 +434,14 @@ init:
 		(Q2 = Q2_init) 
 		(G1 = 0)
 		(G2 = 0)
-		(C = Q1_init)
+		(C = Q1_init/VG)
 		(tau = 0.0) 
-		(r = Q1_init) 
+		(r = Q1_init/VG) 
 		(counter = 0.0) 
 		(e = 0.0)
 		(e_der = 0.0)
 		(e_int = 0.0)
-		(C_prev = Q1_init)
+		(C_prev = Q1_init/VG)
 		(u = 0.0)
 		);
 

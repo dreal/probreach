@@ -134,7 +134,7 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
  *
  * @param modes
  * @param init
- * @param depth
+ * @param depth - exact depth of simulation
  * @param dt
  * @return
  */
@@ -170,37 +170,60 @@ std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vec
                 cur_mode = m;
                 break;
             }
-        // getting through all the jumps in the trajectory
-        for(mode::jump j : cur_mode.jumps)
+        // getting the trajectory up to the time bound
+        vector<map<string, double>> traj = trajectory(cur_mode.odes, init_map, node_to_double(cur_mode.time.second), dt);
+        // checking if the maximum depth for the path has been reached
+        // if the maximum depth is reached
+        if(traj.back()[".step"] == depth)
         {
-            // getting the trajectory up to the jump or until the time bound
-            vector<map<string, double>> traj = trajectory(cur_mode.odes, init_map, j.guard, node_to_double(cur_mode.time.second), dt);
-            // adding the computed trajectory to the end
             path.insert(path.end(), traj.begin(), traj.end());
-            // if the jump condition has not been satisfied, then this is the end of simulation for this path
-            if(!node_to_boolean(j.guard, path.back()))
-            {
-                res_paths.push_back(path);
-                break;
-            }
-            // if the jump occurs then apply the reset
-            map<string, double> sol = path.back();
-            // reassigning the value for all the variables without any specific resets
-            init_map = sol;
-            // applying the specified resets
-            for(auto it = init_map.begin(); it != init_map.end(); it++)
-                // the variable is not reset; its current value is carried to the next mode
-                if(j.reset.find(it->first) != j.reset.end()) init_map[it->first] = node_to_double(j.reset[it->first], sol);
-            // resetting the auxiliary variables
-            init_map[".step"]++;
-            init_map[".time"] = 0;
-            init_map[".mode"] = j.next_id;
-            // pushing the initial condition to the next mode
-            path.push_back(init_map);
-            // checking if the path length has reached the defined limit
-            if(init_map[".step"] > depth) res_paths.push_back(path);
-                else paths.push_back(path);
+            res_paths.push_back(path);
+            break;
         }
+        // iterating through the trajectory simulated mode
+        for(size_t i = 0; i < traj.size(); i++)
+        {
+            map<string, double> sol = traj[i];
+            // checking the jumps guards
+            for(mode::jump j : cur_mode.jumps)
+            {
+//                cout << sol[".global_time"] << endl;
+//                cout << sol["counter"] << endl;
+//                cout << sol["tau"] << endl;
+//                cout << "Guard: " << node_to_string_infix(j.guard) << endl;
+//                cout << "-----" << endl;
+                // jump condition is satisfied
+                if(node_to_boolean(j.guard, sol))
+                {
+//                    cout << "Jump is satisfied. Mode " << cur_mode.id << " to " << j.next_id << endl;
+//                    cout << sol[".global_time"] << endl;
+//                    cout << sol["counter"] << endl;
+//                    cout << sol["tau"] << endl;
+//                    cout << "-----" << endl;
+                    // adding the computed trajectory to the end of the current path
+                    path.insert(path.end(), traj.begin(), traj.begin() + i);
+                    // reassigning the value for all the variables without any specific resets
+                    init_map = sol;
+                    // applying the specified resets
+                    for(auto it = init_map.begin(); it != init_map.end(); it++)
+                        // the variable is not reset; its current value is carried to the next mode
+                        if(j.reset.find(it->first) != j.reset.end()) init_map[it->first] = node_to_double(j.reset[it->first], sol);
+                    // resetting the auxiliary variables
+                    init_map[".step"]++;
+                    init_map[".time"] = 0;
+                    init_map[".mode"] = j.next_id;
+                    // pushing the initial condition to the next mode
+                    path.push_back(init_map);
+                    // pushing the path into the set of all paths
+                    paths.push_back(path);
+                    // we assume that as soon as jump takes place we stop considering this trajectory
+                    // despite the fact that the corresponding can be satisfied multiple times
+                    break;
+                }
+            }
+        }
+        // checking if the maximum number of paths have been produced
+        if(res_paths.size() >= max_paths) return res_paths;
     }
     return res_paths;
 }

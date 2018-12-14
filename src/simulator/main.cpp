@@ -40,9 +40,9 @@ int main(int argc, char* argv[])
     }
     while (!feof(yyin));
     // setting other values
-    size_t depth = 100;
-    size_t max_paths = 10;
-    double dt = 1e-1;
+    size_t depth = 200;
+    size_t max_paths = 1;
+    double dt = 1e0;
     vector<vector<map<string, double>>> trajs;
     // simulating for all the initial states
     for(state st : init)

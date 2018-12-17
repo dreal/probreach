@@ -331,7 +331,7 @@ bool pdrh::node_to_boolean(pdrh::node *n, std::map<std::string, double> vals)
     }
     else if(n->value == "or")
     {
-        bool res = true;
+        bool res = false;
         for(pdrh::node* nd : n->operands)
         {
             res = res || node_to_boolean(nd, vals);

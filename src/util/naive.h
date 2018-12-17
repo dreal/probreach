@@ -15,10 +15,7 @@ namespace naive
 
     std::vector<std::map<std::string, double>> trajectory(std::map<std::string, pdrh::node*>, std::map<std::string, double>, double, double);
 
-    std::vector<std::map<std::string, double>> trajectory(std::map<std::string, pdrh::node*>, std::map<std::string, double>, pdrh::node*, double, double);
-
-    std::vector<std::vector<std::map<std::string, double>>> simulate(std::vector<pdrh::mode>, std::map<std::string, pdrh::node*>, size_t, size_t, double);
-
+    void simulate(std::vector<pdrh::mode>, std::map<std::string, pdrh::node*>, size_t, size_t, double, std::string);
 }
 
 #endif //PROBREACH_NAIVE_IVP_H

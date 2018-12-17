@@ -122,6 +122,7 @@ dist_normal(60, 10) DG3;
 
 [0,1440] counter;
 
+#define delta 1e-3
 
 // breakfast 
 {
@@ -175,11 +176,18 @@ d/dt[counter]= 1;
 jump:
 
 
-(and (counter >= tau_sample) (tau < tau_meal_1)) ==> @1	(and 	(counter' = 0)	(e_der' = (C_prev-C)/tau_sample) 
-					(e' = r - C) 	(e_int' = e_int + (r - C)*tau_sample)
-					(C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
+(and 
+	(counter >= tau_sample - delta) 
+	(counter <= tau_sample + delta)
+	(or	
+	(tau < tau_meal_1 - delta) 
+	(tau > tau_meal_1 + delta))) ==> @1	(and 	(counter' = 0)	(e_der' = (C_prev-C)/tau_sample) 
+													(e' = r - C) 	(e_int' = e_int + (r - C)*tau_sample)
+													(C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
-(tau >= tau_meal_1) ==> @2	(and (tau' = tau) (G1' = G1 + AG*dist_normal(70, 10)*1000/Gmolar));
+(and	
+	(tau >= tau_meal_1 - delta) 
+	(tau <= tau_meal_1 + delta)) ==> @2	(and (tau' = tau) (G1' = G1 + AG*dist_normal(70, 10)*1000/Gmolar));
 
 }
 
@@ -235,12 +243,19 @@ d/dt[counter]= 1;
 
 jump:
 
-(and (counter >= tau_sample) (tau <  tau_meal_1 + tau_meal_2)) ==> @2   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
+(and 
+	(counter >= tau_sample - delta) 
+	(counter <= tau_sample + delta)
+	(or
+	(tau < tau_meal_1 + tau_meal_2 - delta)
+	(tau > tau_meal_1 + tau_meal_2 + delta))) ==> @2   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
                                         (e' = r - C)   (e_int' = e_int + (r - C)*tau_sample)
                                         (C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
 
-(tau >= tau_meal_1 + tau_meal_2) ==> @3	(and 	(tau' = tau) (G1' = G1 + AG*dist_normal(60, 10)*1000/Gmolar));
+(and 
+	(tau >= tau_meal_1 + tau_meal_2 - delta)
+	(tau <= tau_meal_1 + tau_meal_2 + delta)) ==> @3	(and 	(tau' = tau) (G1' = G1 + AG*dist_normal(60, 10)*1000/Gmolar));
 
 }
 
@@ -297,12 +312,17 @@ d/dt[counter]= 1;
 jump:
 
 
-(and (counter >= tau_sample) (tau <= 1410)) ==> @3   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
+(and 
+	(counter >= tau_sample - delta) 
+	(counter <= tau_sample + delta)
+	(or (tau < 1410 - delta)
+		(tau > 1410 + delta))) ==> @3   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample) 
                                         (e' = r - C)   (e_int' = e_int + (r - C)*tau_sample)
                                         (C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
 
-(tau >= 1410) ==> @4 (and (tau' = tau));
+(and (tau >= 1410 - delta)
+		(tau <= 1410 + delta)) ==> @4 (and (tau' = tau));
 
 }
 
@@ -358,7 +378,9 @@ d/dt[counter]= 1;
 
 jump:
 
-(counter >= tau_sample) ==> @4   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample)
+(and 
+	(counter >= tau_sample - delta) 
+	(counter <= tau_sample + delta)) ==> @4   (and    (counter' = 0)  (e_der' = (C_prev-C)/tau_sample)
                                         (e' = r - C)   (e_int' = e_int + (r - C)*tau_sample)
                                         (C_prev' = C)(u' = Kp*(r - C) + Kd*(C_prev-C)/tau_sample + Ki*e_int));
 
@@ -417,7 +439,8 @@ d/dt[counter]= 1;
 jump:
 
 
-(tau >= tau_sample) ==> @1	(and (tau' = 0) (G1' = AG*dist_normal(50, 10)*1000/Gmolar) (counter' = 0));
+(and (tau >= tau_sample - 1e-3)
+		(tau <= tau_sample + 1e-3)) ==> @1	(and (tau' = 0) (G1' = AG*dist_normal(50, 10)*1000/Gmolar) (counter' = 0));
 
 }
 

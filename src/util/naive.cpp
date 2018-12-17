@@ -3,6 +3,7 @@
 //
 
 #include "naive.h"
+#include "fstream"
 
 using namespace std;
 using namespace pdrh;
@@ -21,32 +22,17 @@ std::map<std::string, double> naive::solve_ivp(std::map<std::string, pdrh::node 
                                                std::map<std::string, double> init, double time, double dt)
 {
     // if step is greater than time, then step becomes time
-    if(dt > time)
-    {
-        dt = time;
-    }
+    if(dt > time) dt = time;
     double t = 0;
     // integrating over time
     while(t < time)
     {
         // reducing integration step to meet the integration limit
-        if(time - t < dt)
-        {
-            dt = time - t;
-        }
+        if(time - t < dt) dt = time - t;
         // iterating through all ODEs and
-        // constructing solution map
-        map<string, double> sol;
-        for(auto it = odes.begin(); it != odes.end(); it++)
-        {
-            sol[it->first] = node_to_double(it->second, init);
-        }
         // obtaining a new initial value for the next iteration
-        for(auto it = sol.begin(); it != sol.end(); it++)
-        {
-            init[it->first] += sol[it->first]*dt;
-        }
-        // increasing integration time
+        for(auto it = odes.begin(); it != odes.end(); it++)
+            init[it->first] += node_to_double(it->second, init)*dt;
         t += dt;
     }
     return init;
@@ -54,26 +40,8 @@ std::map<std::string, double> naive::solve_ivp(std::map<std::string, pdrh::node 
 
 
 /**
- * Solve an IVP using the first term of Taylor series and record the entire trajectory.
- *
- * @param odes - ODE system.
- * @param init - initial value vector.
- * @param param - vector of parameter values.
- * @param time - time limit for solving the IVP.
- * @param step - integration step.
- * @return trajectories for the given IVP.
- */
-std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::string, pdrh::node *> odes,
-                                                                 std::map<std::string, double> init,
-                                                                    double time, double dt)
-{
-    return naive::trajectory(odes, init, new node("=", {new node("1"), new node("0")}), time, dt);
-}
-
-
-/**
  * Solve an IVP using the first term of Taylor series and record the entire trajectory up to
- * the specified time bound or until the guard condition is satisfied (whichever comes first).
+ * the specified time bound.
  *
  * @param odes - ODE system.
  * @param init - initial value vector.
@@ -84,16 +52,13 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
  */
 std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::string, pdrh::node *> odes,
                                                                 std::map<std::string, double> init,
-                                                                    pdrh::node * guard, double time, double dt)
+                                                                    double time, double dt)
 {
 //    // converting init into double
 //    map<string, double> init_map;
 //    for(auto it = init.begin(); it != init.end(); it++) init_map[it->first] = node_to_double(it->second);
     // if step is greater than time, then step becomes time
-    if(dt > time)
-    {
-        dt = time;
-    }
+    if(dt > time) dt = time;
     // integration time
     double t = 0;
     // the resulting trajectory
@@ -102,16 +67,11 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
     init[".time"] = t;
     // pushing the initial state
     traj.push_back(init);
-//    // checking if the guard can be satisfied right away
-    if(node_to_boolean(guard, init)) return traj;
     // integrating over time until the time bound or the guard is true
     while(t < time)
     {
         // reducing integration step to meet the integration limit
-        if(time - t < dt)
-        {
-            dt = time - t;
-        }
+        if(time - t < dt) break;
         // solving the ODE system
         map<string, double> sol = solve_ivp(odes, init, dt, dt);
         // increasing integration time
@@ -122,8 +82,6 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
         sol[".global_time"] += dt;
         // adding the solution into trajectory
         traj.push_back(sol);
-        // checking if the guard condition is satisfied
-        if(node_to_boolean(guard, sol)) break;
         // updating the initial condition for the next iteration
         init = sol;
     }
@@ -136,12 +94,14 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
  * @param init
  * @param depth - exact depth of simulation
  * @param dt
+ * @param filename - path to the output file
  * @return
  */
-std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vector<pdrh::mode> modes,
-                                                                std::map<std::string, pdrh::node *> init,
-                                                                    size_t depth, size_t max_paths, double dt)
+void naive::simulate(std::vector<pdrh::mode> modes, std::map<std::string, pdrh::node *> init, size_t depth,
+                                size_t max_paths, double dt, string filename)
 {
+    // current path count
+    size_t path_count = 0;
     // change init from node map into a double map
     map<string, double> init_map;
     for(auto it = init.begin(); it != init.end(); it++) init_map[it->first] = node_to_double(it->second);
@@ -152,16 +112,24 @@ std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vec
     init_map[".global_time"] = 0;
     // setting the temporary set of paths
     vector<vector<map<string, double>>> paths = {{ init_map }};
-    vector<vector<map<string, double>>> res_paths;
+    // creating the output file
+    ofstream outfile;
+    outfile.open(filename);
+    outfile << "{ \"trajectories\" : [" << endl;
     // iterating through all the paths
     while(paths.size() > 0)
     {
+        clock_t iteration_start = clock();
         // popping the front of the vector
-        vector<map<string, double>> path = paths.front();
-        paths.erase(paths.begin());
+//        vector<map<string, double>> path = paths.front();
+//        cout << "Accessing and copying the beginning of the paths queue: " << clock() - iteration_start << endl;
+//        paths.erase(paths.begin());
+//        cout << "Erasing the beginning of the paths queue: " << clock() - iteration_start << endl;
         // getting the current initial value in the path
-        init_map = path.back();
-        path.erase(path.end());
+        init_map = paths.front().back();
+//        cout << "Glob time: " << init_map[".global_time"] << " | " << init_map[".step"] << " | " << init_map[".mode"] << " | " << path_count << " | " << paths.size() << endl;
+        paths.front().erase(paths.front().end());
+//        cout << "Accessing and erasing the back of the path queue: " << clock() - iteration_start << endl;
         // getting current mode
         mode cur_mode;
         for(mode m : modes)
@@ -170,38 +138,55 @@ std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vec
                 cur_mode = m;
                 break;
             }
+//        cout << "Moment before the simulation: " << clock() - iteration_start << endl;
         // getting the trajectory up to the time bound
         vector<map<string, double>> traj = trajectory(cur_mode.odes, init_map, node_to_double(cur_mode.time.second), dt);
+//        cout << "After the simulation: " << clock() - iteration_start << endl;
         // checking if the maximum depth for the path has been reached
         // if the maximum depth is reached
         if(traj.back()[".step"] == depth)
         {
-            path.insert(path.end(), traj.begin(), traj.end());
-            res_paths.push_back(path);
-            break;
+//            cout << "Reach the maximum trajectory size" << endl;
+            paths.front().insert(paths.front().end(), traj.begin(), traj.end());
+            // separating the paths
+            if(path_count > 0) outfile << ",";
+            outfile << "[" << endl;
+            // outputting the path into the file
+            for(map<string, double> val : paths.front())
+            {
+                outfile << "{" << endl;
+                for(auto it = val.begin(); it != val.end(); it++)
+                {
+                    outfile << "\"" << it->first << "\" : " << it->second;
+                    if(it != prev(val.end())) outfile << ",";
+                    outfile << endl;
+                }
+                outfile << "}";
+                if(val != traj[traj.size()-1]) outfile << ",";
+                outfile << endl;
+            }
+            outfile << "]" << endl;
+            path_count++;
         }
+//        cout << "After checking the depth: " << clock() - iteration_start << endl;
         // iterating through the trajectory simulated mode
         for(size_t i = 0; i < traj.size(); i++)
         {
             map<string, double> sol = traj[i];
+            // number of satisfied jumps
+            size_t sat_jumps = 0;
             // checking the jumps guards
             for(mode::jump j : cur_mode.jumps)
             {
-//                cout << sol[".global_time"] << endl;
-//                cout << sol["counter"] << endl;
-//                cout << sol["tau"] << endl;
-//                cout << "Guard: " << node_to_string_infix(j.guard) << endl;
-//                cout << "-----" << endl;
                 // jump condition is satisfied
                 if(node_to_boolean(j.guard, sol))
                 {
-//                    cout << "Jump is satisfied. Mode " << cur_mode.id << " to " << j.next_id << endl;
-//                    cout << sol[".global_time"] << endl;
-//                    cout << sol["counter"] << endl;
-//                    cout << sol["tau"] << endl;
-//                    cout << "-----" << endl;
+//                    cout << "Jump: " << node_to_string_infix(j.guard) << endl;
+//                    cout << "tau = " << sol["tau"] << endl;
+//                    cout << "counter = " << sol["counter"] << endl;
+//                    cout << "----------" << endl;
                     // adding the computed trajectory to the end of the current path
-                    path.insert(path.end(), traj.begin(), traj.begin() + i);
+                    paths.front().insert(paths.front().end(), traj.begin(), traj.begin() + i);
                     // reassigning the value for all the variables without any specific resets
                     init_map = sol;
                     // applying the specified resets
@@ -212,23 +197,33 @@ std::vector<std::vector<std::map<std::string, double>>> naive::simulate(std::vec
                     init_map[".step"]++;
                     init_map[".time"] = 0;
                     init_map[".mode"] = j.next_id;
+
+                    // copying the existing path here
+                    vector<map<string, double>> new_path = paths.front();
                     // pushing the initial condition to the next mode
-                    path.push_back(init_map);
+                    new_path.push_back(init_map);
                     // pushing the path into the set of all paths
-                    paths.push_back(path);
+                    paths.push_back(new_path);
                     // we assume that as soon as jump takes place we stop considering this trajectory
-                    // despite the fact that the corresponding can be satisfied multiple times
-                    break;
+                    // despite the fact that the corresponding jump can be satisfied multiple times
                 }
             }
         }
+//        cout << "Iterration through the traj is over: " << clock() - iteration_start << endl;
+        paths.erase(paths.begin());
+//        cout << "The front path is removed: " << clock() - iteration_start << endl;
+//        cout << "----------" << endl;
         // checking if the maximum number of paths have been produced
-        if(res_paths.size() >= max_paths) return res_paths;
+        if(path_count >= max_paths)
+        {
+            outfile << "]}" << endl;
+            outfile.close();
+            return;
+        }
     }
-    return res_paths;
+    outfile << "]}" << endl;
+    outfile.close();
 }
-
-
 
 
 

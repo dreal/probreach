@@ -93,25 +93,29 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
  * @param modes
  * @param init
  * @param depth - exact depth of simulation
- * @param dt
+ * @param num_points - number of points used for discretisation in IVP solving
  * @param filename - path to the output file
  * @return
  */
-void naive::simulate(std::vector<pdrh::mode> modes, std::map<std::string, pdrh::node *> init, size_t depth,
-                                size_t max_paths, double dt, string filename)
+void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> init, size_t depth,
+                     size_t max_paths, size_t num_points, string filename)
 {
+    // the main path queue
+    vector<vector<map<string, double>>> paths;
+    // parsing the initial states
+    for(state st : init)
+    {
+        map<string, double> init_map = init_to_map(st);
+        // setting setting the step, time and mode values
+        int init_mode_id = (int) init_map[".mode"];
+        init_map[".step"] = 0;
+        init_map[".time"] = 0;
+        init_map[".global_time"] = 0;
+        // setting the temporary set of paths
+        paths.push_back({init_map});
+    }
     // current path count
     size_t path_count = 0;
-    // change init from node map into a double map
-    map<string, double> init_map;
-    for(auto it = init.begin(); it != init.end(); it++) init_map[it->first] = node_to_double(it->second);
-    // setting setting the step, time and mode values
-    int init_mode_id = (int) init_map[".mode"];
-    init_map[".step"] = 0;
-    init_map[".time"] = 0;
-    init_map[".global_time"] = 0;
-    // setting the temporary set of paths
-    vector<vector<map<string, double>>> paths = {{ init_map }};
     // creating the output file
     ofstream outfile;
     outfile.open(filename);
@@ -126,7 +130,7 @@ void naive::simulate(std::vector<pdrh::mode> modes, std::map<std::string, pdrh::
 //        paths.erase(paths.begin());
 //        cout << "Erasing the beginning of the paths queue: " << clock() - iteration_start << endl;
         // getting the current initial value in the path
-        init_map = paths.front().back();
+        map<string, double> init_map = paths.front().back();
 //        cout << "Glob time: " << init_map[".global_time"] << " | " << init_map[".step"] << " | " << init_map[".mode"] << " | " << path_count << " | " << paths.size() << endl;
         paths.front().erase(paths.front().end());
 //        cout << "Accessing and erasing the back of the path queue: " << clock() - iteration_start << endl;
@@ -140,6 +144,7 @@ void naive::simulate(std::vector<pdrh::mode> modes, std::map<std::string, pdrh::
             }
 //        cout << "Moment before the simulation: " << clock() - iteration_start << endl;
         // getting the trajectory up to the time bound
+        double dt = node_to_double(cur_mode.time.second) / num_points;
         vector<map<string, double>> traj = trajectory(cur_mode.odes, init_map, node_to_double(cur_mode.time.second), dt);
 //        cout << "After the simulation: " << clock() - iteration_start << endl;
         // checking if the maximum depth for the path has been reached

@@ -3,7 +3,8 @@
 //
 
 #include <iostream>
-#include <fstream>
+#include <cstring>
+#include <sstream>
 #include "node.h"
 #include "model.h"
 #include "naive.h"
@@ -20,11 +21,109 @@ using namespace std;
 using namespace pdrh;
 using namespace naive;
 
+// the maximum depth of each path
+size_t path_depth = 0;
+// the maximum number of paths
+size_t max_paths = 1;
+// number of point used in IVP solving
+size_t num_points = 1;
+// path to the input file
+string in_file = "";
+// path to the output file
+string out_file = "output.json";
+
+// printing help message
+void print_help()
+{
+    cout << "Usage:" << endl;
+    cout << endl;
+    cout << "	simulate <options> <file.pdrh/file.drh> <solver-options>" << endl;
+    cout << endl;
+    cout << "options:" << endl;
+    cout << "-h - displays help message" << endl;
+    cout << "-v - displays the tool version" << endl;
+    cout << "-l - maximum depth of every simulation path (default = " << path_depth << ")" << endl;
+    cout << "-p - maximum number of simulation paths (default = " << max_paths << ")" << endl;
+    cout << "-n - number of points used in IVP solving (default = " << num_points << ")" << endl;
+    cout << "-o - full path to the output file (default = " << out_file << ")" << endl;
+}
+
+// parsing command line options
+void parse_cmd(int argc, char* argv[])
+{
+    //parsing ProbReach options
+    for(int i = 1; i < argc; i++)
+    {
+        // filename
+        if(string(argv[i]).substr(string(argv[i]).find_last_of('.') + 1) == "pdrh" ||
+                string(argv[i]).substr(string(argv[i]).find_last_of('.') + 1) == "drh")
+        {
+            in_file = argv[i];
+        }
+        // help
+        if(strcmp(argv[i], "-h") == 0)
+        {
+            print_help();
+            exit(EXIT_SUCCESS);
+        }
+        // maximum path length
+        else if ((strcmp(argv[i], "-l") == 0))
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> path_depth;
+            if (path_depth < 0)
+            {
+                cerr << "-l must be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // maximum number of paths
+        else if ((strcmp(argv[i], "-p") == 0))
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> max_paths;
+            if (max_paths < 0)
+            {
+                cerr << "-p must be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // maximum number of points
+        else if ((strcmp(argv[i], "-n") == 0))
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> num_points;
+            if (num_points < 0)
+            {
+                cerr << "-n must be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // maximum number of points
+        else if ((strcmp(argv[i], "-o") == 0))
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> out_file;
+        }
+    }
+    // checking if the input file is specified
+    if(in_file == "")
+    {
+        cerr << "Input file has not been specified" << endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
 
 int main(int argc, char* argv[])
 {
+    parse_cmd(argc, argv);
     // opening pdrh file
-    FILE *pdrhfile = fopen(argv[1], "r");
+    FILE *pdrhfile = fopen(in_file.c_str(), "r");
     if (!pdrhfile)
     {
         cerr << "Couldn't open the file: " << endl;
@@ -38,18 +137,9 @@ int main(int argc, char* argv[])
         yyparse();
     }
     while (!feof(yyin));
-    // setting other values
-    size_t depth = 300;
-    size_t max_paths = 1;
-    double dt = 1e-2;
-    vector<vector<map<string, double>>> trajs;
-    // simulating for all the initial states
-    for(state st : init)
-    {
-        // converting init into a map
-        map<string, node*> init_map = init_to_map(st);
-        simulate(modes, init_map, depth, max_paths, dt, "trajectories.json");
-    }
+    // simulating the model
+    simulate(modes, init, path_depth, max_paths, num_points, out_file);
 
     return 0;
 }
+

@@ -112,7 +112,7 @@ namespace pdrh
 //    vector<tuple<int, box>> series_to_boxes(std::map<std::string, std::vector<capd::interval>>);
     //vector<state> series_to_goals(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);
 
-    std::map<std::string, pdrh::node*> init_to_map(pdrh::state);
+    std::map<std::string, double> init_to_map(pdrh::state);
 
     bool var_exists(std::string);
     mode* get_mode(int);

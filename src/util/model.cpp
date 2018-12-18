@@ -628,7 +628,13 @@ string pdrh::print_jump(mode::jump j)
     return out.str();
 }
 
-std::map<std::string, pdrh::node*> pdrh::init_to_map(pdrh::state init)
+/**
+ * Translates an initial state specified as (and (x1 = v1) ... (xn = vn)) into map<string, double>
+ *
+ * @param init
+ * @return
+ */
+std::map<std::string, double> pdrh::init_to_map(pdrh::state init)
 {
     node* prop = init.prop;
     // checking if init is a conjunction of assignments
@@ -638,11 +644,11 @@ std::map<std::string, pdrh::node*> pdrh::init_to_map(pdrh::state init)
         exit(EXIT_FAILURE);
     }
     // setting up some auxiliary variables
-    map<string, node*> res;
-    res[".mode"] = new node(init.id);
-    res[".time"] = new node("0");
-    res[".step"] = new node("0");
-    res[".global_time"] = new node("0");
+    map<string, double> res;
+    res[".mode"] = init.id;
+    res[".time"] = 0;
+    res[".step"] = 0;
+    res[".global_time"] = 0;
     // parsing the assignments in the init
     for(node* n : prop->operands)
     {
@@ -651,7 +657,7 @@ std::map<std::string, pdrh::node*> pdrh::init_to_map(pdrh::state init)
             cerr << "could not translate init into a map: on of the operations is not an \"=\"" << endl;
             exit(EXIT_FAILURE);
         }
-        res[node_to_string_infix(n->operands.front())] = n->operands.back();
+        res[node_to_string_infix(n->operands.front())] = node_to_double(n->operands.back());
     }
     return res;
 }

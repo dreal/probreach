@@ -97,7 +97,7 @@ dist_normal(60, 10) DG3;
 
 #define k 0.025
 
-#define noise_std 10
+#define noise_std 1
 
 [0,1e3] x1; //[min^(-1)] (remote) effect of insulin on glucose distribution (Hovorka 2004)
 [0,1e3] x2; //[min^(-1)] (remote) effect of insulin on glucose disposal (Hovorka 2004)
@@ -397,68 +397,30 @@ jump:
 }
 
 
-// breakfast 
-{
-mode 5;
-
-time:
-[0,tau_sample];
-
-invt:
-(G - G_lower_unsafe >= 0);
-(G_upper_unsafe - G >=0);
-(u + u_basal >= 0);
-
-flow:
-
-// controller
-d/dt[e_int] = 0;
-d/dt[e_der] = 0;
-d/dt[e] = 0;
-d/dt[C_prev] = 0;
-d/dt[u] = 0;
-
-// reference trajectory
-d/dt[r] = 0;
-
-// measured glucose
-d/dt[C] = k*(G - C);
-
-// glucose-subsystem
-d/dt[Q1] = -Fc01 - x1 * Q1 + k12 * Q2 - FR + EGP0 * (1 - x3) + G2 / tmaxG;
-d/dt[Q2] = x1 * Q1 - (k12 + x2) * Q2;
-
-// insulin-subsystem
-d/dt[S1] = u + u_basal - S1 / tmaxI;
-d/dt[S2] = (S1 - S2) / tmaxI;
-d/dt[I] = S2 / (tmaxI * VI) - ke * I;
-
-// insulin-action-subsystem
-d/dt[x1] = - ka1 * x1 + kb1 * I;
-d/dt[x2] = - ka2 * x2 + kb2 * I;
-d/dt[x3] = - ka3 * x3 + kb3 * I;
-
-// food absorption
-d/dt[G1] = - G1 / tmaxG;
-d/dt[G2] = (G1 - G2) / tmaxG;
-
-// counters
-d/dt[tau]= 1;
-d/dt[counter]= 1;
-
-jump:
-
-
-(and (tau >= tau_sample - 1e-3)
-		(tau <= tau_sample + 1e-3)) ==> @1	(and (tau' = 0) (G1' = AG*dist_normal(50, 10)*1000/Gmolar) (counter' = 0)
-												(C' = C + dist_normal(0,noise_std)));
-
-}
-
-
 init:
 
-@5(and	(I = I_init) 
+@1(and	(I = I_init) 
+		(x1 = x1_init) 
+		(x2 = x2_init) 
+		(x3 = x3_init) 
+		(S1 = S1_init) 
+		(S2 = S2_init) 
+		(Q1 = Q1_init) 
+		(Q2 = Q2_init) 
+		(G1 = AG*dist_normal(50, 10)*1000/Gmolar)
+		(G2 = 0)
+		(C = Q1_init/VG)
+		(tau = 0.0) 
+		(r = Q1_init/VG) 
+		(counter = 0.0) 
+		(e = 0.0)
+		(e_der = 0.0)
+		(e_int = 0.0)
+		(C_prev = Q1_init/VG)
+		(u = 0.0)
+		);
+
+@1(and	(I = I_init) 
 		(x1 = x1_init) 
 		(x2 = x2_init) 
 		(x3 = x3_init) 
@@ -478,6 +440,8 @@ init:
 		(C_prev = Q1_init/VG)
 		(u = 0.0)
 		);
+
+
 
 goal:
 

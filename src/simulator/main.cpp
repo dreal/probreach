@@ -21,8 +21,10 @@ using namespace std;
 using namespace pdrh;
 using namespace naive;
 
+// the minimum depth of each path
+size_t min_depth = 0;
 // the maximum depth of each path
-size_t path_depth = 0;
+size_t max_depth = 0;
 // the maximum number of paths
 size_t max_paths = 1;
 // number of point used in IVP solving
@@ -42,7 +44,8 @@ void print_help()
     cout << "options:" << endl;
     cout << "-h - displays help message" << endl;
     cout << "-v - displays the tool version" << endl;
-    cout << "-l - maximum depth of every simulation path (default = " << path_depth << ")" << endl;
+    cout << "-l - maximum depth of every simulation path (default = " << min_depth << ")" << endl;
+    cout << "-u - maximum depth of every simulation path (default = " << max_depth << ")" << endl;
     cout << "-p - maximum number of simulation paths (default = " << max_paths << ")" << endl;
     cout << "-n - number of points used in IVP solving (default = " << num_points << ")" << endl;
     cout << "-o - full path to the output file (default = " << out_file << ")" << endl;
@@ -66,15 +69,27 @@ void parse_cmd(int argc, char* argv[])
             print_help();
             exit(EXIT_SUCCESS);
         }
-        // maximum path length
+        // minimum path length
         else if ((strcmp(argv[i], "-l") == 0))
         {
             i++;
             istringstream is(argv[i]);
-            is >> path_depth;
-            if (path_depth < 0)
+            is >> min_depth;
+            if (min_depth < 0)
             {
-                cerr << "-l must be positive";
+                cerr << "-l must be positive and not larger than -u";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // maximum path length
+        else if ((strcmp(argv[i], "-u") == 0))
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> max_depth;
+            if (max_depth < 0)
+            {
+                cerr << "-u must be positive and not smaller than -l";
                 exit(EXIT_FAILURE);
             }
         }
@@ -138,7 +153,7 @@ int main(int argc, char* argv[])
     }
     while (!feof(yyin));
     // simulating the model
-    simulate(modes, init, path_depth, max_paths, num_points, out_file);
+    simulate(modes, init, min_depth, max_depth, max_paths, num_points, out_file);
 
     return 0;
 }

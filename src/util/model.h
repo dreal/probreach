@@ -106,6 +106,8 @@ namespace pdrh
 
     void set_model_type();
 
+    void output_traj(std::vector<std::map<std::string, double>>, std::ostream&);
+
 //    std::vector<mode*> get_psy_path(std::map<std::string, std::vector<capd::interval>>);
     std::vector<mode*> get_psy_path(std::map<std::string, std::vector<std::pair<pdrh::node*, pdrh::node*>>>);
 

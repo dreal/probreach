@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstring>
 #include <sstream>
+#include <fstream>
 #include "node.h"
 #include "model.h"
 #include "naive.h"
@@ -152,8 +153,17 @@ int main(int argc, char* argv[])
         yyparse();
     }
     while (!feof(yyin));
+    // creating the output file
+    ofstream ofs;
+    ofs.open(out_file);
+    ofs << "{ \"trajectories\" : [" << endl;
+
     // simulating the model
-    simulate(modes, init, min_depth, max_depth, max_paths, num_points, out_file);
+    simulate(modes, init, goal, false, min_depth, max_depth, max_paths, num_points, ofs);
+
+    // finalising the output file here
+    ofs << "]}" << endl;
+    ofs.close();
 
     return 0;
 }

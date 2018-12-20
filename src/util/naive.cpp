@@ -97,8 +97,8 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
  * @param filename - path to the output file
  * @return
  */
-void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> init, size_t min_depth, size_t max_depth,
-                     size_t max_paths, size_t num_points, string filename)
+void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> init, std::vector<pdrh::state> goal, bool verify,
+                        size_t min_depth, size_t max_depth, size_t max_paths, size_t num_points, std::ostream& os)
 {
     // the main path queue
     vector<vector<map<string, double>>> paths;
@@ -116,10 +116,6 @@ void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> ini
     }
     // current path count
     size_t path_count = 0;
-    // creating the output file
-    ofstream outfile;
-    outfile.open(filename);
-    outfile << "{ \"trajectories\" : [" << endl;
     // iterating through all the paths
     while(paths.size() > 0)
     {
@@ -141,93 +137,116 @@ void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> ini
         double dt = node_to_double(cur_mode.time.second) / num_points;
         vector<map<string, double>> traj = trajectory(cur_mode.odes, init_map, node_to_double(cur_mode.time.second), dt);
         // checking if the maximum depth for the path has been reached
-        // if the maximum depth is reached
-        if(traj.back()[".step"] >= min_depth)
+        // if the maximum depth is reached; in simulation mode
+        // the lower bound is ignored
+        if(traj.back()[".step"] >= max_depth && !verify)
         {
             path.insert(path.end(), traj.begin(), traj.end());
             // separating the paths
-            if(path_count > 0) outfile << ",";
-            outfile << "[" << endl;
-            // outputting the path into the file
-            for(map<string, double> val : path)
-            {
-                outfile << "{" << endl;
-                for(auto it = val.begin(); it != val.end(); it++)
-                {
-                    outfile << "\"" << it->first << "\" : " << it->second;
-                    if(it != prev(val.end())) outfile << ",";
-                    outfile << endl;
-                }
-                outfile << "}";
-                if(val != traj[traj.size()-1]) outfile << ",";
-                outfile << endl;
-            }
-            outfile << "]" << endl;
+            if(path_count > 0) os << ",";
+            // outputting a trajectory
+            output_traj(path, os);
             path_count++;
         }
-        else
+        // flag for checking if at least one jump condition has been satisfied
+        bool jump_enabled = false;
+        // iterating through the simulated trajectory
+        for(size_t i = 0; i < traj.size(); i++)
         {
-            // iterating through the trajectory simulated mode
-            for(size_t i = 0; i < traj.size(); i++)
+            map<string, double> sol = traj[i];
+            // the verify flag is up, hence we need to check the invariants and the goals
+            if(verify)
             {
-                map<string, double> sol = traj[i];
-                // CHECK THE INVARIANTS HERE
-                // OUTPUT THE TRAJECTORY IF THE INVARIANT IS NOT SATISFIED
-                // the current depth is within the required range
+                // checking invariants here
+                for(node* invt : cur_mode.invts)
+                {
+                    // if an invariant does not hold then we break,
+                    // report the witness and output the trajectory
+                    if(!node_to_boolean(invt, sol))
+                    {
+                        // always output the outcome
+                        cout << "unsat" << endl;
+                        // report more info
+                        cout << "invariant \"" << node_to_string_infix(invt) << "\" has been violated at:" << endl;
+                        for(auto it = sol.begin(); it != sol.end(); it++) cout << it->first << " : " << it->second << endl;
+                        // adding the computed trajectory to the end of the current path
+                        path.insert(path.end(), traj.begin(), traj.begin() + i + 1);
+                        // outputting the unsatisfying trajectory
+                        output_traj(path, os);
+                        return;
+                    }
+                }
+                // checking goal conditions for the paths which length is within the required bounds
                 if(sol[".step"] >= min_depth && sol[".step"] <= max_depth)
                 {
-                    // CHECK GOAL HERE
-                    // OUTPUT THE SATISFYING TRAJECTORY
-                    // CHECK IF THE CURRENT POINT THE FINAL POINT IN TRAJECTORY AND ...
-                    // ... THE MAXIMUM DEPTH HAS BEEN REACHED
-                }
-                else
-                {
-                    // checking the jumps guards
-                    for(mode::jump j : cur_mode.jumps)
+                    // checking goal conditions here
+                    for(state st : goal)
                     {
-                        // jump condition is satisfied
-                        if(node_to_boolean(j.guard, sol))
+                        // if a goal is satisfied we break,
+                        // report the witness and output the trajectory
+                        if(st.id == (int) sol[".mode"] && node_to_boolean(st.prop, sol))
                         {
+                            // always output the outcome
+                            cout << "sat" << endl;
+                            // report more info
+                            cout << "goal \"" << node_to_string_infix(st.prop) << "\" has been reached at:" << endl;
+                            for(auto it = sol.begin(); it != sol.end(); it++) cout << it->first << " : " << it->second << endl;
                             // adding the computed trajectory to the end of the current path
-                            path.insert(path.end(), traj.begin(), traj.begin() + i);
-                            // reassigning the value for all the variables without any specific resets
-                            init_map = sol;
-                            // applying the specified resets
-                            for(auto it = init_map.begin(); it != init_map.end(); it++)
-                                // the variable is not reset; its current value is carried to the next mode
-                                if(j.reset.find(it->first) != j.reset.end()) init_map[it->first] = node_to_double(j.reset[it->first], sol);
-                            // resetting the auxiliary variables
-                            init_map[".step"]++;
-                            init_map[".time"] = 0;
-                            init_map[".mode"] = j.next_id;
-                            // copying the existing path here
-                            vector<map<string, double>> new_path = path;
-                            // pushing the initial condition to the next mode
-                            new_path.push_back(init_map);
-                            // pushing the path into the set of all paths
-                            paths.push_back(new_path);
-                            // checking if the path number limit has been reached
-                            if(paths.size() > max_paths) break;
-                            // we assume that as soon as jump takes place we stop considering this trajectory
-                            // despite the fact that the corresponding jump can be satisfied multiple times
+                            path.insert(path.end(), traj.begin(), traj.begin() + i + 1);
+                            // outputting the unsatisfying trajectory
+                            output_traj(path, os);
+                            return;
                         }
                     }
-                    // checking if the path number limit has been reached
-                    if(paths.size() > max_paths) break;
+                }
+            }
+            // checking the jumps guards
+            for(mode::jump j : cur_mode.jumps)
+            {
+                // jump condition is satisfied
+                if(node_to_boolean(j.guard, sol))
+                {
+                    // setting the jump flag to true
+                    jump_enabled = true;
+                    // adding the computed trajectory to the end of the current path
+                    path.insert(path.end(), traj.begin(), traj.begin() + i + 1);
+                    // reassigning the value for all the variables without any specific resets
+                    init_map = sol;
+                    // applying the specified resets
+                    for(auto it = init_map.begin(); it != init_map.end(); it++)
+                        // the variable is not reset; its current value is carried to the next mode
+                        if(j.reset.find(it->first) != j.reset.end()) init_map[it->first] = node_to_double(j.reset[it->first], sol);
+                    // resetting the auxiliary variables
+                    init_map[".step"]++;
+                    init_map[".time"] = 0;
+                    init_map[".mode"] = j.next_id;
+                    // copying the existing path here
+                    vector<map<string, double>> new_path = path;
+                    // pushing the initial condition to the next mode
+                    new_path.push_back(init_map);
+                    // pushing the path into the set of all paths if their total number is below the defined limit
+                    // and the length of the newly obtained path is smaller than the provided maximum depth
+                    if(paths.size() <= max_paths && init_map[".step"] <= max_depth) paths.push_back(new_path);
+                    // we assume that as soon as jump takes place we stop considering this trajectory
+                    // despite the fact that the corresponding jump can be satisfied multiple times
                 }
             }
         }
-        // checking if the maximum number of paths have been produced
-        if(path_count >= max_paths)
+        // printing out a message saying that no jumps can be made from the current mode
+        if(!jump_enabled)
         {
-            outfile << "]}" << endl;
-            outfile.close();
-            return;
+            cout << "no jumps can be made from the current mode" << endl;
+            for(auto it = init_map.begin(); it != init_map.end(); it++) cout << it->first << " : " << it->second << endl;
         }
+
     }
-    outfile << "]}" << endl;
-    outfile.close();
+    if(verify)
+    {
+        // if we made it here, then neither of the goal states can be reached
+        cout << "unsat" << endl;
+        // report more info
+        cout << "goals could not be reached" << endl;
+    }
 }
 
 

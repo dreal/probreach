@@ -977,6 +977,31 @@ void pdrh::set_model_type()
 //    }
 //}
 
+/**
+ * Outputs trajectory into a stream
+ *
+ * @param traj
+ * @param os
+ */
+void pdrh::output_traj(std::vector<std::map<std::string, double>> traj, std::ostream &os)
+{
+    os << "[" << endl;
+    // outputting the path into the file
+    for(map<string, double> val : traj)
+    {
+        os << "{" << endl;
+        for(auto it = val.begin(); it != val.end(); it++)
+        {
+            os << "\"" << it->first << "\" : " << it->second;
+            if(it != prev(val.end())) os << ",";
+            os << endl;
+        }
+        os << "}";
+        if(val != traj[traj.size()-1]) os << ",";
+        os << endl;
+    }
+    os << "]" << endl;
+}
 
 
 

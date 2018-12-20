@@ -136,7 +136,7 @@ time:
 invt:
 (G - G_lower_unsafe >= 0);
 (G_upper_unsafe - G >=0);
-(u + u_basal >= 0);
+//(u + u_basal >= 0);
 
 flow:
 
@@ -205,7 +205,7 @@ time:
 invt:
 (G - G_lower_unsafe >= 0);
 (G_upper_unsafe - G >=0);
-(u + u_basal >= 0);
+//(u + u_basal >= 0);
 
 flow:
 
@@ -274,7 +274,7 @@ time:
 invt:
 (G - G_lower_unsafe >= 0);
 (G_upper_unsafe - G >=0);
-(u + u_basal >= 0);
+//(u + u_basal >= 0);
 
 flow:
 
@@ -339,8 +339,8 @@ time:
 [0,tau_sample];
 
 invt:
-(G - (Q1_init / VG) + sp_thresh >= 0);
-((Q1_init / VG) - G + sp_thresh >= 0);
+//(G - (Q1_init / VG) + sp_thresh >= 0);
+//((Q1_init / VG) - G + sp_thresh >= 0);
 //(u >= -0.001);
 //(u <= 0.001);
 
@@ -442,7 +442,6 @@ init:
 		);
 
 
-
 goal:
 
-@4(tau = 1440);
+@4(tau >= 1440);

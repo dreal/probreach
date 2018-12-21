@@ -9,6 +9,8 @@
 #include "node.h"
 #include "model.h"
 #include "naive.h"
+#include "git_sha1.h"
+#include "version.h"
 
 extern "C"
 {
@@ -50,6 +52,7 @@ void print_help()
     cout << "-p - maximum number of simulation paths (default = " << max_paths << ")" << endl;
     cout << "-n - number of points used in IVP solving (default = " << num_points << ")" << endl;
     cout << "-o - full path to the output file (default = " << out_file << ")" << endl;
+    cout << "-v - prints out the current version of ProbReach" << endl;
 }
 
 // parsing command line options
@@ -68,6 +71,12 @@ void parse_cmd(int argc, char* argv[])
         if(strcmp(argv[i], "-h") == 0)
         {
             print_help();
+            exit(EXIT_SUCCESS);
+        }
+        // version
+        if(strcmp(argv[i], "-v") == 0)
+        {
+            cout << "ProbReach " << PROBREACH_VERSION << " (" << git::get_sha1() << ")" << endl;
             exit(EXIT_SUCCESS);
         }
         // minimum path length

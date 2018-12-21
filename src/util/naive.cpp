@@ -236,13 +236,18 @@ void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> ini
         if(!jump_enabled)
         {
             cout << "no jumps can be made from the current mode" << endl;
+            // outputting the witness
             for(auto it = init_map.begin(); it != init_map.end(); it++) cout << it->first << " : " << it->second << endl;
+            // outputting the incomplete path
+            path.insert(path.end(), traj.begin(), traj.end());
+            // outputting the unsatisfying trajectory
+            output_traj(path, os);
         }
 
     }
     if(verify)
     {
-        // if we made it here, then neither of the goal states can be reached
+        // if we made it here in "verification" mode, then neither of the goal states can be reached
         cout << "unsat" << endl;
         // report more info
         cout << "goals could not be reached" << endl;

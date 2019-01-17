@@ -214,5 +214,6 @@ ENDIF(DREAL_FOUND)
 # Adds the option to build the translator if MATLAB is located
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/simulator/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/gp/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/test/util/CMakeLists.txt)
 

@@ -29,7 +29,7 @@ located in ```probreach/src/python``` directory. This script requires [pandas](h
 
 ### Usage
 
-	``` python visualise.py <var 1> <var 2> ... <var n> <path/to/output/file.json> ```
+	python visualise.py <var 1> <var 2> ... <var n> <path/to/output/file.json>
 
 If no variables are specified in the command line, then all variables are visualised.
 

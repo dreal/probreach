@@ -47,7 +47,7 @@ void print_help()
     cout << "options:" << endl;
     cout << "-h - displays help message" << endl;
     cout << "-v - displays the tool version" << endl;
-    cout << "-l - maximum depth of every simulation path (default = " << min_depth << ")" << endl;
+    cout << "-l - minimum depth of every simulation path (default = " << min_depth << ")" << endl;
     cout << "-u - maximum depth of every simulation path (default = " << max_depth << ")" << endl;
     cout << "-p - maximum number of simulation paths (default = " << max_paths << ")" << endl;
     cout << "-n - number of points used in IVP solving (default = " << num_points << ")" << endl;

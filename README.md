@@ -23,3 +23,5 @@ Latest version of static binary for Linux and Mac can be downloaded from **ProbR
 # [How to Use](doc/usage.md)
 
 # [pdrh2simulink Setup](doc/translator.md)
+
+# [Simulator](doc/simulator.md)

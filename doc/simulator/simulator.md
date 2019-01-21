@@ -58,3 +58,6 @@ python ~/probreach/src/python/visualise.py Q1 u C output.json
 ```
 The commands above produce the following output:
 
+![traj1](img/ex1.png)
+![traj2](img/ex2.png)
+

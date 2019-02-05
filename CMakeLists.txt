@@ -75,8 +75,6 @@ include_directories("${PROBREACH_SOURCE_DIR}/parser/pdrh")
 include_directories("${PROBREACH_SOURCE_DIR}/logging")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 
-IF(DREAL_FOUND)
-
 set(PROBREACH_VERSION ${PROBREACH_VERSION_MAJOR}.${PROBREACH_VERSION_MINOR})
 configure_file(
         "${PROBREACH_SOURCE_DIR}/version.h.in"
@@ -117,6 +115,7 @@ BISON_TARGET(pdrh_parser ${PROBREACH_SOURCE_DIR}/pdrh2smt/parser/pdrhparser.y ${
 FLEX_TARGET(pdrh_scanner ${PROBREACH_SOURCE_DIR}/pdrh2smt/parser/pdrhlexer.l  ${PROBREACH_BINARY_DIR}/pdrh2smt/parser/pdrhlexer.cpp)
 ADD_FLEX_BISON_DEPENDENCY(pdrh_scanner pdrh_parser)
 
+IF(DREAL_FOUND)
 
 # header files
 #include_directories("/opt/Matlab/R2014a/extern/include")

@@ -11,6 +11,8 @@
 #include "dreal_wrapper.h"
 #include "isat_wrapper.h"
 
+using namespace std;
+
 const string DREAL_NAME = "dReal";
 const string ISAT_NAME = "iSAT";
 const vector<string> ARGS = {"--version", "--help"};

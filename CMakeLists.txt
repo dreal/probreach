@@ -73,10 +73,6 @@ configure_file(
         "${PROBREACH_SOURCE_DIR}/version.h.in"
         "${PROBREACH_SOURCE_DIR}/version.h")
 
-configure_file(
-        "${PROBREACH_SOURCE_DIR}/config.h.in"
-        "${PROBREACH_SOURCE_DIR}/config.h")
-
 IF(CAPD_FOUND)
     include_directories("${CAPD_INCLUDE_DIR}")
 ELSE(CAPD_FOUND)
@@ -112,11 +108,13 @@ set(PROBREACH_SRC ${PROBREACH_SRC}
 # creating a library
 add_library(probreach ${PROBREACH_SRC})
 
-IF(CAPD_FOUND)
-    target_link_libraries(probreach ${CAPD_LIBRARIES})
-ENDIF(CAPD_FOUND)
+#IF(CAPD_FOUND)
+#    target_link_libraries(probreach ${CAPD_LIBRARIES})
+#ENDIF(CAPD_FOUND)
 
-target_link_libraries(probreach -lfl -lgsl -lgslcblas)
+#message(STATUS ${CAPD_LIBRARIES})
+
+target_link_libraries(probreach -lfl -lgsl -lgslcblas ${CAPD_LIBRARIES})
 # creating an executable
 add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
 target_link_libraries(ProbReach probreach)
@@ -134,5 +132,6 @@ add_custom_target(install_probreach
 # Adds the option to build the translator if MATLAB is located
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/simulator/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/pid_optimiser/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/gp/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/test/util/CMakeLists.txt)

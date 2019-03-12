@@ -14,6 +14,9 @@ using namespace std;
 const vector<string> SAT_ANSWERS = {"sat", "delta-sat"};
 const vector<string> UNSAT_ANSWERS = {"unsat"};
 
+string dreal::solver_bin = "dReal";
+string dreal::cmd_args = "";
+
 // parsing output given the name of the file
 int parse_output(string output)
 {

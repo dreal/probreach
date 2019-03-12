@@ -12,6 +12,8 @@ const string UNKNOWN_ANSWER = "unknown";
 const string UNSAT_ANSWER = "unsatisfiable";
 const string SAT_ANSWER = "Target state evaluates to:  true";
 
+using namespace std;
+
 solver::output parse_isat_output(string output)
 {
     fstream output_file;

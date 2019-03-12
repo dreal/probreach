@@ -3,6 +3,7 @@
 //
 
 #include "node.h"
+#include "model.h"
 #include <sstream>
 #include <random>
 #include <cmath>
@@ -99,7 +100,14 @@ string pdrh::node_fix_index(pdrh::node* n, int step, string index)
     }
     else
     {
-        s  << " " << n->value << "_" << step << "_" << index;
+        if(pdrh::var_map.find(n->value) != pdrh::var_map.end())
+        {
+            s  << " " << n->value << "_" << step << "_" << index;
+        }
+        else
+        {
+            s << " " << n->value;
+        }
     }
     return s.str();
 }

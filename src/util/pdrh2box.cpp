@@ -4,9 +4,11 @@
 
 #include "pdrh2box.h"
 #include "pdrh_config.h"
-#include <easylogging++.h>
+//#include <easylogging++.h>
 #include <iomanip>
 #include "ap.h"
+
+using namespace std;
 
 // throws exception in case if one of the terminal modes is not a number
 // evaluates the value of arithmetic expression
@@ -53,7 +55,7 @@ bool pdrh2box::node_to_boolean(pdrh::node *expr, vector<box> boxes)
     }
     else
     {
-        CLOG(ERROR, "model") << "Unrecognised or unsupported operation \"" << expr->value << "\"";
+        cerr << "Unrecognised or unsupported operation \"" << expr->value << "\"";
         exit(EXIT_FAILURE);
     }
 }
@@ -96,7 +98,7 @@ bool pdrh2box::check_zero_crossing(pdrh::node *expr, vector<box> boxes, box firs
     }
     else
     {
-        CLOG(ERROR, "model") << "Unrecognised or unsupported operation \"" << expr->value << "\"";
+        cerr << "Unrecognised or unsupported operation \"" << expr->value << "\"";
         exit(EXIT_FAILURE);
     }
 }
@@ -135,12 +137,12 @@ capd::interval pdrh2box::node_to_interval(pdrh::node *expr, vector<box> boxes)
 //        {
 //            return pdrh::node_to_interval(n);
 //        }
-        CLOG(ERROR, "model") << "The number of operands can't be greater than 2";
+//        CLOG(ERROR, "model") << "The number of operands can't be greater than 2";
         exit(EXIT_FAILURE);
     }
     else
     {
-        if(strcmp(expr->value.c_str(), "+") == 0)
+        if(expr->value == "+")
         {
             if(expr->operands.size() == 1)
             {
@@ -151,7 +153,7 @@ capd::interval pdrh2box::node_to_interval(pdrh::node *expr, vector<box> boxes)
                 return pdrh2box::node_to_interval(expr->operands.front(), boxes) + pdrh2box::node_to_interval(expr->operands.back(), boxes);
             }
         }
-        else if(strcmp(expr->value.c_str(), "-") == 0)
+        else if(expr->value == "-")
         {
             if(expr->operands.size() == 1)
             {
@@ -162,61 +164,61 @@ capd::interval pdrh2box::node_to_interval(pdrh::node *expr, vector<box> boxes)
                 return pdrh2box::node_to_interval(expr->operands.front(), boxes) - pdrh2box::node_to_interval(expr->operands.back(), boxes);
             }
         }
-        else if(strcmp(expr->value.c_str(), "*") == 0)
+        else if(expr->value == "*")
         {
             return pdrh2box::node_to_interval(expr->operands.front(), boxes) * pdrh2box::node_to_interval(expr->operands.back(), boxes);
         }
-        else if(strcmp(expr->value.c_str(), "/") == 0)
+        else if(expr->value == "/")
         {
             return pdrh2box::node_to_interval(expr->operands.front(), boxes) / pdrh2box::node_to_interval(expr->operands.back(), boxes);
         }
-        else if(strcmp(expr->value.c_str(), "^") == 0)
+        else if(expr->value == "^")
         {
             return capd::intervals::power(pdrh2box::node_to_interval(expr->operands.front(), boxes), pdrh2box::node_to_interval(expr->operands.back(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "sqrt") == 0)
+        else if(expr->value == "sqrt")
         {
             return capd::intervals::sqrt(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "abs") == 0)
+        else if(expr->value == "abs")
         {
             return capd::intervals::iabs(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "exp") == 0)
+        else if(expr->value == "exp")
         {
             return capd::intervals::exp(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "log") == 0)
+        else if(expr->value == "log")
         {
             return capd::intervals::log(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "sin") == 0)
+        else if(expr->value == "sin")
         {
             return capd::intervals::sin(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "cos") == 0)
+        else if(expr->value == "cos")
         {
             return capd::intervals::cos(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "tan") == 0)
+        else if(expr->value == "tan")
         {
             return capd::intervals::tan(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "asin") == 0)
+        else if(expr->value == "asin")
         {
             return capd::intervals::asin(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "acos") == 0)
+        else if(expr->value == "acos")
         {
             return capd::intervals::acos(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
-        else if(strcmp(expr->value.c_str(), "atan") == 0)
+        else if(expr->value == "atan")
         {
             return capd::intervals::atan(pdrh2box::node_to_interval(expr->operands.front(), boxes));
         }
         else
         {
-            CLOG(ERROR, "model") << "Unknown function \"" << expr->value << "\"";
+            cerr << "Unknown function \"" << expr->value << "\"";
             exit(EXIT_FAILURE);
         }
     }
@@ -312,12 +314,12 @@ string pdrh2box::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
         {
             s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
             s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-            if(strcmp(it->second.first->value.c_str(), "-infty") != 0)
+            if(it->second.first->value == "-infty")
             {
                 s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
                 s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
             }
-            if(strcmp(it->second.second->value.c_str(), "infty") != 0)
+            if(it->second.second->value == "infty")
             {
                 s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
                 s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
@@ -442,12 +444,12 @@ string pdrh2box::reach_to_smt2(pdrh::state init, pdrh::state goal, vector<pdrh::
         {
             s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
             s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-            if(strcmp(it->second.first->value.c_str(), "-infty") != 0)
+            if(it->second.first->value != "-infty")
             {
                 s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
                 s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
             }
-            if(strcmp(it->second.second->value.c_str(), "infty") != 0)
+            if(it->second.second->value != "infty")
             {
                 s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
                 s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
@@ -567,12 +569,12 @@ string pdrh2box::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
         {
             s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
             s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-            if(strcmp(it->second.first->value.c_str(), "-infty") != 0)
+            if(it->second.first->value != "-infty")
             {
                 s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
                 s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
             }
-            if(strcmp(it->second.second->value.c_str(), "infty") != 0)
+            if(it->second.second->value != "infty")
             {
                 s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
                 s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
@@ -792,12 +794,12 @@ string pdrh2box::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<bo
             {
                 s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
                 s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-                if(strcmp(it->second.first->value.c_str(), "-infty") != 0)
+                if(it->second.first->value != "-infty")
                 {
                     s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
                     s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
                 }
-                if(strcmp(it->second.second->value.c_str(), "infty") != 0)
+                if(it->second.second->value != "infty")
                 {
                     s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
                     s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;

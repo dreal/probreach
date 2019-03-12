@@ -3,27 +3,32 @@
 #  CAPD_INCLUDE_DIR - CAPD include directories
 #  CAPD_LIBRARIES - CAPD library
 
+set(CAPD_INCLUDE_DIR_LIST ${CAPD_INCLUDE_DIR_LIST} /usr/capd/include)
+set(CAPD_INCLUDE_DIR_LIST ${CAPD_INCLUDE_DIR_LIST} /usr/local/capd/include)
 
+#set(CAPD_LIBRARIES_LIST ${CAPD_LIBRARIES_LIST} /usr/capd/lib/libcapd-gui.a)
+#set(CAPD_LIBRARIES_LIST ${CAPD_LIBRARIES_LIST} /usr/local/capd/lib/libcapd-gui.a)
+
+set(CAPD_LIBRARIES_LIST ${CAPD_LIBRARIES_LIST} /usr/capd/lib/libcapd.a)
+set(CAPD_LIBRARIES_LIST ${CAPD_LIBRARIES_LIST} /usr/local/capd/lib/libcapd.a)
 
 if(CAPD_INCLUDE_DIR AND CAPD_LIBRARIES)
     set(CAPD_FOUND TRUE)
 else(CAPD_INCLUDE_DIR AND CAPD_LIBRARIES)
 
     # finding include directories
-    if(NOT CAPD_INCLUDE_DIR AND EXISTS /usr/include/capd)
-        set(CAPD_INCLUDE_DIR /usr/include/capd)
-    endif(NOT CAPD_INCLUDE_DIR AND EXISTS /usr/include/capd)
-    if(NOT CAPD_INCLUDE_DIR AND EXISTS /usr/local/include/capd)
-        set(CAPD_INCLUDE_DIR /usr/local/include/capd)
-    endif(NOT CAPD_INCLUDE_DIR AND EXISTS /usr/local/include/capd)
+    foreach(ITEM ${CAPD_INCLUDE_DIR_LIST})
+        if(EXISTS ${ITEM} AND NOT CAPD_INCLUDE_DIR)
+            set(CAPD_INCLUDE_DIR ${ITEM})
+        endif(EXISTS ${ITEM} AND NOT CAPD_INCLUDE_DIR)
+    endforeach(ITEM)
 
     # finding libraries
-    if(NOT CAPD_LIBRARIES AND EXISTS /usr/lib/libcapd.a)
-        set(CAPD_LIBRARIES /usr/lib/libcapd.a)
-    endif(NOT CAPD_LIBRARIES AND EXISTS /usr/lib/libcapd.a)
-    if(NOT CAPD_LIBRARIES AND EXISTS /usr/local/lib/libcapd.a)
-        set(CAPD_LIBRARIES /usr/local/lib/libcapd.a)
-    endif(NOT CAPD_LIBRARIES AND EXISTS /usr/local/lib/libcapd.a)
+    foreach(ITEM ${CAPD_LIBRARIES_LIST})
+        if(EXISTS ${ITEM} AND NOT CAPD_LIBRARIES)
+            set(CAPD_LIBRARIES ${ITEM})
+        endif(EXISTS ${ITEM} AND NOT CAPD_LIBRARIES)
+    endforeach(ITEM)
 
     # checking if include directories and libraries has been found
     if(CAPD_INCLUDE_DIR AND CAPD_LIBRARIES)

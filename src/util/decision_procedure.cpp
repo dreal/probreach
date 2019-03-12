@@ -3,14 +3,11 @@
 //
 
 #include <unistd.h>
-#include <logging/easylogging++.h>
 #include <omp.h>
-#include <util/generators/smt2_generator.h>
+#include "smt2_generator.h"
 #include "decision_procedure.h"
-#include "solver/dreal_wrapper.h"
+#include "dreal_wrapper.h"
 #include "pdrh_config.h"
-//#include "solver_wrapper.h"
-#include "isat_wrapper.h"
 #include "ap.h"
 #include "pdrh2box.h"
 
@@ -25,47 +22,48 @@ int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes)
 }
 
 // evaluating the main reachability formula with isat
-int decision_procedure::evaluate_isat(vector<box> boxes)
-{
-    return decision_procedure::evaluate_isat(global_config.solver_bin, boxes);
-}
+//int decision_procedure::evaluate_isat(vector<box> boxes)
+//{
+//    return decision_procedure::evaluate_isat(global_config.solver_bin, boxes);
+//}
+//
 
 // evaluating the main reachability formula with isat specifying the isat_binary
-int decision_procedure::evaluate_isat(string solver_bin, vector<box> boxes)
-{
-    int thread_num = 0;
-    #ifdef _OPENMP
-        thread_num = omp_get_thread_num();
-    #endif
-    // getting raw filename here
-    string filename = string(global_config.model_filename);
-    size_t ext_index = filename.find_last_of('.');
-    string raw_filename = filename.substr(0, ext_index);
-    // creating a name for the smt2 file
-    stringstream f_stream;
-    f_stream << raw_filename << "_" << thread_num << ".hys";
-    string isat_filename = f_stream.str();
-    // writing to the file
-    ofstream isat_file;
-    isat_file.open(isat_filename.c_str());
-    isat_file << pdrh2box::reach_to_isat(boxes);
-    isat_file.close();
-    stringstream solver_opt_stream;
-    solver_opt_stream << global_config.solver_opt << " --start-depth " << (global_config.reach_depth_min * 2 + 1) <<
-    " --max-depth " << (global_config.reach_depth_max * 2 + 1) <<
-    " --ode-opts=--continue-after-not-reaching-horizon --ode-opts=--detect-independent-ode-groups";
-    // calling isat here
-    solver::output res = isat::evaluate(solver_bin, isat_filename, solver_opt_stream.str());
-    remove(isat_filename.c_str());
-    switch(res)
-    {
-        case solver::output::SAT:
-            return decision_procedure::SAT;
-
-        case solver::output::UNSAT:
-            return decision_procedure::UNSAT;
-    }
-}
+//int decision_procedure::evaluate_isat(string solver_bin, vector<box> boxes)
+//{
+//    int thread_num = 0;
+//    #ifdef _OPENMP
+//        thread_num = omp_get_thread_num();
+//    #endif
+//    // getting raw filename here
+//    string filename = string(global_config.model_filename);
+//    size_t ext_index = filename.find_last_of('.');
+//    string raw_filename = filename.substr(0, ext_index);
+//    // creating a name for the smt2 file
+//    stringstream f_stream;
+//    f_stream << raw_filename << "_" << thread_num << ".hys";
+//    string isat_filename = f_stream.str();
+//    // writing to the file
+//    ofstream isat_file;
+//    isat_file.open(isat_filename.c_str());
+//    isat_file << pdrh2box::reach_to_isat(boxes);
+//    isat_file.close();
+//    stringstream solver_opt_stream;
+//    solver_opt_stream << global_config.solver_opt << " --start-depth " << (global_config.reach_depth_min * 2 + 1) <<
+//    " --max-depth " << (global_config.reach_depth_max * 2 + 1) <<
+//    " --ode-opts=--continue-after-not-reaching-horizon --ode-opts=--detect-independent-ode-groups";
+//    // calling isat here
+//    solver::output res = isat::evaluate(solver_bin, isat_filename, solver_opt_stream.str());
+//    remove(isat_filename.c_str());
+//    switch(res)
+//    {
+//        case solver::output::SAT:
+//            return decision_procedure::SAT;
+//
+//        case solver::output::UNSAT:
+//            return decision_procedure::UNSAT;
+//    }
+//}
 
 // used for formal verification
 int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box> boxes, string solver_opt)
@@ -74,7 +72,7 @@ int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box
     //int first_res = decision_procedure::evaluate_flow_by_flow(path, boxes, global_config.solver_bin, solver_opt);
     int res = ap::simulate_path(path, ap::init_to_box(boxes), boxes);
 
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << res;
+//    CLOG_IF(global_config.verbose, INFO, "algorithm") << res;
 
     return res;
 
@@ -107,7 +105,7 @@ int decision_procedure::evaluate_formal(std::vector<pdrh::mode *> path, std::vec
 
     if(first_res == decision_procedure::result::UNSAT)
     {
-       CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+//       CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
        return decision_procedure::result::UNSAT;
     }
     else if(first_res == decision_procedure::result::SAT)
@@ -115,12 +113,12 @@ int decision_procedure::evaluate_formal(std::vector<pdrh::mode *> path, std::vec
        int second_res = decision_procedure::evaluate_complement(path, boxes, solver_opt);
        if(second_res == decision_procedure::result::UNSAT)
        {
-           CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+//           CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
            return decision_procedure::result::SAT;
        }
        else if(second_res == decision_procedure::result::SAT)
        {
-           CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+//           CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
            return decision_procedure::result::UNDET;
        }
     }
@@ -162,7 +160,7 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
         cout << pdrh2box::reach_to_smt2(path, boxes) << endl;
     }
 
-
+//    cout << "Solver options: " << solver_opt << endl;
     // calling dreal here
     // solver_opt.append(" --model");
     int first_res = dreal::execute(solver_bin, smt_filename, solver_opt);
@@ -181,7 +179,7 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
         }
         else
         {
-            CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (UNSAT)";
+            cerr << "Problem occurred while removing one of auxiliary files (UNSAT)";
             return decision_procedure::ERROR;
         }
     }
@@ -210,7 +208,7 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
         }
         else
         {
-            CLOG(ERROR, "solver") << "Problem occurred while removing one of auxiliary files (DELTA-SAT)";
+            cerr << "Problem occurred while removing one of auxiliary files (DELTA-SAT)";
             return decision_procedure::ERROR;
         }
     }
@@ -445,7 +443,7 @@ int decision_procedure::evaluate_flow_by_flow(vector<pdrh::mode *> path, vector<
         thread_num = omp_get_thread_num();
     #endif
 
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating \"flow by flow\"";
+//    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating \"flow by flow\"";
 
     // getting raw filename here
     std::string filename = std::string(global_config.model_filename);
@@ -464,7 +462,7 @@ int decision_procedure::evaluate_flow_by_flow(vector<pdrh::mode *> path, vector<
     // assumed that there is at least one jump
     for(size_t i = 0; i < path.size(); i++)
     {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Mode " << path.at(i)->id << " at depth = " << i;
+//        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Mode " << path.at(i)->id << " at depth = " << i;
         // creating a name for the smt2 file
         std::stringstream f_stream;
         f_stream << raw_filename << "_" << path.size() - 1 << "_" << i << "_" << thread_num << ".smt2";
@@ -563,7 +561,7 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
             {
                 s << m->id << " ";
             }
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str() << " (length " << path.size() - 1 << ")";
+//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str() << " (length " << path.size() - 1 << ")";
             // evaluating a path here
             switch (evaluate(path, boxes, solver_opt))
             {
@@ -621,7 +619,7 @@ int decision_procedure::evaluate_formal(vector<vector<pdrh::mode *>> paths, vect
             {
                 s << m->id << " ";
             }
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str() << " (length " << path.size() - 1 << ")";
+//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str() << " (length " << path.size() - 1 << ")";
             // evaluating a path here
             switch (evaluate_formal(path, boxes, solver_opt))
             {
@@ -711,6 +709,7 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
 
 int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box init, vector<box> boxes, string solver_bin, string solver_opt)
 {
+    //cout << "Here!!!" << endl;
     // default value for the thread number
     int thread_num = 0;
     #ifdef _OPENMP
@@ -825,9 +824,9 @@ pair<capd::interval, box> decision_procedure::get_jump_time(pdrh::mode *m, pdrh:
 {
     // default value for the thread number
     int thread_num = 0;
-#ifdef _OPENMP
-    thread_num = omp_get_thread_num();
-#endif
+    #ifdef _OPENMP
+        thread_num = omp_get_thread_num();
+    #endif
     // getting raw filename here
     std::string filename = std::string(global_config.model_filename);
     size_t ext_index = filename.find_last_of('.');

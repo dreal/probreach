@@ -32,9 +32,9 @@ namespace decision_procedure
     int evaluate_complement(vector<pdrh::mode*>, vector<box>, string, string);
     int evaluate_complement(vector<pdrh::mode*>, vector<box>, string);
 
-    // evaluate a set of boxes using iSAT
-    int evaluate_isat(vector<box>);
-    int evaluate_isat(string, vector<box>);
+//    // evaluate a set of boxes using iSAT
+//    int evaluate_isat(vector<box>);
+//    int evaluate_isat(string, vector<box>);
 
     int synthesize(pdrh::state, vector<pdrh::mode*>, box, int, box);
     int synthesize(pdrh::state, pdrh::state, vector<pdrh::mode*>, box);

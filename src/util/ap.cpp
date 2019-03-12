@@ -10,6 +10,7 @@
 #include <logging/easylogging++.h>
 #include <gsl/gsl_randist.h>
 #include <chrono>
+#include <solver/dreal_wrapper.h>
 #include "generators/smt2_generator.h"
 #include "decision_procedure.h"
 #include "pdrh2box.h"
@@ -1294,7 +1295,7 @@ int ap::verify(vector<box> boxes)
             }
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Time bound: " << time_bound;
             //cout << "Initial condition: " << init << endl;
-            int invt_check = decision_procedure::check_invariants(cur_mode, time_bound, init, boxes, global_config.solver_bin, global_config.solver_opt);
+            int invt_check = decision_procedure::check_invariants(cur_mode, time_bound, init, boxes, dreal::solver_bin, global_config.solver_opt);
             switch(invt_check)
             {
                 // returning SAT if global time is reached for the current path

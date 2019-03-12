@@ -8,8 +8,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
-//#include <capd/capdlib.h>
-//#include <capd/intervals/lib.h>
+#include <capd/capdlib.h>
+#include <capd/intervals/lib.h>
 #include <tuple>
 #include <box.h>
 #include "model.h"

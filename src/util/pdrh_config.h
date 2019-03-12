@@ -80,7 +80,7 @@ struct pdrh_config
     bool show_model = false;
     int sample_size = 20;
     int iter_num = 3;
-    size_t ode_discretisation = 4;
+    size_t ode_discretisation = 1;
 
     bool use_verified = false;
 

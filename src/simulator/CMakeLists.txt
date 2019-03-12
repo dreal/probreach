@@ -3,11 +3,6 @@ file(GLOB SIMULATOR_SRC
         ${PROBREACH_SOURCE_DIR}/util/model.cpp
         ${PROBREACH_SOURCE_DIR}/util/naive.cpp)
 
-file(GLOB SIMULATOR_INCLUDE
-        ${PROBREACH_SOURCE_DIR}/util/node.h
-        ${PROBREACH_SOURCE_DIR}/util/model.cpp
-        ${PROBREACH_SOURCE_DIR}/util/naive.h)
-
 set(SIMULATOR_INCLUDE ${SIMULATOR_INCLUDE} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.h)
 
 set(SIMULATOR_SRC ${SIMULATOR_SRC} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c

@@ -9,7 +9,7 @@ if(GTEST_FOUND)
     add_executable(box_test ${PROBREACH_TEST_DIR}/util/box_test.cpp
             ${PROBREACH_TEST_DIR}/main_test.cpp
             ${PROBREACH_SOURCE_DIR}/util/box.cpp)
-    target_link_libraries(box_test ${DREAL_LIBRARIES} -lgtest)
+    target_link_libraries(box_test ${CAPD_LIBRARIES} -lgtest)
     add_test(box_test ${PROBREACH_BINARY_DIR}/test/util/box_test)
 
     # unit test for the methods in node.cpp

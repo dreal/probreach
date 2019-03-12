@@ -90,8 +90,9 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
 
 /**
  *
- * @param modes
- * @param init
+ * @param modes - modes of the hybrid system
+ * @param init - initial state
+ * @param goal - goal to check
  * @param depth - exact depth of simulation
  * @param num_points - number of points used for discretisation in IVP solving
  * @param filename - path to the output file

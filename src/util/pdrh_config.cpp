@@ -6,14 +6,12 @@
 #include <iostream>
 #include <sstream>
 #include <string.h>
+#include "version.h"
+#include "git_sha1.h"
 
 #ifdef _OPENMP
     #include<omp.h>
 #endif
-#include <easylogging++.h>
-
-#include "version.h"
-#include "git_sha1.h"
 
 using namespace std;
 
@@ -73,7 +71,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.precision_prob;
             if (global_config.precision_prob <= 0)
             {
-                CLOG(ERROR, "config") << "-e should be positive";
+                cerr << "-e should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -85,7 +83,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.sample_size;
             if(global_config.sample_size <= 0)
             {
-                CLOG(ERROR, "config") << "--sample-size must be positive";
+                cerr << "--sample-size must be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -97,7 +95,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.elite_ratio;
             if(global_config.elite_ratio <= 0 || global_config.elite_ratio >= 1)
             {
-                CLOG(ERROR, "config") << "--elite-ratio must be a number in the interval (0,1)";
+                cerr << "--elite-ratio must be a number in the interval (0,1)";
                 exit(EXIT_FAILURE);
             }
         }
@@ -109,7 +107,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.sobol_term_arg;
             if(global_config.sobol_term_arg <= 0)
             {
-                CLOG(ERROR, "config") << "--sobol-term-arg must be positive";
+                cerr << "--sobol-term-arg must be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -121,7 +119,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.cross_entropy_term_arg;
             if(global_config.cross_entropy_term_arg <= 0)
             {
-                CLOG(ERROR, "config") << "--cross-entropy-term-arg must be positive";
+                cerr << "--cross-entropy-term-arg must be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -146,7 +144,7 @@ void parse_pdrh_config(int argc, char* argv[])
             global_config.reach_depth_min = global_config.reach_depth_max;
             if(global_config.reach_depth_max < 0)
             {
-                CLOG(ERROR, "config") << "-k cannot be negative";
+                cerr << "-k cannot be negative";
                 exit(EXIT_FAILURE);
             }
         }
@@ -159,7 +157,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.reach_depth_min;
             if(global_config.reach_depth_min < 0)
             {
-                CLOG(ERROR, "config") << "-l cannot be negative";
+                cerr << "-l cannot be negative";
                 exit(EXIT_FAILURE);
             }
 //            else if(global_config.reach_depth_min > global_config.reach_depth_max)
@@ -176,7 +174,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.reach_depth_max;
             if(global_config.reach_depth_max < 0)
             {
-                CLOG(ERROR, "config") << "-u cannot be negative";
+                cerr << "-u cannot be negative";
                 exit(EXIT_FAILURE);
             }
 //            else if(global_config.reach_depth_min > global_config.reach_depth_max)
@@ -184,6 +182,18 @@ void parse_pdrh_config(int argc, char* argv[])
 //                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
 //                exit(EXIT_FAILURE);
 //            }
+        }
+        // maximum reachability depth
+        else if(strcmp(argv[i], "-n") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.ode_discretisation;
+            if(global_config.ode_discretisation < 0)
+            {
+                cerr << "-n must be positive";
+                exit(EXIT_FAILURE);
+            }
         }
         // nondeterministic precision
         else if(strcmp(argv[i], "--precision-nondet") == 0)
@@ -205,7 +215,7 @@ void parse_pdrh_config(int argc, char* argv[])
                     i++;
                     if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
                     {
-                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
+                        cerr << "partition precision for variable \"" << var << "\" is not defined";
                         exit(EXIT_FAILURE);
                     }
                     else
@@ -226,7 +236,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.solver_precision_ratio;
             if(global_config.solver_precision_ratio <= 0)
             {
-                CLOG(ERROR, "config") << "--precision-ratio should be positive";
+                cerr << "--precision-ratio should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -238,7 +248,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.integral_pdf_step;
             if(global_config.integral_pdf_step <= 0)
             {
-                CLOG(ERROR, "config") << "--integral-pdf-step should be positive";
+                cerr << "--integral-pdf-step should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -277,10 +287,10 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
                 else
                 {
-                    if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), argv[i]) == global_config.time_var_name.end())
-                    {
+//                    if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), argv[i]) == global_config.time_var_name.end())
+//                    {
                         global_config.time_var_name.push_back(argv[i]);
-                    }
+//                    }
                     i++;
                 }
             }
@@ -299,10 +309,10 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
                 else
                 {
-                    if(find(global_config.controller.plant_output.begin(), global_config.controller.plant_output.end(), argv[i]) == global_config.controller.plant_output.end())
-                    {
+//                    if(find(global_config.controller.plant_output.begin(), global_config.controller.plant_output.end(), argv[i]) == global_config.controller.plant_output.end())
+//                    {
                         global_config.controller.plant_output.push_back(argv[i]);
-                    }
+//                    }
                     i++;
                 }
             }
@@ -321,10 +331,10 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
                 else
                 {
-                    if(find(global_config.controller.controller_output.begin(), global_config.controller.controller_output.end(), argv[i]) == global_config.controller.controller_output.end())
-                    {
+//                    if(find(global_config.controller.controller_output.begin(), global_config.controller.controller_output.end(), argv[i]) == global_config.controller.controller_output.end())
+//                    {
                         global_config.controller.controller_output.push_back(argv[i]);
-                    }
+//                    }
                     i++;
                 }
             }
@@ -343,10 +353,10 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
                 else
                 {
-                    if(find(global_config.controller.controller_input.begin(), global_config.controller.controller_input.end(), argv[i]) == global_config.controller.controller_input.end())
-                    {
+//                    if(find(global_config.controller.controller_input.begin(), global_config.controller.controller_input.end(), argv[i]) == global_config.controller.controller_input.end())
+//                    {
                         global_config.controller.controller_input.push_back(argv[i]);
-                    }
+//                    }
                     i++;
                 }
             }
@@ -410,7 +420,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.noise_var;
             if (global_config.noise_var <= 0)
             {
-                CLOG(ERROR, "config") << "noise variance should be positive";
+                cerr << "noise variance should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -424,7 +434,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.chernoff_acc;
             if (global_config.chernoff_acc <= 0)
             {
-                CLOG(ERROR, "config") << "accuracy of Chernoff bound should be positive";
+                cerr << "accuracy of Chernoff bound should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -439,7 +449,7 @@ void parse_pdrh_config(int argc, char* argv[])
             if ((global_config.chernoff_conf < 0) ||
                     (global_config.chernoff_conf >= 1))
             {
-                CLOG(ERROR, "config") << "confidence of Chernoff bound should be within [0, 1)";
+                cerr << "confidence of Chernoff bound should be within [0, 1)";
                 exit(EXIT_FAILURE);
             }
         }
@@ -453,7 +463,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.bayesian_acc;
             if (global_config.bayesian_acc <= 0)
             {
-                CLOG(ERROR, "config") << "accuracy for Bayesian simulations should be positive";
+                cerr << "accuracy for Bayesian simulations should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -468,7 +478,7 @@ void parse_pdrh_config(int argc, char* argv[])
             if ((global_config.bayesian_conf < 0) ||
                 (global_config.bayesian_conf >= 1))
             {
-                CLOG(ERROR, "config") << "confidence for Bayesian simulations should be within [0, 1)";
+                cerr << "confidence for Bayesian simulations should be within [0, 1)";
                 exit(EXIT_FAILURE);
             }
         }
@@ -482,7 +492,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.qmc_conf;
             if (global_config.qmc_conf <= 0)
             {
-                CLOG(ERROR, "config") << "confidence for QMC method should be positive";
+                cerr << "confidence for QMC method should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -496,7 +506,7 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.qmc_acc;
             if (global_config.qmc_acc < 0)
             {
-                CLOG(ERROR, "config") << "accuracy for QMS simulations should be positive";
+                cerr << "accuracy for QMS simulations should be positive";
                 exit(EXIT_FAILURE);
             }
         }
@@ -510,12 +520,11 @@ void parse_pdrh_config(int argc, char* argv[])
             is >> global_config.qmc_sample_size;
             if (global_config.qmc_sample_size <= 0)
             {
-                CLOG(ERROR, "config") << "number of samples for QMC method should be positive";
+                cerr << "number of samples for QMC method should be positive";
                 exit(EXIT_FAILURE);
             }
         }
-
-            // qmc randomisation and CI type
+        // qmc randomisation and CI type
         else if (strcmp(argv[i], "--CI") == 0) {
             global_config.qmc_flag = true;
             global_config.stat_flag = true;
@@ -523,12 +532,10 @@ void parse_pdrh_config(int argc, char* argv[])
             istringstream is(argv[i]);
             is >> global_config.CI_flag;
             if (global_config.CI_flag < 0) {
-                CLOG(ERROR, "config")
-                        << "choose CI type: 0 for single QMC, 1 for RQMC+CLT, 2 for RQMC+ADG-COUL, 3 for RQMC+WILSON, 4 FOR RQMC+LOGIT, 5 FOR RQMC+ANSCOMBE, 6 FOR RQMC_ARCSINE, 7 FOR QMC+QUINT, 8 FOR RQMC+JEFFREYS";
+                cerr << "choose CI type: 0 for single QMC, 1 for RQMC+CLT, 2 for RQMC+ADG-COUL, 3 for RQMC+WILSON, 4 FOR RQMC+LOGIT, 5 FOR RQMC+ANSCOMBE, 6 FOR RQMC_ARCSINE, 7 FOR QMC+QUINT, 8 FOR RQMC+JEFFREYS";
                 exit(EXIT_FAILURE);
             }
         }
-
         // merge flag
         else if(strcmp(argv[i], "--delta-sat") == 0)
         {
@@ -559,7 +566,7 @@ void parse_pdrh_config(int argc, char* argv[])
                     i++;
                     if(is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
                     {
-                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
+                        cerr << "partition precision for variable \"" << var << "\" is not defined";
                         exit(EXIT_FAILURE);
                     }
                     else
@@ -666,19 +673,19 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
                 else
                 {
-                    CLOG(ERROR, "config") << "Number of cores should be positive";
+                    cerr << "Number of cores should be positive";
                     exit(EXIT_FAILURE);
                 }
             }
             else
             {
-                CLOG(ERROR, "config") << "Max number of cores available is " << global_config.max_num_threads << ". You specified " << global_config.num_threads;
+                cerr << "Max number of cores available is " << global_config.max_num_threads << ". You specified " << global_config.num_threads;
                 exit(EXIT_FAILURE);
             }
         }
         else
         {
-            CLOG(ERROR, "config") << "Unrecognized option: " << argv[i];
+            cerr << "Unrecognized option: " << argv[i];
             print_usage();
             exit(EXIT_FAILURE);
         }
@@ -694,11 +701,11 @@ void parse_pdrh_config(int argc, char* argv[])
     // case if filename is not specified
     if(strcmp(global_config.model_filename.c_str(), "") == 0)
     {
-        CLOG(ERROR, "config") << "Model file is not specified";
+        cerr << "Model file is not specified";
         print_usage();
         exit(EXIT_FAILURE);
     }
-    CLOG_IF(global_config.verbose, INFO, "config") << "OK";
+//    CLOG_IF(global_config.verbose, INFO, "config") << "OK";
     // checking secondary solver type
 //    if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
 //    {
@@ -767,10 +774,10 @@ bool is_flag(char* str)
 
 bool is_pdrh(char* str)
 {
-    return strcmp(string(str).substr(string(str).find_last_of('.') + 1).c_str(), "pdrh") == 0;
+    return string(str).substr(string(str).find_last_of('.') + 1) == "pdrh";
 }
 
 bool is_drh(char* str)
 {
-    return strcmp(string(str).substr(string(str).find_last_of('.') + 1).c_str(), "drh") == 0;
+    return string(str).substr(string(str).find_last_of('.') + 1) == "drh";
 }

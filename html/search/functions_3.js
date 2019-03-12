@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['datatype',['dataType',['../classel_1_1_performance_tracking_data.html#a078a2ee9c07e7d2aa14edacd19f517b7',1,'el::PerformanceTrackingData']]],
+  ['datetimeformat',['dateTimeFormat',['../classel_1_1base_1_1_log_format.html#aad379ea4c614d747da4461eebc72efba',1,'el::base::LogFormat']]],
+  ['debuglogmatrix',['DebugLogMatrix',['../class_debug_log_matrix.html#ac5326b3a595dab0adba0b2ff3f1c2f41',1,'DebugLogMatrix']]],
+  ['deepcopy',['deepCopy',['../classel_1_1base_1_1utils_1_1_abstract_registry.html#aaf42dab7089a9b1198e2920983ca82bb',1,'el::base::utils::AbstractRegistry']]],
+  ['defaultconfigurations',['defaultConfigurations',['../classel_1_1base_1_1_registered_loggers.html#acb38f67cf5e297f4be3efa5312e09914',1,'el::base::RegisteredLoggers::defaultConfigurations()'],['../classel_1_1_loggers.html#a96f2336fafdc3ef2c4df01a73ae5ffb7',1,'el::Loggers::defaultConfigurations()']]],
+  ['defaulttypedconfigurations',['defaultTypedConfigurations',['../classel_1_1_loggers.html#af296007c3eb3b71602ec80ff59875b46',1,'el::Loggers']]],
+  ['delete_5fnode',['delete_node',['../namespacepdrh.html#ae491380a308e9036915eaf0f63397453',1,'pdrh']]],
+  ['descending',['descending',['../namespacemeasure_1_1compare__pairs.html#a106231dc35a33789975fd61ed7fefdfe',1,'measure::compare_pairs']]],
+  ['det',['det',['../class_double_matrix.html#aa006a278bb4cfe1db172c95fe4bbfea9',1,'DoubleMatrix']]],
+  ['detect_5fsolver',['detect_solver',['../namespacesolver.html#ab2306030d2ddcbfb9f828e4d679f9859',1,'solver']]],
+  ['determinant',['determinant',['../class_g_s_l_algebra.html#a1ad3ae11353c9145f539d1a4da870208',1,'GSLAlgebra::determinant()'],['../class_i_algebra.html#afa04c1d1dcb6f68b1f2a78637024001e',1,'IAlgebra::determinant()']]],
+  ['diag',['diag',['../class_double_matrix.html#a40f2f95174aa86f52dda62ea4e7c64d2',1,'DoubleMatrix::diag()'],['../class_i_matrix.html#a484bb6c7b548e302a506834b77328300',1,'IMatrix::diag()'],['../class_matrix_g_s_l.html#a084ec7793affc36ce373d75c9b0c400a',1,'MatrixGSL::diag()']]],
+  ['digamma',['digamma',['../namespacernd.html#a88fe07673d47e3000f484b3ae9e6d74a',1,'rnd']]],
+  ['disp',['disp',['../check__stability_8m.html#a3f23385ef02ec25a90be75d03ef5473b',1,'check_stability.m']]],
+  ['dispatch',['dispatch',['../classel_1_1base_1_1_log_dispatcher.html#a88d4a644364bb454136c85338f05da7a',1,'el::base::LogDispatcher']]],
+  ['dispatchaction',['dispatchAction',['../classel_1_1_log_dispatch_data.html#aa7f834fbd4c8440d25ba1958ccf51ea7',1,'el::LogDispatchData']]],
+  ['div',['div',['../class_double_matrix.html#a00a7c5d9e411dbc40ed6b7f35bde6b1a',1,'DoubleMatrix::div(DoubleMatrix *other)'],['../class_double_matrix.html#a6d091f61eee2451a6f4ee99fa1ee2c68',1,'DoubleMatrix::div(double arg)'],['../class_i_matrix.html#a739fed76d7b76775827fee679dac7df8',1,'IMatrix::div(std::shared_ptr&lt; IMatrix &gt; arg)=0'],['../class_i_matrix.html#aa9c865eb9fb5d4e26688b4c8923240c0',1,'IMatrix::div(double arg)=0'],['../class_matrix_g_s_l.html#a4e55db971b3d0a46905e5234b64c3e6a',1,'MatrixGSL::div(std::shared_ptr&lt; IMatrix &gt; arg)'],['../class_matrix_g_s_l.html#a3a5c831bfb956256ffbd81af16c5d168',1,'MatrixGSL::div(double arg)']]],
+  ['dot',['dot',['../class_double_matrix.html#ae6c7a8b7cc6c16896501eb67fa457be5',1,'DoubleMatrix::dot()'],['../class_i_matrix.html#afdad45add2fe757006bd55ad60ec95be',1,'IMatrix::dot()'],['../class_matrix_g_s_l.html#aa88254efe281a7b073d890acf20ececb',1,'MatrixGSL::dot()']]],
+  ['dotraining',['doTraining',['../class_g_p_e_p.html#ac16cad442e8f8d158f3bad1c3a558a5b',1,'GPEP']]],
+  ['doublematrix',['DoubleMatrix',['../class_double_matrix.html#a5f64fab93bbc60bbe9eda8913e9c68f3',1,'DoubleMatrix::DoubleMatrix()'],['../class_double_matrix.html#a8be41d5f7588d54606f99c4d42d0fadb',1,'DoubleMatrix::DoubleMatrix(size_t rows, size_t cols)'],['../class_double_matrix.html#ab11586c83b6925ea4af227b92d2fcdd6',1,'DoubleMatrix::DoubleMatrix(std::vector&lt; std::vector&lt; double &gt; &gt; &amp;vect_mat)'],['../class_double_matrix.html#afc33ad5b97b97522a3ad23493f560516',1,'DoubleMatrix::DoubleMatrix(std::vector&lt; double &gt; &amp;data)'],['../class_double_matrix.html#a2fa0961d682c8e115872f827d526ab66',1,'DoubleMatrix::DoubleMatrix(size_t rows, size_t cols, double val)']]],
+  ['dup',['dup',['../class_double_matrix.html#acdafb04ce80c081a0dea303220c73d70',1,'DoubleMatrix']]],
+  ['duplicate',['duplicate',['../class_i_matrix.html#adfd46940a5191e0c1e29f840b6636989',1,'IMatrix::duplicate()'],['../class_matrix_g_s_l.html#ad75ba20e042680efc45f261d53dec7b3',1,'MatrixGSL::duplicate()']]]
+];

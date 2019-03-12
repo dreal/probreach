@@ -1,2 +1,0 @@
-// setting dReal as a solver
-#define SOLVER_BIN "@DREAL_EXE@"

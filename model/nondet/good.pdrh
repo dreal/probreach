@@ -1,9 +1,11 @@
 model:npha;
 [0,1]x;
-[0,1]n;
+#define n 1
+//[0,1]n;
+[0,1]m;
 [0,1]time;
 [0,1]tau;
-dist_uniform(0,1)r;
+dist_uniform(m,1)r;
 {
 mode 1;
 flow:

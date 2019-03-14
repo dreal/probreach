@@ -1804,6 +1804,8 @@ capd::interval algorithm::evaluate_GPmain() {
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Confidence = " << global_config.qmc_conf;
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample size = " << global_config.qmc_sample_size; //n
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Accuracy = " << global_config.qmc_acc; //n
+
+
     vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
@@ -1823,15 +1825,17 @@ capd::interval algorithm::evaluate_GPmain() {
     TT = gsl_rng_default;
     rr = gsl_rng_alloc(TT);
 
-    int Zz = 1; //number of Mu's
+    int Zz = 10; //number of Mu's
     double Zresultsat = 0.0, Zresultunsat = 0.0; //Z summ
     double pointscount = 0;
     int pointsarray[Zz];
     double UParray[Zz];
     double LOarray[Zz];
     double Carray[Zz];
+    int Sats[Zz];
     int points = 0;
     double samplemean, stdev, samplevar, samplesq;
+    int Total_samples=100;
 
     map<string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
@@ -1847,6 +1851,8 @@ capd::interval algorithm::evaluate_GPmain() {
         points = 1;
         double conf = global_config.qmc_conf;
         double Ca = gsl_cdf_gaussian_Pinv(1 - (1 - conf) / 2, 1);
+//        cout << "CA= " << Ca << endl;
+        int SATnum=0;
 
         // initialize Mu sample
         box mu_sample = rnd::get_sobol_sample(m, mu_domain);
@@ -1870,15 +1876,17 @@ capd::interval algorithm::evaluate_GPmain() {
         gsl_rng_set(rr, static_cast<unsigned long>(l));
 
 #pragma omp parallel
-        while (CI <= Ca) {
+       // while (CI <= Ca) {
+        for(size_t i=0; i<Total_samples; i++){
             box sobol_sample;
             sobol_sample = rnd::get_sobol_sample(q2, sobol_domain2);
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOBOL SAMPLE :" << sobol_sample;
+//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOBOL SAMPLE :" << sobol_sample;
             // sample from [x1_min,x1_max]*...*[xn_min,xn_max] after applying icdf
             box GPicdf_sample = rnd::get_GPicdf(sobol_sample, mu_sample);
 //            cout << "GPicdf_sample = " << GPicdf_sample << endl;
+//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "GPicdf_sample :" << GPicdf_sample;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {GPicdf_sample}, "");
+            res = decision_procedure::evaluate_formal(paths, {GPicdf_sample, mu_sample}, "");
             // computing value of indicator function
 #pragma omp critical
             {
@@ -1886,27 +1894,28 @@ capd::interval algorithm::evaluate_GPmain() {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+//                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+//                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET";
+//                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET";
                         break;
                     }
                     default:
                         break;
                 }
 
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of SAT: " << sat2;
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of UNSAT: " << unsat2;
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of UNDET: " << undet2;
+//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of SAT: " << sat2;
+//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of UNSAT: " << unsat2;
+//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of UNDET: " << undet2;
 
+                SATnum=sat2;
                 ressat2 = sat2 / points;
                 //cout << "ressat: " << ressat2 << endl;
                 resunsat2 = (points - unsat2) / points;
@@ -1930,7 +1939,7 @@ capd::interval algorithm::evaluate_GPmain() {
                     samplevar = pow(points, -1);
                 else {
                     //cout << "HERE!!!!" << endl;
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "points--" << points;
+//                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "points--" << points;
                     samplevar = (samplesq - samplemean) / (points - 1);
                 }
                 //cout << "samplevar==" << samplevar << endl;
@@ -1941,8 +1950,8 @@ capd::interval algorithm::evaluate_GPmain() {
                 result = Ca * stdev / sqrt(points);
                 CI = (global_config.qmc_acc / 2 * sqrt(points) / stdev);
                 //cout << "CI= " << CI << endl;
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Interval/2===" << result;
-                cout << "------------" << endl;
+//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Interval/2===" << result;
+//                cout << "------------" << endl;
                 points++;
             }
         }
@@ -1950,25 +1959,46 @@ capd::interval algorithm::evaluate_GPmain() {
         Zresultsat = Zresultsat + ressat2;
         Zresultunsat = Zresultunsat + resunsat2;
         pointscount = pointscount + points;
+        Sats[l]=SATnum;
         pointsarray[l] = points;
-        UParray[l] = ressat2 + result;
+        UParray[l] = resunsat2 + result;
         LOarray[l] = resunsat2 - result;
         Carray[l] = resunsat2;// - global_config.qmc_acc/2 + result;
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "global_config.qmc_acc/2===" << global_config.qmc_acc / 2;
+
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] << " SATS=" << Sats[l]<< " Lower="
+                                                          << LOarray[l] << " Upper="
+                                                          << UParray[l] << " Center="
+                                                          << Carray[l];
     }
     Zresultsat = Zresultsat / Zz;
     Zresultunsat = Zresultunsat / Zz;
     //pointscount = pointscount / Zz;
     //cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
     //                                            Zresultunsat) << endl;
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "points===" << points;
-    for (int l = 1; l <= Zz; l++) {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] << " Lower="
-                                                          << LOarray[l] << " Upper="
-                                                          << UParray[l] << " Center="
-                                                          << Carray[l];
-    }
-    //cout << "pointscount===" << pointscount << endl; //mean
+//    CLOG_IF(global_config.verbose, INFO, "algorithm") << "points===" << points;
+//    for (int l = 1; l <= Zz; l++) {
+//        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] << " SATS=" << Sats[l]<< " Lower="
+//                                                          << LOarray[l] << " Upper="
+//                                                          << UParray[l] << " Center="
+//                                                          << Carray[l];
+//    }
+
+//    cout << "C-P approach" << endl;
+//
+//    cout << "global_config.qmc_acc/2=" <<global_config.qmc_acc/2<< endl;
+//    for (int l = 1; l <= Zz; l++) {
+//        LOarray[l]= gsl_cdf_beta_P(global_config.qmc_acc/2, Sats[l], Total_samples-Sats[l]+1);
+//        UParray[l]=gsl_cdf_beta_P(1-(global_config.qmc_acc/2), Sats[l], Total_samples-Sats[l]);
+//    }
+//
+//
+//    for (int l = 1; l <= Zz; l++) {
+//        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] << " SATS=" << Sats[l]<< " CPLower="
+//                                                          << LOarray[l] << " CPUpper="
+//                                                          << UParray[l] << " CPCenter="
+//                                                          << Carray[l];
+//    }
 
     return capd::interval(Zresultsat - result, Zresultunsat + result);
     // [Psat+result; Punsat-result]

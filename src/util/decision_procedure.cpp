@@ -152,6 +152,8 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     // will work for one initial and one state only
     smt_file << pdrh2box::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes);
     smt_file.close();
+//    cout << pdrh2box::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes) << endl;
+//    exit(EXIT_SUCCESS);
 
     if(global_config.debug)
     {

@@ -120,6 +120,27 @@ double rnd::sobol_vector(box b)
     return vv;
 }
 
+
+double rnd::nond(box b)
+{
+    double vv;
+    map<std::string, capd::interval> b_edges, edges;
+    b_edges = b.get_map();
+    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+    {
+        double value =it->second.leftBound();
+//        double value = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh2box::node_to_interval(
+//                pdrh::distribution::uniform[it->first].first).leftBound(),
+//                                         pdrh2box::node_to_interval(
+//                                                 pdrh::distribution::uniform[it->first].second).leftBound());
+        vv=value;
+        //cout<<"VALEU-"<<value<<endl;
+        //   edges.insert(make_pair(it->first, capd::interval(value,value)));
+    }
+    return vv;
+}
+
+
 box rnd::get_normal_random_sample(gsl_rng* r, box mu, box sigma)
 {
     map<std::string, capd::interval> edges;
@@ -329,11 +350,15 @@ box rnd::get_icdf(box b)
 box rnd::get_GPicdf(box b, box params)
 {
     map<std::string, capd::interval> b_edges, edges;
+//    cout << "Sobol: " << b << endl;
+//    cout << "Params (nondet): " << params << endl;
     b_edges = b.get_map();
     for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
     {
         if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
         {
+//            cout << "Distribution: " << pdrh::node_to_string_infix(pdrh::distribution::uniform[it->first].first) << endl;
+//            cout << "Left bound: " << pdrh2box::node_to_interval(pdrh::distribution::uniform[it->first].first, {params}).leftBound() << endl;
             double value = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh2box::node_to_interval(
                     pdrh::distribution::uniform[it->first].first, {params}).leftBound(),
                                              pdrh2box::node_to_interval(

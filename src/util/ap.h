@@ -80,8 +80,8 @@ namespace ap
 
     bool check_invariants(pdrh::mode*, box, vector<box>);
 
-    int verify(vector<box>);
-    int simulate(vector<box>);
+    int verify(size_t, size_t, vector<box>);
+    int simulate(size_t, size_t, vector<box>);
 
     bool is_sample_jump(pdrh::mode::jump);
     box apply_reset(map<string, pdrh::node*>, box, vector<box>);

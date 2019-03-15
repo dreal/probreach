@@ -14,6 +14,7 @@
 #include <gsl/gsl_vector_double.h>
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_cdf.h>
+#include <vector>
 
 using namespace std;
 
@@ -97,6 +98,7 @@ box rnd::get_sobol_sample(gsl_qrng* q, box b)
     {
         edges.insert(make_pair(it->first, capd::interval(it->second.leftBound() + v[i] * capd::intervals::width(it->second))));
         i++;
+        cout << it->first << ": " << edges[it->first] << endl;
     }
     return box(edges);
 }
@@ -120,24 +122,54 @@ double rnd::sobol_vector(box b)
     return vv;
 }
 
+//
+//double rnd::nond(box b)
+//{
+//    double vv;
+//    map<std::string, capd::interval> b_edges, edges;
+//    b_edges = b.get_map();
+//    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+//    {
+//        double value =it->second.leftBound();
+////        double value = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh2box::node_to_interval(
+////                pdrh::distribution::uniform[it->first].first).leftBound(),
+////                                         pdrh2box::node_to_interval(
+////                                                 pdrh::distribution::uniform[it->first].second).leftBound());
+//        vv=value;
+//        //cout<<"VALEU-"<<value<<endl;
+//        //   edges.insert(make_pair(it->first, capd::interval(value,value)));
+//    }
+//    return vv;
+//}
 
-double rnd::nond(box b)
+//double* rnd::nond(box b)
+//{
+//    double vv[b.get_map().size()];
+//    map<std::string, capd::interval> b_edges, edges;
+//    b_edges = b.get_map();
+//    int i = 0;
+//    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+//    {
+//        vv[i] = it->second.leftBound();
+//        i++;
+//    }
+////    cout<<"vv0="<<vv[0]<<endl;
+////    cout<<"vv1="<<vv[1]<<endl;
+//    return vv;
+//}
+
+void rnd::func(vector<double> &vect,box b)
 {
-    double vv;
+    double vv[b.get_map().size()];
     map<std::string, capd::interval> b_edges, edges;
     b_edges = b.get_map();
+    int i = 0;
     for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
     {
-        double value =it->second.leftBound();
-//        double value = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh2box::node_to_interval(
-//                pdrh::distribution::uniform[it->first].first).leftBound(),
-//                                         pdrh2box::node_to_interval(
-//                                                 pdrh::distribution::uniform[it->first].second).leftBound());
-        vv=value;
-        //cout<<"VALEU-"<<value<<endl;
-        //   edges.insert(make_pair(it->first, capd::interval(value,value)));
+        vv[i] = it->second.leftBound();
+        vect.push_back(it->second.leftBound());
+        i++;
     }
-    return vv;
 }
 
 

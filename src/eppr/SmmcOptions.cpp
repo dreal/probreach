@@ -10,8 +10,8 @@ SmmcOptions::SmmcOptions(int dimensions_hyp)
 	simulationTimepoints = 200;
 	timeseriesEnabled = true;
 
-	initialObservtions = 200;  //!!!! samples
-	numberOfTestPoints = 200; //!!!! points
+	initialObservtions = 100;  //!!!! samples
+	numberOfTestPoints = 50; //!!!! points
 	testpoints = nullptr;
 	sampler = std::make_shared<RegularSampler>();
 

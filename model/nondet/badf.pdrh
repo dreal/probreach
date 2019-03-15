@@ -1,8 +1,8 @@
 model:npha;
 #define n 1
 [0,1]m;
-dist_uniform(m,1) r;
-[0,1] x;
+dist_uniform(0,1) r;
+[0,10] x;
 //[0,1] n;
 [0,1] time;
 [0,1] tau;
@@ -16,7 +16,7 @@ jump:
 }
 
 init:
-@1(and(x=r)(tau = 0));
+@1(and(x=r*(1-m)+m)(tau = 0));
 
 goal:
 @1(and(tau=1)(and(x<=2*(n-0.5)*(n-0.5) + 0.5)(x>= -2*(n-0.5)*(n-0.5) + 0.5)));

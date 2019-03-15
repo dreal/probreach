@@ -155,12 +155,13 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample: " << b;
         std::vector<box> boxes = {b};
         boxes.insert(boxes.end(), nondet_boxes.begin(), nondet_boxes.end());
+
         int timeout_counter = 0;
         // checking solver type
 //        if (global_config.solver_type == solver::type::DREAL)
 //        {
         // evaluating all paths
-        vector<vector<pdrh::mode *>> paths = ap::get_all_paths(boxes);
+//        vector<vector<pdrh::mode *>> paths = ap::get_all_paths(boxes);
         int res = decision_procedure::UNDET;
         // checking what verification method is chosen
 //            int sim_res = ap::simulate(boxes);
@@ -175,12 +176,15 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
 //                exit(EXIT_FAILURE);
 //            }
 
-        if (global_config.use_verified) {
+        if (global_config.use_verified)
+        {
             //res = decision_procedure::evaluate(paths, boxes, "");
-            res = ap::verify(boxes);
+            res = ap::verify(min_depth, max_depth, boxes);
             //res = ap::simulate_path(ap::get_all_paths(boxes).front(), ap::init_to_box(boxes), boxes);
-        } else {
-            res = ap::simulate(boxes);
+        }
+        else
+        {
+            res = ap::simulate(min_depth, max_depth, boxes);
 //                // computing maximum robustness for the set of paths
 //                capd::interval rob = ap::compute_max_robustness(paths, ap::init_to_box(boxes), boxes);
 //                if(rob.leftBound() > 0)
@@ -193,7 +197,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
 //                }
         }
         // updating the counters
-#pragma omp critical
+        #pragma omp critical
         {
             switch (res) {
                 case decision_procedure::SAT:
@@ -239,7 +243,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
 //            throw runtime_error(s.str().c_str());
 //        }
         // updating unsat counter
-#pragma omp critical
+        #pragma omp critical
         {
             post_mean_sat = ((double) sat + alpha) / ((double) sample_size + alpha + beta);
             post_mean_unsat = ((double) sample_size - unsat + alpha) / ((double) sample_size + alpha + beta);

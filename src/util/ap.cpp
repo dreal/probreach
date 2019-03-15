@@ -1244,7 +1244,7 @@ bool ap::is_sample_jump(pdrh::mode::jump jump)
               jump.guard->operands.back()->value == global_config.sample_time);
 }
 
-int ap::verify(vector<box> boxes)
+int ap::verify(size_t min_depth, size_t max_depth, vector<box> boxes)
 {
     // list of all evaluated paths, where each path consists is a sequence of pairs (<mode_id>, <init_value>)
     vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, ap::init_to_box(boxes))}};
@@ -1278,7 +1278,7 @@ int ap::verify(vector<box> boxes)
         capd::interval glob_time_intersection;
         if(global_time >= pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
                 capd::intervals::intersection(global_time, pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
-                    path.size() - 1 >= global_config.reach_depth_max)
+                    path.size() - 1 >= max_depth)
         {
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
             return decision_procedure::SAT;
@@ -1302,7 +1302,7 @@ int ap::verify(vector<box> boxes)
                 case decision_procedure::SAT:
                     if(global_time + time_bound>= pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
                        capd::intervals::intersection(global_time + time_bound, pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
-                            path.size() - 1 >= global_config.reach_depth_max)
+                            path.size() - 1 >= max_depth)
                     {
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
                         return decision_procedure::SAT;
@@ -1342,7 +1342,7 @@ int ap::verify(vector<box> boxes)
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                         if(global_time >= pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second) ||
                            capd::intervals::intersection(global_time, pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second), glob_time_intersection) ||
-                           path.size() - 1 >= global_config.reach_depth_max)
+                           path.size() - 1 >= max_depth)
                         {
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Global time limit has been reached in mode " << cur_mode->id;
                             return decision_procedure::SAT;
@@ -1402,7 +1402,7 @@ int ap::verify(vector<box> boxes)
             init = ap::apply_reset(cur_mode->get_jump(it->first).reset, sol, boxes);
             vector<pair<int, box>> new_path = path;
             new_path.push_back(make_pair(it->first, init));
-            if(new_path.size() - 1 <= global_config.reach_depth_max) paths.push_back(new_path);
+            if(new_path.size() - 1 <= max_depth) paths.push_back(new_path);
         }
     }
     // returning undet if there are no SAT paths and there is at least one UNDET
@@ -1466,7 +1466,7 @@ box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> box
 }
 
 
-int ap::simulate(vector<box> boxes)
+int ap::simulate(size_t min_depth, size_t max_depth, vector<box> boxes)
 {
     // list of all evaluated paths, where each path consists is a sequence of pairs (<mode_id>, <init_value>)
     vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, ap::init_to_box(boxes))}};
@@ -1517,7 +1517,7 @@ int ap::simulate(vector<box> boxes)
             }
             // checking if the time horizon is reached
             if(init.get_map()[global_config.global_time].leftBound() >= pdrh2box::node_to_interval(pdrh::var_map[global_config.global_time].second).rightBound() ||
-                    path.size() - 1 >= global_config.reach_depth_max)
+                    path.size() - 1 >= max_depth)
             {
                 vector<pair<int, box>> new_path = path;
                 new_path.push_back(make_pair(cur_mode->id, init));

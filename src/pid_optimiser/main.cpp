@@ -18,6 +18,10 @@
 #include "mc.h"
 #include "pdrh_config.h"
 
+#ifdef _OPENMP
+    #include<omp.h>
+#endif
+
 extern "C"
 {
 #include "pdrhparser.h"
@@ -50,6 +54,14 @@ double conf = 0.95;
 size_t num_iter = 2;
 // number of sample of each iteration of cross-entropy algorithm
 size_t num_samples = 10;
+// number of threads
+#ifdef _OPENMP
+    int num_threads = omp_get_max_threads();
+#else
+    int num_threads = 1;
+#endif
+
+
 
 // printing help message
 void print_help()
@@ -64,14 +76,16 @@ void print_help()
     cout << "-l - minimum depth of every simulation path (default = " << min_depth << ")" << endl;
     cout << "-u - maximum depth of every simulation path (default = " << max_depth << ")" << endl;
     cout << "-n - number of points used in non-rigorous IVP solving (default = " << num_points << ")" << endl;
-
+    #ifdef _OPENMP
+        cout << "-t - number of threads (default = " << num_threads << ", max = " << omp_get_max_threads() << ")" << endl;
+    #endif
     cout << "--min - minimise reachability probability (default = " << minimise_flag << ")" << endl;
     cout << "--acc - half-size of the computed confidence intervals (default = " << acc << ")" << endl;
     cout << "--conf - confidence value for the computed confidence intervals (default = " << conf << ")" << endl;
     cout << "--iter - confidence value for the computed confidence intervals (default = " << num_iter << ")" << endl;
     cout << "--samples - number of samples for each iteration of cross-entropy algorithm (default = " << num_samples << ")" << endl;
     cout << "--solver - full path to the solver executable (default = " << dreal::solver_bin << ")" << endl;
-    cout << "--params - list of controller parameters (default = " << dreal::solver_bin << ")" << endl;
+//    cout << "--params - list of controller parameters (default = " << dreal::solver_bin << ")" << endl;
 }
 
 // parsing command line options
@@ -136,6 +150,32 @@ void parse_cmd(int argc, char* argv[])
             if (num_points < 0)
             {
                 cerr << "-n must be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // number of threads
+        else if(strcmp(argv[i], "-t") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> num_threads;
+            if(num_threads <= omp_get_max_threads())
+            {
+                if(num_threads > 0)
+                {
+                    #ifdef _OPENMP
+                        omp_set_num_threads(num_threads);
+                    #endif
+                }
+                else
+                {
+                    cerr << "Number of cores should be positive";
+                    exit(EXIT_FAILURE);
+                }
+            }
+            else
+            {
+                cerr << "Max number of cores available is " << omp_get_max_threads() << ". You specified " << num_threads;
                 exit(EXIT_FAILURE);
             }
         }
@@ -230,7 +270,6 @@ int main(int argc, char* argv[])
     global_config.bayesian_flag = true;
     global_config.reach_depth_max = max_depth;
     global_config.reach_depth_min = min_depth;
-    global_config.num_threads = 1;
 
     cout << "Accuracy: " << acc << endl;
 
@@ -261,7 +300,6 @@ int main(int argc, char* argv[])
     }
     pair<box, capd::interval> res = make_pair(box(), capd::interval(0.0));
     if(minimise_flag) res.second = capd::interval(1.0);
-
     // iterating through all parameter values
     for(string param : param_names)
     {
@@ -274,7 +312,7 @@ int main(int argc, char* argv[])
         while(capd::intervals::width(conf_intersection) < acc)
         {
             // cross entropy algorithm is used here
-            global_config.use_verified = true;
+            global_config.use_verified = false;
             cout << "Solving optimisation problem for the discretised system" << endl;
             cout << "Discretisation using " << num_points << " points" << endl;
             pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal(min_depth, max_depth, num_samples, num_iter, acc, conf);

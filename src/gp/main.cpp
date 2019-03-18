@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
     gsl_qrng *m = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::par_map.size()));
     // getting domain of mu parameterS
     int NondetParCount=pdrh::par_map.size();
-   // cout<<"NondetParCount"<<NondetParCount<<endl;
+    // cout<<"NondetParCount"<<NondetParCount<<endl;
     box mu_domain = pdrh2box::get_nondet_domain();
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "mu_domain = " << mu_domain; //COUT <<ENDL;
 
@@ -239,10 +239,12 @@ int main(int argc, char *argv[]) {
     int NondetP = num_points; //number of points of Nondet Parameter (Mu's) ----REPLACE BY num_points!!!!!!!!!!!!!1****************************
     int pointsarray[NondetP]; //Nondet points array
     double Carray[NondetP]; // center probability
-    int Sats[NondetP]; //N_s number
-    int points = 0;
+    double Sats[NondetP]; //N_s number
+    double points = 0;
     int Total_samples = num_samples; //Total samples number ----REPLACE BY num_samples !!!!!!!!!!!!!!!!!!!!!******************************
     double NonDPoints[NondetP][NondetParCount]; // Nondet points values;
+    double SATnum = 0;
+    double sat2 = 0, unsat2 = 0, undet2 = 0;
 
     map<string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
@@ -251,19 +253,16 @@ int main(int argc, char *argv[]) {
     box box_one = box(one_map);
 
     // main loop
-    for (int l = 1; l <= NondetP; l++) {
+    for (int l = 0; l < NondetP; l++) {
         CLOG_IF(global_config.verbose, INFO, "algorithm") << endl << "MU count============" << l;
-        double sat2 = 0, unsat2 = 0, undet2 = 0;
+         sat2 = 0, unsat2 = 0, undet2 = 0;
         double CI = 0;
         points = 1;
         double conf = global_config.qmc_conf;
         double Ca = gsl_cdf_gaussian_Pinv(1 - (1 - conf) / 2, 1);
-        int SATnum = 0;
-
         // initialize Nondet sample
         box mu_sample = rnd::get_sobol_sample(m, mu_domain);
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "mu_sample = " << mu_sample; //n
-
         vector<double> vect;
         rnd::func(vect,mu_sample);
 //        for (int i=0; i<vect.size(); i++)
@@ -272,7 +271,6 @@ int main(int argc, char *argv[]) {
             NonDPoints[l][h] = vect[h];
             cout<<"NonDPoints[l][h]"<<NonDPoints[l][h]<<endl;
         }
-
         // GET MU SAPLE SINGLE VALUE
 //        map<std::string, capd::interval> mu_edges;
 //        mu_edges = mu_sample.get_map();
@@ -324,7 +322,6 @@ int main(int argc, char *argv[]) {
                     default:
                         break;
                 }
-
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of SAT: " << sat2;
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of UNSAT: " << unsat2;
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of UNDET: " << undet2;
@@ -338,6 +335,7 @@ int main(int argc, char *argv[]) {
         }
         points = points - 1;
         // Samplecount = Samplecount + points;
+        cout << "Sat NUM [" << l << "]: " << SATnum << endl;
         Sats[l] = SATnum;
         pointsarray[l] = points;
         Carray[l] = resunsat2;// - global_config.qmc_acc/2 + result;
@@ -345,10 +343,10 @@ int main(int argc, char *argv[]) {
     }
 
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "points===" << points;
-    for (int l = 1; l <= NondetP; l++) {
+    for (int l = 0; l < NondetP; l++) {
         CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-NOND points=" << pointsarray[l] << "   NOND Sigma value="
                                                           <<  NonDPoints[l][0] << "   NOND Mu value="
-                                                                           <<  NonDPoints[l][1] << "   SATS=" << Sats[l] << " Center="
+                                                          <<  NonDPoints[l][1] << "   SATS=" << Sats[l] << " Center="
                                                           << Carray[l];
     }
 
@@ -362,7 +360,7 @@ int main(int argc, char *argv[]) {
     double UParray[NondetP];
     double LOarray[NondetP];
     //cout << "global_config.qmc_acc/2=" <<global_config.qmc_acc/2<< endl;
-    for (int l = 1; l <= NondetP; l++) {
+    for (int l = 0; l < NondetP; l++) {
         if (Sats[l] == 0) {
             LOarray[l] = 0;
             UParray[l] = gsl_cdf_beta_Pinv(1 - ((1 - conf) / 2), Sats[l] + 1, Total_samples - Sats[l]);
@@ -378,10 +376,10 @@ int main(int argc, char *argv[]) {
     // write data to the "test.csv" file
     myfile << "Non-det pont" << ";" << "NOND Sigma value" << ";" << "NOND Mu value" << ";"<< "CPLower" << ";" << "CPUpper" << ";" << "CPCenter"<< ";"
            << "GPLower" << ";" << "GPUpper" << ";" << "GPCenter" << std::endl;
-    for (int l = 1; l <= NondetP; l++) {
+    for (int l = 0; l < NondetP; l++) {
         CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] << "   NOND Sigma value="
-                                                                                                  <<  NonDPoints[l][0] << "   NOND Mu value="
-                                                                                                  <<  NonDPoints[l][1] << " SATS=" << Sats[l] << " CPLower="
+                                                          <<  NonDPoints[l][0] << "   NOND Mu value="
+                                                          <<  NonDPoints[l][1] << " SATS=" << Sats[l] << " CPLower="
                                                           << LOarray[l] << " CPUpper="
                                                           << UParray[l] << " CPCenter="
                                                           << Carray[l];
@@ -410,14 +408,14 @@ int main(int argc, char *argv[]) {
 
 
     for (int l = 0; l < NondetP; l++) {
-        y_points[l] = Carray[l + 1];
-       // xt_points[l][ncolumns - 1] = NonDPoints[l + 1];
-       // x_points[l][ncolumns - 1] = NonDPoints[l + 1];
+        y_points[l] = Carray[l ];
+        // xt_points[l][ncolumns - 1] = NonDPoints[l + 1];
+        // x_points[l][ncolumns - 1] = NonDPoints[l + 1];
     }
     for (int l = 0; l < NondetP; l++) {
         for (int h = 0; h < ncolumns; h++) {
-             xt_points[l][h] = NonDPoints[l+1][h];
-             x_points[l][h] = NonDPoints[l+1][h];
+            xt_points[l][h] = NonDPoints[l][h];
+            x_points[l][h] = NonDPoints[l][h];
         }
     }
 
@@ -479,4 +477,3 @@ int main(int argc, char *argv[]) {
               << "elapsed time: " << elapsed_seconds.count() << "s\n";
     return 0;
 }
-

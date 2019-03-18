@@ -102,7 +102,7 @@ string pdrh::node_fix_index(pdrh::node* n, int step, string index)
     {
 //        if(pdrh::var_map.find(n->value) != pdrh::var_map.end())
         // only performing a soft check here whether the value is digit or an identifier
-        if(isdigit(n->value.front()))
+        if(isdigit(n->value.front()) || n->value == "true" || n->value == "false")
         {
             s << " " << n->value;
         }

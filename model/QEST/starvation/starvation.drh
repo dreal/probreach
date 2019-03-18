@@ -1,0 +1,45 @@
+/**
+ * After depletion of glucose reserves (3-4 days fasting) energy to sustain the human body comes 
+ * from fat, protein storred in the muscles and ketone bodies. This model represents the dynamics 
+ * these three components.
+ * 
+ * "Verified Solution and Propagation of Uncertainty in Physiological Models"
+ * Joshua A. Enszer and Mark A. Stadtherr
+ */
+
+#define a 0.013
+#define C 772.3
+#define L0 30.4
+#define lambdaF 7777.8
+#define lambdaM 1400
+#define V 0.9
+#define M0 43.6
+#define b 0.05
+#define k 10.96
+
+//fat
+[0.01,100]F;
+//muscle mass
+[0.01,100]M;
+//ketone bodies
+[0,100]K;
+
+[0,100]time;
+[0,100]tau;
+
+{
+mode 1;
+flow:
+    d/dt[F]=F * (- a / (1 + K) - (1 / lambdaF) * ((C + k * L0) / (F + M) + k));
+    d/dt[M]=(- M / lambdaM) * ((C + k * L0) / (F + M) + k);
+    d/dt[K]=(V * a * F) / (1 + K) - b;
+    d/dt[tau]=1;
+jump: 
+
+}
+
+init:
+@1(and (tau = 0) (F = 25) (M = M0) (K = 0.02));
+
+goal:
+@1(and (tau = 25) (M <= 0.6 * M0));

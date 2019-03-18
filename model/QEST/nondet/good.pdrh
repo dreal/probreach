@@ -1,11 +1,12 @@
-
-18 lines (17 sloc) 197 Bytes
 model:npha;
 [0,1]x;
-[0,1]n;
+#define n 1
+//[0,1]n;
+[0,1]m;
+[1,2]f;
 [0,1]time;
 [0,1]tau;
-dist_uniform(0,1)r;
+dist_uniform(m,f) r;
 {
 mode 1;
 flow:

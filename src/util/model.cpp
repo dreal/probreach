@@ -3,12 +3,11 @@
 //
 
 #include "model.h"
-//#include "pdrh_config.h"
 #include <string.h>
-#include <logging/easylogging++.h>
 #include <iomanip>
 #include <cmath>
-#include <random>
+#include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -276,7 +275,7 @@ vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* end)
             if(!successors.empty())
             {
                 // checking if one of the successors is the end mode
-                if (std::find(successors.cbegin(), successors.cend(), end) != successors.cend())
+                if (std::find(successors.begin(), successors.end(), end) != successors.cend())
                 {
                     path.push_back(end);
                     paths.clear();
@@ -288,7 +287,7 @@ vector<pdrh::mode*> pdrh::get_shortest_path(pdrh::mode* begin, pdrh::mode* end)
                     for (pdrh::mode *suc_mode : successors)
                     {
                         // checking if a successor does not appear in the current path
-                        if (find(path.cbegin(), path.cend(), suc_mode) == path.cend())
+                        if (find(path.begin(), path.end(), suc_mode) == path.cend())
                         {
                             vector<pdrh::mode*> tmp_path = path;
                             tmp_path.push_back(suc_mode);

@@ -31,8 +31,8 @@ namespace pdrh
         // jump struct
         struct jump
         {
-            node* guard;
             int next_id;
+            node* guard;
             std::map<std::string, node*> reset;
             std::map<std::string, std::tuple<std::string, pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*>> reset_rv;
             std::map<std::string, std::map<node*, node*>> reset_dd;

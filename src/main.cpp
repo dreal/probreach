@@ -362,5 +362,6 @@ int main(int argc, char* argv[])
     el::Loggers::unregisterLogger("config");
     el::Loggers::unregisterLogger("ran_gen");
     el::Loggers::unregisterLogger("model");
+    
     return EXIT_SUCCESS;
 }

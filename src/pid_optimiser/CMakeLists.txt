@@ -1,3 +1,7 @@
+include_directories("${PROBREACH_SOURCE_DIR}/util")
+include_directories("${PROBREACH_SOURCE_DIR}/logging")
+
+
 file(GLOB PID_OPTIMISER_SRC
         ${PROBREACH_SOURCE_DIR}/util/node.cpp
         ${PROBREACH_SOURCE_DIR}/util/model.cpp

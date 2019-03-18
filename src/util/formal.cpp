@@ -2,15 +2,15 @@
 // Created by fedor on 12/02/19.
 //
 
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_qrng.h>
-#include <gsl/gsl_cdf.h>
+//#include <gsl/gsl_rng.h>
+//#include <gsl/gsl_qrng.h>
+//#include <gsl/gsl_cdf.h>
 #include <capd/intervals/lib.h>
 #include "easylogging++.h"
 #include "pdrh_config.h"
 #include "measure.h"
 #include "box_factory.h"
-#include <chrono>
+//#include <chrono>
 #include <iomanip>
 #include <omp.h>
 #include <solver/isat_wrapper.h>
@@ -23,8 +23,8 @@
 
 int algorithm::evaluate_ha(int min_depth, int max_depth)
 {
-    //vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
-    vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
+    vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
+//    vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
 
     //return decision_procedure::evaluate_time_first(paths, {}, global_config.solver_opt);
     return decision_procedure::evaluate(paths, {}, global_config.solver_opt);

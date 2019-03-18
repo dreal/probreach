@@ -100,13 +100,15 @@ string pdrh::node_fix_index(pdrh::node* n, int step, string index)
     }
     else
     {
-        if(pdrh::var_map.find(n->value) != pdrh::var_map.end())
+//        if(pdrh::var_map.find(n->value) != pdrh::var_map.end())
+        // only performing a soft check here whether the value is digit or an identifier
+        if(isdigit(n->value.front()))
         {
-            s  << " " << n->value << "_" << step << "_" << index;
+            s << " " << n->value;
         }
         else
         {
-            s << " " << n->value;
+            s  << " " << n->value << "_" << step << "_" << index;
         }
     }
     return s.str();

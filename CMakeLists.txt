@@ -90,48 +90,11 @@ include_directories("${PROBREACH_SOURCE_DIR}/solver")
 include_directories("${PROBREACH_SOURCE_DIR}/logging")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 
-# Building ProbReach
-# putting all source files together
-file(GLOB PROBREACH_SRC
-        ${PROBREACH_SOURCE_DIR}/util/*.cpp
-        ${PROBREACH_SOURCE_DIR}/util/generators/*.cpp
-        # ${PROBREACH_SOURCE_DIR}/stability/*.cpp
-        ${PROBREACH_SOURCE_DIR}/parser/csv/*.cpp
-        ${PROBREACH_SOURCE_DIR}/parser/output/*.cpp
-        ${PROBREACH_SOURCE_DIR}/solver/*.cpp)
-
-set(PROBREACH_SRC ${PROBREACH_SRC}
-        ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
-        ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
-        ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
-
-# creating a library
-add_library(probreach ${PROBREACH_SRC})
-
-#IF(CAPD_FOUND)
-#    target_link_libraries(probreach ${CAPD_LIBRARIES})
-#ENDIF(CAPD_FOUND)
-
-#message(STATUS ${CAPD_LIBRARIES})
-
-target_link_libraries(probreach -lfl -lgsl -lgslcblas ${CAPD_LIBRARIES})
-# creating an executable
-add_executable(ProbReach ${PROBREACH_SOURCE_DIR}/main.cpp)
-target_link_libraries(ProbReach probreach)
-# installing the targets
-install(FILES ${PROBREACH_INCLUDE}
-        DESTINATION ${PROBREACH_BINARY_DIR}/include/probreach)
-install(TARGETS ProbReach
-        DESTINATION ${CMAKE_SOURCE_DIR}/bin)
-# this is for CLion IDE
-add_custom_target(install_probreach
-        $(MAKE) install
-        DEPENDS ProbReach
-        COMMENT "Installing ProbReach")
 
 # Adds the option to build the translator if MATLAB is located
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/simulator/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/pid_optimiser/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/formal_verifier/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/gp/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/test/util/CMakeLists.txt)

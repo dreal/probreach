@@ -2,6 +2,8 @@ if(GTEST_FOUND)
     # Building tests
     enable_testing()
 
+    include_directories("${PROBREACH_SOURCE_DIR}/util")
+
     # setting the output directory for ProbReach
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROBREACH_BINARY_DIR}/test)
 
@@ -19,13 +21,13 @@ if(GTEST_FOUND)
     target_link_libraries(node_test -lgtest)
     add_test(node_test ${PROBREACH_BINARY_DIR}/test/util/node_test)
 
-    # unit test for the methods in naive.cpp
-    add_executable(naive_test ${PROBREACH_TEST_DIR}/util/naive_test.cpp
-            ${PROBREACH_TEST_DIR}/main_test.cpp
-            ${PROBREACH_SOURCE_DIR}/util/node.cpp
-            ${PROBREACH_SOURCE_DIR}/util/naive.cpp)
-    target_link_libraries(naive_test -lgtest)
-    add_test(naive_test ${PROBREACH_BINARY_DIR}/test/util/naive_test)
+#    # unit test for the methods in naive.cpp
+#    add_executable(naive_test ${PROBREACH_TEST_DIR}/util/naive_test.cpp
+#            ${PROBREACH_TEST_DIR}/main_test.cpp
+#            ${PROBREACH_SOURCE_DIR}/util/node.cpp
+#            ${PROBREACH_SOURCE_DIR}/util/naive.cpp)
+#    target_link_libraries(naive_test -lgtest)
+#    add_test(naive_test ${PROBREACH_BINARY_DIR}/test/util/naive_test)
 
     # unit test for stability.cpp
 #    add_executable(stability_test ${PROBREACH_TEST_DIR}/util/stability_test.cpp

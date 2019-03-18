@@ -14,7 +14,7 @@
 #include <chrono>
 #include <iomanip>
 #include <omp.h>
-#include <solver/isat_wrapper.h>
+//#include <solver/isat_wrapper.h>
 #include "rnd.h"
 #include "ap.h"
 #include "pdrh2box.h"

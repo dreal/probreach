@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include "node.h"
 #include <cmath>
-#include <util/naive.h>
+#include <naive.h>
 #include <fstream>
 
 using namespace std;

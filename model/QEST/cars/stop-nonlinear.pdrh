@@ -6,7 +6,6 @@ model: npha;
 #define v_100 27.78 // m/s
 #define drag 3.028e-4 // some average value (1/m)
 //#define a_d 5.25
-#define mu 1
 #define alpha 0.05776 
 //#define beta 4
 #define t_react 1.2

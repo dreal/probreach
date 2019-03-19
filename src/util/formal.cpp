@@ -21,7 +21,7 @@
 #include "decision_procedure.h"
 
 
-int algorithm::evaluate_ha(int min_depth, int max_depth)
+int formal::evaluate_ha(int min_depth, int max_depth)
 {
     vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
 //    vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
@@ -62,7 +62,7 @@ int algorithm::evaluate_ha(int min_depth, int max_depth)
 //    }
 }
 
-capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
+capd::interval formal::evaluate_pha(int min_depth, int max_depth)
 {
     CLOG_IF(global_config.verbose, INFO, "algorithm")
             << "Obtaining partition of domain of continuous random parameters";
@@ -243,7 +243,7 @@ capd::interval algorithm::evaluate_pha(int min_depth, int max_depth)
     return res_prob;
 }
 
-std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_depth)
+std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth)
 {
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining domain of nondeterministic parameters";
     // getting parameter domain
@@ -606,7 +606,7 @@ std::map<box, capd::interval> algorithm::evaluate_npha(int min_depth, int max_de
     return final_map;
 }
 
-tuple<vector<box>, vector<box>, vector<box>> algorithm::evaluate_psy(map<string, vector<pair<pdrh::node *, pdrh::node *>>> time_series)
+tuple<vector<box>, vector<box>, vector<box>> formal::evaluate_psy(map<string, vector<pair<pdrh::node *, pdrh::node *>>> time_series)
 {
     cerr << "Parameter Set synthesis is not yet supported" << endl;
     exit(EXIT_FAILURE);

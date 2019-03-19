@@ -7,7 +7,7 @@
 
 #include <capd/intervals/lib.h>
 
-namespace algorithm
+namespace formal
 {
     // evaluating reachability in hybrid automata (arg1: min depth, arg2: max depth)
     int evaluate_ha(int, int);

@@ -22,7 +22,6 @@ model: npha;
 [0.09,0.11]sigma;
 dist_normal(0,1) beta;
 
-//#define mu 4
 //#define sigma 0.1
 //dist_normal(4,0.1) beta;
 

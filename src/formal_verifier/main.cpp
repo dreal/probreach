@@ -281,14 +281,14 @@ int main(int argc, char* argv[])
         // probabilistic hybrid automata
         case pdrh::PHA:
         {
-            capd::interval probability = algorithm::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
+            capd::interval probability = formal::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
             std::cout << scientific << probability << " | " << capd::intervals::width(probability) << std::endl;
             break;
         }
         // nondeterministic probabilistic hybrid automata
         case pdrh::NPHA:
         {
-            std::map<box, capd::interval> probability_map = algorithm::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
+            std::map<box, capd::interval> probability_map = formal::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
             for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
             {
                 std::cout << scientific << it->first << " | " << it->second << std::endl;
@@ -309,7 +309,6 @@ int main(int argc, char* argv[])
     }
 
     el::Loggers::unregisterLogger("algorithm");
-
 
     return 0;
 }

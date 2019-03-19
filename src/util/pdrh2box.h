@@ -28,15 +28,14 @@ namespace pdrh2box
 
     // here only one initial mode and one goal mode
     std::string reach_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
-    std::string reach_to_smt2(pdrh::state, pdrh::state, std::vector<pdrh::mode*>, vector<box>);
     std::string reach_c_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
-    std::string reach_c_to_smt2(pdrh::state, pdrh::state, std::vector<pdrh::mode*>, vector<box>);
     std::string reach_c_to_smt2(int, std::vector<pdrh::mode*>, vector<box>);
-    std::string reach_c_to_smt2(pdrh::state, pdrh::state, int, std::vector<pdrh::mode*>, std::vector<box>);
 
-    std::string reach_to_isat(std::vector<box>);
-
-    std::string reach_to_smt2_all_paths(std::vector<box>);
-    std::string reach_c_to_smt2_all_paths();
+//    std::string reach_to_smt2(pdrh::state, pdrh::state, std::vector<pdrh::mode*>, vector<box>);
+//    std::string reach_c_to_smt2(pdrh::state, pdrh::state, std::vector<pdrh::mode*>, vector<box>);
+//    std::string reach_c_to_smt2(pdrh::state, pdrh::state, int, std::vector<pdrh::mode*>, std::vector<box>);
+//    std::string reach_to_isat(std::vector<box>);
+//    std::string reach_to_smt2_all_paths(std::vector<box>);
+//    std::string reach_c_to_smt2_all_paths();
 }
 #endif //PROBREACH_PDRH2BOX_H

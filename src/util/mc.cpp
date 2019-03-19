@@ -72,7 +72,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
                                                                                                            " "));
             int res;
             if (global_config.delta_sat) {
-                res = decision_procedure::evaluate_delta_sat(path, boxes);
+                res = decision_procedure::evaluate_delta_sat(path, boxes, global_config.solver_bin, "");
             } else {
                 res = decision_procedure::evaluate(path, boxes);
             }

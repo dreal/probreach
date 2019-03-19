@@ -47,7 +47,6 @@ namespace ap
     void revert_model();
     void nullify_odes();
 
-    pdrh::node* get_first_time_node(pdrh::node*);
     void get_first_time_node(pdrh::node*, pdrh::node*);
     pdrh::node* get_time_node_neg(pdrh::node*);
 

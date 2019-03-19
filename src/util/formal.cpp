@@ -2,20 +2,13 @@
 // Created by fedor on 12/02/19.
 //
 
-//#include <gsl/gsl_rng.h>
-//#include <gsl/gsl_qrng.h>
-//#include <gsl/gsl_cdf.h>
 #include <capd/intervals/lib.h>
 #include "easylogging++.h"
 #include "pdrh_config.h"
 #include "measure.h"
 #include "box_factory.h"
-//#include <chrono>
 #include <iomanip>
 #include <omp.h>
-#include <solver/isat_wrapper.h>
-#include "rnd.h"
-#include "ap.h"
 #include "pdrh2box.h"
 #include "formal.h"
 #include "decision_procedure.h"
@@ -24,42 +17,7 @@
 int formal::evaluate_ha(int min_depth, int max_depth)
 {
     vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
-//    vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
-
-    //return decision_procedure::evaluate_time_first(paths, {}, global_config.solver_opt);
-    return decision_procedure::evaluate(paths, {}, global_config.solver_opt);
-
-//    if (global_config.solver_type == solver::type::ISAT) {
-//        int res = decision_procedure::evaluate_isat(vector<box>{});
-//        if (res == decision_procedure::result::SAT) {
-//            return decision_procedure::result::SAT;
-//        } else if (res == decision_procedure::result::UNSAT) {
-//            return decision_procedure::result::UNSAT;
-//        }
-//    } else if (global_config.solver_type == solver::type::DREAL) {
-//        // generating all paths of lengths [min_depth, max_depth]
-//        std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
-////        for(pdrh::state init : pdrh::init)
-////        {
-////            for (pdrh::state goal : pdrh::goal)
-////            {
-////                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
-////                                                                                 pdrh::get_mode(goal.id),
-////                                                                                 depth);
-////                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
-////            }
-////        }
-//        switch (decision_procedure::evaluate(paths, {}, global_config.solver_opt)) {
-//            case decision_procedure::result::SAT:
-//                return decision_procedure::result::SAT;
-//
-//            case decision_procedure::result::UNSAT:
-//                return decision_procedure::result::UNSAT;
-//
-//            case decision_procedure::result::UNDET:
-//                return decision_procedure::result::UNDET;
-//        }
-//    }
+    return decision_procedure::evaluate_formal(paths, {}, global_config.solver_bin, global_config.solver_opt);
 }
 
 capd::interval formal::evaluate_pha(int min_depth, int max_depth)
@@ -98,15 +56,21 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
     capd::interval res_prob(0.0);
     // evaluating boxes
     //#pragma omp parallel for
-    for (box dd : dd_partition) {
-        if (pdrh::rv_map.size() > 0) {
-            probability = capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound());
-        }
+    for (box dd : dd_partition)
+    {
+        if (pdrh::rv_map.size() > 0) probability = capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound());
         vector<box> rv_partition = init_rv_partition;
         std::vector<box> rv_stack;
         while (capd::intervals::width(probability) > global_config.precision_prob) {
+            // sorting boxes by probability value
+            if (global_config.sort_rv_flag)
+            {
+                CLOG_IF(global_config.verbose, INFO, "algorithm")
+                    << "Sorting the partition of domain of continuous random parameters";
+                sort(rv_partition.begin(), rv_partition.end(), measure::compare_boxes_by_p_measure);
+            }
             //for(box rv : rv_partition)
-            //#pragma omp parallel for
+            #pragma omp parallel for
             for (unsigned long i = 0; i < rv_partition.size(); i++) {
                 box rv = rv_partition.at(i);
                 // calculating probability measure of the box
@@ -150,9 +114,9 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                     s << solver_opt << " --precision " <<
                       measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
                     global_config.solver_opt = s.str();
-                    int res = decision_procedure::evaluate_formal(path, boxes, s.str());
+                    int res = decision_procedure::evaluate_formal(path, boxes, global_config.solver_bin, s.str());
                     // setting old precision
-#pragma omp critical
+                    #pragma omp critical
                     {
                         global_config.solver_opt = solver_opt;
                         switch (res) {
@@ -395,7 +359,7 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
                         }
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solver options: " << s.str();
                     }
-                    switch (decision_procedure::evaluate_formal(paths, vector<box>{nd, dd, rv}, s.str())) {
+                    switch (decision_procedure::evaluate_formal(paths, vector<box>{nd, dd, rv}, global_config.solver_bin, s.str())) {
                         case decision_procedure::result::SAT:
 #pragma omp critical
                         {
@@ -604,116 +568,4 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
     //     cout << it2->first << " | " << it2->second << std::endl;
     // }
     return final_map;
-}
-
-tuple<vector<box>, vector<box>, vector<box>> formal::evaluate_psy(map<string, vector<pair<pdrh::node *, pdrh::node *>>> time_series)
-{
-    cerr << "Parameter Set synthesis is not yet supported" << endl;
-    exit(EXIT_FAILURE);
-//    // getting the synthesis domain
-//    box psy_domain = pdrh::get_psy_domain();
-//    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining domain of synthesized parameters: " << psy_domain;
-//    // partition of parameter synthesis domain
-//    vector<box> psy_partition { psy_domain };
-//    // if flag is enabled the domain is partitioned up to precision_nondet
-//
-////    if(global_config.partition_psy)
-////    {
-////        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of parameter synthesis domain";
-////        psy_partition.clear();
-////        psy_partition = measure::partition(psy_domain, global_config.pre);
-////    }
-//
-//    // converting time series to a set of goal boxes
-//    //std::vector<std::tuple<int, box>> goals = pdrh::series_to_boxes(time_series);
-//    vector<pdrh::state> goals = pdrh::series_to_goals(time_series);
-//    // getting parameter synthesis path
-//    vector<pdrh::mode*> path = pdrh::get_psy_path(time_series);
-//    // defining the boxes
-//    vector<box> sat_boxes, undet_boxes, unsat_boxes;
-//    // iterating through the goals
-//    //cout << "Before parallel" << endl;
-//    for(pdrh::state goal : goals)
-//    {
-//        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating goal: @" << goal.id << " " << pdrh::node_to_string_prefix(goal.prop);
-//        // iterating through boxes in psy partition
-//        while(!psy_partition.empty())
-//        {
-//            vector<box> swap_psy_partition;
-//            #pragma omp parallel for
-//            for(unsigned long i = 0; i < psy_partition.size(); i++)
-//            {
-////                box b = psy_partition.front();
-////                psy_partition.erase(psy_partition.cbegin());
-////                cout << "In parallel section " << b << endl;
-//                box b = psy_partition.at(i);
-//                //cout << "In parallel section " << b << endl;
-//                #pragma omp critical
-//                {
-//                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "psy_box: " << b;
-//                }
-//                int res = decision_procedure::evaluate(pdrh::init.front(), goal, path, {b});
-//                #pragma omp critical
-//                {
-//                    switch (res)
-//                    {
-//                        case decision_procedure::SAT:
-//                        {
-//                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-//                            sat_boxes.push_back(b);
-//                            //sat_boxes = box_factory::merge(sat_boxes);
-//                            break;
-//                        }
-//                        case decision_procedure::UNSAT:
-//                        {
-//                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-//                            unsat_boxes.push_back(b);
-//                            //unsat_boxes = box_factory::merge(unsat_boxes);
-//                            break;
-//                        }
-//                        case decision_procedure::UNDET:
-//                        {
-//                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-//                            // CHECK FOR BUGS IN BISECT
-//                            std::vector<box> tmp_vector = box_factory::bisect(b, pdrh::syn_map);
-//                            if (tmp_vector.size() == 0)
-//                            {
-//                                //cout << b << ": UNDET box" <<endl;
-//                                undet_boxes.push_back(b);
-//                                //undet_boxes = box_factory::merge(undet_boxes);
-//                            }
-//                            else
-//                            {
-//                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisected";
-//                                swap_psy_partition.insert(swap_psy_partition.cend(), tmp_vector.cbegin(), tmp_vector.cend());
-//                            }
-//                            break;
-//                        }
-//                        case decision_procedure::SOLVER_TIMEOUT:
-//                        {
-//                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-//                            break;
-//                        }
-//                        case decision_procedure::ERROR:
-//                        {
-//                            LOG(ERROR) << "ERROR";
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//            psy_partition.clear();
-//            psy_partition.insert(psy_partition.cend(), swap_psy_partition.cbegin(), swap_psy_partition.cend());
-//        }
-//        psy_partition = sat_boxes;
-//        sat_boxes.clear();
-//        if(psy_partition.empty())
-//        {
-//            break;
-//        }
-//    }
-//    sat_boxes = box_factory::merge(psy_partition);
-//    undet_boxes = box_factory::merge(undet_boxes);
-//    unsat_boxes = box_factory::merge(unsat_boxes);
-//    return std::make_tuple(sat_boxes, undet_boxes, unsat_boxes);
 }

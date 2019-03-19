@@ -1617,37 +1617,6 @@ int ap::simulate(size_t min_depth, size_t max_depth, vector<box> boxes)
 //    cout << "The end" << endl;
 }
 
-pdrh::node* ap::get_first_time_node(pdrh::node * root)
-{
-    //cout << pdrh::node_to_string_prefix(root) << endl;
-    if(root->operands.size() > 0)
-    {
-        if(strcmp(root->value.c_str(), "=") == 0)
-        {
-            for(pdrh::node* child : root->operands)
-            {
-                if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end() ||
-                   child->value == global_config.sample_time || child->value == global_config.global_time)
-                {
-                    return root;
-                }
-                else
-                {
-                    return ap::get_first_time_node(child);
-                }
-            }
-        }
-        else
-        {
-            for(pdrh::node* child : root->operands)
-            {
-                return ap::get_first_time_node(child);
-            }
-        }
-    }
-    return NULL;
-}
-
 void ap::get_first_time_node(node* root, node* time_node)
 {
     //cout << "IN FUNCTION: " << pdrh::node_to_string_prefix(root) << " " << &root << endl;

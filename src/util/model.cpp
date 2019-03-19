@@ -927,8 +927,8 @@ void pdrh::set_model_type()
     }
     else if(pdrh::par_map.empty())
     {
-        pdrh::model_type = pdrh::type::NPHA;
-        //pdrh::model_type = pdrh::type::PHA;
+//        pdrh::model_type = pdrh::type::NPHA;
+        pdrh::model_type = pdrh::type::PHA;
     }
     else
     {

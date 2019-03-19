@@ -15,9 +15,6 @@ namespace formal
     capd::interval evaluate_pha(int, int);
     // evaluating reachability in nondeterministic probabilistic hybrid automata l(arg1: min depth, arg2: max depth)
     map<box, capd::interval> evaluate_npha(int, int);
-    // performing parameter synthesis (arg: time series data). return: vectors of sat, undet and unsat boxes
-    tuple<vector<box>, vector<box>, vector<box>> evaluate_psy(map<string, vector<pair<pdrh::node*, pdrh::node*>>>);
 }
-
 
 #endif //PROBREACH_FORMAL_H

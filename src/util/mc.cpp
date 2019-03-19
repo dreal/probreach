@@ -14,12 +14,11 @@
 #include <chrono>
 #include <iomanip>
 #include <omp.h>
-//#include <solver/isat_wrapper.h>
 #include "rnd.h"
 #include "ap.h"
 #include "pdrh2box.h"
 #include "naive.h"
-//#include "stability.h"
+
 
 using namespace std;
 
@@ -33,25 +32,28 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
     r = gsl_rng_alloc(T);
     // setting the seed
     gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
-    // getting sample size with recalculated confidence
-    long int sample_size = algorithm::get_cernoff_bound(acc, std::sqrt(conf));
+    // getting sample size using the Chernoff bound formula
+    long int sample_size = (long int) std::ceil((1 / (2 * acc * acc)) * std::log(2 / (1 - conf)));
+//    long int sample_size = algorithm::get_cernoff_bound(acc, std::sqrt(conf));
     long int sat = 0;
     long int unsat = 0;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Chernoff-Hoeffding algorithm started";
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Random sample size: " << sample_size;
 #pragma omp parallel for schedule (dynamic)
-    for (long int ctr = 0; ctr < sample_size; ctr++) {
-        std::vector<std::vector<pdrh::mode *>> paths;
+    for (long int ctr = 0; ctr < sample_size; ctr++)
+    {
         // getting all paths
-        for (pdrh::state i : pdrh::init) {
-            for (pdrh::state g : pdrh::goal) {
-                for (int j = min_depth; j <= max_depth; j++) {
-                    std::vector<std::vector<pdrh::mode *>> paths_j = pdrh::get_paths(pdrh::get_mode(i.id),
-                                                                                     pdrh::get_mode(g.id), j);
-                    paths.insert(paths.cend(), paths_j.cbegin(), paths_j.cend());
-                }
-            }
-        }
+        std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_all_paths(min_depth, max_depth);
+//        // getting all paths
+//        for (pdrh::state i : pdrh::init) {
+//            for (pdrh::state g : pdrh::goal) {
+//                for (int j = min_depth; j <= max_depth; j++) {
+//                    std::vector<std::vector<pdrh::mode *>> paths_j = pdrh::get_paths(pdrh::get_mode(i.id),
+//                                                                                     pdrh::get_mode(g.id), j);
+//                    paths.insert(paths.cend(), paths_j.cbegin(), paths_j.cend());
+//                }
+//            }
+//        }
         // getting a sample
         box b = rnd::get_random_sample(r);
         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Random sample: " << b;
@@ -144,7 +146,8 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     // getting set of all paths
     //std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
     #pragma omp parallel
-    while (post_prob < conf) {
+    while (post_prob < conf)
+    {
         // getting a sample
         box b = rnd::get_random_sample(r);
         // increasing the sample size
@@ -178,7 +181,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
 
         if (global_config.use_verified)
         {
-            //res = decision_procedure::evaluate(paths, boxes, "");
+            //res = decision_procedure::evaluate(paths, boxes, dreal::solver_bin, "");
             res = ap::verify(min_depth, max_depth, boxes);
             //res = ap::simulate_path(ap::get_all_paths(boxes).front(), ap::init_to_box(boxes), boxes);
         }
@@ -268,21 +271,6 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Random sample size: " << sample_size;
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm finished";
     return capd::interval(max(post_mean_sat - acc, 0.0), min(post_mean_unsat + acc, 1.0));
-}
-
-capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf) {
-    return evaluate_pha_chernoff(min_depth, max_depth, acc, conf, vector<box>{});
-}
-
-capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, double acc, double conf) {
-    return evaluate_pha_bayesian(min_depth, max_depth, acc, conf, vector<box>{});
-}
-
-long int algorithm::get_cernoff_bound(double acc, double conf) {
-    if ((acc <= 0) || (conf < 0) || (conf >= 1)) {
-        CLOG(ERROR, "algorithm") << "accuracy must be descending than 0 and confidence must be inside [0, 1) interval";
-    }
-    return (long int) std::ceil((1 / (2 * acc * acc)) * std::log(2 / (1 - conf)));
 }
 
 pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_depth, int size) {
@@ -537,87 +525,6 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_beta(int min_de
     gsl_rng_free(r);
     return res;
 }
-
-pair<capd::interval, box> algorithm::solve_min_max() {
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup();
-    T = gsl_rng_default;
-    // creating random generator
-    r = gsl_rng_alloc(T);
-    // setting the seed
-    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
-
-    // the first element is the value of the objective function
-    // the second element is the values of the nondet parameters
-    std::map<capd::interval, box> rob_map;
-
-    box nondet_domain = pdrh2box::get_nondet_domain();
-    //initializing probability value
-    box mean = nondet_domain.get_mean();
-    box sigma = nondet_domain.get_stddev();
-    box var = sigma * sigma;
-
-    unsigned long sample_size = (unsigned long) ceil(
-            global_config.sample_size / measure::get_sample_prob(nondet_domain, mean, sigma).rightBound());
-
-    pair<capd::interval, box> res = make_pair(capd::interval(-numeric_limits<double>::max()), box());
-
-#pragma omp parallel for
-    for (int i = 0; i < sample_size; i++) {
-        // taking a sample form the nondeterministic parameter space
-        box nondet_box = rnd::get_normal_random_sample(r, mean, sigma);
-        if (nondet_domain.contains(nondet_box)) {
-            capd::interval rob(0);
-            for (int j = 0; j < global_config.sample_size; j++) {
-                //cout << "i = " << i << " j = " << j << endl;
-                box random_box = rnd::get_random_sample(r);
-                vector<vector<pdrh::mode *>> paths = ap::get_all_paths({nondet_box, random_box});
-                // computing an objective function over a set of paths as an average value
-                for (vector<pdrh::mode *> path : paths) {
-                    capd::interval sample_rob = ap::compute_robustness(path, ap::init_to_box({nondet_box, random_box}),
-                                                                       {nondet_box, random_box}) /
-                                                (double) paths.size();
-# pragma omp critical
-                    {
-                        rob = rob + sample_rob;
-                    }
-                }
-            }
-# pragma omp critical
-            {
-                // computing the statistical mean of the objective function
-                rob = rob / global_config.sample_size;
-                // updating the result here
-                if (rob.leftBound() > res.first.rightBound()) {
-                    res = make_pair(rob, nondet_box);
-                }
-                // adding to the list of objective functions
-                rob_map.insert(make_pair(rob, nondet_box));
-            }
-        }
-    }
-
-    cout << "Means of robustness values:" << endl;
-    for (auto it = rob_map.begin(); it != rob_map.end(); it++) {
-        cout << it->first << " | " << it->second << endl;
-    }
-
-    gsl_rng_free(r);
-    return res;
-}
-
-capd::interval algorithm::compute_robustness() {
-    vector<vector<pdrh::mode *>> paths = ap::get_all_paths({});
-    // computing an objective function over a set of paths as an average value
-    capd::interval rob(-numeric_limits<double>::max());
-    for (vector<pdrh::mode *> path : paths) {
-        rob = ap::compute_robustness(path, ap::init_to_box({}), {});
-    }
-    return rob;
-}
-
-
 
 
 

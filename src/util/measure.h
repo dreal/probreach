@@ -4,7 +4,7 @@
 #include<capd/capdlib.h>
 #include<capd/intervals/lib.h>
 #include "box.h"
-#include "model.h"
+
 
 #ifndef PROBREACH_MEASURE_H
 #define PROBREACH_MEASURE_H
@@ -34,7 +34,6 @@ namespace measure
     std::vector<box> get_rv_partition();
     std::vector<box> get_dd_partition();
 
-    double binomial(int, int);
     double precision(double, int);
 
     namespace bounds

@@ -2,12 +2,11 @@
 // Created by fedor on 27/12/15.
 //
 #include<capd/capdlib.h>
-//#include<ibex.h>
+
 #include<tuple>
 #include "measure.h"
 #include "box_factory.h"
 #include "model.h"
-#include "node.h"
 #include "pdrh_config.h"
 #include "pdrh2box.h"
 
@@ -43,7 +42,6 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
             stack.push_back(capd::interval(i.leftBound(), i.mid().rightBound()));
             stack.push_back(capd::interval(i.mid().leftBound(), i.rightBound()));
         }
-        //cout << "Computing the value of the integral: " << value << endl;
     }
     return make_pair(value, partition);
 }
@@ -62,32 +60,8 @@ capd::interval measure::volume(box b)
     return v;
 }
 
-double measure::binomial(int k, int n)
-{
-    double res = 1;
-    for(int i = 1; i <= k; i++)
-    {
-        res *= (double) (n + 1 - i) / (double) i;
-    }
-    return res;
-}
-
 double measure::precision(double e, int n)
 {
-//    std::stringstream s;
-//    for(int i = 0; i < n; i++)
-//    {
-//        s << binomial(i + 1, n) << "*e^" << i + 1 << "+";
-//    }
-//    s << "-" << e;
-//    //std::cout << "expression: " << s.str() << std::endl;
-//    ibex::Function f("e", s.str().c_str());
-//    ibex::IntervalVector b(1, ibex::Interval(0, 1));
-//    ibex::CtcFwdBwd c(f);
-//    ibex::CtcFixPoint fp(c, e);
-//    fp.contract(b);
-//
-//    return b[0].lb();
     double xi = e;
     double lb = 0;
     double ub = e;

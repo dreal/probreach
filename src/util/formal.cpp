@@ -16,7 +16,7 @@
 
 int formal::evaluate_ha(int min_depth, int max_depth)
 {
-    vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(min_depth, max_depth);
     return decision_procedure::evaluate_formal(paths, {}, global_config.solver_bin, global_config.solver_opt);
 }
 
@@ -46,12 +46,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
     // checking if there are any continuous random variables
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
     // generating all paths of lengths [min_depth, max_depth]
-    std::vector<std::vector<pdrh::mode *>> paths;
-    for (int i = min_depth; i <= max_depth; i++) {
-        std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(pdrh::init.front().id),
-                                                                         pdrh::get_mode(pdrh::goal.front().id), i);
-        paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
-    }
+    std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_all_paths(min_depth, max_depth);
     //resulting probability
     capd::interval res_prob(0.0);
     // evaluating boxes
@@ -264,17 +259,7 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
         CLOG(WARNING, "algorithm") << "Multiple initial or goal states are not supported";
     }
     // generating all paths of lengths [min_depth, max_depth]
-    std::vector<std::vector<pdrh::mode *>> paths;
-    for (int i = min_depth; i <= max_depth; i++) {
-        for (pdrh::state init : pdrh::init) {
-            for (pdrh::state goal : pdrh::goal) {
-                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
-                                                                                 pdrh::get_mode(goal.id),
-                                                                                 i);
-                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
-            }
-        }
-    }
+    std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_all_paths(min_depth, max_depth);
     // initializing probability map
     std::map<box, capd::interval> p_map;
     capd::interval total_probability = capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound());

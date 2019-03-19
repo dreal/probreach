@@ -19,6 +19,8 @@
 
 #ifdef _OPENMP
     #include<omp.h>
+#include <util/decision_procedure.h>
+
 #endif
 
 extern "C"
@@ -268,43 +270,43 @@ int main(int argc, char* argv[])
     START_EASYLOGGINGPP(argc, argv);
     el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
 
+    // setting the model type
     pdrh::set_model_type();
 
-    switch(pdrh::model_type)
+    // only the following cases are supported in the formal setting
+    if(pdrh::model_type == pdrh::PHA)
     {
-        // hybrid automata
-        case pdrh::HA:
+        capd::interval probability = formal::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
+        cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
+    }
+    else if(pdrh::model_type == pdrh::NPHA)
+    {
+        map<box, capd::interval> probability_map = formal::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
+        for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
         {
-//            int res = algorithm::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
-            break;
+            cout << scientific << it->first << " | " << it->second << endl;
         }
-        // probabilistic hybrid automata
-        case pdrh::PHA:
+    }
+    else
+    {
+        int res = formal::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
+        switch(res)
         {
-            capd::interval probability = formal::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
-            std::cout << scientific << probability << " | " << capd::intervals::width(probability) << std::endl;
-            break;
-        }
-        // nondeterministic probabilistic hybrid automata
-        case pdrh::NPHA:
-        {
-            std::map<box, capd::interval> probability_map = formal::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
-            for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
-            {
-                std::cout << scientific << it->first << " | " << it->second << std::endl;
-            }
-            break;
-        }
-        // parameter synthesis
-        case pdrh::PSY:
-        {
-            cerr << "Parameter set synthesis is not yet supported" << endl;
-            break;
-        }
-        case pdrh::NHA:
-        {
-            cerr << "Nondeterministic hybrid automata is not yet supported" << endl;
-            break;
+            case decision_procedure::result::SAT:
+                cout << "sat" << endl;
+                break;
+
+            case decision_procedure::result::UNSAT:
+                cout << "unsat" << endl;
+                break;
+
+            case decision_procedure::result::UNDET:
+                cout << "undet" << endl;
+                break;
+
+            default:
+                cerr << "Unrecognised verification result" << endl;
+                exit(EXIT_FAILURE);
         }
     }
 

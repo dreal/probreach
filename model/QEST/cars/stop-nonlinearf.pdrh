@@ -6,7 +6,6 @@ model: npha;
 #define v_100 27.78 // m/s
 #define drag 3.028e-4 // some average value (1/m)
 //#define a_d 5.25
-#define mu 1
 #define alpha 0.05776 
 //#define beta 4
 #define t_react 1.2
@@ -20,11 +19,10 @@ model: npha;
 //dist_normal(1.65, 0.2) a_a;
 
 [3.9,4.1]mu;
-//[0.09,0.11]sigma;
+[0.09,0.11]sigma;
 dist_normal(0,1) beta;
 
-//#define mu 4
-#define sigma 0.1
+//#define sigma 0.1
 //dist_normal(4,0.1) beta;
 
 //[0.5,1.5] t_react;
@@ -77,8 +75,8 @@ init:
 @1(and (s = 0) (v = 0) (tau = 0));
 
 goal:
-//@4(and(tau=0)(s>=400));
+@4(and(tau=0)(s>=400));
 //@4(and(tau=0)(s>=300));
-@1(and (v=v_100));
+//@1(and (v=v_100));
 //@2(and (tau = t_react)(s>=500));
 //@3(and(v<=0));

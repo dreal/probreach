@@ -7,29 +7,26 @@
 
 #include <iostream>
 #include <vector>
-#include <map>
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
 #include <tuple>
 #include "box.h"
-#include "model.h"
+#include "node.h"
 
 namespace pdrh2box
 {
     capd::interval node_to_interval(pdrh::node*);
-    capd::interval node_to_interval(pdrh::node*, vector<box>);
-    bool node_to_boolean(pdrh::node*, vector<box>);
+    capd::interval node_to_interval(pdrh::node*, std::vector<box>);
+    bool node_to_boolean(pdrh::node*, std::vector<box>);
     pdrh::node* box_to_node(box);
-    bool check_zero_crossing(pdrh::node*, vector<box>, box, box);
+    bool check_zero_crossing(pdrh::node*, std::vector<box>, box, box);
+
+//    box node_to_box(pdrh::node*);
 
     box get_nondet_domain();
     box get_domain();
     box get_psy_domain();
 
-    // here only one initial mode and one goal mode
-    std::string reach_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
-    std::string reach_c_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
-    std::string reach_c_to_smt2(int, std::vector<pdrh::mode*>, vector<box>);
-
+    box init_to_box(vector<box>);
 }
 #endif //PROBREACH_PDRH2BOX_H

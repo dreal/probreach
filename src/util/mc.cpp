@@ -19,9 +19,7 @@
 #include "pdrh2box.h"
 #include "naive.h"
 
-
 using namespace std;
-
 
 capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, double acc, double conf, vector<box> nondet_boxes) {
     const gsl_rng_type *T;
@@ -60,7 +58,6 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
         std::vector<box> boxes = {b};
         boxes.insert(boxes.end(), nondet_boxes.begin(), nondet_boxes.end());
         int undet_counter = 0;
-        int timeout_counter = 0;
         bool sat_flag = false;
         // evaluating all paths
         for (std::vector<pdrh::mode *> path : paths) {
@@ -69,34 +66,32 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
                 p_stream << m->id << " ";
             }
             // removing trailing whitespace
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0,
-                                                                                                   p_stream.str().find_last_of(
-                                                                                                           " "));
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
             int res;
-            if (global_config.delta_sat) {
-                res = decision_procedure::evaluate_delta_sat(path, boxes, global_config.solver_bin, "");
-            } else {
-                res = decision_procedure::evaluate(path, boxes);
+            if (global_config.delta_sat)
+            {
+                res = decision_procedure::evaluate_delta_sat(path, boxes, global_config.solver_bin, global_config.solver_opt);
+            }
+            else
+            {
+                res = decision_procedure::evaluate(path, boxes, global_config.solver_bin, global_config.solver_opt);
             }
 #pragma omp critical
             {
-                if (res == decision_procedure::SAT) {
+                if (res == decision_procedure::SAT)
+                {
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                     sat++;
                     sat_flag = true;
-                } else if (res == decision_procedure::UNSAT) {
+                } else if (res == decision_procedure::UNSAT)
+                {
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-                } else if (res == decision_procedure::UNDET) {
+                } else if (res == decision_procedure::UNDET)
+                {
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
                     //cout<< "Undet sample: " << b << endl;
                     //exit(EXIT_FAILURE);
                     undet_counter++;
-                } else if (res == decision_procedure::ERROR) {
-                    CLOG(ERROR, "algorithm") << "Error occured while calling a solver";
-                    exit(EXIT_FAILURE);
-                } else if (res == decision_procedure::SOLVER_TIMEOUT) {
-                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                    timeout_counter++;
                 }
             }
             if (sat_flag) {
@@ -106,7 +101,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
         // updating unsat counter
 #pragma omp critical
         {
-            if ((undet_counter == 0) && (timeout_counter == 0) && (!sat_flag)) {
+            if ((undet_counter == 0) && (!sat_flag)) {
                 unsat++;
             }
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "CI: " << capd::interval(
@@ -202,7 +197,8 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         // updating the counters
         #pragma omp critical
         {
-            switch (res) {
+            switch (res)
+            {
                 case decision_procedure::SAT:
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                     sat++;
@@ -217,10 +213,6 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
                 case decision_procedure::UNDET:
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
                     break;
-
-                case decision_procedure::ERROR:
-                    CLOG(ERROR, "algorithm") << "Error occured while calling a solver";
-                    exit(EXIT_FAILURE);
             }
         }
 //        }

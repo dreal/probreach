@@ -14,196 +14,21 @@
 #include "generators/smt2_generator.h"
 #include "decision_procedure.h"
 #include "pdrh2box.h"
-//#include "stability.h"
-
-pdrh::type ap::model_type;
-pair<pdrh::node*, pdrh::node*> ap::time;
-map<string, tuple<pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*>> ap::rv_map;
-map<string, string> ap::rv_type_map;
-map<string, map<pdrh::node*, pdrh::node*>> ap::dd_map;
-map<string, pair<pdrh::node*, pdrh::node*>> ap::var_map;
-map<string, pair<pdrh::node*, pdrh::node*>> ap::par_map;
-map<string, pdrh::node*> ap::syn_map;
-vector<pdrh::mode> ap::modes;
-vector<pdrh::state> ap::init;
-vector<pdrh::state> ap::goal;
-vector<vector<pdrh::mode*>> ap::paths;
-
-map<string, pair<pdrh::node*, pdrh::node*>> ap::distribution::uniform;
-map<string, pair<pdrh::node*, pdrh::node*>> ap::distribution::normal;
-map<string, pdrh::node*> ap::distribution::exp;
-map<string, pair<pdrh::node*, pdrh::node*>> ap::distribution::gamma;
 
 vector<box> ap::unsat_samples;
 
 using namespace pdrh;
-
-void ap::copy_model()
-{
-    ap::model_type = pdrh::model_type;
-    ap::time = pdrh::time;
-    ap::rv_map = pdrh::rv_map;
-    ap::rv_type_map = pdrh::rv_type_map;
-    ap::dd_map = pdrh::dd_map;
-    ap::var_map = pdrh::var_map;
-    ap::par_map = pdrh::par_map;
-    ap::syn_map = pdrh::syn_map;
-    ap::modes = pdrh::modes;
-    ap::init = pdrh::init;
-    ap::goal = pdrh::goal;
-    ap::paths = pdrh::paths;
-    ap::distribution::uniform = pdrh::distribution::uniform;
-    ap::distribution::normal = pdrh::distribution::normal;
-    ap::distribution::exp = pdrh::distribution::exp;
-    ap::distribution::gamma = pdrh::distribution::gamma;
-}
-
-void ap::modify_model()
-{
-    // removing all non-time variables
-    map<string, pair<pdrh::node*, pdrh::node*>> var_map;
-    for(auto it = pdrh::var_map.begin(); it != pdrh::var_map.end(); it++)
-    {
-        if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
-        {
-            var_map.insert(make_pair(it->first, it->second));
-        }
-    }
-    pdrh::var_map = var_map;
-
-    // removing all non-time parameters
-    map<string, pair<pdrh::node*, pdrh::node*>> par_map;
-    for(auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
-    {
-        if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
-        {
-            par_map.insert(make_pair(it->first, it->second));
-        }
-    }
-    pdrh::par_map = par_map;
-
-    for(int i = 0; i < pdrh::modes.size(); i++)
-    {
-        // removing non-time variables from the flow map
-        map<string, pair<pdrh::node*, pdrh::node*>> flow_map;
-        for(auto it = pdrh::modes.at(i).flow_map.begin(); it != pdrh::modes.at(i).flow_map.end(); it++)
-        {
-            if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
-            {
-                flow_map.insert(make_pair(it->first, it->second));
-            }
-        }
-        pdrh::modes.at(i).flow_map = flow_map;
-
-        // removing non-time variables from the ode map
-        map<string, pdrh::node*> odes;
-        for(auto it = pdrh::modes.at(i).odes.begin(); it != pdrh::modes.at(i).odes.end(); it++)
-        {
-            if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
-            {
-                odes.insert(make_pair(it->first, it->second));
-            }
-        }
-        pdrh::modes.at(i).odes = odes;
-
-        // removing non-time variables from the resets and the guards
-        for(int j = 0; j < pdrh::modes.at(i).jumps.size(); j++)
-        {
-            // removing non-time variables from the resets
-            map<string, pdrh::node*> reset;
-            for(auto it = pdrh::modes.at(i).jumps.at(j).reset.begin(); it != pdrh::modes.at(i).jumps.at(j).reset.end(); it++)
-            {
-                if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
-                {
-                    reset.insert(make_pair(it->first, it->second));
-                }
-            }
-            pdrh::modes.at(i).jumps.at(j).reset = reset;
-
-            // removing non-time variables from the dd map
-            map<string, map<pdrh::node*, pdrh::node*>> reset_dd;
-            for(auto it = pdrh::modes.at(i).jumps.at(j).reset_dd.begin(); it != pdrh::modes.at(i).jumps.at(j).reset_dd.end(); it++)
-            {
-                if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
-                {
-                    reset_dd.insert(make_pair(it->first, it->second));
-                }
-            }
-            pdrh::modes.at(i).jumps.at(j).reset_dd = reset_dd;
-
-            // removing non-time variables from the rv map
-            map<string, tuple<string, pdrh::node*, pdrh::node*, pdrh::node*, pdrh::node*>> reset_rv;
-            for(auto it = pdrh::modes.at(i).jumps.at(j).reset_rv.begin(); it != pdrh::modes.at(i).jumps.at(j).reset_rv.end(); it++)
-            {
-                cout << it->first << endl;
-                if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
-                {
-                    reset_rv.insert(make_pair(it->first, it->second));
-                }
-            }
-            pdrh::modes.at(i).jumps.at(j).reset_rv = reset_rv;
-
-            // removing non-time variables from the nondet map
-            map<string, pair<pdrh::node*, pdrh::node*>> reset_nondet;
-            for(auto it = pdrh::modes.at(i).jumps.at(j).reset_nondet.begin(); it != pdrh::modes.at(i).jumps.at(j).reset_nondet.end(); it++)
-            {
-                if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) != global_config.time_var_name.end())
-                {
-                    reset_nondet.insert(make_pair(it->first, it->second));
-                }
-            }
-            pdrh::modes.at(i).jumps.at(j).reset_nondet = reset_nondet;
-        }
-
-    }
-
-    // pdrh::modes.clear();
-    // pdrh::init.clear();
-    // pdrh::goal.clear();
-    // pdrh::paths.clear();
-}
-
-void ap::nullify_odes()
-{
-    for(int i = 0; i < pdrh::modes.size(); i++)
-    {
-        // removing non-time variables from the ode map
-        for(auto it = pdrh::modes.at(i).odes.begin(); it != pdrh::modes.at(i).odes.end(); it++)
-        {
-            if(std::find(global_config.time_var_name.begin(), global_config.time_var_name.end(), it->first) == global_config.time_var_name.end())
-            {
-                it->second = new pdrh::node("0");
-            }
-        }
-    }
-}
-
-void ap::revert_model()
-{
-    pdrh::model_type = ap::model_type;
-    pdrh::time = ap::time;
-    pdrh::rv_map = ap::rv_map;
-    pdrh::rv_type_map = ap::rv_type_map;
-    pdrh::dd_map = ap::dd_map;
-    pdrh::var_map = ap::var_map;
-    pdrh::par_map = ap::par_map;
-    pdrh::syn_map = ap::syn_map;
-    pdrh::modes = ap::modes;
-    pdrh::init = ap::init;
-    pdrh::goal = ap::goal;
-    pdrh::paths = ap::paths;
-    pdrh::distribution::uniform = ap::distribution::uniform;
-    pdrh::distribution::normal = ap::distribution::normal;
-    pdrh::distribution::exp = ap::distribution::exp;
-    pdrh::distribution::gamma = ap::distribution::gamma;
-}
 
 capd::interval ap::get_sample_rate(pdrh::node* n)
 {
     pdrh::node *node_copy = new pdrh::node;
     pdrh::copy_tree(node_copy, n);
     pdrh::node *time_node = new pdrh::node;
-    ap::get_first_time_node(node_copy, time_node);
+    //ap::get_first_time_node(node_copy, time_node);
+    // getting time node
+    vector<string> time_vars = global_config.time_var_name;
+    time_vars.push_back(global_config.sample_time);
+    pdrh::get_first_node_by_value(node_copy, time_node, time_vars);
     pdrh::delete_node(node_copy);
     capd::interval result(0);
     // checking if the time node is not empty
@@ -230,7 +55,6 @@ capd::interval ap::get_sample_rate(pdrh::node* n)
     return capd::interval(0.0);
 }
 
-
 capd::interval ap::get_sample_rate(pdrh::mode* m)
 {
     for(pdrh::mode::jump j : m->jumps)
@@ -250,7 +74,11 @@ capd::interval ap::get_meal_time(pdrh::node *n, vector<box> boxes)
     pdrh::node *node_copy = new pdrh::node();
     pdrh::copy_tree(node_copy, n);
     pdrh::node* time_node = new pdrh::node;
-    ap::get_first_time_node(node_copy, time_node);
+    //ap::get_first_time_node(node_copy, time_node);
+    // getting time node
+    vector<string> time_vars = global_config.time_var_name;
+    time_vars.push_back(global_config.sample_time);
+    pdrh::get_first_node_by_value(node_copy, time_node, time_vars);
     pdrh::delete_node(node_copy);
     capd::interval result(0);
     // checking if the time node is not empty
@@ -277,7 +105,6 @@ capd::interval ap::get_meal_time(pdrh::node *n, vector<box> boxes)
     return capd::interval(0.0);
 }
 
-
 capd::interval ap::get_meal_time(pdrh::mode *m, vector<box> boxes)
 {
     for(pdrh::mode::jump j : m->jumps)
@@ -291,7 +118,6 @@ capd::interval ap::get_meal_time(pdrh::mode *m, vector<box> boxes)
     return capd::interval(0.0);
 }
 
-
 int ap::jumps_per_mode(pdrh::mode *m, vector<box> boxes)
 {
     capd::interval sample_rate = ap::get_sample_rate(m);
@@ -304,7 +130,6 @@ int ap::jumps_per_mode(pdrh::mode *m, vector<box> boxes)
     }
     return ceil((ap::get_meal_time(m, boxes) / sample_rate).rightBound());
 }
-
 
 int ap::jumps_per_mode(pdrh::mode *cur_mode, pdrh::mode *prev_mode, vector<box> boxes)
 {
@@ -375,44 +200,6 @@ bool ap::accept_path(vector<pdrh::mode *> path, vector<box> boxes)
     delete prev_mode;
     return true;
 }
-
-// only the first initial state is taken
-box ap::init_to_box(vector<box> boxes)
-{
-    pdrh::node *init_node = pdrh::init.front().prop;
-    if(init_node->value != "and")
-    {
-        cerr << "Invalid initial state format: " << pdrh::init.front() << endl;
-        exit(EXIT_FAILURE);
-    }
-
-    map<string, capd::interval> b_map;
-    for(pdrh::node *n : init_node->operands)
-    {
-        if(n->value != "=")
-        {
-            cerr << "Invalid assignment in the initial state: " << pdrh::node_to_string_infix(n) << endl;
-            exit(EXIT_FAILURE);
-        }
-
-        if((pdrh::var_map.find(n->operands.front()->value) != pdrh::var_map.end()) ||
-            (pdrh::par_map.find(n->operands.front()->value) != pdrh::par_map.end()) ||
-            (pdrh::rv_map.find(n->operands.front()->value) != pdrh::rv_map.end()) ||
-            (pdrh::dd_map.find(n->operands.front()->value) != pdrh::dd_map.end()))
-        {
-            b_map.insert(make_pair(n->operands.front()->value, pdrh2box::node_to_interval(n->operands.back(), boxes)));
-        }
-        else if((pdrh::var_map.find(n->operands.back()->value) != pdrh::var_map.end()) ||
-                (pdrh::par_map.find(n->operands.back()->value) != pdrh::par_map.end()) ||
-                (pdrh::rv_map.find(n->operands.back()->value) != pdrh::rv_map.end()) ||
-                (pdrh::dd_map.find(n->operands.back()->value) != pdrh::dd_map.end()))
-        {
-            b_map.insert(make_pair(n->operands.back()->value, pdrh2box::node_to_interval(n->operands.front(), boxes)));
-        }
-    }
-    return box(b_map);
-}
-
 
 box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time, vector<box> boxes)
 {
@@ -586,7 +373,6 @@ box ap::solve_odes_nonrig(map<string, pdrh::node *> odes, box init, capd::interv
     return box(res_map);
 }
 
-
 // boxes - vector of parameter boxes, init - initial box, time - time horizon
 box ap::solve_odes_discrete(map<string, pdrh::node *> odes, box init, capd::interval time, size_t num_points, vector<box> boxes)
 {
@@ -674,7 +460,6 @@ box ap::solve_odes_discrete(map<string, pdrh::node *> odes, box init, capd::inte
     return box(res_map);
 }
 
-
 capd::interval time_to_goal(pdrh::mode *m, vector<box> boxes)
 {
     for(pdrh::state st : pdrh::goal)
@@ -685,7 +470,6 @@ capd::interval time_to_goal(pdrh::mode *m, vector<box> boxes)
         }
     }
 }
-
 
 int ap::simulate_path(vector<pdrh::mode *> path, box init, vector<box> boxes)
 {
@@ -978,7 +762,6 @@ box ap::compute_objective(vector<pdrh::mode *> path, box init, vector<box> boxes
     return box(obj_map);
 }
 
-
 capd::interval ap::compute_robustness(vector<pdrh::mode *> path, box init, vector<box> boxes)
 {
     // overall robustness over the path
@@ -1159,7 +942,6 @@ capd::interval ap::compute_min_robustness(vector<vector<pdrh::mode *>> paths, bo
     return min_rob;
 }
 
-
 bool ap::check_invariants(pdrh::mode *m, box b, vector<box> boxes)
 {
     bool res = true;
@@ -1169,7 +951,6 @@ bool ap::check_invariants(pdrh::mode *m, box b, vector<box> boxes)
     }
     return res;
 }
-
 
 vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
 {
@@ -1235,7 +1016,6 @@ vector<vector<pdrh::mode*>> ap::get_all_paths(vector<box> boxes)
     return res;
 }
 
-
 bool ap::is_sample_jump(pdrh::mode::jump jump)
 {
     return jump.guard->value == "=" &&
@@ -1247,7 +1027,7 @@ bool ap::is_sample_jump(pdrh::mode::jump jump)
 int ap::verify(size_t min_depth, size_t max_depth, vector<box> boxes)
 {
     // list of all evaluated paths, where each path consists is a sequence of pairs (<mode_id>, <init_value>)
-    vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, ap::init_to_box(boxes))}};
+    vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, pdrh2box::init_to_box(boxes))}};
     // global time
     //capd::interval global_time = init.get_map()[global_config.global_time];
     vector<vector<pair<int, box>>> good_paths;
@@ -1465,11 +1245,10 @@ box ap::apply_reset(map<string, pdrh::node*> reset_map, box sol, vector<box> box
     return box(init_map);
 }
 
-
 int ap::simulate(size_t min_depth, size_t max_depth, vector<box> boxes)
 {
     // list of all evaluated paths, where each path consists is a sequence of pairs (<mode_id>, <init_value>)
-    vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, ap::init_to_box(boxes))}};
+    vector<vector<pair<int, box>>> paths = {{make_pair(pdrh::init.front().id, pdrh2box::init_to_box(boxes))}};
     vector<vector<pair<int, box>>> good_paths;
     // continuing until there are no paths to simulate
     while(paths.size() > 0)
@@ -1616,61 +1395,6 @@ int ap::simulate(size_t min_depth, size_t max_depth, vector<box> boxes)
 //
 //    cout << "The end" << endl;
 }
-
-void ap::get_first_time_node(node* root, node* time_node)
-{
-    //cout << "IN FUNCTION: " << pdrh::node_to_string_prefix(root) << " " << &root << endl;
-    if(strcmp(root->value.c_str(), "=") == 0)
-    {
-        for(pdrh::node* child : root->operands)
-        {
-            if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), child->value.c_str()) != global_config.time_var_name.end() ||
-               child->value == global_config.sample_time || child->value == global_config.global_time)
-            {
-                *time_node = *root;
-                root->value = "true";
-                root->operands.clear();
-            }
-            else
-            {
-                ap::get_first_time_node(child, time_node);
-            }
-        }
-    }
-    else
-    {
-        for(pdrh::node* child : root->operands)
-        {
-            ap::get_first_time_node(child, time_node);
-        }
-    }
-}
-
-pdrh::node* ap::get_time_node_neg(pdrh::node* root)
-{
-    pdrh::node *root_copy = new pdrh::node();
-    pdrh::copy_tree(root_copy, root);
-    pdrh::node* time_node = new pdrh::node;
-    ap::get_first_time_node(root_copy, time_node);
-    //cout << "Node before removing time node: " << pdrh::node_to_string_prefix(root) << endl;
-    if(pdrh::is_node_empty(time_node))
-    {
-        return NULL;
-    }
-    // creating a negation node
-    pdrh::node* not_node = new node("not", {root_copy});
-    // creating a resulting node
-    pdrh::node* res_node = new node("and", {time_node, not_node});
-    //cout << "RES TIME NODE: " << pdrh::node_to_string_prefix(res_node) << endl;
-    return res_node;
-}
-
-
-
-
-
-
-
 
 
 

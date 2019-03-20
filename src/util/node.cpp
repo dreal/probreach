@@ -7,6 +7,7 @@
 #include <sstream>
 #include <random>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 using namespace pdrh;
@@ -458,3 +459,68 @@ bool pdrh::node_zero_crossing(pdrh::node * expr, std::map<std::string, double> l
         exit(EXIT_FAILURE);
     }
 }
+
+/**
+ * Returns the first node matching the pattern (root->value == values[i]) and (expr).
+ *
+ * @param root - root of the tree.
+ * @param res_node - resulting node.
+ * @param values - list of values to check.
+ */
+void pdrh::get_first_node_by_value(node* root, node* res_node, vector<string> values)
+{
+    if(root->value == "=")
+    {
+        for(pdrh::node* child : root->operands)
+        {
+            if(find(values.begin(), values.end(), child->value) != values.end())
+            {
+                *res_node = *root;
+                root->value = "true";
+                root->operands.clear();
+            }
+            else
+            {
+                pdrh::get_first_node_by_value(child, res_node, values);
+            }
+        }
+    }
+    else
+    {
+        for(pdrh::node* child : root->operands)
+        {
+            pdrh::get_first_node_by_value(child, res_node, values);
+        }
+    }
+}
+
+/**
+ * Returns the first node matching the pattern (root->value == values[i]) and (!expr)
+ *
+ * @param root - root of the tree.
+ * @param values - resulting node.
+ * @return
+ */
+node* pdrh::get_node_neg_by_value(node* root, vector<string> values)
+{
+    pdrh::node *root_copy = new pdrh::node();
+    pdrh::copy_tree(root_copy, root);
+    pdrh::node* time_node = new pdrh::node;
+    pdrh::get_first_node_by_value(root_copy, time_node, values);
+    //cout << "Node before removing time node: " << pdrh::node_to_string_prefix(root) << endl;
+    if(pdrh::is_node_empty(time_node)) return NULL;
+    // creating a negation node
+    pdrh::node* not_node = new node("not", {root_copy});
+    // creating a resulting node
+    pdrh::node* res_node = new node("and", {time_node, not_node});
+    //cout << "RES TIME NODE: " << pdrh::node_to_string_prefix(res_node) << endl;
+    return res_node;
+}
+
+
+
+
+
+
+
+

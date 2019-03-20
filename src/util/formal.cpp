@@ -16,8 +16,8 @@
 
 int formal::evaluate_ha(int min_depth, int max_depth)
 {
-    vector<vector<pdrh::mode *>> paths = pdrh::get_paths();
-    return decision_procedure::evaluate_formal(paths, {}, global_config.solver_bin, global_config.solver_opt);
+    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(min_depth, max_depth);
+    return decision_procedure::evaluate(paths, {}, global_config.solver_bin, global_config.solver_opt);
 }
 
 capd::interval formal::evaluate_pha(int min_depth, int max_depth)
@@ -46,12 +46,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
     // checking if there are any continuous random variables
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
     // generating all paths of lengths [min_depth, max_depth]
-    std::vector<std::vector<pdrh::mode *>> paths;
-    for (int i = min_depth; i <= max_depth; i++) {
-        std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(pdrh::init.front().id),
-                                                                         pdrh::get_mode(pdrh::goal.front().id), i);
-        paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
-    }
+    std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_all_paths(min_depth, max_depth);
     //resulting probability
     capd::interval res_prob(0.0);
     // evaluating boxes
@@ -90,8 +85,6 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                 std::vector<box> boxes{dd, rv};
                 // undetermined answers counter
                 int undet_counter = 0;
-                // solver timeout counter
-                int timeout_counter = 0;
                 // unsat counter
                 int unsat_counter = 0;
                 // sat flag
@@ -114,7 +107,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                     s << solver_opt << " --precision " <<
                       measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
                     global_config.solver_opt = s.str();
-                    int res = decision_procedure::evaluate_formal(path, boxes, global_config.solver_bin, s.str());
+                    int res = decision_procedure::evaluate(path, boxes, global_config.solver_bin, s.str());
                     // setting old precision
                     #pragma omp critical
                     {
@@ -141,17 +134,14 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                                 unsat_counter++;
                                 break;
                             case decision_procedure::UNDET:
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDEC";
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
                                 undet_counter++;
                                 break;
                             case decision_procedure::ERROR:
                                 CLOG(ERROR, "algorithm") << "Error occurred while calling the solver";
                                 exit(EXIT_FAILURE);
                                 break;
-                            case decision_procedure::SOLVER_TIMEOUT:
-                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOLVER_TIMEOUT";
-                                timeout_counter++;
-                                break;
+
                             default:
                                 break;
                         }
@@ -162,16 +152,20 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                     }
                 }
                 // checking if there are no sat answers
-                if (!sat_flag) {
+                if (!sat_flag)
+                {
                     // if the box is undetermined on either path
-                    if ((undet_counter > 0) || (timeout_counter > 0)) {
+                    if (undet_counter > 0)
+                    {
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << rv;
                         std::vector<box> rv_bisect = box_factory::bisect(rv);
                         rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
                     }
-                        // if the box is unsat for all paths
-                    else if (unsat_counter == paths.size()) {
-                        if (p_box.rightBound() > 0) {
+                    // if the box is unsat for all paths
+                    else if (unsat_counter == paths.size())
+                    {
+                        if (p_box.rightBound() > 0)
+                        {
                             probability = capd::interval(probability.leftBound(),
                                                          probability.rightBound() - p_box.leftBound());
                         }
@@ -264,17 +258,7 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
         CLOG(WARNING, "algorithm") << "Multiple initial or goal states are not supported";
     }
     // generating all paths of lengths [min_depth, max_depth]
-    std::vector<std::vector<pdrh::mode *>> paths;
-    for (int i = min_depth; i <= max_depth; i++) {
-        for (pdrh::state init : pdrh::init) {
-            for (pdrh::state goal : pdrh::goal) {
-                std::vector<std::vector<pdrh::mode *>> paths_i = pdrh::get_paths(pdrh::get_mode(init.id),
-                                                                                 pdrh::get_mode(goal.id),
-                                                                                 i);
-                paths.insert(paths.cend(), paths_i.cbegin(), paths_i.cend());
-            }
-        }
-    }
+    std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_all_paths(min_depth, max_depth);
     // initializing probability map
     std::map<box, capd::interval> p_map;
     capd::interval total_probability = capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound());
@@ -359,7 +343,8 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
                         }
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solver options: " << s.str();
                     }
-                    switch (decision_procedure::evaluate_formal(paths, vector<box>{nd, dd, rv}, global_config.solver_bin, s.str())) {
+                    switch (decision_procedure::evaluate(paths, vector<box>{nd, dd, rv}, global_config.solver_bin,
+                                                         s.str())) {
                         case decision_procedure::result::SAT:
 #pragma omp critical
                         {

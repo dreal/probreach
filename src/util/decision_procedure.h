@@ -12,21 +12,13 @@ using namespace std;
 
 namespace decision_procedure
 {
-    enum result {SAT, UNSAT, UNDET, ERROR, SOLVER_TIMEOUT};
-
-    // used for statistical model checking
-    int evaluate(vector<pdrh::mode*>, vector<box>);
-    // used for formal verification
-    int evaluate(vector<pdrh::mode*>, vector<box>, string);
-
-    // evaluating all paths
-    int evaluate(vector<vector<pdrh::mode*>>, vector<box>, string);
+    enum result {SAT, UNSAT, UNDET, ERROR};
 
     // used for formal verification
-    int evaluate_formal(vector<pdrh::mode*>, vector<box>, string, string);
+    int evaluate(vector<pdrh::mode *>, vector<box>, string, string);
 
     // evaluating all paths
-    int evaluate_formal(vector<vector<pdrh::mode*>>, vector<box>, string, string);
+    int evaluate(vector<vector<pdrh::mode *>>, vector<box>, string, string);
 
     // first argument is the path to be evaluated,
     // second argument is the set of nondet boxes

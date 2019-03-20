@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <capd/capdlib.h>
-#include "util/model.h"
+#include "model.h"
 #include "box.h"
 
 namespace smt2_generator
@@ -32,6 +32,11 @@ namespace smt2_generator
     // second argument is the interval initial condition for the ode system
     // third argument is the vector of samples
     std::string generate_jump_check(pdrh::mode*, vector<pdrh::mode::jump>, box, vector<box>);
+
+    // generates reachability formulas
+    std::string reach_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
+    std::string reach_c_to_smt2(std::vector<pdrh::mode*>, std::vector<box>);
+    std::string reach_c_to_smt2(int, std::vector<pdrh::mode*>, vector<box>);
 
 }
 

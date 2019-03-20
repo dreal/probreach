@@ -8,75 +8,58 @@
 #include "decision_procedure.h"
 #include "dreal_wrapper.h"
 #include "pdrh_config.h"
-#include "ap.h"
 #include "pdrh2box.h"
 
 using namespace std;
 
-// write an evaluate method for all paths instead of one.
-
-// used for statistical verification
-int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes)
-{
-    return decision_procedure::evaluate(path, boxes, global_config.solver_opt);
-}
-
 // used for formal verification
-int decision_procedure::evaluate(std::vector<pdrh::mode *> path, std::vector<box> boxes, string solver_opt)
+int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
 {
-    //int first_res = decision_procedure::evaluate_delta_sat(path, boxes, solver_opt);
-    //int first_res = decision_procedure::evaluate_flow_by_flow(path, boxes, global_config.solver_bin, solver_opt);
-    int res = ap::simulate_path(path, ap::init_to_box(boxes), boxes);
-
-//    CLOG_IF(global_config.verbose, INFO, "algorithm") << res;
-
-    return res;
-
-//    if(first_res == decision_procedure::result::UNSAT)
-//    {
-//        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-//        return decision_procedure::result::UNSAT;
-//    }
-//    else if(first_res == decision_procedure::result::SAT)
-//    {
-//        int second_res = decision_procedure::evaluate_complement(path, boxes, solver_opt);
-//        if(second_res == decision_procedure::result::UNSAT)
-//        {
-//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-//            return decision_procedure::result::SAT;
-//        }
-//        else if(second_res == decision_procedure::result::SAT)
-//        {
-//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-//            return decision_procedure::result::UNDET;
-//        }
-//    }
-}
-
-
-// used for formal verification
-int decision_procedure::evaluate_formal(std::vector<pdrh::mode *> path, std::vector<box> boxes, string solver_bin, string solver_opt)
-{
+    // evaluating the delta-sat formula
     int first_res = decision_procedure::evaluate_delta_sat(path, boxes, global_config.solver_bin, solver_opt);
-
     if(first_res == decision_procedure::result::UNSAT)
     {
        return decision_procedure::result::UNSAT;
     }
     else if(first_res == decision_procedure::result::SAT)
     {
-       int second_res = decision_procedure::evaluate_complement(path, boxes, solver_bin, solver_opt);
-       if(second_res == decision_procedure::result::UNSAT)
-       {
-           return decision_procedure::result::SAT;
-       }
-       else if(second_res == decision_procedure::result::SAT)
-       {
-           return decision_procedure::result::UNDET;
-       }
+        // evaluating complement
+        int second_res = decision_procedure::evaluate_complement(path, boxes, solver_bin, solver_opt);
+        if(second_res == decision_procedure::result::UNSAT)
+        {
+            return decision_procedure::result::SAT;
+        }
+        else if(second_res == decision_procedure::result::SAT)
+        {
+            return decision_procedure::result::UNDET;
+        }
     }
 }
 
+// implements evaluate for all paths
+int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_bin, string solver_opt)
+{
+    int undet_counter = 0;
+    for(vector<pdrh::mode*> path : paths)
+    {
+//        stringstream s;
+//        for(pdrh::mode* m : path) s << m->id << " ";
+        int res = evaluate(path, boxes, solver_bin, solver_opt);
+        if(res == decision_procedure::result::SAT)
+        {
+            return res;
+        }
+        else if(res == decision_procedure::result::UNDET)
+        {
+            undet_counter++;
+        }
+    }
+    if(undet_counter > 0)
+    {
+        return decision_procedure::result::UNDET;
+    }
+    return decision_procedure::result::UNSAT;
+}
 
 int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
 {
@@ -99,7 +82,7 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     smt_file.open(smt_filename.c_str());
     // will work for one initial and one state only
 //    smt_file << pdrh2box::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes);
-    smt_file << pdrh2box::reach_to_smt2(path, boxes);
+    smt_file << smt2_generator::reach_to_smt2(path, boxes);
     smt_file.close();
 //    cout << pdrh2box::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes) << endl;
 //    exit(EXIT_SUCCESS);
@@ -108,7 +91,7 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     {
         cout << "Thread: " << omp_get_thread_num() << endl;
         cout << "First formula:" << endl;
-        cout << pdrh2box::reach_to_smt2(path, boxes) << endl;
+        cout << smt2_generator::reach_to_smt2(path, boxes) << endl;
     }
 
 //    cout << "Solver options: " << solver_opt << endl;
@@ -165,120 +148,6 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     }
 }
 
-// implements evaluate for all paths
-int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_opt)
-{
-//    if(global_config.secondary_solver_type == solver::type::ISAT)
-//    {
-//        int first_res = decision_procedure::evaluate_isat(global_config.secondary_solver_bin, boxes);
-//        if(first_res == decision_procedure::result::UNSAT)
-//        {
-//            return decision_procedure::result::UNSAT;
-//        }
-//        else if(first_res == decision_procedure::result::SAT)
-//        {
-//            int undet_counter = 0;
-//            for(vector<pdrh::mode*> path : paths)
-//            {
-//                int res = evaluate_complement(path, boxes, global_config.solver_bin, solver_opt);
-//                if(res == decision_procedure::result::UNSAT)
-//                {
-//                    return decision_procedure::result::SAT;
-//                }
-//            }
-//            return decision_procedure::result::UNDET;
-//        }
-//    }
-//    else if(global_config.secondary_solver_type == solver::type::DREAL)
-//    {
-        int undet_counter = 0;
-        for(vector<pdrh::mode*> path : paths)
-        {
-            stringstream s;
-            for(pdrh::mode* m : path)
-            {
-                s << m->id << " ";
-            }
-//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str() << " (length " << path.size() - 1 << ")";
-            // evaluating a path here
-            switch (evaluate(path, boxes, solver_opt))
-            {
-                case decision_procedure::result::SAT:
-                    return decision_procedure::result::SAT;
-
-                case decision_procedure::result::UNDET:
-                    undet_counter++;
-                    break;
-
-                case decision_procedure::result::UNSAT:
-                    break;
-            }
-        }
-        if(undet_counter > 0)
-        {
-            return decision_procedure::result::UNDET;
-        }
-        return decision_procedure::result::UNSAT;
-//    }
-}
-
-// implements evaluate for all paths
-int decision_procedure::evaluate_formal(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_bin, string solver_opt)
-{
-//    if(global_config.secondary_solver_type == solver::type::ISAT)
-//    {
-//        int first_res = decision_procedure::evaluate_isat(global_config.secondary_solver_bin, boxes);
-//        if(first_res == decision_procedure::result::UNSAT)
-//        {
-//            return decision_procedure::result::UNSAT;
-//        }
-//        else if(first_res == decision_procedure::result::SAT)
-//        {
-//            int undet_counter = 0;
-//            for(vector<pdrh::mode*> path : paths)
-//            {
-//                int res = evaluate_complement(path, boxes, global_config.solver_bin, solver_opt);
-//                if(res == decision_procedure::result::UNSAT)
-//                {
-//                    return decision_procedure::result::SAT;
-//                }
-//            }
-//            return decision_procedure::result::UNDET;
-//        }
-//    }
-//    else if(global_config.secondary_solver_type == solver::type::DREAL)
-//    {
-        int undet_counter = 0;
-        for(vector<pdrh::mode*> path : paths)
-        {
-            stringstream s;
-            for(pdrh::mode* m : path)
-            {
-                s << m->id << " ";
-            }
-//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << s.str() << " (length " << path.size() - 1 << ")";
-            // evaluating a path here
-            switch (evaluate_formal(path, boxes, solver_bin, solver_opt))
-            {
-                case decision_procedure::result::SAT:
-                    return decision_procedure::result::SAT;
-
-                case decision_procedure::result::UNDET:
-                    undet_counter++;
-                    break;
-
-                case decision_procedure::result::UNSAT:
-                    break;
-            }
-        }
-        if(undet_counter > 0)
-        {
-            return decision_procedure::result::UNDET;
-        }
-        return decision_procedure::result::UNSAT;
-//    }
-}
-
 int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
 {
     int thread_num = 0;
@@ -300,14 +169,14 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
         // writing to the file
         ofstream smt_c_file;
         smt_c_file.open(smt_c_filename.c_str());
-        smt_c_file << pdrh2box::reach_c_to_smt2(i, path, boxes);
+        smt_c_file << smt2_generator::reach_c_to_smt2(i, path, boxes);
 //        cout << pdrh2box::reach_c_to_smt2(i, path, boxes) << endl;
 //        exit(EXIT_SUCCESS);
         if(global_config.debug)
         {
             cout << "Thread: " << omp_get_thread_num() << endl;
             cout << "Second formula (" << i << "):" << endl;
-            cout << pdrh2box::reach_c_to_smt2(i, path, boxes) << endl;
+            cout << smt2_generator::reach_c_to_smt2(i, path, boxes) << endl;
         }
         smt_c_file.close();
         // calling dreal here

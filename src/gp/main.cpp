@@ -300,7 +300,7 @@ int main(int argc, char *argv[]) {
             //        cout << "GPicdf_sample = " << GPicdf_sample << endl;
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "GPicdf_sample :" << GPicdf_sample;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {GPicdf_sample, mu_sample}, dreal::solver_bin, "");
+            res = decision_procedure::evaluate(paths, {GPicdf_sample, mu_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {

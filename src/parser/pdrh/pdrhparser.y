@@ -39,7 +39,7 @@ void yyerror(const char *s);
 %token MODE INVT FLOW JUMP INIT GOAL SYNTHESIZE TIME_PREC PATHS SAMPLE
 %token D_DT TRANS PRIME
 
-%token SQRT EXP LOG SIN COS TAN ASIN ACOS ATAN ABS
+%token SQRT EXP LOGN SIN COS TAN ASIN ACOS ATAN ABS
 %token NOT AND OR XOR IMPLY
 %token PLUS MINUS TIMES DIVIDE POWER
 %token EQ GT LT GE LE NE
@@ -375,8 +375,9 @@ mode:
                                                                     }
                                                                 }
 
-timeprec:
-	TIME_PREC ':' number ';' { ; }
+//  // timeprec has never been used before
+//  timeprec:
+//	    TIME_PREC ':' number ';' { ; }
 
 invt:
 	INVT ':' prop_list { ; }
@@ -455,7 +456,7 @@ expr:
     | ABS '(' expr ')'          { $$ = new node("abs", {$3}); }
     | SQRT '(' expr ')'         { $$ = new node("^", {$3, new node("0.5")}); }
     | EXP '(' expr ')'          { $$ = new node("exp", {$3}); }
-    | LOG '(' expr ')'          { $$ = new node("log", {$3}); }
+    | LOGN '(' expr ')'          { $$ = new node("log", {$3}); }
     | SIN '(' expr ')'          { $$ = new node("sin", {$3}); }
     | COS '(' expr ')'          { $$ = new node("cos", {$3}); }
     | TAN '(' expr ')'          { $$ = new node("tan", {$3}); }
@@ -522,20 +523,20 @@ reset_state:
                                     }
 	 	                        }
 
-// THIS HAS NOT BEEN INCLUDED YET
-samples:
-    samples sample { ; }
-    | sample { ; }
-
-sample:
-    SAMPLE '(' number ')' ':'
-
-sample_resets:
-    sample_resets sample_reset { ; }
-    | sample_reset { ; }
-
-sample_reset:
-    reset_var '=' expr ';' { ; }
+//// THIS HAS NOT BEEN INCLUDED YET
+//samples:
+//    samples sample { ; }
+//    | sample { ; }
+//
+//sample:
+//    SAMPLE '(' number ')' ':'
+//
+//sample_resets:
+//    sample_resets sample_reset { ; }
+//    | sample_reset { ; }
+//
+//sample_reset:
+//    reset_var '=' expr ';' { ; }
 
 
 

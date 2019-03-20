@@ -34,7 +34,7 @@ namespace rnd
     };
     pair<box, box> update_beta_dist(vector<box>, box, box, box);
     pair<double, double> solve_beta_system(double, double, double, double);
-    double sobol_vector(box); //new
+//    double* sobol_vector(box); //new
     double* nond(box); //new
     void func(vector<double> &vect, box);
 }

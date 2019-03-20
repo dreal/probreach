@@ -4,7 +4,7 @@
 
 #ifndef PROBREACH_DECISION_PROCEDURE_H
 #define PROBREACH_DECISION_PROCEDURE_H
-#include<iostream>
+#include <iostream>
 #include "model.h"
 #include "box.h"
 
@@ -14,11 +14,11 @@ namespace decision_procedure
 {
     enum result {SAT, UNSAT, UNDET, ERROR};
 
-    // used for formal verification
-    int evaluate(vector<pdrh::mode *>, vector<box>, string, string);
-
     // evaluating all paths
     int evaluate(vector<vector<pdrh::mode *>>, vector<box>, string, string);
+
+    // evaluates a path
+    int evaluate(vector<pdrh::mode *>, vector<box>, string, string);
 
     // first argument is the path to be evaluated,
     // second argument is the set of nondet boxes

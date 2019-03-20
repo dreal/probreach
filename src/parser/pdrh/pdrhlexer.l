@@ -74,7 +74,7 @@ xor                    	{ return XOR; }
 abs                     { return ABS; }
 sqrt              	    { return SQRT; }
 exp              	    { return EXP; }
-log              	    { return LOG; }
+log              	    { return LOGN; }
 sin              	    { return SIN; }
 cos              	    { return COS; }
 tan              	    { return TAN; }

@@ -58,8 +58,6 @@ namespace ap
 
     bool is_sample_jump(pdrh::mode::jump);
     box apply_reset(map<string, pdrh::node*>, box, vector<box>);
-
-
 }
 
 #endif //PROBREACH_AP_H

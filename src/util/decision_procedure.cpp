@@ -8,35 +8,18 @@
 #include "decision_procedure.h"
 #include "dreal_wrapper.h"
 #include "pdrh_config.h"
-#include "pdrh2box.h"
 
 using namespace std;
 
-// used for formal verification
-int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
-{
-    // evaluating the delta-sat formula
-    int first_res = decision_procedure::evaluate_delta_sat(path, boxes, global_config.solver_bin, solver_opt);
-    if(first_res == decision_procedure::result::UNSAT)
-    {
-       return decision_procedure::result::UNSAT;
-    }
-    else if(first_res == decision_procedure::result::SAT)
-    {
-        // evaluating complement
-        int second_res = decision_procedure::evaluate_complement(path, boxes, solver_bin, solver_opt);
-        if(second_res == decision_procedure::result::UNSAT)
-        {
-            return decision_procedure::result::SAT;
-        }
-        else if(second_res == decision_procedure::result::SAT)
-        {
-            return decision_procedure::result::UNDET;
-        }
-    }
-}
-
-// implements evaluate for all paths
+/**
+ * Evaluates reachability for a set of paths and parameter boxes.
+ *
+ * @param paths - set of paths to evaluate.
+ * @param boxes - set of parameter boxes to evaluate.
+ * @param solver_bin - full path to solver binary.
+ * @param solver_opt - string of solver options.
+ * @return satisfiability of reachability for the given set of paths and parameter boxes.
+ */
 int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_bin, string solver_opt)
 {
     int undet_counter = 0;
@@ -61,6 +44,47 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
     return decision_procedure::result::UNSAT;
 }
 
+/**
+ * Evaluates reachability for a path and a set of parameter boxes.
+ *
+ * @param path - path to evaluate.
+ * @param boxes - set of parameter boxes to evaluate.
+ * @param solver_bin - full path to solver binary.
+ * @param solver_opt - string of solver options.
+ * @return satisfiability of reachability for the given path and parameter boxes.
+ */
+int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
+{
+    // evaluating the delta-sat formula
+    int first_res = decision_procedure::evaluate_delta_sat(path, boxes, global_config.solver_bin, solver_opt);
+    if(first_res == decision_procedure::result::UNSAT)
+    {
+        return decision_procedure::result::UNSAT;
+    }
+    else if(first_res == decision_procedure::result::SAT)
+    {
+        // evaluating complement
+        int second_res = decision_procedure::evaluate_complement(path, boxes, solver_bin, solver_opt);
+        if(second_res == decision_procedure::result::UNSAT)
+        {
+            return decision_procedure::result::SAT;
+        }
+        else if(second_res == decision_procedure::result::SAT)
+        {
+            return decision_procedure::result::UNDET;
+        }
+    }
+}
+
+/**
+ * Evaluates delta-reachability for a path and a set of parameter boxes.
+ *
+ * @param path - path to evaluate.
+ * @param boxes - set of parameter boxes to evaluate.
+ * @param solver_bin - full path to solver binary.
+ * @param solver_opt - string of solver options.
+ * @return delta-satisfiability of reachability for the given path and parameter boxes.
+ */
 int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
 {
     // default value for the thread number
@@ -148,6 +172,15 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     }
 }
 
+/**
+ * Evaluates delta-non-reachability for a path and a set of parameter boxes.
+ *
+ * @param path - path to evaluate.
+ * @param boxes - set of parameter boxes to evaluate.
+ * @param solver_bin - full path to solver binary.
+ * @param solver_opt - string of solver options.
+ * @return delta-satisfiability of non-reachability for the given path and parameter boxes.
+ */
 int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
 {
     int thread_num = 0;
@@ -209,6 +242,17 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
     return decision_procedure::UNSAT;
 }
 
+/**
+ * Checks mode invariants given an initial state, set of parameter boxes and a time bound.
+ *
+ * @param m - mode.
+ * @param time - time bound.
+ * @param init - initial value.
+ * @param boxes - set of parameter boxes.
+ * @param solver_bin - full path to solver binary.
+ * @param solver_opt - string of solver options.
+ * @return invariants satisfiability.
+ */
 int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box init, vector<box> boxes, string solver_bin, string solver_opt)
 {
     //cout << "Here!!!" << endl;
@@ -276,7 +320,15 @@ int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box
     return decision_procedure::UNDET;
 }
 
-// getting the time of the jump
+/**
+ * Computes the time of the given jump from the current mode for a given initial value and a set of parameter boxes.
+ *
+ * @param m - mode.
+ * @param jump - jump to take place.
+ * @param init - initial value.
+ * @param boxes - set of parameter boxes.
+ * @return time when the given jump occurs.
+ */
 pair<capd::interval, box> decision_procedure::get_jump_time(pdrh::mode *m, pdrh::mode::jump jump, box init, vector<box> boxes)
 {
     // default value for the thread number

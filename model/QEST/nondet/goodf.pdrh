@@ -4,7 +4,8 @@ model:npha;
 //[0,1]n;
 //#define m 0.875
 //#define f 1.0
-[0,1]m;
+//[0,1]m;
+#define m 0.0
 [1,2]f;
 [0,1]time;
 [0,1]tau;

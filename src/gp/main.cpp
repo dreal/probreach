@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
     gsl_qrng *m = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::par_map.size()));
     // getting domain of mu parameterS
     int NondetParCount=pdrh::par_map.size();
-    // cout<<"NondetParCount"<<NondetParCount<<endl;
+     cout<<"NondetParCount"<<NondetParCount<<endl;
     box mu_domain = pdrh2box::get_nondet_domain();
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "mu_domain = " << mu_domain; //COUT <<ENDL;
 
@@ -271,6 +271,8 @@ int main(int argc, char *argv[]) {
             NonDPoints[l][h] = vect[h];
             cout<<"NonDPoints[l][h]"<<NonDPoints[l][h]<<endl;
         }
+        cout<<"NonDPoints[l][0]"<<NonDPoints[l][0]<<endl;
+        cout<<"NonDPoints[l][1]"<<NonDPoints[l][1]<<endl;
         // GET MU SAPLE SINGLE VALUE
 //        map<std::string, capd::interval> mu_edges;
 //        mu_edges = mu_sample.get_map();
@@ -342,13 +344,13 @@ int main(int argc, char *argv[]) {
         // CLOG_IF(global_config.verbose, INFO, "algorithm") << "global_config.qmc_acc/2===" << global_config.qmc_acc / 2;
     }
 
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "points===" << points;
-    for (int l = 0; l < NondetP; l++) {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-NOND points=" << pointsarray[l] << "   NOND Sigma value="
-                                                          <<  NonDPoints[l][0] << "   NOND Mu value="
-                                                          <<  NonDPoints[l][1] << "   SATS=" << Sats[l] << " Center="
-                                                          << Carray[l];
-    }
+//    CLOG_IF(global_config.verbose, INFO, "algorithm") << "points===" << points;
+//    for (int l = 0; l < NondetP; l++) {
+//        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-NOND points=" << pointsarray[l] << "   NOND Sigma value="
+//                                                          <<  NonDPoints[l][0] << "   NOND Mu value="
+//                                                          <<  NonDPoints[l][1] << "   SATS=" << Sats[l] << " Center="
+//                                                          << Carray[l];
+//    }
 
     double Ca = gsl_cdf_gaussian_Pinv(1 - (1 - conf) / 2,
                                       1); //- REPLACE BETA !!!!!!!!!!!!!************************************
@@ -373,18 +375,39 @@ int main(int argc, char *argv[]) {
         }
 
     }
-    // write data to the "test.csv" file
-    myfile << "Non-det pont" << ";" << "NOND Sigma value" << ";" << "NOND Mu value" << ";"<< "CPLower" << ";" << "CPUpper" << ";" << "CPCenter"<< ";"
-           << "GPLower" << ";" << "GPUpper" << ";" << "GPCenter" << std::endl;
-    for (int l = 0; l < NondetP; l++) {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] << "   NOND Sigma value="
-                                                          <<  NonDPoints[l][0] << "   NOND Mu value="
-                                                          <<  NonDPoints[l][1] << " SATS=" << Sats[l] << " CPLower="
-                                                          << LOarray[l] << " CPUpper="
-                                                          << UParray[l] << " CPCenter="
-                                                          << Carray[l];
-        myfile << l << ";" << NonDPoints[l][0] << ";" << NonDPoints[l][1] << ";"<< LOarray[l] << ";" << UParray[l] << ";" << Carray[l] << std::endl;
 
+    if(NondetParCount==2) {
+        // write data to the "test.csv" file
+        myfile << "Non-det pont" << ";" << "NOND Sigma value" << ";" << "NOND Mu value" << ";" << "CPLower" << ";" <<
+        "CPUpper" << ";" << "CPCenter" << ";"
+        << "GPLower" << ";" << "GPUpper" << ";" << "GPCenter" << std::endl;
+        for (int l = 0; l < NondetP; l++) {
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] <<
+                                                              "   NOND Sigma value="
+                                                              << NonDPoints[l][0] << "   NOND Mu value="
+                                                              << NonDPoints[l][1] << " SATS=" << Sats[l] << " CPLower="
+                                                              << LOarray[l] << " CPUpper="
+                                                              << UParray[l] << " CPCenter="
+                                                              << Carray[l];
+            myfile << l << ";" << NonDPoints[l][0] << ";" << NonDPoints[l][1] << ";" << LOarray[l] << ";" <<
+            UParray[l] << ";" << Carray[l] << std::endl;
+
+        }
+    } else if (NondetParCount==1){
+        // write data to the "test.csv" file
+        myfile << "Non-det pont" << ";" << "NONDvalue" << ";" << "CPLower" << ";" <<
+        "CPUpper" << ";" << "CPCenter" << ";"
+        << "GPLower" << ";" << "GPUpper" << ";" << "GPCenter" << std::endl;
+        for (int l = 0; l < NondetP; l++) {
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] <<
+                                                              "   NONDvalue="
+                                                              << NonDPoints[l][0] << " SATS=" << Sats[l] << " CPLower="
+                                                              << LOarray[l] << " CPUpper="
+                                                              << UParray[l] << " CPCenter="
+                                                              << Carray[l];
+            myfile << l << ";" << NonDPoints[l][0] << ";"  << LOarray[l] << ";" <<
+            UParray[l] << ";" << Carray[l] << std::endl;
+        }
     }
     cout << "C-P approach end" << endl;
 

@@ -202,9 +202,9 @@ int main(int argc, char *argv[]) {
     el::Logger *algorithm_logger = el::Loggers::getLogger("algorithm");
 
     global_config.verbose_result = true;
-    global_config.verbose = true;
+//    global_config.verbose = true;
     //global_config.bayesian_flag = true;
-    omp_set_num_threads(1);
+    //omp_set_num_threads(1);
 
 
     cout << "num_samples: " << num_samples << endl;
@@ -290,19 +290,24 @@ int main(int argc, char *argv[]) {
         box sobol_domain2(sobol_domain_map2);
         gsl_rng_set(rr, static_cast<unsigned long>(l));
 
-#pragma omp parallel
-        for (size_t i = 0; i < Total_samples; i++) {
+        #pragma omp parallel for
+        for (size_t i = 0; i < Total_samples; i++)
+        {
             box sobol_sample;
             sobol_sample = rnd::get_sobol_sample(q2, sobol_domain2);
+
+            #pragma omp critical
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOBOL SAMPLE :" << sobol_sample;
             // sample from [x1_min,x1_max]*...*[xn_min,xn_max] after applying icdf
             box GPicdf_sample = rnd::get_GPicdf(sobol_sample, mu_sample);
             //        cout << "GPicdf_sample = " << GPicdf_sample << endl;
+
+            #pragma omp critical
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "GPicdf_sample :" << GPicdf_sample;
-            int res;
-            res = decision_procedure::evaluate(paths, {GPicdf_sample, mu_sample}, dreal::solver_bin, "");
+
+            int res = decision_procedure::evaluate(paths, {GPicdf_sample, mu_sample}, dreal::solver_bin, "");
             // computing value of indicator function
-#pragma omp critical
+            #pragma omp critical
             {
                 switch (res) {
                     // hybrid automata

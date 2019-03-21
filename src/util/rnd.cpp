@@ -98,7 +98,7 @@ box rnd::get_sobol_sample(gsl_qrng* q, box b)
     {
         edges.insert(make_pair(it->first, capd::interval(it->second.leftBound() + v[i] * capd::intervals::width(it->second))));
         i++;
-        cout << it->first << ": " << edges[it->first] << endl;
+        //cout << it->first << ": " << edges[it->first] << endl;
     }
     return box(edges);
 }

@@ -19,7 +19,7 @@ model: npha;
 //dist_normal(1.65, 0.2) a_a;
 
 [3.9,4.1]mu;
-[0.09,0.11]sigma;
+[0,0.2]sigma;
 dist_normal(0,1) beta;
 
 //#define sigma 0.1

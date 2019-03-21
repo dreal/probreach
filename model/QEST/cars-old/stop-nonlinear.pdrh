@@ -18,9 +18,9 @@ model: npha;
 //[4.0,6.0] a_d;
 //dist_normal(1.65, 0.2) a_a;
 
-[3.9,4.1]m;
-[0,0.2]f;
-dist_normal(m,f) beta;
+[3.9,4.1]mu;
+[0,0.2]sigma;
+dist_normal(mu,sigma) beta;
 
 //dist_normal(4,0.1) beta;
 //[0.5,1.5] t_react;

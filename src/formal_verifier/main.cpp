@@ -243,10 +243,6 @@ size_t num_samples = 10;
 
 int main(int argc, char* argv[])
 {
-//    cout << dreal::solver_bin << endl;
-//    cout << dreal::cmd_args << endl;
-//    // parsing command line arguments
-//    parse_cmd(argc, argv);
 
     // parse command line
     parse_pdrh_config(argc, argv);
@@ -284,7 +280,7 @@ int main(int argc, char* argv[])
         map<box, capd::interval> probability_map = formal::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
         for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
         {
-            cout << scientific << it->first << " | " << it->second << endl;
+            cout << scientific << it->first << " | " << it->second << " | " << capd::intervals::width(it->second) << endl;
         }
     }
     else

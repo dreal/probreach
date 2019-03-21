@@ -18,6 +18,7 @@
 #include "ap.h"
 #include "pdrh2box.h"
 #include "naive.h"
+#include "solver/dreal_wrapper.h"
 
 using namespace std;
 
@@ -140,6 +141,11 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm started";
     // getting set of all paths
     //std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
+    vector<vector<pdrh::mode *>> paths;
+    if(global_config.decision_method == 0)
+    {
+        paths = pdrh::get_all_paths(min_depth, max_depth);
+    }
     #pragma omp parallel
     while (post_prob < conf)
     {
@@ -154,45 +160,22 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
         std::vector<box> boxes = {b};
         boxes.insert(boxes.end(), nondet_boxes.begin(), nondet_boxes.end());
 
-        int timeout_counter = 0;
-        // checking solver type
-//        if (global_config.solver_type == solver::type::DREAL)
-//        {
-        // evaluating all paths
-//        vector<vector<pdrh::mode *>> paths = ap::get_all_paths(boxes);
         int res = decision_procedure::UNDET;
-        // checking what verification method is chosen
-//            int sim_res = ap::simulate(boxes);
-//            int ver_res = ap::verify(boxes);
-//            if(sim_res != ver_res)
-//            {
-//                cout << "Sim: " << sim_res << " Ver: " << ver_res << " Boxes:" << endl;
-//                for(box b : boxes)
-//                {
-//                    cout << b << endl;
-//                }
-//                exit(EXIT_FAILURE);
-//            }
+        switch(global_config.decision_method)
+        {
+            case 0:
+                res = decision_procedure::evaluate(paths, boxes, dreal::solver_bin, "");
+                break;
+            case 1:
+                res = ap::verify(min_depth, max_depth, boxes);
+                break;
+            case 2:
+                res = ap::simulate(min_depth, max_depth, boxes);
+                break;
+            default:
+                cerr << "Unknown decision procedure method" << endl;
+                exit(EXIT_FAILURE);
 
-        if (global_config.use_verified)
-        {
-            //res = decision_procedure::evaluate(paths, boxes, dreal::solver_bin, "");
-            res = ap::verify(min_depth, max_depth, boxes);
-            //res = ap::simulate_path(ap::get_all_paths(boxes).front(), ap::init_to_box(boxes), boxes);
-        }
-        else
-        {
-            res = ap::simulate(min_depth, max_depth, boxes);
-//                // computing maximum robustness for the set of paths
-//                capd::interval rob = ap::compute_max_robustness(paths, ap::init_to_box(boxes), boxes);
-//                if(rob.leftBound() > 0)
-//                {
-//                    res = decision_procedure::SAT;
-//                }
-//                else if(rob.rightBound() < 0)
-//                {
-//                    res = decision_procedure::UNSAT;
-//                }
         }
         // updating the counters
         #pragma omp critical
@@ -214,32 +197,6 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
                     break;
             }
-        }
-//        }
-//        else if (global_config.solver_type == solver::type::ISAT)
-//        {
-//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Evaluating with iSAT:";
-//            int res = decision_procedure::evaluate_isat(boxes);
-//            if (res == decision_procedure::SAT)
-//            {
-//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-//                sat++;
-//            } else if (res == decision_procedure::UNSAT)
-//            {
-//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-//                unsat++;
-//                ap::unsat_samples.push_back(b);
-//            }
-//        }
-//        else
-//        {
-//            stringstream s;
-//            s << "Unrecognized solver";
-//            throw runtime_error(s.str().c_str());
-//        }
-        // updating unsat counter
-        #pragma omp critical
-        {
             post_mean_sat = ((double) sat + alpha) / ((double) sample_size + alpha + beta);
             post_mean_unsat = ((double) sample_size - unsat + alpha) / ((double) sample_size + alpha + beta);
             if (post_mean_sat >= acc) {

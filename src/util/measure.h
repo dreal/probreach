@@ -11,7 +11,6 @@
 
 namespace measure
 {
-
     std::pair<capd::interval, std::vector<capd::interval>> integral(std::string, std::string, capd::interval, double);
 
     capd::interval volume(box);
@@ -19,7 +18,6 @@ namespace measure
     capd::interval p_measure(box);
     capd::interval p_dd_measure(box);
 
-    std::vector<box> partition(box, double);
     capd::interval get_sample_prob(box, box, box);
 
     namespace compare_pairs

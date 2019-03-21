@@ -22,8 +22,7 @@ int formal::evaluate_ha(int min_depth, int max_depth)
 
 capd::interval formal::evaluate_pha(int min_depth, int max_depth)
 {
-    CLOG_IF(global_config.verbose, INFO, "algorithm")
-            << "Obtaining partition of domain of continuous random parameters";
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of domain of continuous random parameters";
     // getting partition of domain of continuous random variables
     std::vector<box> init_rv_partition = measure::get_rv_partition();
     // getting domain of continuous random variables
@@ -38,10 +37,6 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
     if (dd_partition.empty()) {
         dd_partition.push_back(box());
     }
-    // checking if there are multiple initial and goal states
-    if ((pdrh::init.size() > 1) || (pdrh::goal.size() > 1)) {
-        CLOG(WARNING, "algorithm") << "Multiple initial or goal states are not supported";
-    }
     capd::interval probability(0, 1);
     // checking if there are any continuous random variables
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
@@ -53,10 +48,11 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
     //#pragma omp parallel for
     for (box dd : dd_partition)
     {
-        if (pdrh::rv_map.size() > 0) probability = capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound());
+        if (pdrh::rv_map.size() > 0) probability = capd::interval(0, 2 - measure::p_measure(rv_domain, global_config.precision_prob).leftBound());
         vector<box> rv_partition = init_rv_partition;
         std::vector<box> rv_stack;
-        while (capd::intervals::width(probability) > global_config.precision_prob) {
+        while (capd::intervals::width(probability) > global_config.precision_prob)
+        {
             // sorting boxes by probability value
             if (global_config.sort_rv_flag)
             {
@@ -66,18 +62,21 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
             }
             //for(box rv : rv_partition)
             #pragma omp parallel for
-            for (unsigned long i = 0; i < rv_partition.size(); i++) {
+            for (size_t i = 0; i < rv_partition.size(); i++)
+            {
                 box rv = rv_partition.at(i);
                 // calculating probability measure of the box
                 // initially p_box = [1.0, 1.0]
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "====================";
                 capd::interval p_box(1);
-                if (!dd.empty()) {
+                if (!dd.empty())
+                {
                     p_box *= measure::p_dd_measure(dd);
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "dd_box: " << dd;
                 }
-                if (!rv.empty()) {
-                    p_box *= measure::p_measure(rv);
+                if (!rv.empty())
+                {
+                    p_box *= measure::p_measure(rv, global_config.precision_prob);
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "rv_box: " << rv;
                 }
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "p_box: " << p_box;
@@ -101,20 +100,25 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Path: " << p_stream.str().substr(0,
                                                                                                            p_stream.str().find_last_of(
                                                                                                                    " "));
-                    // changing solver precision
-                    solver_opt = global_config.solver_opt;
                     std::stringstream s;
-                    s << solver_opt << " --precision " <<
-                      measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
-                    global_config.solver_opt = s.str();
+                    // changing solver precision
+                    #pragma omp critical
+                    {
+                        solver_opt = global_config.solver_opt;
+                        s << solver_opt << " --precision " <<
+                          measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
+                        global_config.solver_opt = s.str();
+                    }
                     int res = decision_procedure::evaluate(path, boxes, global_config.solver_bin, s.str());
                     // setting old precision
                     #pragma omp critical
                     {
                         global_config.solver_opt = solver_opt;
-                        switch (res) {
+                        switch (res)
+                        {
                             case decision_procedure::SAT:
-                                if (p_box.leftBound() > 0) {
+                                if (p_box.leftBound() > 0)
+                                {
                                     probability = capd::interval(probability.leftBound() + p_box.leftBound(),
                                                                  probability.rightBound());
                                 }
@@ -140,60 +144,58 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                             case decision_procedure::ERROR:
                                 CLOG(ERROR, "algorithm") << "Error occurred while calling the solver";
                                 exit(EXIT_FAILURE);
-                                break;
 
                             default:
                                 break;
                         }
                     }
                     // breaking out of the loop if a sat path was found
-                    if (sat_flag) {
-                        break;
-                    }
+                    if (sat_flag) break;
                 }
-                // checking if there are no sat answers
-                if (!sat_flag)
+                #pragma omp critical
                 {
-                    // if the box is undetermined on either path
-                    if (undet_counter > 0)
+                    // checking if there are no sat answers
+                    if (!sat_flag)
                     {
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << rv;
-                        std::vector<box> rv_bisect = box_factory::bisect(rv);
-                        rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
-                    }
-                    // if the box is unsat for all paths
-                    else if (unsat_counter == paths.size())
-                    {
-                        if (p_box.rightBound() > 0)
+                        // if the box is undetermined on either path
+                        if (undet_counter > 0)
                         {
-                            probability = capd::interval(probability.leftBound(),
-                                                         probability.rightBound() - p_box.leftBound());
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << rv;
+                            std::vector<box> rv_bisect = box_factory::bisect(rv);
+                            rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
                         }
-                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
-                        /*
-                        if (capd::intervals::width(probability) <= global_config.precision_prob)
+                            // if the box is unsat for all paths
+                        else if (unsat_counter == paths.size())
                         {
-                            return probability;
+                            if (p_box.rightBound() > 0)
+                            {
+                                probability = capd::interval(probability.leftBound(),
+                                                             probability.rightBound() - p_box.leftBound());
+                            }
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
                         }
-                        */
                     }
-                }
-                //cout << "P = " << probability << endl;
+                };
+
             }
             // copying the bisected boxes from the stack to partition
             rv_partition = rv_stack;
             rv_stack.clear();
             // breaking out of the loop if there are no continuous random variables
-            if (pdrh::rv_map.size() == 0) {
+            if (pdrh::rv_map.size() == 0)
+            {
                 rv_partition.push_back(box());
                 break;
             }
         }
-        if (!dd.empty()) {
+        if (!dd.empty())
+        {
             capd::interval dd_measure = measure::p_dd_measure(dd);
             res_prob += probability * dd_measure;
             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P(" << dd << ") = " << probability * dd_measure;
-        } else {
+        }
+        else
+        {
             res_prob = probability;
         }
 
@@ -229,11 +231,13 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
         rv_partition.clear();
         rv_partition.push_back(rv_domain);
     }
-        // performing extra partition if the probability partition map is defined
-    else {
+    // performing extra partition if the probability partition map is defined
+    else
+    {
         //cout << "rv partition size before extra partition: " << rv_partition.size() << endl;
         vector<box> tmp_vector;
-        for (box b : rv_partition) {
+        for (box b : rv_partition)
+        {
             vector<box> extra_partition = box_factory::partition(b, global_config.partition_prob_map);
             tmp_vector.insert(tmp_vector.cend(), extra_partition.cbegin(), extra_partition.cend());
         }
@@ -241,7 +245,8 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
         //cout << "rv partition size after extra partition:" << rv_partition.size() << endl;
     }
     // sorting boxes by probability value
-    if (global_config.sort_rv_flag) {
+    if (global_config.sort_rv_flag)
+    {
         CLOG_IF(global_config.verbose, INFO, "algorithm")
             << "Sorting the partition of domain of continuous random parameters";
         sort(rv_partition.begin(), rv_partition.end(), measure::compare_boxes_by_p_measure);
@@ -250,18 +255,15 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
     // getting partition of domain of discrete random variables
     std::vector<box> dd_partition = measure::get_dd_partition();
     // fix for now
-    if (dd_partition.empty()) {
+    if (dd_partition.empty())
+    {
         dd_partition.push_back(box());
-    }
-    // checking if there are multiple initial and goal states
-    if ((pdrh::init.size() > 1) || (pdrh::goal.size() > 1)) {
-        CLOG(WARNING, "algorithm") << "Multiple initial or goal states are not supported";
     }
     // generating all paths of lengths [min_depth, max_depth]
     std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_all_paths(min_depth, max_depth);
     // initializing probability map
     std::map<box, capd::interval> p_map;
-    capd::interval total_probability = capd::interval(0, 2 - measure::p_measure(rv_domain).leftBound());
+    capd::interval total_probability = capd::interval(0, 2 - measure::p_measure(rv_domain, global_config.precision_prob).leftBound());
     for (box nd : nd_partition) {
         p_map.insert(std::make_pair(nd, total_probability));
     }
@@ -271,14 +273,11 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
         partition_map.insert(std::make_pair(nd, rv_partition));
     }
     vector<box> total_partition = rv_partition;
-
     std::map<box, capd::interval> res_map, final_map;
-
     for (auto it = p_map.begin(); it != p_map.end(); it++) {
         res_map.insert(make_pair(it->first, capd::interval(0.0)));
         final_map.insert(make_pair(it->first, capd::interval(0.0)));
     }
-
     // algorithm
     for (box dd : dd_partition) {
         // calculating the discrete measure
@@ -325,14 +324,14 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "dd_box: " << dd;
                         }
                         if (!rv.empty()) {
-                            p_box *= measure::p_measure(rv);
+                            p_box *= measure::p_measure(rv, global_config.precision_prob);
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "rv_box: " << rv;
                         }
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "p_box: " << p_box;
                     }
                     std::stringstream s;
                     std::string solver_opt;
-#pragma omp critical
+                    #pragma omp critical
                     {
                         solver_opt = global_config.solver_opt;
                         s << solver_opt << " --precision ";
@@ -343,10 +342,10 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
                         }
                         CLOG_IF(global_config.verbose, INFO, "algorithm") << "Solver options: " << s.str();
                     }
-                    switch (decision_procedure::evaluate(paths, vector<box>{nd, dd, rv}, global_config.solver_bin,
-                                                         s.str())) {
+                    switch (decision_procedure::evaluate(paths, vector<box>{nd, dd, rv}, global_config.solver_bin, s.str()))
+                    {
                         case decision_procedure::result::SAT:
-#pragma omp critical
+                        #pragma omp critical
                         {
                             if (p_box.leftBound() > 0) {
                                 p_map[nd] = capd::interval(p_map[nd].leftBound() + p_box.leftBound(),
@@ -358,7 +357,7 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
                             break;
 
                         case decision_procedure::result::UNSAT:
-#pragma omp critical
+                        #pragma omp critical
                         {
                             if (p_box.leftBound() > 0) {
                                 p_map[nd] = capd::interval(p_map[nd].leftBound(),
@@ -370,7 +369,7 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
                             break;
 
                         case decision_procedure::result::UNDET:
-#pragma omp critical
+                        #pragma omp critical
                         {
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << rv;
@@ -386,8 +385,7 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
                             break;
                     }
                 }
-
-#pragma omp critical
+                #pragma omp critical
                 {
                     if (p_map.find(nd) == p_map.end()) {
                         CLOG(ERROR, "algorithm") << "The box " << nd << " is not in the map";

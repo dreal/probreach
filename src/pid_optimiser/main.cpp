@@ -312,13 +312,13 @@ int main(int argc, char* argv[])
         while(capd::intervals::width(conf_intersection) < acc)
         {
             // cross entropy algorithm is used here
-            global_config.use_verified = false;
+            global_config.decision_method = 2;
             cout << "Solving optimisation problem for the discretised system" << endl;
             cout << "Discretisation using " << num_points << " points" << endl;
             pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal(min_depth, max_depth, num_samples, num_iter, acc, conf);
             cout << "Optimisation result: " << endl;
             cout << opt_res.first << "   |   " << opt_res.second << endl;
-            global_config.use_verified = true;
+            global_config.decision_method = 1;
             cout << "Computing confidence interval with guarantees:" << endl;
             capd::interval prob = algorithm::evaluate_pha_bayesian(min_depth, max_depth, acc, conf, {opt_res.first});
             cout << "The verification result:" << endl;

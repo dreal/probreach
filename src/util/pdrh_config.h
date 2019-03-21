@@ -11,6 +11,7 @@
 
 struct pdrh_config
 {
+    int decision_method = 0;
     bool stat_flag = false;
     // verified integration options
     double integral_inf_coeff = 1e-01;
@@ -49,6 +50,8 @@ struct pdrh_config
     // parallelization options
     int max_num_threads = 1;
     int num_threads = max_num_threads;
+    bool sort_rv_flag = false;
+
     // sampling options
     double chernoff_acc = 1e-2;
     double chernoff_conf = 0.99;
@@ -76,20 +79,15 @@ struct pdrh_config
     double cross_entropy_term_arg = 1e-2;
     bool ignore_nondet = false;
     bool debug = false;
-    bool sort_rv_flag = false;
+
     bool show_model = false;
     int sample_size = 20;
     int iter_num = 3;
     size_t ode_discretisation = 1;
 
-    bool use_verified = false;
-
     std::string global_time = "tau";
     std::string sample_time = "counter";
     double noise_var = 1;
-
-    //Used by translator
-    bool decompose = false;
 
     struct ctrl
     {

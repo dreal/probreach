@@ -6,6 +6,7 @@
 #define PROBREACH_FORMAL_H
 
 #include <capd/intervals/lib.h>
+#include "box.h"
 
 namespace formal
 {

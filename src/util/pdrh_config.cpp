@@ -184,6 +184,18 @@ void parse_pdrh_config(int argc, char* argv[])
 //            }
         }
         // maximum reachability depth
+        else if(strcmp(argv[i], "--decision-method") == 0)
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> global_config.decision_method;
+//            else if(global_config.reach_depth_min > global_config.reach_depth_max)
+//            {
+//                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
+//                exit(EXIT_FAILURE);
+//            }
+        }
+        // maximum reachability depth
         else if(strcmp(argv[i], "-n") == 0)
         {
             i++;
@@ -266,13 +278,13 @@ void parse_pdrh_config(int argc, char* argv[])
             global_config.solver_bin = string(argv[i]);
 //            global_config.solver_type = solver::detect_solver(global_config.solver_bin);
         }
-        // solver binary
-        else if(strcmp(argv[i], "--secondary-solver") == 0)
-        {
-            i++;
-            global_config.secondary_solver_bin = string(argv[i]);
-//            global_config.secondary_solver_type = solver::detect_solver(global_config.secondary_solver_bin);
-        }
+//        // solver binary
+//        else if(strcmp(argv[i], "--secondary-solver") == 0)
+//        {
+//            i++;
+//            global_config.secondary_solver_bin = string(argv[i]);
+////            global_config.secondary_solver_type = solver::detect_solver(global_config.secondary_solver_bin);
+//        }
         // time variable name
         else if(strcmp(argv[i], "--time-var-name") == 0)
         {
@@ -651,11 +663,6 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--version") == 0)
         {
             print_version();
-        }
-        // decompose model into plant and controller (used by transaltor
-        else if(strcmp(argv[i], "--decompose") == 0)
-        {
-            global_config.decompose = true;
         }
         // number of threads
         else if(strcmp(argv[i], "-t") == 0)

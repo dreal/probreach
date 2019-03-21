@@ -2,8 +2,6 @@
 // Created by fedor on 27/12/15.
 //
 #include<capd/capdlib.h>
-
-#include<tuple>
 #include "measure.h"
 #include "box_factory.h"
 #include "model.h"
@@ -46,9 +44,6 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::integral(std::st
     return make_pair(value, partition);
 }
 
-/**
- * Calculates volume of the box
- */
 capd::interval measure::volume(box b)
 {
     std::vector<capd::interval> i = b.get_intervals();
@@ -126,35 +121,6 @@ capd::interval measure::p_measure(box b, double e)
 capd::interval measure::p_measure(box b)
 {
     return p_measure(b, global_config.precision_prob);
-}
-
-std::vector<box> measure::partition(box b, double e)
-{
-    std::map<std::string, capd::interval> edges = b.get_map();
-    std::map<std::string, std::vector<capd::interval>> m;
-    for(auto it = edges.cbegin(); it != edges.cend(); it++)
-    {
-        if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
-        {
-            std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])),
-                                                                                              capd::interval(
-                                                                                                      pdrh2box::node_to_interval(
-                                                                                                              std::get<1>(
-                                                                                                                      pdrh::rv_map[it->first])).leftBound(),
-                                                                                                      pdrh2box::node_to_interval(
-                                                                                                              std::get<2>(
-                                                                                                                      pdrh::rv_map[it->first])).rightBound()),
-                                                                                                                 measure::precision(e, edges.size()));
-            m.insert(make_pair(it->first, itg.second));
-        }
-        else
-        {
-            std::stringstream s;
-            s << "Variable " << it->first << " is undefined";
-            throw std::invalid_argument(s.str());
-        }
-    }
-    return box_factory::cartesian_product(m);
 }
 
 capd::interval measure::p_dd_measure(box b)

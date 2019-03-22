@@ -255,6 +255,8 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
  */
 int decision_procedure::check_invariants(pdrh::mode *m, capd::interval time, box init, vector<box> boxes, string solver_bin, string solver_opt)
 {
+    // if no invariants are defined then return SAT
+    if(m->invts.size() == 0) return decision_procedure::SAT;
     //cout << "Here!!!" << endl;
     // default value for the thread number
     int thread_num = 0;

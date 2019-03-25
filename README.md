@@ -2,12 +2,12 @@
 
 # ProbReach tools
 
-* [**simulator**](doc/simulator/simulator.md)
-* **formal_verifier**
-* **mc_verifier**
-* **pid_optimiser**
-* **gp**
-* [**pdrh2simulink**](doc/translator.md)
+* [**simulator**](doc/simulator/README.md)
+* [**formal_verifier**](doc/formal_verifier/README.md)
+* [**mc_verifier**](doc/mc_verifier/README.md)
+* [**pid_optimiser**](doc/pid_optimiser/README.md)
+* [**gp**](doc/gp/README.md)
+* [**pdrh2simulink**](doc/pdrh2simulink/README.md)
 
 
 

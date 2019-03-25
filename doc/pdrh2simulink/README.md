@@ -1,6 +1,6 @@
-## Translator Usage
+# ProbReach Simulink Translator
 
-The translator from *.pdrh* to *Simulink®/Stateflow®* models is available as a separate tool alongside ProbReach.
+The ProbReach translator converts provided *.pdrh* model into *Simulink®/Stateflow®* format.
 
 ## Requirements
     

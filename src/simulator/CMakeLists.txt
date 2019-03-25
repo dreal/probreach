@@ -9,9 +9,8 @@ set(SIMULATOR_SRC ${SIMULATOR_SRC} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparse
         ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
-add_library(simulator_lib ${SIMULATOR_SRC})
-target_link_libraries(simulator_lib -lfl)
+add_library(probreach_naive ${SIMULATOR_SRC})
+target_link_libraries(probreach_naive -lfl)
 
-add_executable(simulate ${PROBREACH_SOURCE_DIR}/simulator/main.cpp)
-target_compile_options(simulate PRIVATE)
-target_link_libraries(simulate simulator_lib)
+add_executable(simulator ${PROBREACH_SOURCE_DIR}/simulator/main.cpp)
+target_link_libraries(simulator probreach_naive)

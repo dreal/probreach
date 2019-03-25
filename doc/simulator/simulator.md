@@ -1,6 +1,6 @@
-# Simulator
+# ProbReach Simulator
 
-The ProbReach simulator provides simulation of the provided *.pdrh* model and produces *.json* file as output.
+The ProbReach simulator performs a simulation of the provided *.pdrh* model and produces a *.json* file as output.
 
 ## Required packages
     
@@ -19,12 +19,12 @@ cd probreach
 mkdir -p build/release
 cd build/release
 cmake ../../
-make simulate
+make simulator
 ```
 
 ## Usage
 
-	simulate <options> <file.pdrh/file.drh>
+	simulator <options> <file.pdrh/file.drh>
 
 options:
 ```
@@ -53,7 +53,7 @@ If no variables are specified in the command line, then all variables are visual
 # Usage example
 
 ```
-./simulate -u 300 -n 10 -o output.json ~/probreach/model/insulin-infusion/discrete-pid.pdrh
+./simulator -u 300 -n 10 -o output.json ~/probreach/model/insulin-infusion/discrete-pid.pdrh
 python ~/probreach/src/python/visualise.py Q1 u C output.json 
 ```
 The commands above produce the following output:

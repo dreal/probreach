@@ -1,42 +1,10 @@
-**ProbReach** - collection of tools for calculating probability of bounded reachability in hybrid systems with parametric uncertainty.
+**ProbReach** - collection of tools for calculating probability of bounded reachability in hybrid systems with parametric uncertainties.
 
-# ProbReach tools
+## ProbReach tools
 
-* [**simulator**](doc/simulator/README.md)
-* [**formal_verifier**](doc/formal_verifier/README.md)
-* [**mc_verifier**](doc/mc_verifier/README.md)
-* [**pid_optimiser**](doc/pid_optimiser/README.md)
-* [**gp**](doc/gp/README.md)
-* [**pdrh2simulink**](doc/pdrh2simulink/README.md)
-
-
-
-
-
-<!--a href="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach/" target="_blank">
-        <img style="align:center" src="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach/img/banner-alt.gif" alt="ProbReach banner"/>
-</a-->
-
-<!--
-**ProbReach** - software for calculating bounded probabilistic reachability and performing parameter set synthesis in hybrid systems with uncertainty in initial parameters. **ProbReach** supports formal verification (computing rigorous enclosures) and statistical model checking (Chernoff-Hoeffding bound and Bayesian estimations).
-
-* **NOW ON [DOCKER](https://docker.com)!!!**
-
-    ```
-    docker pull dreal/probreach
-    ```
-
-* **pdrh2simulink** - translates .pdrh (ProbReach) models to equivalent MATLAB Simulink models. See the [usage guide](doc/translator.md).   
-
-# Install
-
-Latest version of static binary for Linux and Mac can be downloaded from **ProbReach** [releases page](https://github.com/dreal/probreach/releases)
-
-# [How to Build](doc/build.md)
-
-# [How to Use](doc/usage.md)
-
-# [pdrh2simulink Setup](doc/translator.md)
-
-# [Simulator](doc/simulator/simulator.md)
--->
+* [**simulator**](doc/simulator/README.md) - performs simulation of the provided ProbReach model.
+* [**formal_verifier**](doc/formal_verifier/README.md) - computes rigorous probability enclosures using formal verification technique.
+* [**mc_verifier**](doc/mc_verifier/README.md) - produces confidence intervals for the reachability probability via Monte Carlo sampling.
+* [**pid_optimiser**](doc/pid_optimiser/README.md) - performs controller synthesis for sampled-data stochastic control systems.
+* [**gp**](doc/gp/README.md) - estimates bounded reachability probability function via Gaussian process.
+* [**pdrh2simulink**](doc/pdrh2simulink/README.md) - translates the provided ProbReach model into *Simulink®/Stateflow®* format.

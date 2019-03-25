@@ -1,10 +1,24 @@
+**ProbReach** - collection of tools for calculating probability of bounded reachability in hybrid systems with parametric uncertainty.
+
+# ProbReach tools
+
+* [**simulator**](doc/simulator/simulator.md)
+* **formal_verifier**
+* **mc_verifier**
+* **pid_optimiser**
+* **gp**
+* [**pdrh2simulink**](doc/translator.md)
+
+
+
+
+
 <!--a href="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach/" target="_blank">
         <img style="align:center" src="http://homepages.cs.ncl.ac.uk/f.shmarov/probreach/img/banner-alt.gif" alt="ProbReach banner"/>
 </a-->
 
+<!--
 **ProbReach** - software for calculating bounded probabilistic reachability and performing parameter set synthesis in hybrid systems with uncertainty in initial parameters. **ProbReach** supports formal verification (computing rigorous enclosures) and statistical model checking (Chernoff-Hoeffding bound and Bayesian estimations).
-
-* *The parameter set synthesis is not currently supported.*
 
 * **NOW ON [DOCKER](https://docker.com)!!!**
 
@@ -25,3 +39,4 @@ Latest version of static binary for Linux and Mac can be downloaded from **ProbR
 # [pdrh2simulink Setup](doc/translator.md)
 
 # [Simulator](doc/simulator/simulator.md)
+-->

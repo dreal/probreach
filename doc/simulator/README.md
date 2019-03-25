@@ -1,6 +1,6 @@
 # ProbReach Simulator
 
-The ProbReach simulator performs a simulation of the provided *.pdrh* model and produces a *.json* file as output.
+The ProbReach simulator performs simulation of the provided *.pdrh* model and produces a *.json* file as output.
 
 ## Required packages
     

@@ -77,7 +77,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
             {
                 res = decision_procedure::evaluate(path, boxes, global_config.solver_bin, global_config.solver_opt);
             }
-#pragma omp critical
+            #pragma omp critical
             {
                 if (res == decision_procedure::SAT)
                 {
@@ -222,63 +222,63 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     return capd::interval(max(post_mean_sat - acc, 0.0), min(post_mean_unsat + acc, 1.0));
 }
 
-pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_depth, int size) {
-    gsl_qrng *q = gsl_qrng_alloc(gsl_qrng_sobol, pdrh::par_map.size());
-
-    //initializing probability value
-    pair<box, capd::interval> res;
-    if (global_config.max_prob) {
-        res = make_pair(box(), capd::interval(0.0));
-    } else {
-        res = make_pair(box(), capd::interval(1.0));
-    }
-    box domain = pdrh2box::get_nondet_domain();
-    vector<pair<box, capd::interval>> samples;
-    while (domain.max_side_width() > global_config.sobol_term_arg) {
-        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Explored space: " << domain << " | "
-                                                                 << domain.max_side_width();
-        for (int i = 0; i < size; i++) {
-            box b = rnd::get_sobol_sample(q, domain);
-            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
-            capd::interval probability;
-            if (global_config.bayesian_flag) {
-                probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc,
-                                                    global_config.bayesian_conf, vector<box>{b});
-            } else if (global_config.chernoff_flag) {
-                probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc,
-                                                    global_config.chernoff_conf, vector<box>{b});
-            } else {
-                CLOG(ERROR, "algorithm") << "Unknown setting";
-                exit(EXIT_FAILURE);
-            }
-            // fixing probability value
-            if (probability.leftBound() < 0) {
-                probability.setLeftBound(0);
-            }
-            if (probability.rightBound() > 1) {
-                probability.setRightBound(1);
-            }
-            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
-            samples.push_back(make_pair(b, probability));
-        }
-        if (global_config.max_prob) {
-            sort(samples.begin(), samples.end(), measure::compare_pairs::descending);
-        } else {
-            sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
-        }
-        vector<pair<box, capd::interval>> elite;
-        copy_n(samples.begin(), ceil(samples.size() * global_config.elite_ratio), back_inserter(elite));
-        vector<box> elite_boxes;
-        for (pair<box, capd::interval> p : elite) {
-            elite_boxes.push_back(p.first);
-        }
-        res = samples.front();
-        samples.clear();
-        domain = box_factory::get_cover(elite_boxes);
-    }
-    gsl_qrng_free(q);
-    return res;
-}
+//pair<box, capd::interval> algorithm::evaluate_npha_sobol(int min_depth, int max_depth, int size) {
+//    gsl_qrng *q = gsl_qrng_alloc(gsl_qrng_sobol, pdrh::par_map.size());
+//
+//    //initializing probability value
+//    pair<box, capd::interval> res;
+//    if (global_config.max_prob) {
+//        res = make_pair(box(), capd::interval(0.0));
+//    } else {
+//        res = make_pair(box(), capd::interval(1.0));
+//    }
+//    box domain = pdrh2box::get_nondet_domain();
+//    vector<pair<box, capd::interval>> samples;
+//    while (domain.max_side_width() > global_config.sobol_term_arg) {
+//        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Explored space: " << domain << " | "
+//                                                                 << domain.max_side_width();
+//        for (int i = 0; i < size; i++) {
+//            box b = rnd::get_sobol_sample(q, domain);
+//            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
+//            capd::interval probability;
+//            if (global_config.bayesian_flag) {
+//                probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc,
+//                                                    global_config.bayesian_conf, vector<box>{b});
+//            } else if (global_config.chernoff_flag) {
+//                probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc,
+//                                                    global_config.chernoff_conf, vector<box>{b});
+//            } else {
+//                CLOG(ERROR, "algorithm") << "Unknown setting";
+//                exit(EXIT_FAILURE);
+//            }
+//            // fixing probability value
+//            if (probability.leftBound() < 0) {
+//                probability.setLeftBound(0);
+//            }
+//            if (probability.rightBound() > 1) {
+//                probability.setRightBound(1);
+//            }
+//            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
+//            samples.push_back(make_pair(b, probability));
+//        }
+//        if (global_config.max_prob) {
+//            sort(samples.begin(), samples.end(), measure::compare_pairs::descending);
+//        } else {
+//            sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
+//        }
+//        vector<pair<box, capd::interval>> elite;
+//        copy_n(samples.begin(), ceil(samples.size() * global_config.elite_ratio), back_inserter(elite));
+//        vector<box> elite_boxes;
+//        for (pair<box, capd::interval> p : elite) {
+//            elite_boxes.push_back(p.first);
+//        }
+//        res = samples.front();
+//        samples.clear();
+//        domain = box_factory::get_cover(elite_boxes);
+//    }
+//    gsl_qrng_free(q);
+//    return res;
+//}
 
 pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(size_t min_depth, size_t max_depth, size_t size,
                                                                             size_t iter_num, double acc, double conf)
@@ -333,14 +333,16 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(size_t m
                 if (true) {
 //                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is stable";
                     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Stability check is switched off";
-                    if (global_config.bayesian_flag) {
-                        probability = evaluate_pha_bayesian(min_depth, max_depth, acc, conf, vector<box>{b});
-                    } else if (global_config.chernoff_flag) {
-                        probability = evaluate_pha_chernoff(min_depth, max_depth, acc, conf, vector<box>{b});
-                    } else {
-                        CLOG(ERROR, "algorithm") << "Unknown setting";
-                        exit(EXIT_FAILURE);
-                    }
+//                    if (global_config.bayesian_flag) {
+//                        probability = evaluate_pha_bayesian(min_depth, max_depth, acc, conf, vector<box>{b});
+//                    } else if (global_config.chernoff_flag) {
+//                        probability = evaluate_pha_chernoff(min_depth, max_depth, acc, conf, vector<box>{b});
+//                    } else {
+//                        CLOG(ERROR, "algorithm") << "Unknown setting";
+//                        exit(EXIT_FAILURE);
+//                    }
+                    // bayesian estimations algorithm by default
+                    probability = evaluate_pha_bayesian(min_depth, max_depth, acc, conf, vector<box>{b});
                     // fixing probability value
                     if (probability.leftBound() < 0) {
                         probability.setLeftBound(0);
@@ -394,86 +396,86 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(size_t m
     return res;
 }
 
-pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_beta(int min_depth, int max_depth, int size) {
-    // random number generator for cross entropy
-    const gsl_rng_type *T;
-    gsl_rng *r;
-    gsl_rng_env_setup();
-    T = gsl_rng_default;
-    // creating random generator
-    r = gsl_rng_alloc(T);
-    // setting the seed
-    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
-    //initializing probability value
-    pair<box, capd::interval> res;
-    box domain = pdrh2box::get_nondet_domain();
-    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;
-    map<string, capd::interval> one_map, two_map, d_map, half_map;
-    d_map = domain.get_map();
-    for (auto it = d_map.cbegin(); it != d_map.cend(); it++) {
-        one_map.insert(make_pair(it->first, capd::interval(1.0)));
-        two_map.insert(make_pair(it->first, capd::interval(2.0)));
-    }
-    box alpha(one_map), beta(one_map), one(one_map), two(two_map);
-    //box mode = box_factory::map_box(two, domain);
-    //box old_mode = mode;
-    box var = (alpha * beta) / ((alpha + beta) * (alpha + beta) * (alpha + beta + one));
-    //int term_counter = 0;
-    vector<pair<box, capd::interval>> samples;
-    //#pragma omp parallel
-    while (var.max_coordinate_value() > global_config.cross_entropy_term_arg) {
-        var = (alpha * beta) / ((alpha + beta) * (alpha + beta) * (alpha + beta + one));
-        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Alpha: " << alpha;
-        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Beta: " << beta;
-        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Variance: " << var;
-        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << size;
-        //#pragma omp parallel for
-        for (int i = 0; i < size; i++) {
-            box b = rnd::get_beta_random_sample(r, alpha, beta, domain);
-            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
-            capd::interval probability;
-            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is inside the domain";
-            if (global_config.bayesian_flag) {
-                probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc,
-                                                    global_config.bayesian_conf, vector<box>{b});
-            } else if (global_config.chernoff_flag) {
-                probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc,
-                                                    global_config.chernoff_conf, vector<box>{b});
-            } else {
-                CLOG(ERROR, "algorithm") << "Unknown setting";
-                exit(EXIT_FAILURE);
-            }
-            // fixing probability value
-            if (probability.leftBound() < 0) {
-                probability.setLeftBound(0);
-            }
-            if (probability.rightBound() > 1) {
-                probability.setRightBound(1);
-            }
-            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
-            samples.push_back(make_pair(b, probability));
-        }
-        if (global_config.max_prob) {
-            sort(samples.begin(), samples.end(), measure::compare_pairs::descending);
-        } else {
-            sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
-        }
-        vector<pair<box, capd::interval>> elite;
-        copy_n(samples.begin(), ceil(samples.size() * global_config.elite_ratio), back_inserter(elite));
-        vector<box> elite_boxes;
-        for (pair<box, capd::interval> p : elite) {
-            elite_boxes.push_back(p.first);
-        }
-        cout << "Number of elite samples: " << elite_boxes.size() << endl;
-        res = samples.front();
-        samples.clear();
-        pair<box, box> beta_params = rnd::update_beta_dist(elite_boxes, domain, alpha, beta);
-        alpha = beta_params.first;
-        beta = beta_params.second;
-    }
-    gsl_rng_free(r);
-    return res;
-}
+//pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_beta(int min_depth, int max_depth, int size) {
+//    // random number generator for cross entropy
+//    const gsl_rng_type *T;
+//    gsl_rng *r;
+//    gsl_rng_env_setup();
+//    T = gsl_rng_default;
+//    // creating random generator
+//    r = gsl_rng_alloc(T);
+//    // setting the seed
+//    gsl_rng_set(r, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
+//    //initializing probability value
+//    pair<box, capd::interval> res;
+//    box domain = pdrh2box::get_nondet_domain();
+//    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;
+//    map<string, capd::interval> one_map, two_map, d_map, half_map;
+//    d_map = domain.get_map();
+//    for (auto it = d_map.cbegin(); it != d_map.cend(); it++) {
+//        one_map.insert(make_pair(it->first, capd::interval(1.0)));
+//        two_map.insert(make_pair(it->first, capd::interval(2.0)));
+//    }
+//    box alpha(one_map), beta(one_map), one(one_map), two(two_map);
+//    //box mode = box_factory::map_box(two, domain);
+//    //box old_mode = mode;
+//    box var = (alpha * beta) / ((alpha + beta) * (alpha + beta) * (alpha + beta + one));
+//    //int term_counter = 0;
+//    vector<pair<box, capd::interval>> samples;
+//    //#pragma omp parallel
+//    while (var.max_coordinate_value() > global_config.cross_entropy_term_arg) {
+//        var = (alpha * beta) / ((alpha + beta) * (alpha + beta) * (alpha + beta + one));
+//        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Alpha: " << alpha;
+//        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Beta: " << beta;
+//        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Variance: " << var;
+//        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Sample size: " << size;
+//        //#pragma omp parallel for
+//        for (int i = 0; i < size; i++) {
+//            box b = rnd::get_beta_random_sample(r, alpha, beta, domain);
+//            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Quasi-random sample: " << b;
+//            capd::interval probability;
+//            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is inside the domain";
+//            if (global_config.bayesian_flag) {
+//                probability = evaluate_pha_bayesian(min_depth, max_depth, global_config.bayesian_acc,
+//                                                    global_config.bayesian_conf, vector<box>{b});
+//            } else if (global_config.chernoff_flag) {
+//                probability = evaluate_pha_chernoff(min_depth, max_depth, global_config.chernoff_acc,
+//                                                    global_config.chernoff_conf, vector<box>{b});
+//            } else {
+//                CLOG(ERROR, "algorithm") << "Unknown setting";
+//                exit(EXIT_FAILURE);
+//            }
+//            // fixing probability value
+//            if (probability.leftBound() < 0) {
+//                probability.setLeftBound(0);
+//            }
+//            if (probability.rightBound() > 1) {
+//                probability.setRightBound(1);
+//            }
+//            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Probability: " << probability << endl;
+//            samples.push_back(make_pair(b, probability));
+//        }
+//        if (global_config.max_prob) {
+//            sort(samples.begin(), samples.end(), measure::compare_pairs::descending);
+//        } else {
+//            sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
+//        }
+//        vector<pair<box, capd::interval>> elite;
+//        copy_n(samples.begin(), ceil(samples.size() * global_config.elite_ratio), back_inserter(elite));
+//        vector<box> elite_boxes;
+//        for (pair<box, capd::interval> p : elite) {
+//            elite_boxes.push_back(p.first);
+//        }
+//        cout << "Number of elite samples: " << elite_boxes.size() << endl;
+//        res = samples.front();
+//        samples.clear();
+//        pair<box, box> beta_params = rnd::update_beta_dist(elite_boxes, domain, alpha, beta);
+//        alpha = beta_params.first;
+//        beta = beta_params.second;
+//    }
+//    gsl_rng_free(r);
+//    return res;
+//}
 
 
 

@@ -101,6 +101,22 @@ std::vector<std::map<std::string, double>> naive::trajectory(std::map<std::strin
 void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> init, std::vector<pdrh::state> goal, bool verify,
                         size_t min_depth, size_t max_depth, size_t max_paths, size_t num_points, std::ostream& os)
 {
+//    simulate(modes, init, goal, verify, min_depth, max_depth, max_paths, node_to_double(cur_mode.time.second) / num_points, os);
+}
+
+/**
+ *
+ * @param modes - modes of the hybrid system
+ * @param init - initial state
+ * @param goal - goal to check
+ * @param depth - exact depth of simulation
+ * @param ode_step - time step in IVP solving
+ * @param filename - path to the output file
+ * @return
+ */
+void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> init, std::vector<pdrh::state> goal, bool verify,
+                     size_t min_depth, size_t max_depth, size_t max_paths, double ode_step, std::ostream& os)
+{
     // the main path queue
     vector<vector<map<string, double>>> paths;
     // parsing the initial states
@@ -134,9 +150,9 @@ void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> ini
                 cur_mode = m;
                 break;
             }
-        // getting the trajectory up to the time bound
-        double dt = node_to_double(cur_mode.time.second) / num_points;
-        vector<map<string, double>> traj = trajectory(cur_mode.odes, init_map, node_to_double(cur_mode.time.second), dt);
+//        // getting the trajectory up to the time bound
+//        double dt = node_to_double(cur_mode.time.second) / num_points;
+        vector<map<string, double>> traj = trajectory(cur_mode.odes, init_map, node_to_double(cur_mode.time.second), ode_step);
         // checking if the maximum depth for the path has been reached
         // if the maximum depth is reached; in simulation mode
         // the lower bound is ignored
@@ -155,6 +171,11 @@ void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> ini
         for(size_t i = 0; i < traj.size(); i++)
         {
             map<string, double> sol = traj[i];
+//            cout << "Solution:" << endl;
+//            for(auto it = sol.begin(); it != sol.end(); it++)
+//            {
+//                cout << it->first << ": " << it->second << endl;
+//            }
             // the verify flag is up, hence we need to check the invariants and the goals
             if(verify)
             {
@@ -232,6 +253,7 @@ void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> ini
                     // despite the fact that the corresponding jump can be satisfied multiple times
                 }
             }
+            cout << "Number of paths: " << paths.size() << endl;
         }
         // printing out a message saying that no jumps can be made from the current mode
         if(!jump_enabled)
@@ -254,8 +276,6 @@ void naive::simulate(std::vector<pdrh::mode> modes, std::vector<pdrh::state> ini
         cout << "goals could not be reached" << endl;
     }
 }
-
-
 
 
 

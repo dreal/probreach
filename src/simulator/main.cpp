@@ -36,6 +36,8 @@ size_t num_points = 1;
 string in_file = "";
 // path to the output file
 string out_file = "output.json";
+// time step
+double ode_step = 0.1;
 
 // printing help message
 void print_help()
@@ -51,6 +53,7 @@ void print_help()
     cout << "-u - maximum depth of every simulation path (default = " << max_depth << ")" << endl;
     cout << "-p - maximum number of simulation paths (default = " << max_paths << ")" << endl;
     cout << "-n - number of points used in IVP solving (default = " << num_points << ")" << endl;
+    cout << "-d - time step in IVP solving (default = " << ode_step << ")" << endl;
     cout << "-o - full path to the output file (default = " << out_file << ")" << endl;
 }
 
@@ -127,6 +130,18 @@ void parse_cmd(int argc, char* argv[])
             }
         }
         // maximum number of points
+        else if ((strcmp(argv[i], "-d") == 0))
+        {
+            i++;
+            istringstream is(argv[i]);
+            is >> ode_step;
+            if (ode_step < 0)
+            {
+                cerr << "-d must be positive";
+                exit(EXIT_FAILURE);
+            }
+        }
+        // maximum number of points
         else if ((strcmp(argv[i], "-o") == 0))
         {
             i++;
@@ -167,7 +182,8 @@ int main(int argc, char* argv[])
     ofs << "{ \"trajectories\" : [" << endl;
 
     // simulating the model
-    simulate(modes, init, goal, false, min_depth, max_depth, max_paths, num_points, ofs);
+//    simulate(modes, init, goal, false, min_depth, max_depth, max_paths, num_points, ofs);
+    simulate(modes, init, goal, false, min_depth, max_depth, max_paths, ode_step, ofs);
 
     // finalising the output file here
     ofs << "]}" << endl;

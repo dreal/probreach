@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
     if(pdrh::model_type == pdrh::PHA)
     {
         capd::interval probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max,
-                                                                      global_config.bayesian_acc, global_config.bayesian_conf, {});
+                                                                      global_config.precision_prob, global_config.conf, {});
         cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
     }
     else if(pdrh::model_type == pdrh::NPHA)
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 
         pair<box, capd::interval> probability = algorithm::evaluate_npha_cross_entropy_normal(global_config.reach_depth_min, global_config.reach_depth_max,
                                                                                           global_config.sample_size, global_config.iter_num,
-                                                                                          global_config.bayesian_acc, global_config.bayesian_conf);
+                                                                                          global_config.precision_prob, global_config.conf);
         cout << probability.first << " | " << probability.second << " | " << capd::intervals::width(probability.second) << endl;
     }
     else

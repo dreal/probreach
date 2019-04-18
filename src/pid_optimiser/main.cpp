@@ -267,7 +267,7 @@ int main(int argc, char* argv[])
     el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
 
     global_config.verbose_result = true;
-    global_config.bayesian_flag = true;
+//    global_config.bayesian_flag = true;
     global_config.reach_depth_max = max_depth;
     global_config.reach_depth_min = min_depth;
 

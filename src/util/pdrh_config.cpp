@@ -99,42 +99,42 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
-        // sobol sequence optimization bound
-        else if(strcmp(argv[i], "--sobol-term-arg") == 0)
-        {
-            i++;
-            istringstream is(argv[i]);
-            is >> global_config.sobol_term_arg;
-            if(global_config.sobol_term_arg <= 0)
-            {
-                cerr << "--sobol-term-arg must be positive";
-                exit(EXIT_FAILURE);
-            }
-        }
-        // cross-entropy termination condition
-        else if(strcmp(argv[i], "--cross-entropy-term-arg") == 0)
-        {
-            i++;
-            istringstream is(argv[i]);
-            is >> global_config.cross_entropy_term_arg;
-            if(global_config.cross_entropy_term_arg <= 0)
-            {
-                cerr << "--cross-entropy-term-arg must be positive";
-                exit(EXIT_FAILURE);
-            }
-        }
+//        // sobol sequence optimization bound
+//        else if(strcmp(argv[i], "--sobol-term-arg") == 0)
+//        {
+//            i++;
+//            istringstream is(argv[i]);
+//            is >> global_config.sobol_term_arg;
+//            if(global_config.sobol_term_arg <= 0)
+//            {
+//                cerr << "--sobol-term-arg must be positive";
+//                exit(EXIT_FAILURE);
+//            }
+//        }
+//        // cross-entropy termination condition
+//        else if(strcmp(argv[i], "--cross-entropy-term-arg") == 0)
+//        {
+//            i++;
+//            istringstream is(argv[i]);
+//            is >> global_config.cross_entropy_term_arg;
+//            if(global_config.cross_entropy_term_arg <= 0)
+//            {
+//                cerr << "--cross-entropy-term-arg must be positive";
+//                exit(EXIT_FAILURE);
+//            }
+//        }
         // minimum probability flag
         else if(strcmp(argv[i], "--min-prob") == 0)
         {
             global_config.min_prob = true;
             global_config.max_prob = false;
         }
-        // cross entropy normal flag
-        else if(strcmp(argv[i], "--cross-entropy-beta") == 0)
-        {
-            global_config.cross_entropy_beta = true;
-            global_config.cross_entropy_normal = false;
-        }
+//        // cross entropy normal flag
+//        else if(strcmp(argv[i], "--cross-entropy-beta") == 0)
+//        {
+//            global_config.cross_entropy_beta = true;
+//            global_config.cross_entropy_normal = false;
+//        }
         // reachability depth (min = max)
         else if(strcmp(argv[i], "-k") == 0)
         {
@@ -264,13 +264,13 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
-        // time series filename
-        else if(strcmp(argv[i], "--series") == 0)
-        {
-            i++;
-            global_config.series_filename = argv[i];
-            istringstream is(argv[i]);
-        }
+//        // time series filename
+//        else if(strcmp(argv[i], "--series") == 0)
+//        {
+//            i++;
+//            global_config.series_filename = argv[i];
+//            istringstream is(argv[i]);
+//        }
         // solver binary
         else if(strcmp(argv[i], "--solver") == 0)
         {
@@ -436,64 +436,76 @@ void parse_pdrh_config(int argc, char* argv[])
                 exit(EXIT_FAILURE);
             }
         }
-        // chernoff bound accuracy
-        else if(strcmp(argv[i], "--chernoff-acc") == 0)
+        // confidence
+        else if(strcmp(argv[i], "-c") == 0)
         {
-            global_config.chernoff_flag = true;
-            global_config.stat_flag = true;
             i++;
             istringstream is(argv[i]);
-            is >> global_config.chernoff_acc;
-            if (global_config.chernoff_acc <= 0)
+            is >> global_config.conf;
+            if ((global_config.conf <= 0) || (global_config.conf >= 1))
             {
-                cerr << "accuracy of Chernoff bound should be positive";
+                cerr << "confidence must be a value from the interval (0,1)";
                 exit(EXIT_FAILURE);
             }
         }
-        // chernoff bound confidence
-        else if(strcmp(argv[i], "--chernoff-conf") == 0)
-        {
-            global_config.chernoff_flag = true;
-            global_config.stat_flag = true;
-            i++;
-            istringstream is(argv[i]);
-            is >> global_config.chernoff_conf;
-            if ((global_config.chernoff_conf < 0) ||
-                    (global_config.chernoff_conf >= 1))
-            {
-                cerr << "confidence of Chernoff bound should be within [0, 1)";
-                exit(EXIT_FAILURE);
-            }
-        }
-        // bayesian accuracy
-        else if(strcmp(argv[i], "--bayesian-acc") == 0)
-        {
-            global_config.bayesian_flag = true;
-            global_config.stat_flag = true;
-            i++;
-            istringstream is(argv[i]);
-            is >> global_config.bayesian_acc;
-            if (global_config.bayesian_acc <= 0)
-            {
-                cerr << "accuracy for Bayesian simulations should be positive";
-                exit(EXIT_FAILURE);
-            }
-        }
-        // bayesian confidence
-        else if(strcmp(argv[i], "--bayesian-conf") == 0)
-        {
-            global_config.bayesian_flag = true;
-            global_config.stat_flag = true;
-            i++;
-            istringstream is(argv[i]);
-            is >> global_config.bayesian_conf;
-            if ((global_config.bayesian_conf < 0) ||
-                (global_config.bayesian_conf >= 1))
-            {
-                cerr << "confidence for Bayesian simulations should be within [0, 1)";
-                exit(EXIT_FAILURE);
-            }
-        }
+//        // chernoff bound accuracy
+//        else if(strcmp(argv[i], "--chernoff-acc") == 0)
+//        {
+//            global_config.chernoff_flag = true;
+//            global_config.stat_flag = true;
+//            i++;
+//            istringstream is(argv[i]);
+//            is >> global_config.chernoff_acc;
+//            if (global_config.chernoff_acc <= 0)
+//            {
+//                cerr << "accuracy of Chernoff bound should be positive";
+//                exit(EXIT_FAILURE);
+//            }
+//        }
+//        // chernoff bound confidence
+//        else if(strcmp(argv[i], "--chernoff-conf") == 0)
+//        {
+//            global_config.chernoff_flag = true;
+//            global_config.stat_flag = true;
+//            i++;
+//            istringstream is(argv[i]);
+//            is >> global_config.chernoff_conf;
+//            if ((global_config.chernoff_conf < 0) ||
+//                    (global_config.chernoff_conf >= 1))
+//            {
+//                cerr << "confidence of Chernoff bound should be within [0, 1)";
+//                exit(EXIT_FAILURE);
+//            }
+//        }
+//        // bayesian accuracy
+//        else if(strcmp(argv[i], "--bayesian-acc") == 0)
+//        {
+//            global_config.bayesian_flag = true;
+//            global_config.stat_flag = true;
+//            i++;
+//            istringstream is(argv[i]);
+//            is >> global_config.bayesian_acc;
+//            if (global_config.bayesian_acc <= 0)
+//            {
+//                cerr << "accuracy for Bayesian simulations should be positive";
+//                exit(EXIT_FAILURE);
+//            }
+//        }
+//        // bayesian confidence
+//        else if(strcmp(argv[i], "--bayesian-conf") == 0)
+//        {
+//            global_config.bayesian_flag = true;
+//            global_config.stat_flag = true;
+//            i++;
+//            istringstream is(argv[i]);
+//            is >> global_config.bayesian_conf;
+//            if ((global_config.bayesian_conf < 0) ||
+//                (global_config.bayesian_conf >= 1))
+//            {
+//                cerr << "confidence for Bayesian simulations should be within [0, 1)";
+//                exit(EXIT_FAILURE);
+//            }
+//        }
         // qmc conf
         else if(strcmp(argv[i], "--qmc-conf") == 0)
         {
@@ -601,11 +613,11 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             global_config.partition_psy = true;
         }
-        // xml_output
-        else if(strcmp(argv[i], "--xml-output") == 0)
-        {
-            global_config.xml_output = true;
-        }
+//        // xml_output
+//        else if(strcmp(argv[i], "--xml-output") == 0)
+//        {
+//            global_config.xml_output = true;
+//        }
         // solution-guided
         else if(strcmp(argv[i], "--guided") == 0)
         {
@@ -642,18 +654,18 @@ void parse_pdrh_config(int argc, char* argv[])
         {
             global_config.sort_rv_flag = true;
         }
-        // sobol
-        else if(strcmp(argv[i], "--sobol") == 0)
-        {
-            global_config.sobol_flag = true;
-            global_config.cross_entropy_flag = false;
-        }
-        // cross-entropy
-        else if(strcmp(argv[i], "--cross-entropy") == 0)
-        {
-            global_config.cross_entropy_flag = true;
-            global_config.sobol_flag = false;
-        }
+//        // sobol
+//        else if(strcmp(argv[i], "--sobol") == 0)
+//        {
+//            global_config.sobol_flag = true;
+//            global_config.cross_entropy_flag = false;
+//        }
+//        // cross-entropy
+//        else if(strcmp(argv[i], "--cross-entropy") == 0)
+//        {
+//            global_config.cross_entropy_flag = true;
+//            global_config.sobol_flag = false;
+//        }
         // sample size display
         else if(strcmp(argv[i], "--verbose-result") == 0)
         {
@@ -748,12 +760,13 @@ void print_usage()
     cout <<  ")" << endl;
     cout << endl;
     cout << "statistical model checking options:" << endl;
-    cout << "--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default: " << global_config.bayesian_acc << ")" << endl;
-    cout << "--bayesian-conf <double> - confidence value in Bayesian estimations (default: " << global_config.bayesian_conf << ")" << endl;
-    cout << "--cross-entropy - enables Cross-Entropy algorithm (default: " << global_config.cross_entropy_flag << ")" << endl;
-    cout << "--cross-entropy-term-arg <double> - termination argument (variance) for Cross-Entropy algorithm (default: " << global_config.cross_entropy_term_arg << ")" << endl;
-    cout << "--chernoff-acc <double> - half-length of the confidence interval in Chernoff-Hoeffding method (default: " << global_config.chernoff_acc << ")" << endl;
-    cout << "--chernoff-conf <double> - confidence value in Chernoff-Hoeffding method (default: " << global_config.chernoff_conf << ")" << endl;
+    cout << "-c <double> - confidence value (default: " << global_config.conf << ")" << endl;
+//    cout << "--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default: " << global_config.bayesian_acc << ")" << endl;
+//    cout << "--bayesian-conf <double> - confidence value in Bayesian estimations (default: " << global_config.bayesian_conf << ")" << endl;
+//    cout << "--cross-entropy - enables Cross-Entropy algorithm (default: " << global_config.cross_entropy_flag << ")" << endl;
+//    cout << "--cross-entropy-term-arg <double> - termination argument (variance) for Cross-Entropy algorithm (default: " << global_config.cross_entropy_term_arg << ")" << endl;
+//    cout << "--chernoff-acc <double> - half-length of the confidence interval in Chernoff-Hoeffding method (default: " << global_config.chernoff_acc << ")" << endl;
+//    cout << "--chernoff-conf <double> - confidence value in Chernoff-Hoeffding method (default: " << global_config.chernoff_conf << ")" << endl;
     cout << "--elite-ratio <double> - defines the fraction of the sample size - elite samples which are used in Cross-Entropy algorithm for updating the distribution parameters (default: " << global_config.elite_ratio << ")" << endl;
     cout << "--min-prob - computes confidence interval for the minimum reachability probability (default: " << global_config.min_prob << ")" << endl;
     cout << "--sample-size <int> - number of sample per iteration of Cross-Entropy algorithm (default: " << global_config.sample_size << ")" << endl;

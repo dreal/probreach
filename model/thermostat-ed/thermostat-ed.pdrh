@@ -1,26 +1,43 @@
-model:ha;
-#define K 1.0
-[0,100]time;
-[18,22]t;
+[18,22] t;
+[0,10] tau;
+
+//#define mu 1
+//#define sigma 0.015
+//dist_normal(0, 1) K;
+//[0.019999999, 0.02] sigma;
+
+
+dist_normal(1,0.015) K;
+
+
+// 0.015: [2.832840e-09,2.841014e-09] | 8.173737e-12
+// 0.015: [2.123612e-09,2.129604e-09] | 5.991646e-12
+
 
 {
 mode 1;
+time: [0,2];
 flow:
+//d/dt[t]= -t * (K*sigma+mu);
 d/dt[t]= -t * K;
+d/dt[tau] = 1;
 jump:
-(t <= 18)==>@2(and (t' = t)(tau'=0));
+(t = 18)==>@2(and (t' = t)(tau'=tau));
 }
 
 {
 mode 2;
+time: [0,2];
 flow:
+//d/dt[t]= -(K*sigma+mu) * (t - 30);
 d/dt[t]= -K * (t - 30);
+d/dt[tau] = 1;
 jump:
-(t >= 22)==>@1(and (t' = t)(tau'=0));
+(t = 22)==>@1(and (t' = t)(tau'=tau));
 }
 
 init:
-@1(and (t = 22)(tau = 0));
+@1(and (t = 22) (tau = 0));
 
 goal:
-@2(and (t >= 22));
+@2(and (tau = 3) (t >= 19.99999) (t <= 20.00001));

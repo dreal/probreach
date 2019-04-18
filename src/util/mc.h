@@ -16,9 +16,9 @@ namespace algorithm
     capd::interval evaluate_pha_bayesian(int, int, double, double, vector<box>);
 
     // the last argument is the sample size for cross entropy method
-    pair<box, capd::interval> evaluate_npha_sobol(int, int, int);
+//    pair<box, capd::interval> evaluate_npha_sobol(int, int, int);
     pair<box, capd::interval> evaluate_npha_cross_entropy_normal(size_t, size_t, size_t, size_t, double, double);
-    pair<box, capd::interval> evaluate_npha_cross_entropy_beta(int, int, int);
+//    pair<box, capd::interval> evaluate_npha_cross_entropy_beta(int, int, int);
 
 }
 

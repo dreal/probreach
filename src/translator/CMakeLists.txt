@@ -27,7 +27,11 @@ IF(MATLAB_FOUND)
             ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
     add_library(pdrh2simulink_lib ${PDRH2SIMULINK_SRC})
-    target_link_libraries(pdrh2simulink_lib -lfl)
+    if(APPLE)
+        target_link_libraries(pdrh2simulink_lib -ll)
+    else(APPLE)
+        target_link_libraries(pdrh2simulink_lib -lfl)
+    endif(APPLE)
 
     add_executable(pdrh2simulink ${PROBREACH_SOURCE_DIR}/translator/translator_main.cpp)
     target_compile_options(pdrh2simulink PRIVATE)

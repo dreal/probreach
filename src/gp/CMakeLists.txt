@@ -25,7 +25,14 @@ set(GP_SRC ${GP_SRC} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
 add_library(gp_lib ${GP_SRC})
-target_link_libraries(gp_lib -lfl -lgsl -lgslcblas ${CAPD_LIBRARIES})
+
+if(APPLE)
+    target_link_libraries(gp_lib -ll)
+else(APPLE)
+    target_link_libraries(gp_lib -lfl)
+endif(APPLE)
+
+target_link_libraries(gp_lib -lgsl -lgslcblas ${CAPD_LIBRARIES})
 
 #add_library(simulator_lib ${SIMULATOR_SRC})
 #target_link_libraries(simulator_lib -lfl)

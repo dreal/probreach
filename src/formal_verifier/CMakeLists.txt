@@ -17,7 +17,14 @@ set(PROBREACH_FORMAL_SRC ${PROBREACH_FORMAL_SRC}
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
 add_library(probreach_formal ${PROBREACH_FORMAL_SRC})
-target_link_libraries(probreach_formal -lfl ${CAPD_LIBRARIES})
+
+if(APPLE)
+    target_link_libraries(probreach_formal -ll)
+else(APPLE)
+    target_link_libraries(probreach_formal -lfl)
+endif(APPLE)
+
+target_link_libraries(probreach_formal ${CAPD_LIBRARIES})
 
 add_executable(formal_verifier ${PROBREACH_SOURCE_DIR}/formal_verifier/main.cpp)
 target_link_libraries(formal_verifier probreach_formal)

@@ -24,7 +24,7 @@ if(APPLE)
 else(APPLE)
     target_link_libraries(probreach_mc -lfl)
 endif(APPLE)
-target_link_libraries(probreach_mc -lgsl -lgslcblas ${CAPD_LIBRARIES})
+target_link_libraries(probreach_mc ${GSL_LIBRARIES} ${CAPD_LIBRARIES})
 
 add_executable(mc_verifier ${PROBREACH_SOURCE_DIR}/mc_verifier/main.cpp)
 target_link_libraries(mc_verifier probreach_mc)

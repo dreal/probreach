@@ -89,6 +89,7 @@ include_directories("${PROBREACH_SOURCE_DIR}/parser/pdrh")
 include_directories("${PROBREACH_SOURCE_DIR}/solver")
 include_directories("${PROBREACH_SOURCE_DIR}/logging")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
+include_directories("${GSL_INCLUDE_DIRS}")
 
 
 # Adds the option to build the translator if MATLAB is located

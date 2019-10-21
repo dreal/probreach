@@ -2,7 +2,6 @@
 // Created by mariia on 10/09/18.
 //
 
-
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_qrng.h>
 #include <gsl/gsl_cdf.h>
@@ -16,7 +15,6 @@
 #include <iomanip>
 #include "rnd.h"
 #include "solver/dreal_wrapper.h"
-//#include "stability.h"
 
 using namespace std;
 std::ofstream myfile("test.csv");
@@ -26,25 +24,20 @@ capd::interval algorithm::evaluate_qmc() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
 
     // initialize sobol generator
     gsl_qrng *q = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
     // getting domain of random parameters
-    map<string, capd::interval> sobol_domain_map;
+    map <string, capd::interval> sobol_domain_map;
     for (auto &it : pdrh::rv_map) {
         sobol_domain_map.insert(make_pair(it.first, capd::interval(0, 1)));
     }
     box sobol_domain(sobol_domain_map);
 
     cout << endl << "SIMPLE ICDF QMC ALGORITHM" << endl;
-    // initialize  random generator
-    //const gsl_rng_type *TT;
-    //gsl_rng *rr;
-    //gsl_rng_env_setup();
-    //TT = gsl_rng_default;
-    //rr = gsl_rng_alloc(TT);
-    //box rv_domain = measure::bounds::get_rv_domain();
+
     double sat = 0, unsat = 0, undet = 0;
     // main loop
     double ress;
@@ -57,14 +50,7 @@ capd::interval algorithm::evaluate_qmc() {
             // sobol from [0,1]*...*[0,1]
             box sobol_sample = rnd::get_sobol_sample(q, sobol_domain);
             cout << endl << "Sobol sample: " << sobol_sample << endl;
-            //box random_sample = rnd::get_randomuni_sample(rr);
-            //cout << "RANDOM SAMPLE " << random_sample << endl;
-            //box sample = (sobol_sample + random_sample).fmod(1);
-            // sample from [x1_min,x1_max]*...*[xn_min,xn_max] after applying icdf
             box icdf_sample = rnd::get_icdf(sobol_sample);
-            //cout << "ICDF sample: " << icdf_sample << endl;
-            // computing value of indicator function
-//switch (decision_procedure::evaluate_formal(paths, {icdf_sample}, "")) {
             switch (decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "")) {
                 // hybrid automata
                 case decision_procedure::SAT: {
@@ -114,7 +100,8 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 
@@ -134,7 +121,7 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
     int points = 0;
     double samplemean, stdev, samplevar, samplesq;
 
-    map<string, capd::interval> one_map;
+    map <string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
         one_map.insert(make_pair(it.first, capd::interval(1, 1)));
     }
@@ -142,7 +129,7 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
 
     // main loop
     for (int l = 1; l <= Zz; l++) {
-        cout << endl << "Z iteration=======" << l << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration=======" << l << endl;
         double sat2 = 0, unsat2 = 0, undet2 = 0;
         double CI = 0;
         points = 1;
@@ -152,7 +139,7 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
         // initialize Sobol generator
         gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
         // getting domain of random parameters
-        map<string, capd::interval> sobol_domain_map2;
+        map <string, capd::interval> sobol_domain_map2;
         for (auto &it : pdrh::rv_map) {
             sobol_domain_map2.insert(make_pair(it.first, capd::interval(0, 1)));
         }
@@ -163,12 +150,12 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
         while (CI <= Ca) {
             box sobol_sample;
             sobol_sample = rnd::get_sobol_sample(q2, sobol_domain2);
-            cout << "SOBOL SAMPLE :" << sobol_sample << endl;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SOBOL SAMPLE :" << sobol_sample << endl;
             // sample from [x1_min,x1_max]*...*[xn_min,xn_max] after applying icdf
             box icdf_sample = rnd::get_icdf(sobol_sample); //!!!!!
-            cout << "ICDF sample :" << icdf_sample << endl;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ICDF sample :" << icdf_sample << endl;
             int res;
-//res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+
             res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
@@ -177,31 +164,30 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-                        cout << "SAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SAT" << endl;
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-                        cout << "UNSAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNSAT" << endl;
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-                        cout << "UNDET" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET" << endl;
                         break;
                     }
                     default:
                         break;
                 }
-
-                cout << "Number of SAT: " << sat2 << endl;
-                cout << "Number of UNSAT: " << unsat2 << endl;
-                cout << "Number of UNDET: " << undet2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of SAT: " << sat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNSAT: " << unsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNDET: " << undet2 << endl;
 
                 ressat2 = sat2 / points;
-                cout << "ressat: " << ressat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2 << endl;
                 resunsat2 = (points - unsat2) / points;
-                cout << "resunsat: " << resunsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2 << endl;
 
                 // write data to the "test.csv" file
                 if (sat2 != 0) {
@@ -212,27 +198,23 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
 
                 //computing sample mean
                 samplemean = sat2 * sat2 / points;
-                cout << "samplemean==" << samplemean << endl;
-                //computing sample variance
                 samplesq = sat2;
-                cout << "samplesq==" << samplesq << endl;
                 if (ressat2 == 0 || ressat2 == 1)
                     samplevar = pow(pow(points, 2), -1);
                 else {
-                    //cout << "HERE!!!!" << endl;
-                    cout << "points--" << points << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "points: " << points << endl;
                     samplevar = (samplesq - samplemean) / (points - 1);
                 }
-                cout << "samplevar==" << samplevar << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "samplevar = " << samplevar << endl;
                 stdev = sqrt(samplevar);
-                cout << "stdev==" << stdev << endl;
+                //cout << "stdev==" << stdev << endl;
 
                 // computing confidence intervals
                 result = Ca * stdev / sqrt(points);
                 CI = (global_config.qmc_acc / 2 * sqrt(points) / stdev);
-                cout << "CI= " << CI << endl;
-                cout << "Interval/2===" << result << endl;
-                cout << "------------" << endl;
+                //cout << "CI= " << CI << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Interval/2 = " << result << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                 points++;
             }
         }
@@ -245,18 +227,13 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
     Zresultsat = Zresultsat / Zz;
     Zresultunsat = Zresultunsat / Zz;
     pointscount = pointscount / Zz;
-    cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
-                                                 Zresultunsat) << endl;
-    cout << "points===" << points << endl;
+    //cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,Zresultunsat) << endl;
+    //cout << "points===" << points << endl;
     for (int l = 1; l <= Zz; l++) {
-        cout << l << "-test running points==" << pointsarray[l] << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << l << "-test running points==" << pointsarray[l]
+                                                                 << endl;
     }
-    cout << "pointscount===" << pointscount << endl;
-
-//    std::ofstream myfile("test.csv");
-//    //std::ofstream("test.csv", ios::app);
-//    myfile << "11111111123233" << "," << 2222222222333333 << std::endl;
-
+    //cout << "pointscount===" << pointscount << endl;
     return capd::interval(Zresultsat - result, Zresultunsat + result);
     // [Psat+result; Punsat-result]
 }
@@ -266,7 +243,8 @@ capd::interval algorithm::evaluate_rqmc_AC() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 
@@ -287,7 +265,7 @@ capd::interval algorithm::evaluate_rqmc_AC() {
     int points;
     points = 0;
 
-    map<string, capd::interval> one_map;
+    map <string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
         one_map.insert(make_pair(it.first, capd::interval(1, 1)));
     }
@@ -295,7 +273,7 @@ capd::interval algorithm::evaluate_rqmc_AC() {
 
     // main loop
     for (int l = 1; l <= Zz; l++) {
-        cout << "Z iteration=======" << l << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration=======" << l << endl;
         double sat2 = 0, unsat2 = 0, undet2 = 0;
         double CI = 1;
         points = 1;
@@ -305,7 +283,7 @@ capd::interval algorithm::evaluate_rqmc_AC() {
         // initialize Sobol generator
         gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
         // getting domain of random parameters
-        map<string, capd::interval> sobol_domain_map2;
+        map <string, capd::interval> sobol_domain_map2;
         for (auto &it : pdrh::rv_map) {
             sobol_domain_map2.insert(make_pair(it.first, capd::interval(0, 1)));
         }
@@ -319,12 +297,14 @@ capd::interval algorithm::evaluate_rqmc_AC() {
             box random_sample = rnd::get_randomuni_sample(rr);
             box sample = (sobol_sample + random_sample).fmod(1);
             //  cout << sample << endl;
-            cout << "RANDOM SAMPLE :" << random_sample << endl;
-            cout << "SOBOL SAMPLE :" << sobol_sample << endl;
-            cout << "Sobol+RND sample :" << sample << endl;
+            //cout << "RANDOM SAMPLE :" << random_sample << endl;
+            //cout << "SOBOL SAMPLE :" << sobol_sample << endl;
+            //cout << "Sobol+RND sample :" << sample << endl;
 
             box icdf_sample = rnd::get_icdf(sample);
-            cout << "ICDF sample: " << icdf_sample << endl;
+            //cout << "ICDF sample: " << icdf_sample << endl;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ICDF sample :" << icdf_sample << endl;
+
             int res;
             res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
@@ -334,38 +314,38 @@ capd::interval algorithm::evaluate_rqmc_AC() {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-                        cout << "SAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SAT" << endl;
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-                        cout << "UNSAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNSAT" << endl;
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-                        cout << "UNDET" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET" << endl;
                         break;
                     }
                     default:
                         break;
                 }
-                cout << "Number of SAT: " << sat2 << endl;
-                cout << "Number of UNSAT: " << unsat2 << endl;
-                cout << "Number of UNDET: " << undet2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of SAT: " << sat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNSAT: " << unsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNDET: " << undet2 << endl;
 
                 ressat2 = sat2 / points;
-                cout << "ressat: " << ressat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2 << endl;
                 resunsat2 = (points - unsat2) / points;
-                cout << "resunsat: " << resunsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2 << endl;
 
                 agrest_n = points + pow(Ca, 2);
                 agrest_p = pow(agrest_n, -1) * (sat2 + 0.5 * pow(Ca, 2));
                 //CI = (global_config.qmc_acc / 2) / (pow(agrest_n, -0.5) * sqrt(agrest_p * (1 - agrest_p)));
                 CI = Ca * (pow(agrest_n, -0.5) * sqrt(agrest_p * (1 - agrest_p)));
-                cout << "Interval/2===" << CI << endl;
                 result = CI;
-                cout << "------------" << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Interval/2 = " << result << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                 points++;
             }
         }
@@ -378,13 +358,14 @@ capd::interval algorithm::evaluate_rqmc_AC() {
     Zresultsat = Zresultsat / Zz;
     Zresultunsat = Zresultunsat / Zz;
     pointscount = pointscount / Zz;
-    cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
-                                                 Zresultunsat) << endl;
-    cout << "points===" << points << endl;
+    //cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
+    //                                             Zresultunsat) << endl;
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "points: " << points << endl;
     for (int l = 1; l <= Zz; l++) {
-        cout << l << "-test running points==" << pointsarray[l] << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << l << "-test running points==" << pointsarray[l]
+                                                                 << endl;
     }
-    cout << "pointscount===" << pointscount << endl;
+    //cout << "pointscount===" << pointscount << endl;
     return capd::interval(Zresultsat - result, Zresultunsat + result);
     // [Psat+result; Punsat-result]
 }
@@ -395,7 +376,8 @@ capd::interval algorithm::evaluate_rqmc_Will() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 
@@ -423,7 +405,7 @@ capd::interval algorithm::evaluate_rqmc_Will() {
     int points;
     points = 0;
 
-    map<string, capd::interval> one_map;
+    map <string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
         one_map.insert(make_pair(it.first, capd::interval(1, 1)));
     }
@@ -432,7 +414,7 @@ capd::interval algorithm::evaluate_rqmc_Will() {
 
     // main loop
     for (int l = 1; l <= Zz; l++) {
-        cout << "Z iteration=======" << l << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration=======" << l << endl;
         double sat2 = 0, unsat2 = 0, undet2 = 0;
         double CI = 1;
         points = 1;
@@ -442,7 +424,7 @@ capd::interval algorithm::evaluate_rqmc_Will() {
         // initialize Sobol generator
         gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
         // getting domain of random parameters
-        map<string, capd::interval> sobol_domain_map2;
+        map <string, capd::interval> sobol_domain_map2;
         for (auto &it : pdrh::rv_map) {
             sobol_domain_map2.insert(make_pair(it.first, capd::interval(0, 1)));
         }
@@ -456,10 +438,11 @@ capd::interval algorithm::evaluate_rqmc_Will() {
             box random_sample = rnd::get_randomuni_sample(rr);
             box sample = (sobol_sample + random_sample).fmod(1);
             //  cout << sample << endl;
-            cout << "Sobol+RND sample :" << sample << endl;
+            //cout << "Sobol+RND sample :" << sample << endl;
 
             box icdf_sample = rnd::get_icdf(sample); //!!!!!!!!
-            cout << "ICDF sample :" << icdf_sample << endl;
+            //cout << "ICDF sample :" << icdf_sample << endl;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ICDF sample :" << icdf_sample << endl;
             int res;
             res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
@@ -469,42 +452,42 @@ capd::interval algorithm::evaluate_rqmc_Will() {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-                        cout << "SAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SAT" << endl;
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-                        cout << "UNSAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNSAT" << endl;
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-                        cout << "UNDET" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET" << endl;
                         break;
                     }
                     default:
                         break;
                 }
-                cout << "Number of SAT: " << sat2 << endl;
-                cout << "Number of UNSAT: " << unsat2 << endl;
-                cout << "Number of UNDET: " << undet2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of SAT: " << sat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNSAT: " << unsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNDET: " << undet2 << endl;
 
                 ressat2 = sat2 / points;
-                cout << "ressat: " << ressat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2 << endl;
                 resunsat2 = (points - unsat2) / points;
-                cout << "resunsat: " << resunsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2 << endl;
 
                 CI = (Ca * sqrt(points)) / (points + pow(Ca, 2)) *
                      sqrt(ressat2 * (1 - ressat2) + pow(Ca, 2) / (4 * points));
-                cout << "Interval/2===" << CI << endl;
                 result = CI;
-                cout << "------------" << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Interval/2 = " << result << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                 points++;
             }
         }
         points = points - 1;
-        cout << "unsat2: " << unsat2 << endl;
-        cout << "points " << points << endl;
+        //cout << "unsat2: " << unsat2 << endl;
+        // cout << "points " << points << endl;
         Zresultsat = Zresultsat + (sat2 + pow(Ca, 2) / 2) / (points + pow(Ca, 2));
         Zresultunsat = Zresultunsat + ((points - unsat2) + pow(Ca, 2) / 2) / (points + pow(Ca, 2));
         pointscount = pointscount + points;
@@ -514,14 +497,15 @@ capd::interval algorithm::evaluate_rqmc_Will() {
     //cout << "Zresultsat: " << Zresultsat << endl;
     Zresultunsat = Zresultunsat / Zz;
     pointscount = pointscount / Zz;
-    cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
-                                                 Zresultunsat) << endl;
+    //cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
+    //                                             Zresultunsat) << endl;
 
-    cout << "points===" << points << endl;
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "points: " << points << endl;
     for (int l = 1; l <= Zz; l++) {
-        cout << l << "-test running points==" << pointsarray[l] << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << l << "-test running points==" << pointsarray[l]
+                                                                 << endl;
     }
-    cout << "pointscount===" << pointscount << endl;
+    //cout << "pointscount===" << pointscount << endl;
     return capd::interval(Zresultsat - result, Zresultunsat + result);
     // [Psat+result; Punsat-result]
 
@@ -532,7 +516,8 @@ capd::interval algorithm::evaluate_rqmc_Log() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
 
     cout << endl << "RQMC LOGIT ALGORITHM" << endl;
@@ -554,7 +539,7 @@ capd::interval algorithm::evaluate_rqmc_Log() {
     int points;
     points = 0;
 
-    map<string, capd::interval> one_map;
+    map <string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
         one_map.insert(make_pair(it.first, capd::interval(1, 1)));
     }
@@ -562,7 +547,7 @@ capd::interval algorithm::evaluate_rqmc_Log() {
 
     // main loop
     for (int l = 1; l <= Zz; l++) {
-        cout << "Z iteration=======" << l << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration=======" << l << endl;
         double sat2 = 0, unsat2 = 0, undet2 = 0;
         double CI = 1;
         points = 1;
@@ -572,7 +557,7 @@ capd::interval algorithm::evaluate_rqmc_Log() {
         // initialize Sobol generator
         gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
         // getting domain of random parameters
-        map<string, capd::interval> sobol_domain_map2;
+        map <string, capd::interval> sobol_domain_map2;
         for (auto &it : pdrh::rv_map) {
             sobol_domain_map2.insert(make_pair(it.first, capd::interval(0, 1)));
         }
@@ -586,9 +571,10 @@ capd::interval algorithm::evaluate_rqmc_Log() {
             box random_sample = rnd::get_randomuni_sample(rr);
             box sample = (sobol_sample + random_sample).fmod(1);
             //  cout << sample << endl;
-            cout << "Sobol+RND sample :" << sample << endl;
+            //cout << "Sobol+RND sample :" << sample << endl;
             box icdf_sample = rnd::get_icdf(sample);
-            cout << "ICDF sample :" << icdf_sample << endl;
+            //cout << "ICDF sample :" << icdf_sample << endl;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ICDF sample :" << icdf_sample << endl;
             int res;
             res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
@@ -598,30 +584,30 @@ capd::interval algorithm::evaluate_rqmc_Log() {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-                        cout << "SAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SAT" << endl;
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-                        cout << "UNSAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNSAT" << endl;
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-                        cout << "UNDET" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET" << endl;
                         break;
                     }
                     default:
                         break;
                 }
-                cout << "Number of SAT: " << sat2 << endl;
-                cout << "Number of UNSAT: " << unsat2 << endl;
-                cout << "Number of UNDET: " << undet2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of SAT: " << sat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNSAT: " << unsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNDET: " << undet2 << endl;
 
                 ressat2 = sat2 / points;
-                cout << "ressat: " << ressat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2 << endl;
                 resunsat2 = (points - unsat2) / points;
-                cout << "resunsat: " << resunsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2 << endl;
 
                 if (points == 1) {
                     Lambda = log((sat2 + 0.5) / (points - sat2 + 0.5));
@@ -629,27 +615,26 @@ capd::interval algorithm::evaluate_rqmc_Log() {
                     Var_Lambda = 2 / ((sat2 + 0.5) * (2 - (sat2 + 0.5)));
                 } else if (ressat2 == 0 or ressat2 == 1) {
                     Lambda = log((sat2 + 0.5) / (points - sat2 + 0.5));
-                    cout << "Lambda= " << Lambda << endl;
+                    //cout << "Lambda= " << Lambda << endl;
                     Var_Lambda = ((points + 1) * (points + 2)) / (points * (sat2 + 1) * (points - sat2 + 1));
                 } else {
                     Lambda = log(sat2 / (points - sat2));
                     Var_Lambda = points / (sat2 * (points - sat2));
                 }
-                cout << "Lambda= " << Lambda << endl;
-                cout << "Var_Lambda= " << Var_Lambda << endl;
+                //cout << "Lambda= " << Lambda << endl;
+                //cout << "Var_Lambda= " << Var_Lambda << endl;
                 logit_u = exp(Lambda + Ca * sqrt(Var_Lambda)) / (1 + exp(Lambda + Ca * sqrt(Var_Lambda)));
                 logit_l = exp(Lambda - Ca * sqrt(Var_Lambda)) / (1 + exp(Lambda - Ca * sqrt(Var_Lambda)));
-                cout << "logit_u= " << logit_u << endl;
-                cout << "logit_l= " << logit_l << endl;
+                //cout << "logit_u= " << logit_u << endl;
+                //cout << "logit_l= " << logit_l << endl;
                 CI = (logit_u - logit_l) / 2;
-                cout << "Interval/2===" << CI << endl;
-                cout << "------------" << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                 points++;
             }
         }
         points = points - 1;
-        cout << "unsat2: " << unsat2 << endl;
-        cout << "points " << points << endl;
+        //cout << "unsat2: " << unsat2 << endl;
+        //cout << "points " << points << endl;
         Zresultsat = Zresultsat + ressat2;
         Zresultunsat = Zresultunsat + resunsat2;
         pointscount = pointscount + points;
@@ -658,13 +643,14 @@ capd::interval algorithm::evaluate_rqmc_Log() {
     Zresultsat = Zresultsat / Zz;
     Zresultunsat = Zresultunsat / Zz;
     pointscount = pointscount / Zz;
-    cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
-                                                 Zresultunsat) << endl;
-    cout << "points===" << points << endl;
+    //cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
+    //                                             Zresultunsat) << endl;
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "points: " << points << endl;
     for (int l = 1; l <= Zz; l++) {
-        cout << l << "-test running points==" << pointsarray[l] << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << l << "-test running points==" << pointsarray[l]
+                                                                 << endl;
     }
-    cout << "pointscount===" << pointscount << endl;
+    //cout << "pointscount===" << pointscount << endl;
     return capd::interval(logit_l, logit_u);
     // [Psat+result; Punsat-result]
 }
@@ -675,7 +661,8 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
 
     cout << endl << "RQMC ANSCOMBE ALGORITHM" << endl;
@@ -697,7 +684,7 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
     int points;
     points = 0;
 
-    map<string, capd::interval> one_map;
+    map <string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
         one_map.insert(make_pair(it.first, capd::interval(1, 1)));
     }
@@ -705,7 +692,7 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
 
     // main loop
     for (int l = 1; l <= Zz; l++) {
-        cout << "Z iteration=======" << l << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration=======" << l << endl;
         double sat2 = 0, unsat2 = 0, undet2 = 0;
         double CI = 1;
         points = 1;
@@ -715,8 +702,11 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
         // initialize Sobol generator
         gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
         // getting domain of random parameters
-        map<string, capd::interval> sobol_domain_map2;
-        map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::tuple<pdrh::node *, pdrh::node *, pdrh::node *, pdrh::node *>>::iterator it;
+        map <string, capd::interval> sobol_domain_map2;
+        map < std::__cxx11::basic_string < char, std::char_traits < char >, std::allocator < char >>, std::tuple <
+                                                                                                      pdrh::node *,
+                pdrh::node *, pdrh::node *, pdrh::node * >> ::iterator
+        it;
         for (it = pdrh::rv_map.begin(); it != pdrh::rv_map.end(); it++) {
             sobol_domain_map2.insert(make_pair(it->first, capd::interval(0, 1)));
         }
@@ -731,10 +721,11 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
             box random_sample = rnd::get_randomuni_sample(rr);
             box sample = (sobol_sample + random_sample).fmod(1);
             //  cout << sample << endl;
-            cout << "Sobol+RND sample :" << sample << endl;
+            //cout << "Sobol+RND sample :" << sample << endl;
 
-            box icdf_sample = rnd::get_icdf(sample); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            cout << "ICDF sample :" << icdf_sample << endl;
+            box icdf_sample = rnd::get_icdf(sample);
+            //cout << "ICDF sample :" << icdf_sample << endl;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ICDF sample :" << icdf_sample << endl;
             int res;
             res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
@@ -744,33 +735,33 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-                        cout << "SAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SAT" << endl;
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-                        cout << "UNSAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNSAT" << endl;
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-                        cout << "UNDET" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET" << endl;
                         break;
                     }
                     default:
                         break;
                 }
-                cout << "Number of SAT: " << sat2 << endl;
-                cout << "Number of UNSAT: " << unsat2 << endl;
-                cout << "Number of UNDET: " << undet2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of SAT: " << sat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNSAT: " << unsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNDET: " << undet2 << endl;
 
                 ressat2 = sat2 / points;
-                cout << "ressat: " << ressat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2 << endl;
                 resunsat2 = (points - unsat2) / points;
-                cout << "resunsat: " << resunsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2 << endl;
 
                 Lambda = log((sat2 + 0.5) / (points - sat2 + 0.5));
-                cout << "Lambda= " << Lambda << endl;
+                //cout << "Lambda= " << Lambda << endl;
                 double r1 = (points + 1);
                 //cout << "r1= " << r1 << endl;
                 double r2 = (points + 2);
@@ -781,20 +772,20 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
                 //cout << "r4= " << r4 << endl;
                 Var_Lambda = (r1 * r2) / (r3 * r4);
                 //Var_Lambda = ((points + 1) * (points + 2)) / (points * (sat2 + 1) * (points - sat2 + 1));
-                cout << "Var_Lambda= " << Var_Lambda << endl;
+                // cout << "Var_Lambda= " << Var_Lambda << endl;
                 logit_u = exp(Lambda + Ca * sqrt(Var_Lambda)) / (1 + exp(Lambda + Ca * sqrt(Var_Lambda)));
                 logit_l = exp(Lambda - Ca * sqrt(Var_Lambda)) / (1 + exp(Lambda - Ca * sqrt(Var_Lambda)));
-                cout << "logit_u= " << logit_u << endl;
-                cout << "logit_l= " << logit_l << endl;
+                //cout << "logit_u= " << logit_u << endl;
+                // cout << "logit_l= " << logit_l << endl;
                 CI = (logit_u - logit_l) / 2;
-                cout << "Interval/2===" << CI << endl;
-                cout << "------------" << endl;
+                //cout << "Interval/2===" << CI << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                 points++;
             }
         }
         points = points - 1;
-        cout << "unsat2: " << unsat2 << endl;
-        cout << "points " << points << endl;
+        //cout << "unsat2: " << unsat2 << endl;
+        //cout << "points " << points << endl;
         Zresultsat = Zresultsat + ressat2;
         Zresultunsat = Zresultunsat + resunsat2;
         pointscount = pointscount + points;
@@ -803,13 +794,14 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
     Zresultsat = Zresultsat / Zz;
     Zresultunsat = Zresultunsat / Zz;
     pointscount = pointscount / Zz;
-    cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
-                                                 Zresultunsat) << endl;
-    cout << "points===" << points << endl;
+    //cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
+    //                                             Zresultunsat) << endl;
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "points: " << points << endl;
     for (int l = 1; l <= Zz; l++) {
-        cout << l << "-test running points==" << pointsarray[l] << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << l << "-test running points==" << pointsarray[l]
+                                                                 << endl;
     }
-    cout << "pointscount===" << pointscount << endl;
+    //cout << "pointscount===" << pointscount << endl;
     return capd::interval(logit_l, logit_u);
     // [Psat+result; Punsat-result]
 }
@@ -819,7 +811,8 @@ capd::interval algorithm::evaluate_rqmc_Arc() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
 
     cout << endl << "RQMC ARCSIN ALGORITHM" << endl;
@@ -841,7 +834,7 @@ capd::interval algorithm::evaluate_rqmc_Arc() {
     int points;
     points = 0;
 
-    map<string, capd::interval> one_map;
+    map <string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
         one_map.insert(make_pair(it.first, capd::interval(1, 1)));
     }
@@ -849,7 +842,7 @@ capd::interval algorithm::evaluate_rqmc_Arc() {
 
     // main loop
     for (int l = 1; l <= Zz; l++) {
-        cout << "Z iteration=======" << l << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration=======" << l << endl;
         double sat2 = 0, unsat2 = 0, undet2 = 0;
         double CI = 1;
         points = 1;
@@ -858,7 +851,7 @@ capd::interval algorithm::evaluate_rqmc_Arc() {
         // initialize Sobol generator
         gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
         // getting domain of random parameters
-        map<string, capd::interval> sobol_domain_map2;
+        map <string, capd::interval> sobol_domain_map2;
         for (auto &it : pdrh::rv_map) {
             sobol_domain_map2.insert(make_pair(it.first, capd::interval(0, 1)));
         }
@@ -872,10 +865,11 @@ capd::interval algorithm::evaluate_rqmc_Arc() {
             box random_sample = rnd::get_randomuni_sample(rr);
             box sample = (sobol_sample + random_sample).fmod(1);
             //  cout << sample << endl;
-            cout << "Sobol+RND sample :" << sample << endl;
+            //cout << "Sobol+RND sample :" << sample << endl;
 
             box icdf_sample = rnd::get_icdf(sample);
-            cout << "ICDF sample : " << icdf_sample << endl;
+            //cout << "ICDF sample : " << icdf_sample << endl;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ICDF sample :" << icdf_sample << endl;
             int res;
             res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
@@ -885,46 +879,46 @@ capd::interval algorithm::evaluate_rqmc_Arc() {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-                        cout << "SAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SAT" << endl;
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-                        cout << "UNSAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNSAT" << endl;
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-                        cout << "UNDET" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET" << endl;
                         break;
                     }
                     default:
                         break;
                 }
-                cout << "Number of SAT: " << sat2 << endl;
-                cout << "Number of UNSAT: " << unsat2 << endl;
-                cout << "Number of UNDET: " << undet2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of SAT: " << sat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNSAT: " << unsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNDET: " << undet2 << endl;
 
                 ressat2 = sat2 / points;
-                cout << "ressat: " << ressat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2 << endl;
                 resunsat2 = (points - unsat2) / points;
-                cout << "resunsat: " << resunsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2 << endl;
 
                 arc_p = (sat2 + 0.375) / (points + 0.75);
-                cout << "arc_p= " << arc_p << endl;
+                //cout << "arc_p= " << arc_p << endl;
                 arc_l = pow(sin(asin(sqrt(arc_p))) - Ca / (2 * sqrt(points)), 2);
                 arc_u = pow(sin(asin(sqrt(arc_p))) + Ca / (2 * sqrt(points)), 2);
-                cout << "arc_l= " << arc_l << endl;
-                cout << "arc_u= " << arc_u << endl;
+                //cout << "arc_l= " << arc_l << endl;
+                //cout << "arc_u= " << arc_u << endl;
                 CI = (arc_u - arc_l) / 2;
-                cout << "Interval/2===" << CI << endl;
+                //cout << "Interval/2===" << CI << endl;
                 cout << "------------" << endl;
                 points++;
             }
         }
         points = points - 1;
-        cout << "unsat2: " << unsat2 << endl;
-        cout << "points " << points << endl;
+        //cout << "unsat2: " << unsat2 << endl;
+        //cout << "points " << points << endl;
         Zresultsat = Zresultsat + ressat2;
         Zresultunsat = Zresultunsat + resunsat2;
         pointscount = pointscount + points;
@@ -933,12 +927,13 @@ capd::interval algorithm::evaluate_rqmc_Arc() {
     Zresultsat = Zresultsat / Zz;
     Zresultunsat = Zresultunsat / Zz;
     pointscount = pointscount / Zz;
-    cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
-                                                 Zresultunsat) << endl;
+    //cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
+    //                                             Zresultunsat) << endl;
     //cout << "resultU===" << resultU << endl;
-    cout << "points===" << points << endl;
+    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "points: " << points << endl;
     for (int l = 1; l <= Zz; l++) {
-        cout << l << "-test running points==" << pointsarray[l] << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << l << "-test running points==" << pointsarray[l]
+                                                                 << endl;
     }
     cout << "pointscount===" << pointscount << endl;
     return capd::interval(arc_l, arc_u);
@@ -950,7 +945,8 @@ capd::interval algorithm::evaluate_Qint() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 
@@ -958,7 +954,7 @@ capd::interval algorithm::evaluate_Qint() {
 
     //Sobol generator
     gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
-    map<string, capd::interval> sobol_domain_map2;
+    map <string, capd::interval> sobol_domain_map2;
     for (auto &it : pdrh::rv_map) {
         sobol_domain_map2.insert(make_pair(it.first, capd::interval(0, 1)));
     }
@@ -980,7 +976,7 @@ capd::interval algorithm::evaluate_Qint() {
     int points;
     points = 0;
 
-    map<string, capd::interval> one_map;
+    map <string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
         one_map.insert(make_pair(it.first, capd::interval(1, 1)));
     }
@@ -988,7 +984,7 @@ capd::interval algorithm::evaluate_Qint() {
 
     // main loop
     for (int l = 1; l <= Zz; l++) {
-        cout << "Z iteration=======" << l << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration=======" << l << endl;
         double sat2 = 0, unsat2 = 0, undet2 = 0;
         double CI;
         //CI = 1;
@@ -997,15 +993,16 @@ capd::interval algorithm::evaluate_Qint() {
         double Ca = gsl_cdf_gaussian_Pinv(1 - (1 - conf) / 2, 1);
         gsl_rng_set(rr, static_cast<unsigned long>(l));
 #pragma omp parallel
-        cout << "points==" << global_config.qmc_sample_size << endl;
+        //cout << "points==" << global_config.qmc_sample_size << endl;
         //    for (int i = 0; i < global_config.qmc_sample_size; i++) {
         for (int i = 0; i < 20; i++) {
             // sobol from [0,1]*...*[0,1]
             box sobol_sample = rnd::get_sobol_sample(q2, sobol_domain2);
-            cout << "Sobol sample: " << sobol_sample << endl;
+            //cout << "Sobol sample: " << sobol_sample << endl;
             // sample from [x1_min,x1_max]*...*[xn_min,xn_max] after applying icdf
             box icdf_sample = rnd::get_icdf(sobol_sample);
-            cout << "ICDF sample: " << icdf_sample << endl;
+            //cout << "ICDF sample: " << icdf_sample << endl;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ICDF sample :" << icdf_sample << endl;
 
             //qint---------------------------------------------------
 //            cout << endl;
@@ -1067,33 +1064,31 @@ capd::interval algorithm::evaluate_Qint() {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-                        cout << "SAT" << endl;
-                        fvals.push_back(1);
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SAT" << endl;
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-                        cout << "UNSAT" << endl;
-                        fvals.push_back(0);
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNSAT" << endl;
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-                        cout << "UNDET" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET" << endl;
                         break;
                     }
                     default:
                         break;
                 }
 
-                cout << "Number of SAT: " << sat2 << endl;
-                cout << "Number of UNSAT: " << unsat2 << endl;
-                cout << "Number of UNDET: " << undet2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of SAT: " << sat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNSAT: " << unsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNDET: " << undet2 << endl;
 
                 ressat2 = sat2 / points;
-                cout << "ressat2: " << ressat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2 << endl;
                 resunsat2 = (points - unsat2) / points;
-                cout << "resunsat2: " << resunsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2 << endl;
 
                 /* file writing
                std::ofstream("test.csv", ios::app);
@@ -1111,7 +1106,10 @@ capd::interval algorithm::evaluate_Qint() {
                 //  cout << "CI= " << CI << endl;
                 result = CI;
                 // cout << "------------" << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Interval/2 = " << result << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                 points++;
+
             }
         }
         //qint-----------------------------------------------------------------
@@ -1174,12 +1172,13 @@ capd::interval algorithm::evaluate_Qint() {
     //cout << "Zresultsat: " << Zresultsat << endl;
     Zresultunsat = Zresultunsat / Zz;
     //pointscount = pointscount / Zz;
-    cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
-                                                 Zresultunsat) << endl;
+    //cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
+    //                                             Zresultunsat) << endl;
     //cout << "resultU===" << resultU << endl;
     cout << "points===" << points << endl;
     for (int l = 1; l <= Zz; l++) {
-        cout << l << "-test running points==" << pointsarray[l] << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << l << "-test running points==" << pointsarray[l]
+                                                                 << endl;
     }
     // cout << "pointscount===" << pointscount << endl;
     return capd::interval(Zresultsat - result, Zresultunsat + result);
@@ -1192,7 +1191,8 @@ capd::interval algorithm::evaluate_mixCI() {
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
     double result = 0;
 
     cout << endl << "ALL  ALGORITHMS" << endl;
@@ -1206,7 +1206,7 @@ capd::interval algorithm::evaluate_mixCI() {
     //gsl_rng_set(rr, std::chrono::system_clock::now().time_since_epoch()
     //box rv_domain = measure::bounds::get_rv_domain();
     int Zz = 8; //number of outer loops
-    map<string, capd::interval> one_map;
+    map <string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
         one_map.insert(make_pair(it.first, capd::interval(1, 1)));
     }
@@ -1277,7 +1277,7 @@ capd::interval algorithm::evaluate_mixCI() {
 
     // main loop
     for (int l = 1; l <= Zz; l++) {
-        cout << "Z iteration=======" << l << endl;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration=======" << l << endl;
         double sat2 = 0, unsat2 = 0, undet2 = 0;
 
         bool allresults;
@@ -1327,7 +1327,7 @@ capd::interval algorithm::evaluate_mixCI() {
         // initialize Sobol generator
         gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
         // getting domain of random parameters
-        map<string, capd::interval> sobol_domain_map2;
+        map <string, capd::interval> sobol_domain_map2;
         for (auto &it : pdrh::rv_map) {
             sobol_domain_map2.insert(make_pair(it.first, capd::interval(0, 1)));
         }
@@ -1342,12 +1342,13 @@ capd::interval algorithm::evaluate_mixCI() {
         do {
             box sobol_sample = rnd::get_sobol_sample(q2, sobol_domain2);
             box random_sample = rnd::get_randomuni_sample(rr);
-            cout << "RANDOM SAMPLE :" << random_sample << endl;
-            cout << "SOBOL SAMPLE :" << sobol_sample << endl;
+            //cout << "RANDOM SAMPLE :" << random_sample << endl;
+            //cout << "SOBOL SAMPLE :" << sobol_sample << endl;
             box sample = (sobol_sample + random_sample).fmod(1);
-            cout << "Sobol+RND sample :" << sample << endl;
+            //cout << "Sobol+RND sample :" << sample << endl;
             box icdf_sample = rnd::get_icdf(sample);
-            cout << "ICDF sample :" << icdf_sample << endl;
+            //cout << "ICDF sample :" << icdf_sample << endl;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ICDF sample :" << icdf_sample << endl;
             int res;
             res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
@@ -1355,20 +1356,20 @@ capd::interval algorithm::evaluate_mixCI() {
             {
                 // /*
                 switch (res) {
-                    //  hybrid automata
+                    // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-                        cout << "SAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SAT" << endl;
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-                        cout << "UNSAT" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNSAT" << endl;
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-                        cout << "UNDET" << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET" << endl;
                         break;
                     }
                     default:
@@ -1376,48 +1377,45 @@ capd::interval algorithm::evaluate_mixCI() {
                 }
                 //*/
 
-                // bern = gsl_ran_bernoulli(rr, 0); //rr???
-                // cout << "bern======" << bern << endl;
-                //  if (bern == 1) sat2++;
-                //  else unsat2++;
 
-                cout << "Number of SAT: " << sat2 << endl;
-                cout << "Number of UNSAT: " << unsat2 << endl;
-                cout << "Number of UNDET: " << undet2 << endl;
 
-                //  ressat2 = sat2 / points;
-                // cout << "ressat2: " << ressat2 << endl;
+                // CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of SAT: " << sat2 << endl;
+                // CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNSAT: " << unsat2 << endl;
+                // CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNDET: " << undet2 << endl;
+
+                // ressat2 = sat2 / points;
+                // CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2 << endl;
                 // resunsat2 = (points - unsat2) / points;
-                // cout << "resunsat2: " << resunsat2 << endl;
+                // CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2 << endl;
 
                 //CLT CALCULATING
                 if (!CI_CLT_result) {
 
                     ressat2_CLT = sat2 / points_CLT;
-                    cout << "ressat: " << ressat2_CLT << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2_CLT << endl;
                     resunsat2_CLT = (points_CLT - unsat2) / points_CLT;
-                    cout << "resunsat: " << resunsat2_CLT << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2_CLT << endl;
                     //   computing sample mean
                     samplemean = sat2 * sat2 / points_CLT;
                     samplesq = sat2;
-                    cout << "samplesq:" << samplesq << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "samplesq:" << samplesq << endl;
                     if (ressat2_CLT == 0)
                         samplevar = pow(pow(points_CLT, 2), -1); /////!!!!!!!!!!
                     else {
                         // cout << "HERE!!!" << endl;
-                        cout << "Points_CLT;" << points_CLT << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Points_CLT;" << points_CLT << endl;
                         samplevar = (samplesq - samplemean) / (points_CLT - 1);
                     }
-                    cout << "samplevar:" << samplevar << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "samplevar:" << samplevar << endl;
                     stdev = sqrt(samplevar);
-                    cout << "stdev:" << stdev << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "stdev:" << stdev << endl;
                     // computing confidence intervals
                     result = Ca * stdev / sqrt(points_CLT);
                     //CI=Ca * stdev / sqrt(points);
                     CI_CLT = (global_config.qmc_acc / 2 * sqrt(points_CLT) / stdev);
-                    cout << "CI_CLT:" << CI_CLT << endl;
-                    cout << "Interval/2" << result << endl;
-                    cout << "------------" << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "CI_CLT:" << CI_CLT << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Interval/2" << result << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                     points_CLT++;
                     // cout << "Ca==" << Ca << endl;
                     if (CI_CLT >= Ca) CI_CLT_result = true;
@@ -1427,17 +1425,17 @@ capd::interval algorithm::evaluate_mixCI() {
                 if (!CI_AC_result) {
 
                     ressat2_AC = sat2 / points_AC;
-                    cout << "ressat2: " << ressat2_AC << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat2: " << ressat2_AC << endl;
                     resunsat2_AC = (points_AC - unsat2) / points_AC;
-                    cout << "resunsat2: " << resunsat2_AC << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat2: " << resunsat2_AC << endl;
 
                     agrest_n = points_AC + pow(Ca, 2);
                     agrest_p = pow(agrest_n, -1) * (sat2 + 0.5 * pow(Ca, 2));
                     //CI = (global_config.qmc_acc / 2) / (pow(agrest_n, -0.5) * sqrt(agrest_p * (1 - agrest_p)));
                     CI_AC = Ca * (pow(agrest_n, -0.5) * sqrt(agrest_p * (1 - agrest_p)));
-                    cout << "CI_AC= " << CI_AC << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "CI_AC= " << CI_AC << endl;
                     result_AC = CI_AC;
-                    cout << "------------" << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                     points_AC++;
                     // cout << "Ca==" << Ca << endl;
                     if (global_config.qmc_acc / 2 >= CI_AC) CI_AC_result = true;
@@ -1447,16 +1445,16 @@ capd::interval algorithm::evaluate_mixCI() {
                 if (!CI_W_result) {
 
                     ressat2_W = sat2 / points_W;
-                    cout << "ressat2: " << ressat2_W << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat2: " << ressat2_W << endl;
                     resunsat2_W = (points_W - unsat2) / points_W;
-                    cout << "resunsat2: " << resunsat2_W << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat2: " << resunsat2_W << endl;
 
                     CI_W = (Ca * sqrt(points_W)) / (points_W + pow(Ca, 2)) *
                            sqrt(ressat2_W * (1 - ressat2_W) + pow(Ca, 2) / (4 * points_W));
 
-                    cout << "CI_W= " << CI_W << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "CI_W= " << CI_W << endl;
                     result_W = CI_W;
-                    cout << "------------" << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                     sat2_W = sat2;
                     unsat2_W = unsat2;
                     points_W++;
@@ -1468,38 +1466,35 @@ capd::interval algorithm::evaluate_mixCI() {
                 if (!CI_L_result) {
 
                     ressat2_L = sat2 / points_L;
-                    cout << "ressat2_L: " << ressat2_L << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat2_L: " << ressat2_L << endl;
                     resunsat2_L = (points_L - unsat2) / points_L;
-                    cout << "resunsat2_L: " << resunsat2_L << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat2_L: " << resunsat2_L << endl;
 
                     if (points_L == 1) {
-                        cout << "HERE!!!!!!" << endl;
                         Lambda = log((sat2 + 0.5) / (points_L - sat2 + 0.5));
                         //  Var_Lambda = 1/pow(points,2) ;
                         Var_Lambda = 2 / ((sat2 + 0.5) * (2 - (sat2 + 0.5)));
                     } else if (ressat2_L == 0 or ressat2_L == 1) {
-                        cout << " NOW  HERE!!!!!!" << endl;
                         Lambda = log((sat2 + 0.5) / (points_L - sat2 + 0.5));
-                        cout << "Lambda= " << Lambda << endl;
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Lambda= " << Lambda << endl;
                         Var_Lambda =
                                 ((points_L + 1) * (points_L + 2)) / (points_L * (sat2 + 1) * (points_L - sat2 + 1));
                     } else {
                         Lambda = log(sat2 / (points_L - sat2));
                         Var_Lambda = points_L / (sat2 * (points_L - sat2));
                     }
-                    cout << "Lambda= " << Lambda << endl;
-                    cout << "Var_Lambda= " << Var_Lambda << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Lambda= " << Lambda << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Var_Lambda= " << Var_Lambda << endl;
                     logit_u = exp(Lambda + Ca * sqrt(Var_Lambda)) / (1 + exp(Lambda + Ca * sqrt(Var_Lambda)));
                     logit_l = exp(Lambda - Ca * sqrt(Var_Lambda)) / (1 + exp(Lambda - Ca * sqrt(Var_Lambda)));
-                    cout << "logit_u= " << logit_u << endl;
-                    cout << "logit_l= " << logit_l << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "logit_u= " << logit_u << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "logit_l= " << logit_l << endl;
                     CI_L = (logit_u - logit_l) / 2;
-
-                    cout << "CI_L= " << CI_L << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "CI_L= " << CI_L << endl;
                     result_L = CI_L;
-                    cout << "------------" << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                     points_L++;
-                    cout << "result_L==" << result_L << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "result_L==" << result_L << endl;
                     if (global_config.qmc_acc / 2 >= CI_L) CI_L_result = true;
                 }
 
@@ -1507,12 +1502,13 @@ capd::interval algorithm::evaluate_mixCI() {
                 if (!CI_ANS_result) {
 
                     ressat2_ANS = sat2 / points_ANS;
-                    cout << "ressat2_ANS: " << ressat2_ANS << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat2_ANS: " << ressat2_ANS << endl;
                     resunsat2_ANS = (points_ANS - unsat2) / points_ANS;
-                    cout << "resunsat2_ANS: " << resunsat2_ANS << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat2_ANS: " << resunsat2_ANS
+                                                                             << endl;
 
                     Lambda_ANS = log((sat2 + 0.5) / (points_ANS - sat2 + 0.5));
-                    cout << "Lambda_ANS= " << Lambda_ANS << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Lambda_ANS= " << Lambda_ANS << endl;
                     double r1 = (points_ANS + 1);
                     //cout << "r1= " << r1 << endl;
                     double r2 = (points_ANS + 2);
@@ -1523,17 +1519,17 @@ capd::interval algorithm::evaluate_mixCI() {
                     //cout << "r4= " << r4 << endl;
                     Var_Lambda_ANS = (r1 * r2) / (r3 * r4);
                     //Var_Lambda = ((points + 1) * (points + 2)) / (points * (sat2 + 1) * (points - sat2 + 1));
-                    cout << "Var_Lambda_ANS= " << Var_Lambda_ANS << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Var_Lambda_ANS= " << Var_Lambda_ANS
+                                                                             << endl;
                     ANS_u = exp(Lambda_ANS + Ca * sqrt(Var_Lambda_ANS)) /
                             (1 + exp(Lambda_ANS + Ca * sqrt(Var_Lambda_ANS)));
                     ANS_l = exp(Lambda_ANS - Ca * sqrt(Var_Lambda_ANS)) /
                             (1 + exp(Lambda_ANS - Ca * sqrt(Var_Lambda_ANS)));
-                    cout << "ANS_u= " << ANS_u << endl;
-                    cout << "ANS_l= " << ANS_l << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ANS_u= " << ANS_u << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ANS_l= " << ANS_l << endl;
                     CI_ANS = (ANS_u - ANS_l) / 2;
-
-                    cout << "CI_ANS= " << CI_ANS << endl;
-                    cout << "------------" << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "CI_ANS= " << CI_ANS << endl;
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                     points_ANS++;
                     // cout << "Ca==" << Ca << endl;
                     if (global_config.qmc_acc / 2 >= CI_ANS) CI_ANS_result = true;
@@ -1612,13 +1608,13 @@ capd::interval algorithm::evaluate_mixCI() {
     Zresultsat_CLT = Zresultsat_CLT / Zz;
     Zresultunsat_CLT = Zresultunsat_CLT / Zz;
     pointscount_CLT = pointscount_CLT / Zz;
-    cout << "[Zsat_CLT, Zunsat_CLT]= " << capd::interval(Zresultsat_CLT,
-                                                         Zresultunsat_CLT) << endl;
+    //cout << "[Zsat_CLT, Zunsat_CLT]= " << capd::interval(Zresultsat_CLT,
+    //                                                     Zresultunsat_CLT) << endl;
     //cout << "points_CLT===" << points_CLT << endl;
     for (int l = 1; l <= Zz; l++) {
         cout << l << "-test running points CLT==" << pointsarray_CLT[l] << endl;
     }
-    cout << "pointscount_CLT===" << pointscount_CLT << endl;
+    cout << Zz << "-tests average running points number for CLT = " << pointscount_CLT << endl;
 
     cout << "[INTERVAL CLT]= " << capd::interval(Zresultsat_CLT - result,
                                                  Zresultunsat_CLT + result) << endl;
@@ -1628,13 +1624,13 @@ capd::interval algorithm::evaluate_mixCI() {
     Zresultsat_AC = Zresultsat_AC / Zz;
     Zresultunsat_AC = Zresultunsat_AC / Zz;
     pointscount_AC = pointscount_AC / Zz;
-    cout << "[Zsat_AC, Zunsat_AC]= " << capd::interval(Zresultsat_AC,
-                                                       Zresultunsat_AC) << endl;
+    //cout << "[Zsat_AC, Zunsat_AC]= " << capd::interval(Zresultsat_AC,
+    //                                                   Zresultunsat_AC) << endl;
     //cout << "points_CLT===" << points_CLT << endl;
     for (int l = 1; l <= Zz; l++) {
         cout << l << "-test running points AC==" << pointsarray_AC[l] << endl;
     }
-    cout << "pointscount_AC===" << pointscount_AC << endl;
+    cout << Zz << "-tests average running points number for AC = " << pointscount_AC << endl;
 
     cout << "[INTERVAL AC]= " << capd::interval(Zresultsat_AC - result_AC,
                                                 Zresultunsat_AC + result_AC) << endl;
@@ -1644,13 +1640,13 @@ capd::interval algorithm::evaluate_mixCI() {
     Zresultsat_W = Zresultsat_W / Zz;
     Zresultunsat_W = Zresultunsat_W / Zz;
     pointscount_W = pointscount_W / Zz;
-    cout << "[Zsat_W, Zunsat_W]= " << capd::interval(Zresultsat_W,
-                                                     Zresultunsat_W) << endl;
+    //cout << "[Zsat_W, Zunsat_W]= " << capd::interval(Zresultsat_W,
+    //                                                 Zresultunsat_W) << endl;
     //cout << "points_CLT===" << points_CLT << endl;
     for (int l = 1; l <= Zz; l++) {
-        cout << l << "-test running points W==" << pointsarray_W[l] << endl;
+        cout << l << "-test running points WIL =" << pointsarray_W[l] << endl;
     }
-    cout << "pointscount_W===" << pointscount_W << endl;
+    cout << Zz << "-tests average running points number for W = " << pointscount_W << endl;
 
     cout << "[INTERVAL W]= " << capd::interval(Zresultsat_W - result_W,
                                                Zresultunsat_W + result_W) << endl;
@@ -1660,13 +1656,13 @@ capd::interval algorithm::evaluate_mixCI() {
     Zresultsat_L = Zresultsat_L / Zz;
     Zresultunsat_L = Zresultunsat_L / Zz;
     pointscount_L = pointscount_L / Zz;
-    cout << "[Zsat_L, Zunsat_L]= " << capd::interval(Zresultsat_L,
-                                                     Zresultunsat_L) << endl;
+    //cout << "[Zsat_L, Zunsat_L]= " << capd::interval(Zresultsat_L,
+    //                                                 Zresultunsat_L) << endl;
     //cout << "points_CLT===" << points_CLT << endl;
     for (int l = 1; l <= Zz; l++) {
-        cout << l << "-test running points L==" << pointsarray_L[l] << endl;
+        cout << l << "-test running points LOG = " << pointsarray_L[l] << endl;
     }
-    cout << "pointscount_L===" << pointscount_L << endl;
+    cout << Zz << "-tests average running points number for L = " << pointscount_L << endl;
 
     cout << "[INTERVAL L]= " << capd::interval(logit_l,
                                                logit_u) << endl;
@@ -1676,13 +1672,13 @@ capd::interval algorithm::evaluate_mixCI() {
     Zresultsat_ANS = Zresultsat_ANS / Zz;
     Zresultunsat_ANS = Zresultunsat_ANS / Zz;
     pointscount_ANS = pointscount_ANS / Zz;
-    cout << "[Zsat_ANS, Zunsat_ANS]= " << capd::interval(Zresultsat_ANS,
-                                                         Zresultunsat_ANS) << endl;
+    //cout << "[Zsat_ANS, Zunsat_ANS]= " << capd::interval(Zresultsat_ANS,
+    //                                                     Zresultunsat_ANS) << endl;
     //cout << "points_CLT===" << points_CLT << endl;
     for (int l = 1; l <= Zz; l++) {
         cout << l << "-test running points ANS==" << pointsarray_ANS[l] << endl;
     }
-    cout << "pointscount_ANS===" << pointscount_ANS << endl;
+    cout << Zz << "-tests average running points number for ANS = " << pointscount_ANS << endl;
 
     cout << "[INTERVAL ANS]= " << capd::interval(ANS_l,
                                                  ANS_u) << endl;
@@ -1692,13 +1688,13 @@ capd::interval algorithm::evaluate_mixCI() {
     Zresultsat_ARC = Zresultsat_ARC / Zz;
     Zresultunsat_ARC = Zresultunsat_ARC / Zz;
     pointscount_ARC = pointscount_ARC / Zz;
-    cout << "[Zsat_ARC, Zunsat_ARC]= " << capd::interval(Zresultsat_ARC,
-                                                         Zresultunsat_ARC) << endl;
+    //cout << "[Zsat_ARC, Zunsat_ARC]= " << capd::interval(Zresultsat_ARC,
+    //                                                     Zresultunsat_ARC) << endl;
     //cout << "points_CLT===" << points_CLT << endl;
     for (int l = 1; l <= Zz; l++) {
         cout << l << "-test running points ARC==" << pointsarray_ARC[l] << endl;
     }
-    cout << "pointscount_ARC===" << pointscount_ARC << endl;
+    cout << Zz << "-tests average running points number for ARC = " << pointscount_ARC << endl;
 
     cout << "[INTERVAL ARC]= " << capd::interval(arc_l,
                                                  arc_u) << endl;
@@ -1802,24 +1798,17 @@ capd::interval algorithm::evaluate_mixCI() {
 //                          (global_config.qmc_sample_size - unsat) / global_config.qmc_sample_size);
 //}
 
-capd::interval algorithm::evaluate_CP() {
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "QMC flag = " << global_config.qmc_flag;
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Confidence = " << global_config.qmc_conf;
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample size = " << global_config.qmc_sample_size; //n
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Accuracy = " << global_config.qmc_acc; //n
-
-
-    vector<vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min, global_config.reach_depth_max);
+capd::interval algorithm::evaluate_rqmc_CP() {
+    cout << "QMC flag = " << global_config.qmc_flag << endl;
+    cout << "Confidence = " << global_config.qmc_conf << endl;
+    cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
+    cout << "Accuracy = " << global_config.qmc_acc << endl; //n
+    vector <vector<pdrh::mode *>> paths = pdrh::get_all_paths(global_config.reach_depth_min,
+                                                              global_config.reach_depth_max);
     double ressat2 = 0, resunsat2 = 0;
     double result = 0;
 
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << endl << "SIMPLE GP ALGORITHM";
-
-    //initialize mu generator
-    gsl_qrng *m = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
-    // getting domain of mu parameters
-    box mu_domain = pdrh2box::get_nondet_domain();
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "mu_domain = " << mu_domain; //COUT <<ENDL;
+    cout << endl << "RQMC CP ALGORITHM" << endl;
 
     // initialize  random generator
     const gsl_rng_type *TT;
@@ -1828,19 +1817,19 @@ capd::interval algorithm::evaluate_CP() {
     TT = gsl_rng_default;
     rr = gsl_rng_alloc(TT);
 
-    int Zz = 10; //number of Mu's
+    int Zz = 1; //number of outer loops
     double Zresultsat = 0.0, Zresultunsat = 0.0; //Z summ
     double pointscount = 0;
     int pointsarray[Zz];
-    double UParray[Zz];
-    double LOarray[Zz];
-    double Carray[Zz];
-    int Sats[Zz];
     int points = 0;
     double samplemean, stdev, samplevar, samplesq;
-    int Total_samples=100;
+    double Sats[10000];
+    double conf = global_config.qmc_conf;
+    double Carray[10000];
+    double LOarray=0;
+    double UParray=0;
 
-    map<string, capd::interval> one_map;
+    map <string, capd::interval> one_map;
     for (auto &it : pdrh::rv_map) {
         one_map.insert(make_pair(it.first, capd::interval(1, 1)));
     }
@@ -1848,49 +1837,34 @@ capd::interval algorithm::evaluate_CP() {
 
     // main loop
     for (int l = 1; l <= Zz; l++) {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << endl << "MU count============" << l;
+        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Iteration=======" << l << endl;
         double sat2 = 0, unsat2 = 0, undet2 = 0;
-        double CI = 0;
+        double CI = 1;
         points = 1;
-        double conf = global_config.qmc_conf;
         double Ca = gsl_cdf_gaussian_Pinv(1 - (1 - conf) / 2, 1);
-//        cout << "CA= " << Ca << endl;
-        int SATnum=0;
+        double SATnum = 0;
 
-        // initialize Mu sample
-        box mu_sample = rnd::get_sobol_sample(m, mu_domain);
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "mu_sample = " << mu_sample; //n
-
-        // GET MU SAPLE SINGLE VALUE
-//        map<std::string, capd::interval> mu_edges;
-//        mu_edges = mu_sample.get_map();
-//        for (auto &it : pdrh::rv_map) {
-//            mu_edges.insert(make_pair(it.first, capd::interval(0, 1)));
-//        }
 
         // initialize Sobol generator
         gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
         // getting domain of random parameters
-        map<string, capd::interval> sobol_domain_map2;
+        map <string, capd::interval> sobol_domain_map2;
         for (auto &it : pdrh::rv_map) {
             sobol_domain_map2.insert(make_pair(it.first, capd::interval(0, 1)));
         }
         box sobol_domain2(sobol_domain_map2);
         gsl_rng_set(rr, static_cast<unsigned long>(l));
-
 #pragma omp parallel
-       // while (CI <= Ca) {
-        for(size_t i=0; i<Total_samples; i++){
+        while (CI >  global_config.qmc_acc) {
             box sobol_sample;
             sobol_sample = rnd::get_sobol_sample(q2, sobol_domain2);
-//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOBOL SAMPLE :" << sobol_sample;
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SOBOL SAMPLE :" << sobol_sample << endl;
             // sample from [x1_min,x1_max]*...*[xn_min,xn_max] after applying icdf
-            box GPicdf_sample = rnd::get_GPicdf(sobol_sample, mu_sample);
-//            cout << "GPicdf_sample = " << GPicdf_sample << endl;
-//            CLOG_IF(global_config.verbose, INFO, "algorithm") << "GPicdf_sample :" << GPicdf_sample;
+            box icdf_sample = rnd::get_icdf(sobol_sample); //!!!!!
+            CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ICDF sample :" << icdf_sample << endl;
             int res;
-            //res = decision_procedure::evaluate_formal(paths, {GPicdf_sample, mu_sample}, "");
-            res = decision_procedure::evaluate(paths, {GPicdf_sample, mu_sample}, dreal::solver_bin, "");
+
+            res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {
@@ -1898,112 +1872,70 @@ capd::interval algorithm::evaluate_CP() {
                     // hybrid automata
                     case decision_procedure::SAT: {
                         sat2++;
-//                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "SAT" << endl;
                         break;
                     }
                     case decision_procedure::UNSAT: {
                         unsat2++;
-//                        CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNSAT" << endl;
                         break;
                     }
                     case decision_procedure::UNDET: {
                         undet2++;
-//                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET";
+                        CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "UNDET" << endl;
                         break;
                     }
                     default:
                         break;
                 }
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of SAT: " << sat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNSAT: " << unsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Number of UNDET: " << undet2 << endl;
 
-//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of SAT: " << sat2;
-//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of UNSAT: " << unsat2;
-//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Number of UNDET: " << undet2;
-
-                SATnum=sat2;
                 ressat2 = sat2 / points;
-                //cout << "ressat: " << ressat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "ressat: " << ressat2 << endl;
                 resunsat2 = (points - unsat2) / points;
-                //cout << "resunsat: " << resunsat2 << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "resunsat: " << resunsat2 << endl;
 
-                // write data to the "test.csv" file
-                if (sat2 != 0) {
-                    myfile << points << ";" << ressat2 << std::endl;
+                SATnum = sat2;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "POINTS :" << points << endl;
+                //computing CI
+                if (sat2 == 0) {
+                    LOarray = 0;
+                    UParray = gsl_cdf_beta_Pinv(1 - ((1 - conf) / 2), sat2 + 1, points - Sats[l]);
+                } else if (sat2 == points) {
+                    LOarray = gsl_cdf_beta_Pinv((1 - conf) / 2, sat2, points - sat2 + 1);
+                    UParray = 1;
                 } else {
-                    myfile << points << ";" << 0 << std::endl;
+                    LOarray = gsl_cdf_beta_Pinv((1 - conf) / 2, sat2, points - sat2 + 1);
+                    UParray = gsl_cdf_beta_Pinv(1 - ((1 - conf) / 2), sat2 + 1, points - Sats[l]);
                 }
 
-                //computing sample mean
-                samplemean = sat2 * sat2 / points;
-                //cout << "samplemean==" << samplemean << endl;
-                //computing sample variance
-                samplesq = sat2;
-                //cout << "samplesq==" << samplesq << endl;
-                if (ressat2 == 0 || ressat2 == 1)
-                    //samplevar = pow(pow(points, 2), -1); //ORIGINAL
-                    samplevar = pow(points, -1);
-                else {
-                    //cout << "HERE!!!!" << endl;
-//                    CLOG_IF(global_config.verbose, INFO, "algorithm") << "points--" << points;
-                    samplevar = (samplesq - samplemean) / (points - 1);
-                }
-                //cout << "samplevar==" << samplevar << endl;
-                stdev = sqrt(samplevar);
-                //cout << "stdev==" << stdev << endl;
 
                 // computing confidence intervals
-                result = Ca * stdev / sqrt(points);
-                CI = (global_config.qmc_acc / 2 * sqrt(points) / stdev);
+                result = UParray-LOarray;
+                CI = result;
                 //cout << "CI= " << CI << endl;
-//                CLOG_IF(global_config.verbose, INFO, "algorithm") << "Interval/2===" << result;
-//                cout << "------------" << endl;
+                CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "------------" << endl;
                 points++;
             }
         }
         points = points - 1;
+        cout << "Sat NUM [" << l << "]: " << SATnum << endl;
+        Sats[points] = SATnum;
+        pointsarray[l] = points;
+        Carray[l] = resunsat2;
+
         Zresultsat = Zresultsat + ressat2;
         Zresultunsat = Zresultunsat + resunsat2;
         pointscount = pointscount + points;
-        Sats[l]=SATnum;
-        pointsarray[l] = points;
-        UParray[l] = resunsat2 + result;
-        LOarray[l] = resunsat2 - result;
-        Carray[l] = resunsat2;// - global_config.qmc_acc/2 + result;
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "global_config.qmc_acc/2===" << global_config.qmc_acc / 2;
 
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] << " SATS=" << Sats[l]<< " Lower="
-                                                          << LOarray[l] << " Upper="
-                                                          << UParray[l] << " Center="
-                                                          << Carray[l];
     }
-    Zresultsat = Zresultsat / Zz;
-    Zresultunsat = Zresultunsat / Zz;
-    //pointscount = pointscount / Zz;
-    //cout << "[Zsat, Zunsat]= " << capd::interval(Zresultsat,
-    //                                            Zresultunsat) << endl;
-//    CLOG_IF(global_config.verbose, INFO, "algorithm") << "points===" << points;
-//    for (int l = 1; l <= Zz; l++) {
-//        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] << " SATS=" << Sats[l]<< " Lower="
-//                                                          << LOarray[l] << " Upper="
-//                                                          << UParray[l] << " Center="
-//                                                          << Carray[l];
-//    }
 
-//    cout << "C-P approach" << endl;
-//
-//    cout << "global_config.qmc_acc/2=" <<global_config.qmc_acc/2<< endl;
-//    for (int l = 1; l <= Zz; l++) {
-//        LOarray[l]= gsl_cdf_beta_P(global_config.qmc_acc/2, Sats[l], Total_samples-Sats[l]+1);
-//        UParray[l]=gsl_cdf_beta_P(1-(global_config.qmc_acc/2), Sats[l], Total_samples-Sats[l]);
-//    }
-//
-//
-//    for (int l = 1; l <= Zz; l++) {
-//        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-MU points=" << pointsarray[l] << " SATS=" << Sats[l]<< " CPLower="
-//                                                          << LOarray[l] << " CPUpper="
-//                                                          << UParray[l] << " CPCenter="
-//                                                          << Carray[l];
-//    }
 
-    return capd::interval(Zresultsat - result, Zresultunsat + result);
+
+
+    //cout << "pointscount===" << pointscount << endl;
+    return capd::interval(LOarray, UParray);
     // [Psat+result; Punsat-result]
 }

@@ -103,22 +103,6 @@ box rnd::get_sobol_sample(gsl_qrng* q, box b)
     return box(edges);
 }
 
-//double* rnd::sobol_vector(box b)
-//{
-//    static double vv[b.get_map().size()];
-//    map<std::string, capd::interval> b_edges, edges;
-//    b_edges = b.get_map();
-//    int i = 0;
-//    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
-//    {
-//        vv[i] = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh2box::node_to_interval(
-//                pdrh::distribution::uniform[it->first].first).leftBound(),
-//                                         pdrh2box::node_to_interval(
-//                                                 pdrh::distribution::uniform[it->first].second).leftBound());
-//        i++;
-//    }
-//    return vv;
-//}
 
 void rnd::func(vector<double> &vect, box b)
 {
@@ -133,6 +117,66 @@ void rnd::func(vector<double> &vect, box b)
         i++;
     }
 }
+
+
+box rnd::get_random_sample2(gsl_rng* r, box b, int k, double non)
+{
+    map<std::string, capd::interval> b_edges, edges, edges2;
+    b_edges = b.get_map();
+    int i = 0;
+    vector<double> vect;
+    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+    {
+        vect.push_back(it->second.leftBound());
+        i++;
+    }
+
+    // continuous distributions
+    if (k==2) {
+        for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
+        {
+            if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
+            {
+                //std::cout<<"unif!"<<endl;
+                edges.insert(make_pair(it->first,
+                                       vect[1] + gsl_rng_uniform(r) *
+                                                 (vect[0] -vect[1])));
+            }
+            else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())
+            {
+                edges.insert(make_pair(it->first,
+                                       vect[1] + gsl_ran_gaussian_ziggurat(r,vect[0])));
+            }
+            else
+            {
+                CLOG(ERROR, "ran_gen") << "Distribution is not supported ny Random number generator";
+            }
+        }
+    }
+    if (k==1) {
+        for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
+        {
+            if(pdrh::distribution::uniform.find(it->first) != pdrh::distribution::uniform.cend())
+            {
+                edges.insert(make_pair(it->first,
+                                       non + gsl_rng_uniform(r) *
+                                                 (vect[0] - non)));
+            }
+            else if(pdrh::distribution::normal.find(it->first) != pdrh::distribution::normal.cend())
+            {
+                edges.insert(make_pair(it->first,
+                                       non + gsl_ran_gaussian_ziggurat(r, vect[0])));
+            }
+            else
+            {
+                CLOG(ERROR, "ran_gen") << "Distribution is not supported ny Random number generator";
+            }
+        }
+
+    }
+    return box(edges);
+}
+
 
 
 box rnd::get_normal_random_sample(gsl_rng* r, box mu, box sigma)
@@ -406,6 +450,22 @@ double rnd::find_sample_var(box b)
 }
 */
 
+double* rnd::sobol_vector(box b)
+{
+     double vv[b.get_map().size()];
+    map<std::string, capd::interval> b_edges, edges;
+    b_edges = b.get_map();
+    int i = 0;
+    for(auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+    {
+        vv[i] = gsl_cdf_flat_Pinv(it->second.leftBound(), pdrh2box::node_to_interval(
+                pdrh::distribution::uniform[it->first].first).leftBound(),
+                                         pdrh2box::node_to_interval(
+                                                 pdrh::distribution::uniform[it->first].second).leftBound());
+        i++;
+    }
+    return vv;
+}
 
 
 

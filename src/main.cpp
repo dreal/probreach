@@ -267,7 +267,7 @@ int main(int argc, char* argv[])
                         } else if (global_config.CI_flag==8){
                             probability = algorithm::evaluate_mixCI();
                         } else if (global_config.CI_flag==9){
-                            probability = algorithm::evaluate_GPmain();
+                            probability = algorithm::evaluate_CP();
                         } else
                             probability = algorithm::evaluate_qmc();
 

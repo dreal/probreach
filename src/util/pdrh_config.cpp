@@ -553,9 +553,10 @@ void parse_pdrh_config(int argc, char* argv[])
             global_config.qmc_flag = true;
             global_config.stat_flag = true;
             i++;
-            istringstream is(argv[i]);
-            is >> global_config.CI_flag;
-            if (global_config.CI_flag < 0) {
+           //istringstream is(argv[i]);
+           // is >> global_config.CI_flag;
+            global_config.CI_flag=argv[i];
+            if (strcmp (global_config.CI_flag,"") == 0) {
                 cerr << "choose CI type: 0 for single QMC, 1 for RQMC+CLT, 2 for RQMC+ADG-COUL, 3 for RQMC+WILSON, 4 FOR RQMC+LOGIT, 5 FOR RQMC+ANSCOMBE, 6 FOR RQMC_ARCSINE, 7 FOR QMC+QUINT, 8 FOR RQMC+JEFFREYS";
                 exit(EXIT_FAILURE);
             }

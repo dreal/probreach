@@ -15,13 +15,14 @@
 #include <chrono>
 #include <iomanip>
 #include "rnd.h"
+#include "solver/dreal_wrapper.h"
 //#include "stability.h"
 
 using namespace std;
 std::ofstream myfile("test.csv");
 
 capd::interval algorithm::evaluate_qmc() {
-    cout << "QMC flag = " << global_config.qmc_flag << endl;
+    cout << "QMC flag = " << global_config.CI_flag << endl;
     cout << "Confidence = " << global_config.qmc_conf << endl;
     cout << "Sample size = " << global_config.qmc_sample_size << endl; //n
     cout << "Accuracy = " << global_config.qmc_acc << endl; //n
@@ -63,7 +64,8 @@ capd::interval algorithm::evaluate_qmc() {
             box icdf_sample = rnd::get_icdf(sobol_sample);
             //cout << "ICDF sample: " << icdf_sample << endl;
             // computing value of indicator function
-            switch (decision_procedure::evaluate_formal(paths, {icdf_sample}, "")) {
+//switch (decision_procedure::evaluate_formal(paths, {icdf_sample}, "")) {
+            switch (decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "")) {
                 // hybrid automata
                 case decision_procedure::SAT: {
                     sat++;
@@ -166,7 +168,8 @@ capd::interval algorithm::evaluate_rqmc_CLT() {
             box icdf_sample = rnd::get_icdf(sobol_sample); //!!!!!
             cout << "ICDF sample :" << icdf_sample << endl;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+//res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+            res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {
@@ -323,7 +326,7 @@ capd::interval algorithm::evaluate_rqmc_AC() {
             box icdf_sample = rnd::get_icdf(sample);
             cout << "ICDF sample: " << icdf_sample << endl;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+            res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {
@@ -458,7 +461,7 @@ capd::interval algorithm::evaluate_rqmc_Will() {
             box icdf_sample = rnd::get_icdf(sample); //!!!!!!!!
             cout << "ICDF sample :" << icdf_sample << endl;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+            res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {
@@ -587,7 +590,7 @@ capd::interval algorithm::evaluate_rqmc_Log() {
             box icdf_sample = rnd::get_icdf(sample);
             cout << "ICDF sample :" << icdf_sample << endl;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+            res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {
@@ -733,7 +736,7 @@ capd::interval algorithm::evaluate_rqmc_Ans() {
             box icdf_sample = rnd::get_icdf(sample); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             cout << "ICDF sample :" << icdf_sample << endl;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+            res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {
@@ -874,7 +877,7 @@ capd::interval algorithm::evaluate_rqmc_Arc() {
             box icdf_sample = rnd::get_icdf(sample);
             cout << "ICDF sample : " << icdf_sample << endl;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+            res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {
@@ -1005,57 +1008,57 @@ capd::interval algorithm::evaluate_Qint() {
             cout << "ICDF sample: " << icdf_sample << endl;
 
             //qint---------------------------------------------------
-            cout << endl;
-            double ss = 0;
-            std::vector<double> v;
-            ss = rnd::sobol_vector(sobol_sample);
-            cout << "ss: " << ss << endl;
-            cout << "Vector[" << i << "]" << endl;
-            for (int f = 0; f < 2; f++)            //f<2 - 2- number of dimentions!!
-                v.push_back(ss);
-            for (auto &item : v)
-                std::cout << "element - " << item << "\n";
-            int s = 2;
-            unsigned long d;
-            d = static_cast<int>(v.size());
-            cout << endl << "dimentions=" << d << endl;
-            std::vector<int> partTimes;
-            partTimes.reserve(d);
-            std::vector<int> binaryIndex;
-            binaryIndex.reserve(d);
-            int fs;
-            fs = static_cast<int>(global_config.qmc_sample_size);
-            maps.reserve(static_cast<unsigned long>(fs)); //N???
-            int index1 = 0;
-            auto dv = std::div(s, static_cast<int>(d));
-            int a = dv.quot; //0 zeloe
-            // cout << endl << "dv.quot=" << a<<endl;
-            int b = dv.rem;  //1/5 ostatok
-            // cout << endl << "dv.rem=" <<b<<endl;
-
-            for (auto pi = 0; pi < d; pi++) {
-                (pi < b) ? partTimes.push_back(a + 1) : partTimes.push_back(a);
-                binaryIndex.push_back(static_cast<int &&>(floor(v[pi] * pow(2, partTimes[pi]))));
-
-                double sum;
-                sum = 0;
-                for (int partTime : partTimes) {
-                    sum += partTime;
-                }
-                std::cout << "\n" << "sum1-" << sum << "\n";
-                index1 += binaryIndex[pi] * pow(2, s - sum);
-                std::cout << "\n" << "index1-" << index1 << "\n";
-                maps.push_back(index1);
-            }
-            std::cout << "\n" << "maps.size()=" << maps.size() << "\n";
-            for (int &map : maps)
-                std::cout << "elementmaps=" << map << "\n";
-            cout << endl;
+//            cout << endl;
+//            double ss = 0;
+//            std::vector<double> v;
+//            ss = rnd::sobol_vector(sobol_sample);
+//            cout << "ss: " << ss << endl;
+//            cout << "Vector[" << i << "]" << endl;
+//            for (int f = 0; f < 2; f++)            //f<2 - 2- number of dimentions!!
+//                v.push_back(ss);
+//            for (auto &item : v)
+//                std::cout << "element - " << item << "\n";
+//            int s = 2;
+//            unsigned long d;
+//            d = static_cast<int>(v.size());
+//            cout << endl << "dimentions=" << d << endl;
+//            std::vector<int> partTimes;
+//            partTimes.reserve(d);
+//            std::vector<int> binaryIndex;
+//            binaryIndex.reserve(d);
+//            int fs;
+//            fs = static_cast<int>(global_config.qmc_sample_size);
+//            maps.reserve(static_cast<unsigned long>(fs)); //N???
+//            int index1 = 0;
+//            auto dv = std::div(s, static_cast<int>(d));
+//            int a = dv.quot; //0 zeloe
+//            // cout << endl << "dv.quot=" << a<<endl;
+//            int b = dv.rem;  //1/5 ostatok
+//            // cout << endl << "dv.rem=" <<b<<endl;
+//
+//            for (auto pi = 0; pi < d; pi++) {
+//                (pi < b) ? partTimes.push_back(a + 1) : partTimes.push_back(a);
+//                binaryIndex.push_back(static_cast<int &&>(floor(v[pi] * pow(2, partTimes[pi]))));
+//
+//                double sum;
+//                sum = 0;
+//                for (int partTime : partTimes) {
+//                    sum += partTime;
+//                }
+//                std::cout << "\n" << "sum1-" << sum << "\n";
+//                index1 += binaryIndex[pi] * pow(2, s - sum);
+//                std::cout << "\n" << "index1-" << index1 << "\n";
+//                maps.push_back(index1);
+//            }
+//            std::cout << "\n" << "maps.size()=" << maps.size() << "\n";
+//            for (int &map : maps)
+//                std::cout << "elementmaps=" << map << "\n";
+//            cout << endl;
 
             //qint---------------------------------------------------
 
             int res;
-            res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+            res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 
 #pragma omp critical
@@ -1346,7 +1349,7 @@ capd::interval algorithm::evaluate_mixCI() {
             box icdf_sample = rnd::get_icdf(sample);
             cout << "ICDF sample :" << icdf_sample << endl;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {icdf_sample}, "");
+            res = decision_procedure::evaluate(paths, {icdf_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {
@@ -1799,7 +1802,7 @@ capd::interval algorithm::evaluate_mixCI() {
 //                          (global_config.qmc_sample_size - unsat) / global_config.qmc_sample_size);
 //}
 
-capd::interval algorithm::evaluate_GPmain() {
+capd::interval algorithm::evaluate_CP() {
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "QMC flag = " << global_config.qmc_flag;
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Confidence = " << global_config.qmc_conf;
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Sample size = " << global_config.qmc_sample_size; //n
@@ -1886,7 +1889,8 @@ capd::interval algorithm::evaluate_GPmain() {
 //            cout << "GPicdf_sample = " << GPicdf_sample << endl;
 //            CLOG_IF(global_config.verbose, INFO, "algorithm") << "GPicdf_sample :" << GPicdf_sample;
             int res;
-            res = decision_procedure::evaluate_formal(paths, {GPicdf_sample, mu_sample}, "");
+            //res = decision_procedure::evaluate_formal(paths, {GPicdf_sample, mu_sample}, "");
+            res = decision_procedure::evaluate(paths, {GPicdf_sample, mu_sample}, dreal::solver_bin, "");
             // computing value of indicator function
 #pragma omp critical
             {

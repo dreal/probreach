@@ -64,7 +64,7 @@ struct pdrh_config
     double qmc_conf = 0.99;
     double qmc_acc = 1e-2;
     long qmc_sample_size = 10000;
-    double CI_flag = 0;
+    char* CI_flag;
 
     bool delta_sat = false;
     std::vector<std::string> time_var_name = {"tau"};

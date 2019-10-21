@@ -15,6 +15,7 @@ using namespace std;
 namespace rnd
 {
     box get_random_sample(gsl_rng*);
+    box get_random_sample2(gsl_rng*, box, int, double);
     box get_randomuni_sample(gsl_rng*); // for RQMC algorithm
     box get_sobol_sample(gsl_qrng*, box);
     box get_icdf(box);
@@ -34,7 +35,7 @@ namespace rnd
     };
     pair<box, box> update_beta_dist(vector<box>, box, box, box);
     pair<double, double> solve_beta_system(double, double, double, double);
-//    double* sobol_vector(box); //new
+    double* sobol_vector(box); //new
     double* nond(box); //new
     void func(vector<double> &vect, box);
 }

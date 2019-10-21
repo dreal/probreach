@@ -18,11 +18,14 @@ model: npha;
 //[4.0,6.0] a_d;
 //dist_normal(1.65, 0.2) a_a;
 
-[3.9,4.1]m;
-[0.09,0.11]f;
-dist_normal(m,f) beta;
+//[3.9,4.1]mu;
+#define mu 4.0
+[0,0.2]sigma;
+dist_normal(0,1) beta;
 
+//#define sigma 0.1
 //dist_normal(4,0.1) beta;
+
 //[0.5,1.5] t_react;
 
 // accelerating
@@ -30,7 +33,7 @@ dist_normal(m,f) beta;
 mode 1;
 flow:
 d/dt[s]= v;
-d/dt[v]= alpha*exp(-alpha*tau+beta)-drag*v*v;
+d/dt[v]= alpha*exp(-alpha*tau+(beta*sigma+mu))-drag*v*v;
 d/dt[tau]= 1.0;
 jump:
 (and (v >= v_100))==>@2(and(s'=s)(v'=v)(tau'=0));

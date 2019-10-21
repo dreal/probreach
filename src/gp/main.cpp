@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
     int NondetParCount=pdrh::par_map.size();
      cout<<"NondetParCount"<<NondetParCount<<endl;
     box mu_domain = pdrh2box::get_nondet_domain();
-    CLOG_IF(global_config.verbose, INFO, "algorithm") << "mu_domain = " << mu_domain; //COUT <<ENDL;
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Nondet_domain = " << mu_domain;
 
     // initialize  random generator
     const gsl_rng_type *TT;
@@ -236,12 +236,12 @@ int main(int argc, char *argv[]) {
     TT = gsl_rng_default;
     rr = gsl_rng_alloc(TT);
 
-    int NondetP = num_points; //number of points of Nondet Parameter (Mu's) ----REPLACE BY num_points!!!!!!!!!!!!!1****************************
+    int NondetP = num_points; //number of points of Nondet Parameter
     int pointsarray[NondetP]; //Nondet points array
     double Carray[NondetP]; // center probability
     double Sats[NondetP]; //N_s number
     double points = 0;
-    int Total_samples = num_samples; //Total samples number ----REPLACE BY num_samples !!!!!!!!!!!!!!!!!!!!!******************************
+    int Total_samples = num_samples; //Total samples number
     double NonDPoints[NondetP][NondetParCount]; // Nondet points values;
     double SATnum = 0;
     double sat2 = 0, unsat2 = 0, undet2 = 0;
@@ -254,7 +254,7 @@ int main(int argc, char *argv[]) {
 
     // main loop
     for (int l = 0; l < NondetP; l++) {
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << endl << "MU count============" << l;
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << endl << "Nondet count============" << l;
          sat2 = 0, unsat2 = 0, undet2 = 0;
         double CI = 0;
         points = 1;
@@ -262,23 +262,16 @@ int main(int argc, char *argv[]) {
         double Ca = gsl_cdf_gaussian_Pinv(1 - (1 - conf) / 2, 1);
         // initialize Nondet sample
         box mu_sample = rnd::get_sobol_sample(m, mu_domain);
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "mu_sample = " << mu_sample; //n
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Nondet_sample = " << mu_sample; //n
         vector<double> vect;
         rnd::func(vect,mu_sample);
-//        for (int i=0; i<vect.size(); i++)
-//            cout << vect[i] << " ";
+
         for (int h = 0; h <NondetParCount; h++) {
             NonDPoints[l][h] = vect[h];
-            cout<<"NonDPoints[l][h]"<<NonDPoints[l][h]<<endl;
+            cout<<"NonDPoints[l]["<<h<<"]"<<NonDPoints[l][h]<<endl;
         }
-        cout<<"NonDPoints[l][0]"<<NonDPoints[l][0]<<endl;
-        cout<<"NonDPoints[l][1]"<<NonDPoints[l][1]<<endl;
-        // GET MU SAPLE SINGLE VALUE
-//        map<std::string, capd::interval> mu_edges;
-//        mu_edges = mu_sample.get_map();
-//        for (auto &it : pdrh::rv_map) {
-//            mu_edges.insert(make_pair(it.first, capd::interval(0, 1)));
-//        }
+      //  cout<<"NonDPoints[l][0]"<<NonDPoints[l][0]<<endl;
+      //  cout<<"NonDPoints[l][1]"<<NonDPoints[l][1]<<endl;
 
         // initialize Sobol generator
         gsl_qrng *q2 = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::rv_map.size()));
@@ -290,14 +283,28 @@ int main(int argc, char *argv[]) {
         box sobol_domain2(sobol_domain_map2);
         gsl_rng_set(rr, static_cast<unsigned long>(l));
 
+        // change to Random
+        const gsl_rng_type *Ti;
+        gsl_rng *ri;
+        gsl_rng_env_setup();
+        Ti = gsl_rng_default;
+        // creating random generator
+        ri = gsl_rng_alloc(Ti);
+        // setting the seed
+        gsl_rng_set(ri, std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
+
         #pragma omp parallel for
         for (size_t i = 0; i < Total_samples; i++)
         {
             box sobol_sample;
+            box R_sample; // change to Random                            //!!!!!!!!!!!!!!!1
             #pragma omp critical
             {
                 sobol_sample = rnd::get_sobol_sample(q2, sobol_domain2);
-                CLOG_IF(global_config.verbose, INFO, "algorithm") << "SOBOL SAMPLE :" << sobol_sample;
+             //   double non=4; //const of nondet mu param                                        //!!!!!!!!!!!!!!!1
+             //   //R_sample = rnd::get_random_sample2(ri, mu_sample, NondetParCount, non);      //!!!!!!!!!!!!!!!1
+            //    R_sample = rnd::get_random_sample(ri);                                         //!!!!!!!!!!!!!!!1
+            //    CLOG_IF(global_config.verbose, INFO, "algorithm") << "R SAMPLE :" <<R_sample;   //!!!!!!!!!!!!!!!1
             }
                 // sample from [x1_min,x1_max]*...*[xn_min,xn_max] after applying icdf
             box GPicdf_sample;
@@ -305,11 +312,11 @@ int main(int argc, char *argv[]) {
             #pragma omp critical
             {
                 GPicdf_sample = rnd::get_GPicdf(sobol_sample, mu_sample);
-                //        cout << "GPicdf_sample = " << GPicdf_sample << endl;
                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "GPicdf_sample :" << GPicdf_sample;
             }
 
             int res = decision_procedure::evaluate(paths, {GPicdf_sample, mu_sample}, dreal::solver_bin, "");
+            //int res = decision_procedure::evaluate(paths, {R_sample, mu_sample}, dreal::solver_bin, "");            //!!!!!!!!!!!!!!!1
             // computing value of indicator function
             #pragma omp critical
             {
@@ -345,7 +352,6 @@ int main(int argc, char *argv[]) {
             }
         }
         points = points - 1;
-        // Samplecount = Samplecount + points;
         cout << "Sat NUM [" << l << "]: " << SATnum << endl;
         Sats[l] = SATnum;
         pointsarray[l] = points;
@@ -353,13 +359,6 @@ int main(int argc, char *argv[]) {
         // CLOG_IF(global_config.verbose, INFO, "algorithm") << "global_config.qmc_acc/2===" << global_config.qmc_acc / 2;
     }
 
-//    CLOG_IF(global_config.verbose, INFO, "algorithm") << "points===" << points;
-//    for (int l = 0; l < NondetP; l++) {
-//        CLOG_IF(global_config.verbose, INFO, "algorithm") << l << "-NOND points=" << pointsarray[l] << "   NOND Sigma value="
-//                                                          <<  NonDPoints[l][0] << "   NOND Mu value="
-//                                                          <<  NonDPoints[l][1] << "   SATS=" << Sats[l] << " Center="
-//                                                          << Carray[l];
-//    }
 
     double Ca = gsl_cdf_gaussian_Pinv(1 - (1 - conf) / 2,
                                       1); //- REPLACE BETA !!!!!!!!!!!!!************************************
@@ -425,13 +424,6 @@ int main(int argc, char *argv[]) {
 
 
     //--------------GP----------------
-    //const gsl_multimin_fminimizer_type *T = gsl_multimin_fminimizer_nmsimplex;
-    //gsl_multimin_fminimizer *s = NULL;
-    //s = gsl_multimin_fminimizer_alloc(T, 2);
-    //gsl_multimin_fminimizer_free(s);
-    //test();
-    //	_CrtDumpMemoryLeaks();
-    //	::system("pause");
     double beta = Ca;
     const int ncolumns = NondetParCount; // Dimention of nondet parameters (1 or 2)
     double x_points[NondetP][ncolumns];

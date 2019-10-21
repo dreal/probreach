@@ -31,6 +31,6 @@ namespace algorithm
     // evaluating CI using all CI algorithms
     capd::interval evaluate_mixCI();
     // GP approximation
-    capd::interval evaluate_GPmain();
+    capd::interval evaluate_CP();
 }
 #endif //PROBREACH_QMC_H

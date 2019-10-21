@@ -16,7 +16,8 @@ model: npha;
 //#define t_react 1 //time to react for car2 to hit the brakes (s)
 
 
-[-2.1,-1.9]mu1;
+//[-2.1,-1.9]mu1;
+#define mu1 -2.0
 [0.1,0.3]sigma1;
 dist_normal(mu1, sigma1) ad1;
 //dist_normal(-2.0, 0.2) ad1;

@@ -17,6 +17,7 @@
 #include "rnd.h"
 #include "ap.h"
 #include "pdrh2box.h"
+#include "stability.h"
 #include "naive.h"
 #include "solver/dreal_wrapper.h"
 
@@ -171,6 +172,12 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
                 break;
             case 2:
                 res = ap::simulate(min_depth, max_depth, boxes);
+//                cout << "Simulation " << sample_size << endl;
+//                cout << "Result " << res << endl;
+//                cout << "Post prob " << post_prob << " required conf " << conf << endl;
+//                cout << "Accuracy " << acc << endl;
+//                cout << "SAT " << sat << endl;
+//                cout << "UNSAT " << unsat << endl;
                 break;
             default:
                 cerr << "Unknown decision procedure method" << endl;
@@ -329,10 +336,18 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(size_t m
             if (domain.contains(b)) {
                 CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is inside the domain";
                 // stability test
-//                if(stability::is_stable(init_mode->odes, pdrh::node_to_interval(init_mode->time.second).rightBound(), ap::init_to_box({}), b))
-                if (true) {
-//                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is stable";
-                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Stability check is switched off";
+                bool resume = true;
+                if(global_config.stability_test)
+                {
+                    resume = stability::is_stable(init_mode->odes,
+                                                pdrh2box::node_to_interval(init_mode->time.second).rightBound(),
+                                                pdrh2box::init_to_box({}), b);
+                }
+                if(resume)
+                {
+//                if (true) {
+                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "The sample is stable";
+//                    CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Stability check is switched off";
 //                    if (global_config.bayesian_flag) {
 //                        probability = evaluate_pha_bayesian(min_depth, max_depth, acc, conf, vector<box>{b});
 //                    } else if (global_config.chernoff_flag) {

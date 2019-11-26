@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <string.h>
+#include <algorithm>
 #include "version.h"
 #include "git_sha1.h"
 
@@ -308,7 +309,7 @@ void parse_pdrh_config(int argc, char* argv[])
             }
         }
         // controller plan output
-        else if(strcmp(argv[i], "--controller-plant-output") == 0)
+        else if(strcmp(argv[i], "--plant-output") == 0)
         {
             i++;
             bool map_end = false;
@@ -321,10 +322,12 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
                 else
                 {
-//                    if(find(global_config.controller.plant_output.begin(), global_config.controller.plant_output.end(), argv[i]) == global_config.controller.plant_output.end())
-//                    {
+                    if(find(global_config.controller.plant_output.begin(), global_config.controller.plant_output.end(), argv[i]) == global_config.controller.plant_output.end())
+                    {
                         global_config.controller.plant_output.push_back(argv[i]);
-//                    }
+                    }
+//                    sort(global_config.controller.plant_output.begin(),
+//                         global_config.controller.plant_output.end());
                     i++;
                 }
             }
@@ -343,10 +346,12 @@ void parse_pdrh_config(int argc, char* argv[])
                 }
                 else
                 {
-//                    if(find(global_config.controller.controller_output.begin(), global_config.controller.controller_output.end(), argv[i]) == global_config.controller.controller_output.end())
-//                    {
+                    if(find(global_config.controller.controller_output.begin(), global_config.controller.controller_output.end(), argv[i]) == global_config.controller.controller_output.end())
+                    {
                         global_config.controller.controller_output.push_back(argv[i]);
-//                    }
+                    }
+//                    sort(global_config.controller.controller_output.begin(),
+//                         global_config.controller.controller_output.end());
                     i++;
                 }
             }
@@ -605,6 +610,11 @@ void parse_pdrh_config(int argc, char* argv[])
             }
         }
         // partition continuous nondeterministic parameter
+        else if(strcmp(argv[i], "--decompose") == 0)
+        {
+            global_config.decompose = true;
+        }
+        // partition continuous nondeterministic parameter
         else if(strcmp(argv[i], "--partition-nondet") == 0)
         {
             global_config.partition_nondet = true;
@@ -671,6 +681,11 @@ void parse_pdrh_config(int argc, char* argv[])
         else if(strcmp(argv[i], "--verbose-result") == 0)
         {
             global_config.verbose_result = true;
+        }
+        // sample size display
+        else if(strcmp(argv[i], "--stability-test") == 0)
+        {
+            global_config.stability_test = true;
         }
         // version
         else if(strcmp(argv[i], "--version") == 0)

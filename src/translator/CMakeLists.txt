@@ -11,12 +11,14 @@ IF(MATLAB_FOUND)
     message(STATUS "MATLAB libraries included: ${MATLAB_LIBRARIES}")
 
     file(GLOB PDRH2SIMULINK_SRC
-            ${PROBREACH_SOURCE_DIR}/util/pdrh.cpp
+            ${PROBREACH_SOURCE_DIR}/util/node.cpp
+            ${PROBREACH_SOURCE_DIR}/util/model.cpp
             ${PROBREACH_SOURCE_DIR}/util/pdrh_config.cpp
             ${PROBREACH_SOURCE_DIR}/translator/*.cpp)
 
     file(GLOB PDRH2SIMULINK_INCLUDE
-            ${PROBREACH_SOURCE_DIR}/util/pdrh.h
+            ${PROBREACH_SOURCE_DIR}/util/node.h
+            ${PROBREACH_SOURCE_DIR}/util/model.h
             ${PROBREACH_SOURCE_DIR}/util/pdrh_config.cpp
             ${PROBREACH_SOURCE_DIR}/translator/*.h)
 

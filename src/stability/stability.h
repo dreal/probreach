@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include "model.h"
+#include "box.h"
 
 
 #ifndef PROBREACH_STABILITY_H

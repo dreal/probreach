@@ -25,20 +25,20 @@ ELSE("$ENV{MATLAB_ROOT}" STREQUAL "" )
 
         INCLUDE_DIRECTORIES(${MATLAB_INCLUDE_DIR})
 
-#        FIND_LIBRARY( MATLAB_MEX_LIBRARY
-#                      NAMES libmex mex
-#                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib
-#                      PATH_SUFFIXES glnxa64 glnx86)
-#
-#        FIND_LIBRARY( MATLAB_ENG_LIBRARY
-#                      NAMES libeng eng
-#                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib
-#                      PATH_SUFFIXES glnxa64 glnx86)
-#
-#        FIND_LIBRARY( MATLAB_MX_LIBRARY
-#                      NAMES libmx mx
-#                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib
-#                      PATH_SUFFIXES glnxa64 glnx86)
+        FIND_LIBRARY( MATLAB_MEX_LIBRARY
+                      NAMES libmex mex
+                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib
+                      PATH_SUFFIXES glnxa64 glnx86)
+
+        FIND_LIBRARY( MATLAB_ENG_LIBRARY
+                      NAMES libeng eng
+                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib
+                      PATH_SUFFIXES glnxa64 glnx86)
+
+        FIND_LIBRARY( MATLAB_MX_LIBRARY
+                      NAMES libmx mx
+                      PATHS $ENV{MATLAB_ROOT}/bin $ENV{MATLAB_ROOT}/extern/lib
+                      PATH_SUFFIXES glnxa64 glnx86)
 
         FIND_LIBRARY( MATLAB_ENGINE_LIBRARY
                       NAMES libMatlabEngine MatlabEngine
@@ -54,9 +54,9 @@ ENDIF("$ENV{MATLAB_ROOT}" STREQUAL "" )
 
 # This is common to UNIX and Win32:
 SET(MATLAB_LIBRARIES
-#  ${MATLAB_MEX_LIBRARY}
-#  ${MATLAB_MX_LIBRARY}
-#  ${MATLAB_ENG_LIBRARY}
+  ${MATLAB_MEX_LIBRARY}
+  ${MATLAB_MX_LIBRARY}
+  ${MATLAB_ENG_LIBRARY}
   ${MATLAB_ENGINE_LIBRARY}
   ${MATLAB_DATA_ARRAY_LIBRARY}
 )
@@ -67,9 +67,9 @@ ENDIF(MATLAB_INCLUDE_DIR AND MATLAB_LIBRARIES)
 
 MARK_AS_ADVANCED(
   MATLAB_LIBRARIES
-#  MATLAB_ENG_LIBRARY
-#  MATLAB_MEX_LIBRARY
-#  MATLAB_MX_LIBRARY
+  MATLAB_ENG_LIBRARY
+  MATLAB_MEX_LIBRARY
+  MATLAB_MX_LIBRARY
   MATLAB_ENGINE_LIBRARY
   MATLAB_DATA_ARRAY_LIBRARY
   MATLAB_INCLUDE_DIR

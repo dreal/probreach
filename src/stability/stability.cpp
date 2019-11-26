@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <engine.h>
 #include <cstring>
+#include <capd/intervals/lib.h>
 
 using namespace std;
 
@@ -85,7 +86,9 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
     int odes_size = 0;
     for(auto it = odes.begin(); it != odes.end(); it++)
     {
-        if(it->first == "u")
+        if(find(global_config.controller.controller_output.begin(),
+                global_config.controller.controller_output.end(),
+                it->first) != global_config.controller.controller_output.end())
         {
             vars.push_back(it->first);
             var_string += it->first + ',';
@@ -137,7 +140,9 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
     size_t i = 0;
     for(auto it = init_map.begin(); it != init_map.end(); it++)
     {
-        if(it->first == "u")
+        if(find(global_config.controller.controller_output.begin(),
+                global_config.controller.controller_output.end(),
+                it->first) != global_config.controller.controller_output.end())
         {
             init_vector[i] = it->second.rightBound();
             i++;
@@ -165,60 +170,148 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
 
 //    cout << "Obtaining a big matrix: " << endl;
     capd::DMatrix Df = odes_rhs.derivative(init_vector);
+//    Df.transpose();
 //    cout << Df << endl;
 
-
+//    cout << "Variables:" << endl;
 //    for(string var : vars)
 //    {
 //        cout << var << endl;
 //    }
-
 
     // deriving matrices A and B from the big matrix
 
     size_t i_index = 0;
     size_t j_index = 0;
 
-    int n = Df.numberOfRows()-1;
-    int m = Df.numberOfColumns()-1;
+    int n = Df.numberOfRows()-global_config.controller.controller_output.size();
+    int m = Df.numberOfColumns()-global_config.controller.plant_output.size();
 
     // from here we are working with arrays of doubles
     double A[n][m];
-    double B[n][1];
-    double C[1][m];
-    double D[1][1];
+    double B[n][global_config.controller.controller_output.size()];
+    double C[global_config.controller.plant_output.size()][m];
+    double D[global_config.controller.controller_output.size()][global_config.controller.plant_output.size()];
 
-    for(size_t i = 0; i < n; i++)
-    {
-        for(size_t j = 0; j < m; j++)
-        {
-            A[i][j] = 0;
-        }
-        B[i][0] = 0;
-        C[0][i] = 0;
-    }
-    D[0][0] = 0;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        for(size_t j = 0; j < m; j++)
+//        {
+//            A[i][j] = 0;
+//        }
+//        B[i][0] = 0;
+//        C[0][i] = 0;
+//    }
+//    D[0][0] = 0;
 
-    for(size_t i = 0; i < n; i++)
+//    cout << "Controller output: " << global_config.controller.controller_output << endl;
+//    cout << "Plant output: " << global_config.controller.plant_output << endl;
+
+    // Temporary matrix without controller rows
+    capd::DMatrix A1(n, Df.numberOfColumns());
+    size_t k = 0;
+    for(size_t i = 0; i < Df.numberOfRows(); i++)
     {
-        if(vars.at(i) == "u") i_index = 1;
-        for(size_t j = 0; j < m; j++)
+        if(find(global_config.controller.controller_output.begin(),
+                global_config.controller.controller_output.end(),
+                vars.at(i)) == global_config.controller.controller_output.end())
         {
-            if(vars.at(j) == "u")
+            for(size_t j = 0; j < Df.numberOfColumns(); j++)
             {
-                //cout << "u column. " << Df[i][j] << endl;
-                B[i][0] = Df[i][j];
-                j_index = 1;
+                A1[k][j] = Df[i][j];
             }
-            A[j][i] = Df[i+i_index][j+j_index];
+            k++;
         }
-        if(vars.at(i) == global_config.controller.sys_out)
+    }
+//    cout << "Matrix A1:" << endl;
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        for(size_t j = 0; j < Df.numberOfColumns(); j++)
+//        {
+//            cout << A1[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
+    // initialising matrices A and B
+    size_t col_c = 0;
+    size_t col_p = 0;
+    for (size_t j = 0; j < A1.numberOfColumns(); j++)
+    {
+        if (find(global_config.controller.controller_output.begin(),
+                 global_config.controller.controller_output.end(),
+                 vars.at(j)) != global_config.controller.controller_output.end())
         {
-            C[0][i] = 1;
+            for (size_t i = 0; i < A1.numberOfRows(); i++)
+            {
+                B[i][col_c] = A1[i][j];
+            }
+            col_c++;
         }
-        j_index = 0;
+        else
+        {
+            for (size_t i = 0; i < A1.numberOfRows(); i++)
+            {
+                // need to transpose it here for some reason
+                A[col_p][i] = A1[i][j];
+            }
+            col_p++;
+        }
+    }
+    // initialising matrix C
+    k = 0;
+    for(size_t i = 0; i < A1.numberOfRows(); i++)
+    {
+        if(find(global_config.controller.plant_output.begin(),
+                global_config.controller.plant_output.end(),
+                vars.at(i)) != global_config.controller.plant_output.end())
+        {
+            for(size_t j = 0; j < A1.numberOfRows(); j++)
+            {
+                if(find(global_config.controller.plant_output.begin(),
+                     global_config.controller.plant_output.end(),
+                     vars.at(j)) != global_config.controller.plant_output.end())
+                {
+                    C[k][j] = 1;
+                }
+                else
+                {
+                    C[k][j] = 0;
+                }
+            }
+            k++;
+        }
+    }
+    // initialising matrix D
+    for(size_t i = 0; i < global_config.controller.controller_output.size(); i++)
+    {
+        for(size_t j = 0; j < global_config.controller.plant_output.size(); j++)
+        {
+            D[i][j] = 0;
+        }
     }
 
+//    old code
+//    for(size_t i = 0; i < n; i++)
+//    {
+//        if(vars.at(i) == "u") i_index = 1;
+//        for(size_t j = 0; j < m; j++)
+//        {
+//            if(vars.at(j) == "u")
+//            {
+//                //cout << "u column. " << Df[i][j] << endl;
+//                B[i][0] = Df[i][j];
+//                j_index = 1;
+//            }
+//            A[j][i] = Df[i+i_index][j+j_index];
+//        }
+//        if(vars.at(i) == global_config.controller.sys_out)
+//        {
+//            C[0][i] = 1;
+//        }
+//        j_index = 0;
+//    }
+
+//    // Outputting matrices below
 //    cout << "Matrix A:" << endl;
 //    for(size_t i = 0; i < n; i++)
 //    {
@@ -228,21 +321,36 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
 //        }
 //        cout << endl;
 //    }
+//
 //    cout << "Matrix B:" << endl;
 //    for(size_t i = 0; i < n; i++)
 //    {
-//        cout << B[i][0] << endl;
+//        for(size_t j = 0; j < global_config.controller.controller_output.size(); j++)
+//        {
+//            cout << B[i][j] << " ";
+//        }
+//        cout << endl;
 //    }
 //
 //    cout << "Matrix C:" << endl;
-//    for(size_t i = 0; i < n; i++)
+//    for(size_t i = 0; i < global_config.controller.plant_output.size(); i++)
 //    {
-//        cout << C[0][i] << " ";
+//        for(size_t j = 0; j < m; j++)
+//        {
+//            cout << C[i][j] << " ";
+//        }
+//        cout << endl;
 //    }
-//    cout << endl;
 //
 //    cout << "Matrix D:" << endl;
-//    cout << D[0][0] << endl;
+//    for(size_t i = 0; i < global_config.controller.plant_output.size(); i++)
+//    {
+//        for(size_t j = 0; j < global_config.controller.controller_output.size(); j++)
+//        {
+//            cout << D[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
 
     // initialising matlab engine
     Engine *ep;
@@ -258,19 +366,20 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
     memcpy((void *)mxGetPr(matA), (void *)A, sizeof(A));
     engPutVariable(ep, "A", matA);
 
-    matB = mxCreateDoubleMatrix(n, 1, mxREAL);
+    matB = mxCreateDoubleMatrix(n, global_config.controller.controller_output.size(), mxREAL);
     memcpy((void *)mxGetPr(matB), (void *)B, sizeof(B));
     engPutVariable(ep, "B", matB);
 
-    matC = mxCreateDoubleMatrix(1, m, mxREAL);
+    matC = mxCreateDoubleMatrix(global_config.controller.plant_output.size(), m, mxREAL);
     memcpy((void *)mxGetPr(matC), (void *)C, sizeof(C));
     engPutVariable(ep, "C", matC);
 
-    matD = mxCreateDoubleMatrix(1, 1, mxREAL);
+    matD = mxCreateDoubleMatrix(global_config.controller.controller_output.size(),
+                                global_config.controller.plant_output.size(), mxREAL);
     memcpy((void *)mxGetPr(matD), (void *)D, sizeof(D));
     engPutVariable(ep, "D", matD);
 
-    engEvalString(ep, "cd /home/fedor/probreach-ap/src/matlab/");
+    engEvalString(ep, "cd /home/fedor/probreach/src/matlab/");
 
     stringstream ss;
     ss << "check_stability(A,B,C,D," << T << "," << param.get_map()["Kp"].leftBound() << "," << param.get_map()["Ki"].leftBound() << "," << param.get_map()["Kd"].leftBound() << ");";
@@ -311,6 +420,8 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
 //    }
 
     double res = mxGetPr(engGetVariable(ep, "ans"))[0];
+
+//    cout << "After stability check" << endl;
 
     // freeing the memory
     mxDestroyArray(matA);

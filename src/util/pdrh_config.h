@@ -51,7 +51,7 @@ struct pdrh_config
     int num_threads = max_num_threads;
     bool sort_rv_flag = false;
     double conf = 0.99;
-
+    bool stability_test = false;
 //    // sampling options
 //    double chernoff_acc = 1e-2;
 //    double chernoff_conf = 0.99;
@@ -88,6 +88,8 @@ struct pdrh_config
     std::string global_time = "tau";
     std::string sample_time = "counter";
     double noise_var = 1;
+
+    bool decompose = false;
 
     struct ctrl
     {

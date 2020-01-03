@@ -379,7 +379,8 @@ bool stability::is_stable(std::map<std::string, pdrh::node *> odes, double T, bo
     memcpy((void *)mxGetPr(matD), (void *)D, sizeof(D));
     engPutVariable(ep, "D", matD);
 
-    engEvalString(ep, "cd /home/fedor/probreach/src/matlab/");
+    engEvalString(ep, "cd ~/");
+    engEvalString(ep, "cd probreach/src/matlab/");
 
     stringstream ss;
     ss << "check_stability(A,B,C,D," << T << "," << param.get_map()["Kp"].leftBound() << "," << param.get_map()["Ki"].leftBound() << "," << param.get_map()["Kd"].leftBound() << ");";

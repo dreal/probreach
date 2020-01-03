@@ -17,6 +17,7 @@
 #include "pdrh2box.h"
 #include "mc.h"
 #include "pdrh_config.h"
+#include "stability.h"
 
 #ifdef _OPENMP
     #include<omp.h>
@@ -324,7 +325,8 @@ int main(int argc, char* argv[])
                                                                                               global_config.sample_size,
                                                                                               global_config.iter_num,
                                                                                               global_config.precision_prob,
-                                                                                              global_config.conf);
+                                                                                              global_config.conf,
+                                                                                              stability::is_stable);
             cout << "Optimisation result: " << endl;
             cout << opt_res.first << "   |   " << opt_res.second << endl;
             global_config.decision_method = 1;

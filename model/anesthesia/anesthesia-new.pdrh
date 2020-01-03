@@ -1,0 +1,84 @@
+#define M 35 // (kg) body mass
+#define V1 (458.4*M)
+#define k10 0.1527*M^(-0.3)
+#define k12 0.114
+#define k13 0.0419
+#define k21 0.055
+#define k31 0.0033
+#define Td 20
+#define Tj 15
+//#define u0 7000
+
+#define cp_min 1.0
+#define cp_max 6.0
+#define c1_min 0.0
+#define c1_max 10.0
+#define c2_min 0.0
+#define c2_max 10.0
+#define u_min 0.0
+#define u_max 20000
+
+#define pi 3.1415
+
+[-1e3, 1e3] cp; // (mug/l)
+[-1e3, 1e3]	c1; // (mug/l)
+[-1e3, 1e3] c2; // (mug/l)
+[-1e6, 1e6] u; // (mug/kg*min)
+[0, 15] tau; // (min)
+[0, 15] time;
+
+//dist_normal(8000, 1000) u0; // P = [0.511949,0.520959]
+//dist_normal(7000, 1000) u0; // P = [0.160427,0.170234]
+//dist_normal(6000, 1000) u0; // P = [0.0215118,0.0295434]
+
+dist_normal(0, 1000) u0;
+[6000, 8000] mu;
+
+{
+mode 1;
+invt:
+
+	(cp <= cp_max);
+	(cp >= cp_min);
+	(c1 >= c1_min);
+	(c1 <= c1_max);
+	(c2 >= c2_min);
+	(c2 <= c2_max);
+	(u >= u_min);
+	(u <= u_max);
+
+flow:
+	d/dt[cp] = -(k10+k12+k13)*cp + k12*c1 + k13*c2 + u / V1;
+	d/dt[c1] = k21*cp - k21*c1;
+	d/dt[c2] = k31*cp - k31*c2;
+	d/dt[u] = 100*cos(tau*2*pi/Tj);
+	d/dt[tau] = 1.0;
+jump:
+	(tau = Tj) ==> @1(and 	(cp' = cp)
+							(c1' = c1)
+							(c2' = c2)
+							(tau' = 0)
+							(u' = u));
+}
+
+
+init:
+@1 (and (cp = 3.0)(c1 = 3.0)(c2 = 3.0)(u = u0 + mu)(tau = 0));
+
+goal:
+//@1 (tau = Tj);
+
+//@1 (and (tau = 10));
+//@2 (and (tau = 10));
+//@3 (and (tau = 60));
+//@6(tau = 10);
+@1 (not (and 
+			(cp <= cp_max) 
+			(cp >= cp_min) 
+			(c1 >= c1_min) 
+			(c1 <= c1_max) 
+			(c2 >= c2_min) 
+			(c2 <= c2_max)
+			(u >= u_min)
+			(u <= u_max)));
+

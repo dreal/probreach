@@ -11,7 +11,7 @@ find_package(FLEX REQUIRED)
 find_package(GSL)
 find_package(GTest)
 # Needed for using the translator tool
-find_package(Matlab)
+#find_package(Matlab)
 
 # setting compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11 -fopenmp -frounding-math -fPIC")
@@ -90,8 +90,6 @@ include_directories("${PROBREACH_SOURCE_DIR}/solver")
 include_directories("${PROBREACH_SOURCE_DIR}/logging")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 include_directories("${GSL_INCLUDE_DIRS}")
-include_directories("${MATLAB_INCLUDE_DIR}")
-
 
 # Adds the option to build the translator if MATLAB is located
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)

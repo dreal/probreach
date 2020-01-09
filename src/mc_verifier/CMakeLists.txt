@@ -19,6 +19,8 @@ set(PROBREACH_MC_SRC ${PROBREACH_MC_SRC}
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
 add_library(probreach_mc ${PROBREACH_MC_SRC})
+add_dependencies(probreach_mc capd)
+
 if(APPLE)
     target_link_libraries(probreach_mc -ll)
 else(APPLE)

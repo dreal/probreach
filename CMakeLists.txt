@@ -4,6 +4,8 @@ project(ProbReach)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
+include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
+
 # checking for packages
 find_package(CAPD)
 find_package(BISON REQUIRED)
@@ -73,12 +75,6 @@ configure_file(
         "${PROBREACH_SOURCE_DIR}/version.h.in"
         "${PROBREACH_SOURCE_DIR}/version.h")
 
-IF(CAPD_FOUND)
-    include_directories("${CAPD_INCLUDE_DIR}")
-ELSE(CAPD_FOUND)
-    message(STATUS "CAPD libraries not found, option to build ProbReach won't be available. Refer to installation guide available on Github or ./doc/build")
-ENDIF(CAPD_FOUND)
-
 include_directories("${PROBREACH_SOURCE_DIR}")
 include_directories("${PROBREACH_SOURCE_DIR}/util")
 include_directories("${PROBREACH_SOURCE_DIR}/util/generators")
@@ -91,12 +87,43 @@ include_directories("${PROBREACH_SOURCE_DIR}/logging")
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 include_directories("${GSL_INCLUDE_DIRS}")
 
+IF(NOT CAPD_FOUND)
+	ExternalProject_Add(capd
+	PREFIX ${PROBREACH_BINARY_DIR}/external
+      	URL https://sourceforge.net/projects/capd/files/5.1.2/src/capd-capdDynSys-5.1.2.tar.gz
+      	UPDATE_COMMAND ""
+      	CONFIGURE_COMMAND ${PROBREACH_BINARY_DIR}/external/src/capd/configure
+        	C=${CMAKE_C_COMPILER}
+          	XX=${CMAKE_CXX_COMPILER}
+          	--prefix=${PROBREACH_BINARY_DIR}
+          	--without-gui
+	        --with-mpfr=no
+          	--with-filib=no
+      	BUILD_COMMAND make
+      	BUILD_IN_SOURCE 1
+      	LOG_DOWNLOAD 1
+      	LOG_UPDATE 1
+      	LOG_CONFIGURE 1
+      	LOG_BUILD 1
+      	LOG_TEST 1
+      	LOG_INSTALL 1
+      	INSTALL_COMMAND make install)
+	
+	set(CAPD_INCLUDE_DIR "${PROBREACH_BINARY_DIR}/include")
+	set(CAPD_LIBRARIES "${PROBREACH_BINARY_DIR}/lib/libcapd.a")
+	set(CAPD_FOUND ON)
+ENDIF(NOT CAPD_FOUND)
+
+include_directories("${CAPD_INCLUDE_DIR}")
+
 # Adds the option to build the translator if MATLAB is located
-include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/simulator/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/pid_optimiser/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/formal_verifier/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/mc_verifier/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/qmc_verifier/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/gp/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/test/util/CMakeLists.txt)
+
+

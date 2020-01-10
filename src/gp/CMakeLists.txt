@@ -25,6 +25,7 @@ set(GP_SRC ${GP_SRC} ${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhparser.c
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
 add_library(gp_lib ${GP_SRC})
+add_dependencies(gp_lib capd)
 
 if(APPLE)
     target_link_libraries(gp_lib -ll)

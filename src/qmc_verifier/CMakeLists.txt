@@ -19,6 +19,8 @@ set(PROBREACH_QMC_SRC ${PROBREACH_QMC_SRC}
         ${PROBREACH_BINARY_DIR}/git_sha1.cpp)
 
 add_library(probreach_qmc ${PROBREACH_QMC_SRC})
+add_dependencies(probreach_qmc capd)
+
 if(APPLE)
     target_link_libraries(probreach_qmc -ll)
 else(APPLE)

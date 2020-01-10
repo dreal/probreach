@@ -9,7 +9,7 @@ cd probreach
 mkdir -p build/release
 cd build/release
 cmake ../../
-make <TOOL_NAME>
+make
 ```
 
 ## ProbReach tools

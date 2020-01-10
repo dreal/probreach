@@ -1,4 +1,16 @@
-**ProbReach** - collection of tools for calculating probability of bounded reachability in hybrid systems with parametric uncertainties.
+**ProbReach** - collection of tools for computing probability of bounded reachability in hybrid systems with parametric uncertainties.
+
+## How to build
+
+```
+sudo apt-get install git cmake build-essential bison flex libgsl-dev pkg-config libfl-dev
+git clone https://github.com/dreal/probreach.git probreach
+cd probreach
+mkdir -p build/release
+cd build/release
+cmake ../../
+make <TOOL_NAME>
+```
 
 ## ProbReach tools
 

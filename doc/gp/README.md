@@ -1,7 +1,6 @@
-# ProbReach Gaussian Process
+# ProbReach Gaussian Process GPEP tool
 
-<!--
-The ProbReach simulator provides simulation of the provided *.pdrh* model and produces *.json* file as output.
+The GPEP tool performs Gaussian Process classification via Expectation Propagation algorithm for chosen *.pdrh* model.
 
 ## Required packages
     
@@ -20,45 +19,19 @@ cd probreach
 mkdir -p build/release
 cd build/release
 cmake ../../
-make simulate
+make gp
 ```
 
 ## Usage
 
-	simulate <options> <file.pdrh/file.drh>
+	gp <solver-options> <file.pdrh/file.drh> <options>
 
 options:
 ```
 -h - displays help message
--v - displays the tool version
--l - minimum depth of every simulation path (default = 0)
--u - maximum depth of every simulation path (default = 0)
--p - maximum number of simulation paths (default = 1)
--n - number of points used in IVP solving (default = 1)
--o - full path to the output file (default = output.json)
--v - prints out the current version of ProbReach
+-u - specifies the reachability depth
+-n - specifies number of points (default = 20)
+–-verbose - provides detailed output
+–-conf - specifies the confidence of CIs for EP algorithm (default = 0.99)
+–-samples - specifies number of samples (default = 20)
 ```
-
-
-# Visualisation
-
-The visulisation of the produced *.json* file is performed via a python script ```visualise.py``` 
-located in ```probreach/src/python``` directory. This script requires [pandas](https://pandas.pydata.org/) package. 
-
-## Usage
-
-	python visualise.py <var 1> <var 2> ... <var n> <path/to/output/file.json>
-
-If no variables are specified in the command line, then all variables are visualised.
-
-# Usage example
-
-```
-./simulate -u 300 -n 10 -o output.json ~/probreach/model/insulin-infusion/discrete-pid.pdrh
-python ~/probreach/src/python/visualise.py Q1 u C output.json 
-```
-The commands above produce the following output:
-
-![traj1](img/ex1.png)
-![traj2](img/ex2.png)
--->

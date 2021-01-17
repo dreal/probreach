@@ -217,6 +217,8 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::bounds::pdf(std:
         s << "starting point " << start << " does not belong to the domain " << domain << " while trying to find pdf bounds";
         throw std::invalid_argument(s.str());
     }
+    // cout << "Var: " << var << endl;
+    // cout << "pdf: " << pdf << endl;
     // initializing the interval
     capd::interval res = capd::interval(start);
     while(true)
@@ -292,7 +294,7 @@ std::vector<box> measure::get_rv_partition()
     std::map<std::string, std::vector<capd::interval>> partition_map;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {
-        //cout << "RV: " << it->first << endl;
+        // cout << "RV: " << it->first << endl;
         // setting initial rv bounds
         capd::interval init_domain(-numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
         if(get<1>(it->second)->value != "-infty")
@@ -303,12 +305,16 @@ std::vector<box> measure::get_rv_partition()
         {
             init_domain.setRightBound(pdrh2box::node_to_interval(std::get<2>(it->second)).rightBound());
         }
+        // cout << "Before bound" << endl;
         // getting rv bounds
         std::pair<capd::interval, std::vector<capd::interval>> bound = measure::bounds::pdf(it->first,
                                                                            pdrh::node_to_string_infix(get<0>(it->second)), init_domain,
                                                                                             pdrh2box::node_to_interval(
                                                                                                     get<3>(it->second)).mid().leftBound(),
                                                                                          measure::precision(global_config.precision_prob, pdrh::rv_map.size()));
+        //cout << "Variable = " << it->first << " PDF = " <<  pdrh::node_to_string_infix(get<0>(it->second)) << endl;
+
+        // cout << "After bound" << endl;
         // updating rv bounds
         pdrh::rv_map[it->first] = make_tuple(std::get<0>(it->second), new node(bound.first.leftBound()),
                                                          new node(bound.first.rightBound()), get<3>(it->second));
@@ -338,6 +344,15 @@ std::vector<box> measure::get_dd_partition()
 box measure::bounds::get_rv_domain()
 {
     std::vector<box> init_rv_partition = measure::get_rv_partition();
+    // cout << "RV partition" << endl;
+    // capd::interval prob_sum(0);
+    // for(box b : init_rv_partition)
+    // {
+    //     cout << b << "\t\t|\t\t" << width(p_measure(b)) << endl;
+    //     prob_sum += p_measure(b);
+    // }
+    // cout << scientific << "Probability sum = " << prob_sum << "\t\t|\t\t" << width(prob_sum) << endl;
+    // exit(EXIT_FAILURE);
     map<std::string, vector<capd::interval>> domain_map;
     for(auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
     {

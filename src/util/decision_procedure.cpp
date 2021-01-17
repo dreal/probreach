@@ -25,8 +25,9 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
     int undet_counter = 0;
     for(vector<pdrh::mode*> path : paths)
     {
-//        stringstream s;
-//        for(pdrh::mode* m : path) s << m->id << " ";
+        stringstream s;
+        for(pdrh::mode* m : path) s << m->id << " ";
+        //cout << "Path: " << s.str() << "; result: "; 
         int res = evaluate(path, boxes, solver_bin, solver_opt);
         if(res == decision_procedure::result::SAT)
         {
@@ -59,18 +60,22 @@ int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes, s
     int first_res = decision_procedure::evaluate_delta_sat(path, boxes, global_config.solver_bin, solver_opt);
     if(first_res == decision_procedure::result::UNSAT)
     {
+        //cout << "UNSAT" << endl;
         return decision_procedure::result::UNSAT;
     }
     else if(first_res == decision_procedure::result::SAT)
     {
+        //cout << "delta-SAT" << endl;
         // evaluating complement
         int second_res = decision_procedure::evaluate_complement(path, boxes, solver_bin, solver_opt);
         if(second_res == decision_procedure::result::UNSAT)
         {
+            // cout << "SAT" << endl;
             return decision_procedure::result::SAT;
         }
         else if(second_res == decision_procedure::result::SAT)
         {
+            // cout << "UNDET" << endl;
             return decision_procedure::result::UNDET;
         }
     }
@@ -129,22 +134,22 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     }
     else if(first_res == 1)
     {
-        if((std::remove(smt_filename.c_str()) == 0) &&
-           (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
+        //if((std::remove(smt_filename.c_str()) == 0) &&
+        //   (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
         {
             //LOG(DEBUG) << "Removed auxiliary files";
             return decision_procedure::UNSAT;
         }
-        else
-        {
-            cerr << "Problem occurred while removing one of auxiliary files (UNSAT)";
-            return decision_procedure::ERROR;
-        }
+        // //else
+        // {
+        //     cerr << "Problem occurred while removing one of auxiliary files (UNSAT)";
+        //     return decision_procedure::ERROR;
+        // }
     }
     else
     {
-        if((std::remove(smt_filename.c_str()) == 0) &&
-           (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
+        //if((std::remove(smt_filename.c_str()) == 0) &&
+        //   (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
         {
 //            box b = dreal::parse_model(string(smt_filename + ".model"));
 //            cout << "Solution box: " << b << endl;
@@ -164,11 +169,11 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
             //LOG(DEBUG) << "Removed auxiliary files";
             return decision_procedure::SAT;
         }
-        else
-        {
-            cerr << "Problem occurred while removing one of auxiliary files (DELTA-SAT)";
-            return decision_procedure::ERROR;
-        }
+        // //else
+        // {
+        //     cerr << "Problem occurred while removing one of auxiliary files (DELTA-SAT)";
+        //     return decision_procedure::ERROR;
+        // }
     }
 }
 
@@ -220,20 +225,20 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
         }
         else if(second_res == 1)
         {
-            if((remove(smt_c_filename.c_str()) != 0) ||
-               (remove(std::string(smt_c_filename + ".output").c_str()) != 0))
-            {
-                return decision_procedure::ERROR;
-            }
+            // if((remove(smt_c_filename.c_str()) != 0) ||
+            //    (remove(std::string(smt_c_filename + ".output").c_str()) != 0))
+            // {
+            //     return decision_procedure::ERROR;
+            // }
         }
         else
         {
-            if((remove(smt_c_filename.c_str()) != 0) ||
-               (remove(std::string(smt_c_filename + ".output").c_str()) != 0))
-            {
-                return decision_procedure::ERROR;
-            }
-            else
+            // if((remove(smt_c_filename.c_str()) != 0) ||
+            //    (remove(std::string(smt_c_filename + ".output").c_str()) != 0))
+            // {
+            //     return decision_procedure::ERROR;
+            // }
+            // else
             {
                 return decision_procedure::SAT;
             }

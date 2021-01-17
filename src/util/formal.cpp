@@ -27,6 +27,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
     std::vector<box> init_rv_partition = measure::get_rv_partition();
     // getting domain of continuous random variables
     box rv_domain = measure::bounds::get_rv_domain();
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << "Domain of continuous random parameters: " << rv_domain ;
     // here we start with entire domain instead of partition
     if (!global_config.partition_prob) {
         init_rv_partition.clear();
@@ -71,7 +72,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                 capd::interval p_box(1);
                 if (!dd.empty())
                 {
-                    p_box *= measure::p_dd_measure(dd);
+                //     p_box *= measure::p_dd_measure(dd);
                     CLOG_IF(global_config.verbose, INFO, "algorithm") << "dd_box: " << dd;
                 }
                 if (!rv.empty())
@@ -88,6 +89,65 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                 int unsat_counter = 0;
                 // sat flag
                 bool sat_flag = false;
+
+
+                // // New version
+                // std::string solver_opt;
+                // std::stringstream s;
+                // #pragma omp critical
+                // {
+                //     solver_opt = global_config.solver_opt;
+                //     s << solver_opt << " --precision " <<
+                //       measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
+                //     global_config.solver_opt = s.str();
+                // }
+                // int res = decision_procedure::evaluate(paths, boxes, global_config.solver_bin, s.str());
+
+                // #pragma omp critical
+                // {
+                //     global_config.solver_opt = solver_opt;
+                //     switch (res)
+                //     {
+                //         case decision_procedure::SAT:
+                //             if (p_box.leftBound() > 0)
+                //             {
+                //                 probability = capd::interval(probability.leftBound() + p_box.leftBound(),
+                //                                              probability.rightBound());
+                //             }
+                //             CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+                //             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
+                            
+                //             // if(capd::intervals::width(probability) <= global_config.precision_prob)
+                //             // {
+                //             //     return probability;
+                //             // }
+                //             break;
+
+                //         case decision_procedure::UNSAT:
+                //             if (p_box.rightBound() > 0)
+                //             {
+                //                 probability = capd::interval(probability.leftBound(),
+                //                                              probability.rightBound() - p_box.leftBound());
+                //             }
+                //             CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+                //             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
+
+                //             // if(capd::intervals::width(probability) <= global_config.precision_prob)
+                //             // {
+                //             //     return probability;
+                //             // }
+                //             break;
+
+                //         case decision_procedure::UNDET:
+                //             CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+                //             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << rv;
+                //             std::vector<box> rv_bisect = box_factory::bisect(rv);
+                //             rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
+                //             break;
+
+                //     }
+                // }
+
                 // evaluating all paths for all dd and rv
                 //cout << "Before evaluate loop " << omp_get_thread_num() << endl;
                 for (std::vector<pdrh::mode *> path : paths) {
@@ -124,12 +184,12 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                                 }
                                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
                                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
-                                /*
-                                if(capd::intervals::width(probability) <= global_config.precision_prob)
-                                {
-                                    return probability;
-                                }
-                                */
+                                
+                                // if(capd::intervals::width(probability) <= global_config.precision_prob)
+                                // {
+                                //     return probability;
+                                // }
+                                
                                 sat_flag = true;
                                 break;
 
@@ -175,9 +235,13 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
                         }
                     }
-                };
+                }
 
             }
+            // if(capd::intervals::width(probability) <= global_config.precision_prob)
+            // {
+            //     return probability;
+            // }
             // copying the bisected boxes from the stack to partition
             rv_partition = rv_stack;
             rv_stack.clear();

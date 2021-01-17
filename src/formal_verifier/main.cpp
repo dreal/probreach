@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <iomanip>
 #include <cstring>
 #include <sstream>
 #include <fstream>
@@ -268,6 +269,8 @@ int main(int argc, char* argv[])
 
     // setting the model type
     pdrh::set_model_type();
+
+    cout << setprecision(16);
 
     // only the following cases are supported in the formal setting
     if(pdrh::model_type == pdrh::PHA)

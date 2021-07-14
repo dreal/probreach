@@ -191,7 +191,7 @@ capd::interval measure::bounds::gaussian(double mu, double sigma, double e)
     while(1 - itg.first.leftBound() > global_config.integral_inf_coeff * e)
     {
         i = capd::interval(i.leftBound() - sigma, i.rightBound() + sigma);
-        itg = measure::integral("x", measure::distribution::gaussian("x", mu, sigma), i, (1 - global_config.integral_inf_coeff) * e);
+        itg = measure::integral("x", measure::distribution::gaussian("x", mu, sigma), i, global_config.integral_inf_coeff * e);
     }
     return i;
 }
@@ -203,7 +203,7 @@ capd::interval measure::bounds::exp(double lambda, double e)
     while(1 - itg.first.leftBound() > global_config.integral_inf_coeff * e)
     {
         i = capd::interval(0, i.rightBound() + (1 / lambda));
-        itg = measure::integral("x", measure::distribution::exp("x", lambda), i, (1-global_config.integral_inf_coeff) * e);
+        itg = measure::integral("x", measure::distribution::exp("x", lambda), i, global_config.integral_inf_coeff * e);
     }
     return i;
 }
@@ -217,15 +217,12 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::bounds::pdf(std:
         s << "starting point " << start << " does not belong to the domain " << domain << " while trying to find pdf bounds";
         throw std::invalid_argument(s.str());
     }
-    // cout << "Var: " << var << endl;
-    // cout << "pdf: " << pdf << endl;
     // initializing the interval
     capd::interval res = capd::interval(start);
     while(true)
     {
         // setting the interval
         res = capd::interval(res.leftBound() - global_config.integral_pdf_step, res.rightBound() + global_config.integral_pdf_step);
-        //std::cout << res << std::endl;
         // adjusting left bound of the initial interval
         if(res.leftBound() < domain.leftBound())
         {
@@ -238,7 +235,8 @@ std::pair<capd::interval, std::vector<capd::interval>> measure::bounds::pdf(std:
         }
         // calculating integral
         //cout << "BEFORE INTEGRAL" << endl;
-        std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(var, pdf, res, e);
+        std::pair<capd::interval, std::vector<capd::interval>> itg = measure::integral(var, pdf, res, e * global_config.integral_inf_coeff);
+        //std::cout << res << " : " << itg.first << " | " << capd::intervals::width(itg.first) <<  std::endl;
         // checking if the value of the integral satisfies the condition
         if(1 - itg.first.leftBound() < e * global_config.integral_inf_coeff)
         {
@@ -322,6 +320,7 @@ std::vector<box> measure::get_rv_partition()
         pdrh::var_map[it->first] = make_pair(new node(bound.first.leftBound()), new node(bound.first.rightBound()));
         // updating partition map
         partition_map.insert(make_pair(it->first, bound.second));
+		//std::cout << "bound = " << bound.first << "\n";
     }
     return box_factory::cartesian_product(partition_map);
 }

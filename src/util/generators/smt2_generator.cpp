@@ -338,9 +338,11 @@ string smt2_generator::generate_jump_check(mode* m, vector<mode::jump> jumps,
 string smt2_generator::reach_to_smt2(vector<pdrh::mode*> path,
                                      vector<box> boxes) {
   stringstream s;
+  s.precision(16);
   // setting logic
   s << "(set-logic QF_NRA_ODE)" << endl;
-  // declaring variables and defining bounds
+  // declaring variables and defining bounds (for both variables:
+  // at the beginning and at the end of the mode)
   for (auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++) {
     s << "(declare-fun " << it->first << " () Real)" << endl;
     for (int i = 0; i < path.size(); i++) {
@@ -360,7 +362,7 @@ string smt2_generator::reach_to_smt2(vector<pdrh::mode*> path,
       }
     }
   }
-  // declaring time pdrh::node_fix_index(reset_it->second, step, "t")
+  // declaring time
   for (int i = 0; i < path.size(); i++) {
     s << "(declare-fun time_" << i << " () Real)" << endl;
     s << "(assert (>= time_" << i << " "
@@ -384,13 +386,14 @@ string smt2_generator::reach_to_smt2(vector<pdrh::mode*> path,
   s << "(assert (and " << endl;
   // defining initial states
   s << "(or ";
+  // putting all initial states into a disjunction
   for (pdrh::state st : pdrh::init) {
     if (st.id == path.front()->id) {
       s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")" << endl;
     }
   }
   s << ")" << endl;
-  // defining boxes bounds
+  // defining bounds for the parameter boxes
   for (box b : boxes) {
     std::map<string, capd::interval> m = b.get_map();
     for (int i = 0; i < path.size(); i++) {
@@ -458,6 +461,7 @@ string smt2_generator::reach_to_smt2(vector<pdrh::mode*> path,
 string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path,
                                        vector<box> boxes) {
   stringstream s;
+  s.precision(16);
   // setting logic
   s << "(set-logic QF_NRA_ODE)" << endl;
   // checking whether either of last jumps have a time node
@@ -470,7 +474,8 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path,
   //            break;
   //        }
   //    }
-  // declaring variables and defining bounds
+  // declaring variables and defining bounds (at the beginning and
+  // at the end of the mode)
   for (auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++) {
     s << "(declare-fun " << it->first << " () Real)" << endl;
     for (int i = 0; i < path.size(); i++) {
@@ -498,7 +503,7 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path,
     s << "(assert (<= time_" << i << " "
       << pdrh::node_fix_index(path.at(i)->time.second, i, "0") << "))" << endl;
   }
-  // declaring local time and bounds
+  // declaring local times and its bounds
   // if (!timed_node_neg)
   //{
   s << "(declare-fun local_time () Real)" << endl;
@@ -553,7 +558,7 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path,
     }
   }
   s << ")" << endl;
-  // defining boxes bounds
+  // defining bounds for the parameter boxes
   for (box b : boxes) {
     std::map<string, capd::interval> m = b.get_map();
     for (int i = 0; i < path.size(); i++) {
@@ -594,13 +599,10 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path,
     s << "local_time_" << step << "_0";
     //}
     s << "] flow_" << m->id << "))" << endl;
-    // defining invariants
-    // if(step < path.size() - 1)
-    //{
-    for (pdrh::node* invt : m->invts) {
-      s << "(forall_t " << m->id << " [0.0 time_" << step << "] "
-        << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
-    }
+    // defining invariants (probably not needed for the compliment formula)
+    //for (pdrh::node* invt : m->invts) {
+    //  s << "(forall_t " << m->id << " [0.0 time_" << step << "] "
+    //    << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
     //}
     // checking the current depth
     if (step < path.size() - 1) {
@@ -625,7 +627,7 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path,
     step++;
   }
   s << ")";
-  // defining goal
+  // defining goal (placing the negation of all goals into conjunction)
   s << "(and ";
   for (pdrh::state st : pdrh::goal) {
     if (path.back()->id == st.id) {
@@ -638,6 +640,8 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path,
       if (!timed_node_neg) {
         // checking if there is a not in front of the guard predicate because
         // dReal does not work nicely with double negation
+
+        // commenting out the final local_time assertion for now
         s << "(= local_time_" << path.size() - 1 << "_t "
           << pdrh::node_fix_index(path.back()->time.second, path.size() - 1,
                                   "0")
@@ -824,11 +828,11 @@ string smt2_generator::reach_c_to_smt2(int depth, vector<pdrh::mode*> path,
       s << "local_time_" << i << "_0";
       //}
       s << "] flow_" << m->id << "))" << endl;
-      // defining invariants
-      for (pdrh::node* invt : m->invts) {
-        s << "(forall_t " << m->id << " [0.0 time_" << i << "] "
-          << pdrh::node_fix_index(invt, i, "t") << ")" << endl;
-      }
+      // defining invariants (switched off for now)
+      //for (pdrh::node* invt : m->invts) {
+      //  s << "(forall_t " << m->id << " [0.0 time_" << i << "] "
+      //    << pdrh::node_fix_index(invt, i, "t") << ")" << endl;
+      //}
       // checking the current depth
       if (i < depth) {
         // defining jumps

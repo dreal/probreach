@@ -7,15 +7,13 @@
 
 #include "solver_wrapper.h"
 
-namespace isat
-{
+namespace isat {
 
-    // Evaluates an iSAT model file specified by the second argument
-    // using the executable defined by the first parameter
-    // with command line arguments defined by the third parameter
-    solver::output evaluate(std::string, std::string, std::string);
+// Evaluates an iSAT model file specified by the second argument
+// using the executable defined by the first parameter
+// with command line arguments defined by the third parameter
+solver::output evaluate(std::string, std::string, std::string);
 
-}
+}  // namespace isat
 
-#endif //PROBREACH_ISAT_WRAPPER_H
-
+#endif  // PROBREACH_ISAT_WRAPPER_H

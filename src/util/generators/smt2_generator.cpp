@@ -601,10 +601,13 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> box
         //}
         s << "] flow_" << m->id << "))" << endl;
         // defining invariants
-        for(pdrh::node* invt : m->invts)
-        {
-            s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
-        }
+        //if(step < path.size() - 1)
+		//{
+			for(pdrh::node* invt : m->invts)
+        	{
+           	 s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
+        	}
+		//}
         // checking the current depth
         if(step < path.size() - 1)
         {
@@ -645,8 +648,7 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> box
             {
                 // checking if there is a not in front of the guard predicate because dReal does not work nicely
                 // with double negation
-                s << "(= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.second, path.size() - 1, "0") <<
-                  ")" << endl;
+                s << "(= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.second, path.size() - 1, "0") << ")" << endl;
                 if(st.prop->value == "not")
                 {
                     s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (" <<

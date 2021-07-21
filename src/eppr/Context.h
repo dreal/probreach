@@ -1,11 +1,10 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-class Context
-{
-public:
-	Context();
-	~Context();
+class Context {
+ public:
+  Context();
+  ~Context();
 };
 
 #endif

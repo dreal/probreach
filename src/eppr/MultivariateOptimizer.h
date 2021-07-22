@@ -3,10 +3,11 @@
 
 #include <memory>
 
-class MultivariateOptimizer {
- public:
-  MultivariateOptimizer();
-  virtual ~MultivariateOptimizer();
+class MultivariateOptimizer
+{
+public:
+	MultivariateOptimizer();
+	virtual ~MultivariateOptimizer();
 };
 
 #endif

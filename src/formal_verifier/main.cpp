@@ -2,38 +2,36 @@
 // Created by fedor on 13/12/18.
 //
 
+#include <iostream>
+#include <cstring>
+#include <sstream>
+#include <fstream>
 #include <logging/easylogging++.h>
 #include <solver/dreal_wrapper.h>
-
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-
-#include "box.h"
-#include "formal.h"
-#include "git_sha1.h"
-#include "model.h"
 #include "node.h"
-#include "pdrh2box.h"
-#include "pdrh_config.h"
+#include "model.h"
+#include "git_sha1.h"
 #include "version.h"
+#include "box.h"
+#include "pdrh2box.h"
+#include "formal.h"
+#include "pdrh_config.h"
 
 #ifdef _OPENMP
-#include <omp.h>
+    #include<omp.h>
 #include <util/decision_procedure.h>
 
 #endif
 
-extern "C" {
-#include "pdrhparser.h"
+extern "C"
+{
+    #include "pdrhparser.h"
 }
 
 INITIALIZE_EASYLOGGINGPP
 
 extern "C" int yyparse();
-extern "C" FILE* yyin;
+extern "C" FILE *yyin;
 
 using namespace std;
 using namespace pdrh;
@@ -58,52 +56,47 @@ size_t num_iter = 2;
 size_t num_samples = 10;
 // number of threads
 #ifdef _OPENMP
-int num_threads = omp_get_max_threads();
+    int num_threads = omp_get_max_threads();
 #else
-int num_threads = 1;
+    int num_threads = 1;
 #endif
 
+
+
 //// printing help message
-// void print_help()
+//void print_help()
 //{
 //    cout << "Usage:" << endl;
 //    cout << endl;
-//    cout << "	simulate <options> <file.pdrh/file.drh> <solver-options>" <<
-//    endl; cout << endl; cout << "options:" << endl; cout << "-h - displays
-//    help message" << endl; cout << "-v - prints out the current version of
-//    ProbReach" << endl; cout << "-l - minimum depth of every simulation path
-//    (default = " << min_depth << ")" << endl; cout << "-u - maximum depth of
-//    every simulation path (default = " << max_depth << ")" << endl; cout <<
-//    "-n - number of points used in non-rigorous IVP solving (default = " <<
-//    num_points << ")" << endl; #ifdef _OPENMP
-//        cout << "-t - number of threads (default = " << num_threads << ", max
-//        = " << omp_get_max_threads() << ")" << endl;
+//    cout << "	simulate <options> <file.pdrh/file.drh> <solver-options>" << endl;
+//    cout << endl;
+//    cout << "options:" << endl;
+//    cout << "-h - displays help message" << endl;
+//    cout << "-v - prints out the current version of ProbReach" << endl;
+//    cout << "-l - minimum depth of every simulation path (default = " << min_depth << ")" << endl;
+//    cout << "-u - maximum depth of every simulation path (default = " << max_depth << ")" << endl;
+//    cout << "-n - number of points used in non-rigorous IVP solving (default = " << num_points << ")" << endl;
+//    #ifdef _OPENMP
+//        cout << "-t - number of threads (default = " << num_threads << ", max = " << omp_get_max_threads() << ")" << endl;
 //    #endif
-//    cout << "--min - minimise reachability probability (default = " <<
-//    minimise_flag << ")" << endl; cout << "--acc - half-size of the computed
-//    confidence intervals (default = " << acc << ")" << endl; cout << "--conf -
-//    confidence value for the computed confidence intervals (default = " <<
-//    conf << ")" << endl; cout << "--iter - confidence value for the computed
-//    confidence intervals (default = " << num_iter << ")" << endl; cout <<
-//    "--samples - number of samples for each iteration of cross-entropy
-//    algorithm (default = " << num_samples << ")" << endl; cout << "--solver -
-//    full path to the solver executable (default = " << dreal::solver_bin <<
-//    ")" << endl;
-////    cout << "--params - list of controller parameters (default = " <<
-///dreal::solver_bin << ")" << endl;
+//    cout << "--min - minimise reachability probability (default = " << minimise_flag << ")" << endl;
+//    cout << "--acc - half-size of the computed confidence intervals (default = " << acc << ")" << endl;
+//    cout << "--conf - confidence value for the computed confidence intervals (default = " << conf << ")" << endl;
+//    cout << "--iter - confidence value for the computed confidence intervals (default = " << num_iter << ")" << endl;
+//    cout << "--samples - number of samples for each iteration of cross-entropy algorithm (default = " << num_samples << ")" << endl;
+//    cout << "--solver - full path to the solver executable (default = " << dreal::solver_bin << ")" << endl;
+////    cout << "--params - list of controller parameters (default = " << dreal::solver_bin << ")" << endl;
 //}
 
 //// parsing command line options
-// void parse_cmd(int argc, char* argv[])
+//void parse_cmd(int argc, char* argv[])
 //{
 //    //parsing ProbReach options
 //    for(int i = 1; i < argc; i++)
 //    {
 //        // filename
-//        if(string(argv[i]).substr(string(argv[i]).find_last_of('.') + 1) ==
-//        "pdrh" ||
-//                string(argv[i]).substr(string(argv[i]).find_last_of('.') + 1)
-//                == "drh")
+//        if(string(argv[i]).substr(string(argv[i]).find_last_of('.') + 1) == "pdrh" ||
+//                string(argv[i]).substr(string(argv[i]).find_last_of('.') + 1) == "drh")
 //        {
 //            in_file = argv[i];
 //        }
@@ -121,8 +114,8 @@ int num_threads = 1;
 //        // version
 //        else if(string(argv[i]) == "-v")
 //        {
-//            cout << "ProbReach " << PROBREACH_VERSION << " (" <<
-//            git::get_sha1() << ")" << endl; exit(EXIT_SUCCESS);
+//            cout << "ProbReach " << PROBREACH_VERSION << " (" << git::get_sha1() << ")" << endl;
+//            exit(EXIT_SUCCESS);
 //        }
 //        // minimum path length
 //        else if (string(argv[i]) == "-l")
@@ -182,8 +175,7 @@ int num_threads = 1;
 //            }
 //            else
 //            {
-//                cerr << "Max number of cores available is " <<
-//                omp_get_max_threads() << ". You specified " << num_threads;
+//                cerr << "Max number of cores available is " << omp_get_max_threads() << ". You specified " << num_threads;
 //                exit(EXIT_FAILURE);
 //            }
 //        }
@@ -249,68 +241,73 @@ int num_threads = 1;
 //    }
 //}
 
-int main(int argc, char* argv[]) {
-  // parse command line
-  parse_pdrh_config(argc, argv);
+int main(int argc, char* argv[])
+{
 
-  // opening pdrh file
-  FILE* pdrhfile = fopen(global_config.model_filename.c_str(), "r");
-  if (!pdrhfile) {
-    cerr << "Couldn't open the file: " << endl;
-    exit(EXIT_FAILURE);
-  }
-  // set lex to read from it instead of defaulting to STDIN:
-  yyin = pdrhfile;
-  // parse through the input until there is no more:
-  do {
-    yyparse();
-  } while (!feof(yyin));
+    // parse command line
+    parse_pdrh_config(argc, argv);
 
-  START_EASYLOGGINGPP(argc, argv);
-  el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
-
-  // setting the model type
-  pdrh::set_model_type();
-
-  cout << setprecision(16);
-
-  // only the following cases are supported in the formal setting
-  if (pdrh::model_type == pdrh::PHA) {
-    capd::interval probability = formal::evaluate_pha(
-        global_config.reach_depth_min, global_config.reach_depth_max);
-    cout << scientific << probability << " | "
-         << capd::intervals::width(probability) << endl;
-  } else if (pdrh::model_type == pdrh::NPHA) {
-    map<box, capd::interval> probability_map = formal::evaluate_npha(
-        global_config.reach_depth_min, global_config.reach_depth_max);
-    for (auto it = probability_map.cbegin(); it != probability_map.cend();
-         it++) {
-      cout << scientific << it->first << " | " << it->second << " | "
-           << capd::intervals::width(it->second) << endl;
-    }
-  } else {
-    int res = formal::evaluate_ha(global_config.reach_depth_min,
-                                  global_config.reach_depth_max);
-    switch (res) {
-      case decision_procedure::result::SAT:
-        cout << "sat" << endl;
-        break;
-
-      case decision_procedure::result::UNSAT:
-        cout << "unsat" << endl;
-        break;
-
-      case decision_procedure::result::UNDET:
-        cout << "undet" << endl;
-        break;
-
-      default:
-        cerr << "Unrecognised verification result" << endl;
+    // opening pdrh file
+    FILE *pdrhfile = fopen(global_config.model_filename.c_str(), "r");
+    if (!pdrhfile)
+    {
+        cerr << "Couldn't open the file: " << endl;
         exit(EXIT_FAILURE);
     }
-  }
+    // set lex to read from it instead of defaulting to STDIN:
+    yyin = pdrhfile;
+    // parse through the input until there is no more:
+    do
+    {
+        yyparse();
+    }
+    while (!feof(yyin));
 
-  el::Loggers::unregisterLogger("algorithm");
+    START_EASYLOGGINGPP(argc, argv);
+    el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
 
-  return 0;
+    // setting the model type
+    pdrh::set_model_type();
+
+    // only the following cases are supported in the formal setting
+    if(pdrh::model_type == pdrh::PHA)
+    {
+        capd::interval probability = formal::evaluate_pha(global_config.reach_depth_min, global_config.reach_depth_max);
+        cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
+    }
+    else if(pdrh::model_type == pdrh::NPHA)
+    {
+        map<box, capd::interval> probability_map = formal::evaluate_npha(global_config.reach_depth_min, global_config.reach_depth_max);
+        for(auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
+        {
+            cout << scientific << it->first << " | " << it->second << " | " << capd::intervals::width(it->second) << endl;
+        }
+    }
+    else
+    {
+        int res = formal::evaluate_ha(global_config.reach_depth_min, global_config.reach_depth_max);
+        switch(res)
+        {
+            case decision_procedure::result::SAT:
+                cout << "sat" << endl;
+                break;
+
+            case decision_procedure::result::UNSAT:
+                cout << "unsat" << endl;
+                break;
+
+            case decision_procedure::result::UNDET:
+                cout << "undet" << endl;
+                break;
+
+            default:
+                cerr << "Unrecognised verification result" << endl;
+                exit(EXIT_FAILURE);
+        }
+    }
+
+    el::Loggers::unregisterLogger("algorithm");
+
+    return 0;
 }
+

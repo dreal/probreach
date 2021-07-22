@@ -1,146 +1,224 @@
 #include "SmmcOptions.h"
-
+#include "RegularSampler.h"
 #include "KernelRBF.h"
 #include "KernelRbfARD.h"
-#include "RegularSampler.h"
 
-SmmcOptions::SmmcOptions(int dimensions_hyp) {
-  simulationEndTime = 0;
-  simulationRuns = 100;
-  simulationTimepoints = 200;
-  timeseriesEnabled = true;
+SmmcOptions::SmmcOptions(int dimensions_hyp)
+{
+	simulationEndTime = 0;
+	simulationRuns = 100;
+	simulationTimepoints = 200;
+	timeseriesEnabled = true;
 
-  initialObservtions = 20;  //!!!! samples
-  numberOfTestPoints = 20;  //!!!! points
-  testpoints = nullptr;
-  sampler = std::make_shared<RegularSampler>();
+	initialObservtions = 20;  //!!!! samples
+	numberOfTestPoints = 20; //!!!! points
+	testpoints = nullptr;
+	sampler = std::make_shared<RegularSampler>();
 
-  std::shared_ptr<std::vector<double> > hyp =
-      std::make_shared<std::vector<double> >();
-  for (int i = 0; i < dimensions_hyp; i++) {
-    hyp->push_back(1.0);
-  }
+	std::shared_ptr<std::vector<double> > hyp = std::make_shared<std::vector<double> >();
+	for (int i = 0; i < dimensions_hyp; i++) {
+		hyp->push_back(1.0);
+	}
 
-  kernelGP = std::make_shared<KernelRbfARD>(hyp);
-  _useDefaultHyperparams = true;
-  hyperparamOptimisation = true;
-  hyperparamOptimisationRestarts = 0;
-  covarianceCorrection = 1e-4;
+	kernelGP = std::make_shared<KernelRbfARD>(hyp);
+	_useDefaultHyperparams = true;
+	hyperparamOptimisation = true;
+	hyperparamOptimisationRestarts = 0;
+	covarianceCorrection = 1e-4;
 
-  debugEnabled = false;
+	debugEnabled = false;
 }
 
-SmmcOptions::~SmmcOptions(void) {}
 
-SmmcOptions::SmmcOptions(const SmmcOptions& copy) {
-  this->simulationEndTime = copy.simulationEndTime;
-  this->simulationRuns = copy.simulationRuns;
-  this->simulationTimepoints = copy.simulationTimepoints;
-  this->timeseriesEnabled = copy.timeseriesEnabled;
-  this->initialObservtions = copy.initialObservtions;
-  this->numberOfTestPoints = copy.numberOfTestPoints;
-  this->sampler = copy.sampler;
-  this->kernelGP = copy.kernelGP;
-  this->hyperparamOptimisation = copy.hyperparamOptimisation;
-  this->hyperparamOptimisationRestarts = copy.hyperparamOptimisationRestarts;
-  this->covarianceCorrection = copy.covarianceCorrection;
-  this->debugEnabled = copy.debugEnabled;
+SmmcOptions::~SmmcOptions(void)
+{
 }
 
-bool SmmcOptions::isDebugEnabled(void) { return debugEnabled; }
 
-double SmmcOptions::getSimulationEndTime(void) { return simulationEndTime; }
-
-void SmmcOptions::setSimulationEndTime(double simulationEndTime) {
-  this->simulationEndTime = simulationEndTime;
+SmmcOptions::SmmcOptions(const SmmcOptions& copy)
+{
+	this->simulationEndTime = copy.simulationEndTime;
+	this->simulationRuns = copy.simulationRuns;
+	this->simulationTimepoints = copy.simulationTimepoints;
+	this->timeseriesEnabled = copy.timeseriesEnabled;
+	this->initialObservtions = copy.initialObservtions;
+	this->numberOfTestPoints = copy.numberOfTestPoints;
+	this->sampler = copy.sampler;
+	this->kernelGP = copy.kernelGP;
+	this->hyperparamOptimisation = copy.hyperparamOptimisation;
+	this->hyperparamOptimisationRestarts = copy.hyperparamOptimisationRestarts;
+	this->covarianceCorrection = copy.covarianceCorrection;
+	this->debugEnabled = copy.debugEnabled;
 }
 
-int SmmcOptions::getN(void) { return initialObservtions; }
 
-void SmmcOptions::setN(int datapoints) {
-  this->initialObservtions = datapoints;
+bool SmmcOptions::isDebugEnabled(void)
+{
+	return debugEnabled;
 }
 
-int SmmcOptions::getNumberOfTestPoints(void) { return numberOfTestPoints; }
 
-void SmmcOptions::setNumberOfTestPoints(int datapoints) {
-  this->numberOfTestPoints = datapoints;
-  testpoints = nullptr;
+double SmmcOptions::getSimulationEndTime(void)
+{
+	return simulationEndTime;
 }
 
-std::shared_ptr<std::vector<std::vector<double> > >& SmmcOptions::getTestpoints(
-    void) {
-  return testpoints;
+
+void SmmcOptions::setSimulationEndTime(double simulationEndTime)
+{
+	this->simulationEndTime = simulationEndTime;
 }
 
-void SmmcOptions::setTestpoints(
-    std::shared_ptr<std::vector<std::vector<double> > > testpoints) {
-  this->testpoints = testpoints;
+
+int SmmcOptions::getN(void)
+{
+	return initialObservtions;
 }
 
-int SmmcOptions::getSimulationRuns(void) { return simulationRuns; }
 
-int SmmcOptions::getSimulationTimepoints(void) { return simulationTimepoints; }
-
-bool SmmcOptions::isTimeseriesEnabled(void) { return timeseriesEnabled; }
-
-std::shared_ptr<KernelFunction>& SmmcOptions::getKernelGP(void) {
-  return kernelGP;
+void SmmcOptions::setN(int datapoints)
+{
+	this->initialObservtions = datapoints;
 }
 
-bool SmmcOptions::useDefaultHyperparams(void) { return _useDefaultHyperparams; }
 
-void SmmcOptions::setUseDefaultHyperparams(bool useDefaultHyperparams) {
-  this->_useDefaultHyperparams = useDefaultHyperparams;
+int SmmcOptions::getNumberOfTestPoints(void)
+{
+	return numberOfTestPoints;
 }
 
-bool SmmcOptions::getHyperparamOptimisation(void) {
-  return hyperparamOptimisation;
+
+void SmmcOptions::setNumberOfTestPoints(int datapoints)
+{
+		this->numberOfTestPoints = datapoints;
+		testpoints = nullptr;
 }
 
-int SmmcOptions::getHyperparamOptimisationRestarts(void) {
-  return hyperparamOptimisationRestarts;
+
+std::shared_ptr<std::vector<std::vector<double> > >& SmmcOptions::getTestpoints(void)
+{
+	return testpoints;
 }
 
-double SmmcOptions::getCovarianceCorrection(void) {
-  return covarianceCorrection;
+
+void SmmcOptions::setTestpoints(std::shared_ptr<std::vector<std::vector<double> > > testpoints)
+{
+	this->testpoints = testpoints;
 }
 
-void SmmcOptions::setDebugEnabled(bool debugEnabled) {
-  this->debugEnabled = debugEnabled;
+
+int SmmcOptions::getSimulationRuns(void)
+{
+	return simulationRuns;
 }
 
-void SmmcOptions::setSimulationRuns(int simulationRuns) {
-  this->simulationRuns = simulationRuns;
+
+int SmmcOptions::getSimulationTimepoints(void)
+{
+	return simulationTimepoints;
 }
 
-void SmmcOptions::setSimulationTimepoints(int simulationTimepoints) {
-  this->simulationTimepoints = simulationTimepoints;
+
+bool SmmcOptions::isTimeseriesEnabled(void)
+{
+	return timeseriesEnabled;
 }
 
-void SmmcOptions::setTimeseriesEnabled(bool timeseriesEnabled) {
-  this->timeseriesEnabled = timeseriesEnabled;
+
+std::shared_ptr<KernelFunction>& SmmcOptions::getKernelGP(void)
+{
+	return kernelGP;
 }
 
-std::shared_ptr<GridSampler>& SmmcOptions::getSampler(void) { return sampler; }
 
-void SmmcOptions::setSampler(std::shared_ptr<GridSampler> sampler) {
-  this->sampler = sampler;
+bool SmmcOptions::useDefaultHyperparams(void)
+{
+	return _useDefaultHyperparams;
 }
 
-void SmmcOptions::setKernelGP(std::shared_ptr<KernelFunction> kernelGP) {
-  this->kernelGP = kernelGP;
+
+
+void SmmcOptions::setUseDefaultHyperparams(bool useDefaultHyperparams)
+{
+	this->_useDefaultHyperparams = useDefaultHyperparams;
 }
 
-void SmmcOptions::setHyperparamOptimisation(bool hyperparamOptimisation) {
-  this->hyperparamOptimisation = hyperparamOptimisation;
+
+bool SmmcOptions::getHyperparamOptimisation(void)
+{
+	return hyperparamOptimisation;
 }
 
-void SmmcOptions::setHyperparamOptimisationRestarts(
-    int hyperparamOptimisationRestarts) {
-  this->hyperparamOptimisationRestarts = hyperparamOptimisationRestarts;
+
+
+int SmmcOptions::getHyperparamOptimisationRestarts(void)
+{
+	return hyperparamOptimisationRestarts;
 }
 
-void SmmcOptions::setCovarianceCorrection(double covarianceCorrection) {
-  this->covarianceCorrection = covarianceCorrection;
+
+double SmmcOptions::getCovarianceCorrection(void)
+{
+	return covarianceCorrection;
+}
+
+
+void SmmcOptions::setDebugEnabled(bool debugEnabled)
+{
+	this->debugEnabled = debugEnabled;
+}
+
+
+void SmmcOptions::setSimulationRuns(int simulationRuns)
+{
+	this->simulationRuns = simulationRuns;
+}
+
+
+
+void SmmcOptions::setSimulationTimepoints(int simulationTimepoints)
+{
+	this->simulationTimepoints = simulationTimepoints;
+}
+
+
+void SmmcOptions::setTimeseriesEnabled(bool timeseriesEnabled)
+{
+	this->timeseriesEnabled = timeseriesEnabled;
+}
+
+
+std::shared_ptr<GridSampler>& SmmcOptions::getSampler(void)
+{
+	return sampler;
+}
+
+
+void SmmcOptions::setSampler(std::shared_ptr<GridSampler> sampler)
+{
+	this->sampler = sampler;
+}
+
+
+void SmmcOptions::setKernelGP(std::shared_ptr<KernelFunction> kernelGP)
+{
+	this->kernelGP = kernelGP;
+}
+
+
+void SmmcOptions::setHyperparamOptimisation(bool hyperparamOptimisation)
+{
+	this->hyperparamOptimisation = hyperparamOptimisation;
+}
+
+
+void SmmcOptions::setHyperparamOptimisationRestarts(int hyperparamOptimisationRestarts)
+{
+	this->hyperparamOptimisationRestarts = hyperparamOptimisationRestarts;
+}
+
+
+void SmmcOptions::setCovarianceCorrection(double covarianceCorrection)
+{
+	this->covarianceCorrection = covarianceCorrection;
 }

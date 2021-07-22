@@ -5,12 +5,14 @@
 
 class IMatrix;
 
-class CavGauss {
- public:
-  CavGauss(void);
-  virtual ~CavGauss(void);
-  std::shared_ptr<IMatrix> diagV;
-  std::shared_ptr<IMatrix> m;
+class CavGauss
+{
+public:
+	CavGauss(void);
+	virtual ~CavGauss(void);
+	std::shared_ptr<IMatrix> diagV;
+	std::shared_ptr<IMatrix> m;
 };
 
 #endif
+

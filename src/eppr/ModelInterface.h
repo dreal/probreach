@@ -3,10 +3,11 @@
 
 class Context;
 
-class ModelInterface {
- public:
-  ModelInterface();
-  virtual ~ModelInterface();
+class ModelInterface
+{
+public:
+	ModelInterface();
+	virtual ~ModelInterface();
 };
 
 #endif

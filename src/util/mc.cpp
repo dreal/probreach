@@ -36,6 +36,7 @@ capd::interval algorithm::evaluate_pha_chernoff(int min_depth, int max_depth, do
 //    long int sample_size = algorithm::get_cernoff_bound(acc, std::sqrt(conf));
     long int sat = 0;
     long int unsat = 0;
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Chernoff-Hoeffding algorithm started";
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Random sample size: " << sample_size;
 #pragma omp parallel for schedule (dynamic)
@@ -138,6 +139,7 @@ capd::interval algorithm::evaluate_pha_bayesian(int min_depth, int max_depth, do
     double post_mean_sat = ((double) sat + alpha) / ((double) sample_size + alpha + beta);
     double post_mean_unsat = ((double) sample_size - unsat + alpha) / ((double) sample_size + alpha + beta);
     double post_prob = 0;
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Bayesian estimations algorithm started";
     // getting set of all paths
     //std::vector<std::vector<pdrh::mode *>> paths = pdrh::get_paths();
@@ -309,6 +311,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(size_t m
     //initializing probability value
     pair<box, capd::interval> res(domain, capd::interval(0.0));
     if (global_config.min_prob) res = make_pair(domain, capd::interval(1.0));
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
     CLOG_IF(global_config.verbose_result, INFO, "algorithm") << "Domain of nondeterministic parameters: " << domain;
     box mean = domain.get_mean();
     box sigma = domain.get_stddev();

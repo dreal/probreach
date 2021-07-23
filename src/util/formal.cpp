@@ -22,6 +22,7 @@ int formal::evaluate_ha(int min_depth, int max_depth)
 
 capd::interval formal::evaluate_pha(int min_depth, int max_depth)
 {
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining partition of domain of continuous random parameters";
     // getting partition of domain of continuous random variables
     std::vector<box> init_rv_partition = measure::get_rv_partition();
@@ -139,6 +140,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                                 break;
                             case decision_procedure::UNDET:
                                 CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+                                CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
                                 undet_counter++;
                                 break;
                             case decision_procedure::ERROR:
@@ -205,6 +207,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
 
 std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth)
 {
+    CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Obtaining domain of nondeterministic parameters";
     // getting parameter domain
     box nd_domain = pdrh2box::get_nondet_domain();
@@ -372,6 +375,7 @@ std::map<box, capd::interval> formal::evaluate_npha(int min_depth, int max_depth
                         #pragma omp critical
                         {
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+                            CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << p_map[nd];
                             CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << rv;
                             std::vector<box> rv_bisect = box_factory::bisect(rv);
                             rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());

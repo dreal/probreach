@@ -2,6 +2,7 @@
 // Created by fedor on 13/12/18.
 //
 
+#include <iomanip>
 #include <iostream>
 #include <cstring>
 #include <sstream>
@@ -243,7 +244,8 @@ size_t num_samples = 10;
 
 int main(int argc, char* argv[])
 {
-
+    // setting precision for the output to 16 digits
+    cout << setprecision(16);
     // parse command line
     parse_pdrh_config(argc, argv);
 

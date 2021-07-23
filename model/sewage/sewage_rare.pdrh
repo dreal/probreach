@@ -1,0 +1,120 @@
+[-1e6, 1e6] P1;
+[-1e6, 1e6] Pc;
+[-1e6, 1e6] P0;
+[-1e6, 1e6] ga;
+[-1e6, 1e6] tau;
+#define mu 1.5
+//
+//ProbReach 1.4 
+//./formal_verifier -t 1 -k 2 -e <xxxxx> --partition-prob sewage_rare.pdrh
+//
+#define Pc_jump 30
+//-e 1e-10 
+//[1.1637045353583026e-03,1.1637045509038217e-03] | 1.5545519082074688e-11
+// 30.2s
+// -e 1e-11 
+//[1.2075169234103981e-03,1.2075169252671353e-03] | 1.8567372032235463e-12
+// 50.8s
+//#define Pc_jump 34
+// -e 1e-10 
+//[1.5697094887268196e-04,1.5697096441916945e-04] | 1.5546487491455152e-11
+// 26.9s
+// -e 1e-11 
+//[1.4874240341103704e-04,1.4874240526975183e-04] | 1.8587147879861599e-12
+// 43.6s
+//#define Pc_jump 38
+// -e 1e-10 
+//[1.4102197792974100e-05,1.4102213340561581e-05] | 1.5547587480627709e-11
+// 22.9s
+// -e 1e-11 
+//[1.4963347459359042e-05,1.4963349320390877e-05] | 1.8610318347549127e-12
+// 36.7s
+#define Pc_jump 42
+// -e 1e-10 
+//[1.0369103628529364e-06,1.0369259112802119e-06] | 1.5548427275466670e-11
+// 20.2s
+// -e 1e-11 
+//[9.1525282861457104e-07,9.1525469082019229e-07] | 1.8622056212494822e-12
+// 32.7s
+#define sigma 1
+#define pi 3.14159265359
+// we need a folded normal distribution here
+//dist_normal(mu, sigma) ga_rain;
+//dist_pdf(exp(-((ga_rain-mu)^2)/(2*sigma^2))/(sigma*sqrt(2*pi)), -inf, inf, mu) ga_rain;
+dist_pdf(exp(-((ga_rain-mu)^2)/(2*sigma^2))/(sigma*sqrt(2*pi))+ exp(-((ga_rain+mu)^2)/(2*sigma^2))/(sigma*sqrt(2*pi)), 0, inf, 0) ga_rain;
+{
+mode 0;
+time: [0, 30];
+invt:
+//(Pc <= Pc_jump);
+//(ga >= 0);
+//(tau <= 30);
+flow:
+d/dt[P0] =  0;
+d/dt[P1] =  6.75;
+d/dt[Pc] =  0.2;
+d/dt[ga] =  -1;
+d/dt[tau] = 1;
+jump:
+(and (P1 >= 1.5)) ==> @ 1 (and (ga'=ga) ); 
+(and (ga >= 0) (ga <= 0))  ==> @ 2 (and (ga'=ga) ); 
+(and (Pc >= Pc_jump) (Pc <= Pc_jump))  ==> @ 2 (and (ga'=ga));
+}
+{
+mode 1;
+time: [0, 30 - tau];
+invt:
+//(Pc <= Pc_jump);
+(ga > 0);        // ProbReach hangs without this
+//(tau <= 30);
+flow: 
+d/dt[P0] =  0;
+d/dt[P1] =  0;
+d/dt[Pc] =  6.95;
+d/dt[ga] =  -1;
+d/dt[tau] = 1;
+jump:
+(and (Pc >= Pc_jump) (Pc <= Pc_jump))  ==> @ 5 (and (ga'=ga));
+(and (ga <= 0))  ==> @ 2 (and (ga'=ga) ); 
+//(and (ga >= 0) (ga <= 0))  ==> @ 2 (and (ga'=ga) ); 
+}
+{
+mode 5;
+time: [0, 30 - tau];
+invt:
+//(ga > 0);
+//(tau <= 30);
+flow: 
+d/dt[P0] =  6.95;
+d/dt[P1] =  0;
+d/dt[Pc] =  0;
+d/dt[ga] =  -1;
+d/dt[tau] = 1;
+jump:
+//(and (ga >= 0) (ga <= 0)) ==> @ 2 (and (ga'=ga));
+(and (ga <= 0)) ==> @ 2 (and (ga'=ga));
+}
+{
+mode 2;
+time: [0, 30 - tau];
+invt:
+flow: 
+d/dt[P0] =  0;
+d/dt[P1] =  0;
+d/dt[Pc] =  -1.95;
+d/dt[ga] =  0;
+d/dt[tau] = 0;
+jump:
+}
+init:
+@0 (and 
+        (P0 = 0)
+        (P1 = 0)
+        (Pc = 0)
+        (tau = 0)
+        //(ga = sqrt(ga_rain^2)));
+        (ga = ga_rain));
+goal:
+//@2 (and (P0 >= 0.1) );
+//@5 (and (P0 >= 0.1) (P0 <= 0.1) );
+@5 (and (P0 >= 0.1));

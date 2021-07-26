@@ -1,0 +1,1917 @@
+#define q 0.6			// flow parameter
+#define H_init 0		// initial liquid height [m]
+#define T_init 15.667	// initial temperature [C]
+#define T_in 15			// inflow temperature [C]
+#define E_in 1 			// heat source parameter [C*m/h]
+
+#define H_dryout -3
+#define H_overflow 3 
+#define H_low -1
+#define H_high 1
+
+dist_exp(1/438) tau_fault_P1;
+dist_exp(1/350) tau_fault_P2;
+dist_exp(1/640) tau_fault_V;
+
+dist_exp(1/5) tau_P1_rep_var;
+dist_exp(1/5) tau_P2_rep_var;
+dist_exp(1/5) tau_V_rep_var;
+
+dist_discrete(-1:0.5,1:0.5) choice_P1;
+dist_discrete(-1:0.5,1:0.5) choice_P2;
+dist_discrete(-1:0.5,1:0.5) choice_V;
+
+[-1e6, 1e6] H;
+[0, 20] tau_P1;
+[0, 20] tau_P2;
+[0, 20] tau_V;
+[0, 20] tau_P1_rep;
+[0, 20] tau_P2_rep;
+[0, 20] tau_V_rep;
+[0, 20] tau;
+
+
+// current state:  ('P1_on', 'P2_on', 'V_on')
+{
+mode  1 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 33 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 49 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 9 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 13 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 3 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 4 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 2 (tau' = tau);
+(H = H_high) ==> @ 21 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_on', 'V_off')
+{
+mode  2 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  2 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 34 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 50 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 10 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 14 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 3 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 4 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 21 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_on', 'V_stuck_on')
+{
+mode  3 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=-1))  ==> @ 35 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=1))  ==> @ 51 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=-1))  ==> @ 11 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=1))  ==> @ 15 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 23 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_on', 'V_stuck_off')
+{
+mode  4 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  2 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=-1))  ==> @ 36 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=1))  ==> @ 52 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=-1))  ==> @ 12 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=1))  ==> @ 16 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 24 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_off', 'V_on')
+{
+mode  5 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 37 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 53 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 9 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 13 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 7 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 8 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 2 (tau' = tau);
+(H = H_high) ==> @ 21 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_off', 'V_off')
+{
+mode  6 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 38 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 54 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 10 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 14 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 7 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 8 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 2 (tau' = tau);
+(H = H_high) ==> @ 21 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_off', 'V_stuck_on')
+{
+mode  7 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=-1))  ==> @ 39 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=1))  ==> @ 55 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=-1))  ==> @ 11 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=1))  ==> @ 15 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 3 (tau' = tau);
+(H = H_high) ==> @ 23 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_off', 'V_stuck_off')
+{
+mode  8 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=-1))  ==> @ 40 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=1))  ==> @ 56 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=-1))  ==> @ 12 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=1))  ==> @ 16 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 4 (tau' = tau);
+(H = H_high) ==> @ 24 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_stuck_on', 'V_on')
+{
+mode  9 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 41 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 57 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=-1))  ==> @ 11 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=1))  ==> @ 12 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 10 (tau' = tau);
+(H = H_high) ==> @ 25 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_stuck_on', 'V_off')
+{
+mode  10 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  2 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 42 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 58 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=-1))  ==> @ 11 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=1))  ==> @ 12 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 25 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_stuck_on', 'V_stuck_on')
+{
+mode  11 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=-1))  ==> @ 43 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=1))  ==> @ 59 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 27 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_stuck_on', 'V_stuck_off')
+{
+mode  12 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  2 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=-1))  ==> @ 44 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=1))  ==> @ 60 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 28 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_stuck_off', 'V_on')
+{
+mode  13 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 45 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 61 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=-1))  ==> @ 15 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=1))  ==> @ 16 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 14 (tau' = tau);
+(H = H_high) ==> @ 29 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_stuck_off', 'V_off')
+{
+mode  14 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 46 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 62 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=-1))  ==> @ 15 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=1))  ==> @ 16 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 29 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_stuck_off', 'V_stuck_on')
+{
+mode  15 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=-1))  ==> @ 47 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=1))  ==> @ 63 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 31 (tau' = tau);
+}
+
+
+// current state:  ('P1_on', 'P2_stuck_off', 'V_stuck_off')
+{
+mode  16 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=-1))  ==> @ 48 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=1))  ==> @ 64 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 32 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_on', 'V_on')
+{
+mode  17 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 33 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 49 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 25 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 29 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 19 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 20 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 2 (tau' = tau);
+(H = H_high) ==> @ 21 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_on', 'V_off')
+{
+mode  18 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 34 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 50 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 26 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 30 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 19 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 20 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 2 (tau' = tau);
+(H = H_high) ==> @ 21 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_on', 'V_stuck_on')
+{
+mode  19 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=-1))  ==> @ 35 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=1))  ==> @ 51 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=-1))  ==> @ 27 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=1))  ==> @ 31 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 3 (tau' = tau);
+(H = H_high) ==> @ 23 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_on', 'V_stuck_off')
+{
+mode  20 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=-1))  ==> @ 36 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=1))  ==> @ 52 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=-1))  ==> @ 28 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=1))  ==> @ 32 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 4 (tau' = tau);
+(H = H_high) ==> @ 24 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_off', 'V_on')
+{
+mode  21 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  -1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 37 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 53 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 25 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 29 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 23 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 24 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 2 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_off', 'V_off')
+{
+mode  22 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 38 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 54 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 26 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 30 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 23 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 24 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 2 (tau' = tau);
+(H = H_high) ==> @ 21 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_off', 'V_stuck_on')
+{
+mode  23 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  -1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=-1))  ==> @ 39 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=1))  ==> @ 55 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=-1))  ==> @ 27 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=1))  ==> @ 31 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 3 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_off', 'V_stuck_off')
+{
+mode  24 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=-1))  ==> @ 40 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_P2)(choice_P1=1))  ==> @ 56 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=-1))  ==> @ 28 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_P1)(choice_P2=1))  ==> @ 32 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 4 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_stuck_on', 'V_on')
+{
+mode  25 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 41 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 57 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=-1))  ==> @ 27 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=1))  ==> @ 28 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 10 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_stuck_on', 'V_off')
+{
+mode  26 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 42 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 58 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=-1))  ==> @ 27 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=1))  ==> @ 28 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 10 (tau' = tau);
+(H = H_high) ==> @ 25 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_stuck_on', 'V_stuck_on')
+{
+mode  27 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=-1))  ==> @ 43 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=1))  ==> @ 59 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 11 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_stuck_on', 'V_stuck_off')
+{
+mode  28 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=-1))  ==> @ 44 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=1))  ==> @ 60 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 12 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_stuck_off', 'V_on')
+{
+mode  29 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  -1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 45 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 61 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=-1))  ==> @ 31 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=1))  ==> @ 32 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 14 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_stuck_off', 'V_off')
+{
+mode  30 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=-1))  ==> @ 46 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(tau_P1<tau_fault_V)(choice_P1=1))  ==> @ 62 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=-1))  ==> @ 31 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P1)(choice_V=1))  ==> @ 32 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 14 (tau' = tau);
+(H = H_high) ==> @ 29 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_stuck_off', 'V_stuck_on')
+{
+mode  31 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  -1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=-1))  ==> @ 47 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=1))  ==> @ 63 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 15 (tau' = tau);
+}
+
+
+// current state:  ('P1_off', 'P2_stuck_off', 'V_stuck_off')
+{
+mode  32 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 0;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=-1))  ==> @ 48 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P1>=tau_fault_P1)(tau_P1<=tau_fault_P1)(choice_P1=1))  ==> @ 64 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 16 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_on', 'V_on')
+{
+mode  33 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 41 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 45 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 35 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 36 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 34 (tau' = tau);
+(H = H_high) ==> @ 37 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_on', 'V_off')
+{
+mode  34 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  2 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 42 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 46 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 35 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 36 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 37 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_on', 'V_stuck_on')
+{
+mode  35 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=-1))  ==> @ 43 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=1))  ==> @ 47 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 39 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_on', 'V_stuck_off')
+{
+mode  36 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  2 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=-1))  ==> @ 44 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=1))  ==> @ 48 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 40 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_off', 'V_on')
+{
+mode  37 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 41 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 45 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 39 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 40 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 34 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_off', 'V_off')
+{
+mode  38 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 42 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 46 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 39 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 40 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 34 (tau' = tau);
+(H = H_high) ==> @ 37 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_off', 'V_stuck_on')
+{
+mode  39 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=-1))  ==> @ 43 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=1))  ==> @ 47 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 35 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_off', 'V_stuck_off')
+{
+mode  40 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=-1))  ==> @ 44 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=1))  ==> @ 48 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 36 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_stuck_on', 'V_on')
+{
+mode  41 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=-1))  ==> @ 43 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=1))  ==> @ 44 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 42 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_stuck_on', 'V_off')
+{
+mode  42 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  2 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=-1))  ==> @ 43 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=1))  ==> @ 44 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 41 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_stuck_on', 'V_stuck_on')
+{
+mode  43 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_stuck_on', 'V_stuck_off')
+{
+mode  44 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  2 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_stuck_off', 'V_on')
+{
+mode  45 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=-1))  ==> @ 47 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=1))  ==> @ 48 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 46 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_stuck_off', 'V_off')
+{
+mode  46 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=-1))  ==> @ 47 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=1))  ==> @ 48 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 45 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_stuck_off', 'V_stuck_on')
+{
+mode  47 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+}
+
+
+// current state:  ('P1_stuck_on', 'P2_stuck_off', 'V_stuck_off')
+{
+mode  48 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_on', 'V_on')
+{
+mode  49 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 57 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 61 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 51 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 52 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 50 (tau' = tau);
+(H = H_high) ==> @ 53 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_on', 'V_off')
+{
+mode  50 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 58 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 62 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 51 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 52 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 53 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_on', 'V_stuck_on')
+{
+mode  51 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=-1))  ==> @ 59 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=1))  ==> @ 63 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 55 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_on', 'V_stuck_off')
+{
+mode  52 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=-1))  ==> @ 60 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=1))  ==> @ 64 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 56 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_off', 'V_on')
+{
+mode  53 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  -1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 57 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 61 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 55 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 56 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 50 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_off', 'V_off')
+{
+mode  54 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=-1))  ==> @ 58 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(tau_P2<tau_fault_V)(choice_P2=1))  ==> @ 62 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=-1))  ==> @ 55 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(tau_V<tau_fault_P2)(choice_V=1))  ==> @ 56 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 50 (tau' = tau);
+(H = H_high) ==> @ 53 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_off', 'V_stuck_on')
+{
+mode  55 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  -1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=-1))  ==> @ 59 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=1))  ==> @ 63 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 51 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_off', 'V_stuck_off')
+{
+mode  56 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 0;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=-1))  ==> @ 60 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_P2>=tau_fault_P2)(tau_P2<=tau_fault_P2)(choice_P2=1))  ==> @ 64 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 52 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_stuck_on', 'V_on')
+{
+mode  57 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=-1))  ==> @ 59 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=1))  ==> @ 60 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 58 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_stuck_on', 'V_off')
+{
+mode  58 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=-1))  ==> @ 59 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=1))  ==> @ 60 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 57 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_stuck_on', 'V_stuck_on')
+{
+mode  59 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_stuck_on', 'V_stuck_off')
+{
+mode  60 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_stuck_off', 'V_on')
+{
+mode  61 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  -1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=-1))  ==> @ 63 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=1))  ==> @ 64 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_low) ==> @ 62 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_stuck_off', 'V_off')
+{
+mode  62 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 0;
+d/dt[tau] = 1;
+jump:
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=-1))  ==> @ 63 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(and (tau_V>=tau_fault_V)(tau_V<=tau_fault_V)(choice_V=1))  ==> @ 64 (and (tau_P1' = tau_P1) (tau_P2' = tau_P2) (tau_V' = tau_V));
+(H = H_high) ==> @ 61 (tau' = tau);
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_stuck_off', 'V_stuck_on')
+{
+mode  63 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  -1 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+}
+
+
+// current state:  ('P1_stuck_off', 'P2_stuck_off', 'V_stuck_off')
+{
+mode  64 ;
+time: [0, 20-tau];
+invt:
+(tau_P1 <= 20);
+(tau_P2 <= 20);
+(tau_V <= 20);
+(tau_P1_rep <= tau_P1_rep_var);
+(tau_P2_rep <= tau_P2_rep_var);
+(tau_V_rep <= tau_V_rep_var);
+(tau <= 20);
+flow: 
+d/dt[H] =  0 *q;
+d/dt[tau_P1] = 1;
+d/dt[tau_P2] = 1;
+d/dt[tau_V] = 1;
+d/dt[tau_P1_rep] = 1;
+d/dt[tau_P2_rep] = 1;
+d/dt[tau_V_rep] = 1;
+d/dt[tau] = 1;
+jump:
+}
+
+
+
+
+
+init:
+@5 (and 
+		(tau = 0)
+		(H = H_init)
+		(tau_P1 = 0)
+		(tau_P2 = 0)
+		(tau_V = 0)
+		(tau_P1_rep = 0)
+		(tau_P2_rep = 0)
+		(tau_V_rep = 0));
+
+
+goal:
+@63 (and (tau >= 20) (tau <= 20) (H <= H_dryout));
+

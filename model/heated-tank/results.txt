@@ -1,0 +1,17 @@
+Dryout probability:
+
+[(H < -3 metres) for version 1 within 1000 hours] 99% confidence interval:
+[7.165244e-02,9.165244e-02] | 2.000000e-02
+
+
+----------------------------
+
+[(H < -3 metres) for version 1 within 300 hours] 99% confidence interval:
+[4.594627e-03,1.459463e-02] | 1.000000e-02
+
+
+----------------------------
+
+[(H < -5 metres) for version 1 within 500 hours] 99% confidence interval:
+[3.017641e-02,4.017641e-02] | 1.000000e-02
+

@@ -9,11 +9,11 @@
 
 //
 //Ubuntu 20.04.2 LTS
-//ProbReach 1.4 (ab75f217d60f44beb72de56ced39389d3e5e2761)
-//./formal_verifier -t 1 -k 2 -e <xxxxx> --partition-prob sewage_rare_arch21.pdrh
+//ProbReach 1.4 (67c03c2d3c93d454f6ac0fd0be2cfde3a7a68d89) 
+//./formal_verifier -t 1 -k 2 -e <see below> --partition-prob sewage_rare_arch21.pdrh
 //
 
-//#define Pc_jump 30
+#define Pc_jump 30
 //-e 1e-10 
 //[1.1637045353583026e-03,1.1637045509038217e-03] | 1.5545519082074688e-11
 // 30.2s
@@ -37,7 +37,7 @@
 //[1.4963347459359042e-05,1.4963349320390877e-05] | 1.8610318347549127e-12
 // 36.7s
 
-#define Pc_jump 42
+//#define Pc_jump 42
 // -e 1e-10 
 //[1.0369103628529364e-06,1.0369259112802119e-06] | 1.5548427275466670e-11
 // 20.2s

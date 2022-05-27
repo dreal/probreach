@@ -11,19 +11,16 @@
 #include <gsl/gsl_randist.h>
 #include <chrono>
 #include <solver/dreal_wrapper.h>
-#include "generators/smt2_generator.h"
 #include "decision_procedure.h"
 #include "pdrh2box.h"
-
-vector<box> ap::unsat_samples;
 
 using namespace pdrh;
 
 capd::interval ap::get_sample_rate(pdrh::node* n)
 {
-    pdrh::node *node_copy = new pdrh::node;
+    auto *node_copy = new pdrh::node;
     pdrh::copy_tree(node_copy, n);
-    pdrh::node *time_node = new pdrh::node;
+    auto *time_node = new pdrh::node;
     //ap::get_first_time_node(node_copy, time_node);
     // getting time node
     vector<string> time_vars = global_config.time_var_name;
@@ -71,9 +68,9 @@ capd::interval ap::get_sample_rate(pdrh::mode* m)
 // using only the front box here !!!
 capd::interval ap::get_meal_time(pdrh::node *n, vector<box> boxes)
 {
-    pdrh::node *node_copy = new pdrh::node();
+    auto *node_copy = new pdrh::node();
     pdrh::copy_tree(node_copy, n);
-    pdrh::node* time_node = new pdrh::node;
+    auto* time_node = new pdrh::node;
     //ap::get_first_time_node(node_copy, time_node);
     // getting time node
     vector<string> time_vars = global_config.time_var_name;
@@ -162,7 +159,7 @@ bool ap::accept_path(vector<pdrh::mode *> path, vector<box> boxes)
 {
     int pos = 0;
     // creating an empty mode
-    pdrh::mode *prev_mode = new pdrh::mode;
+    auto *prev_mode = new pdrh::mode;
     prev_mode->id = 0;
     while(pos < path.size())
     {
@@ -209,9 +206,9 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     for(box b : boxes)
     {
         map<string, capd::interval> b_map = b.get_map();
-        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        for(auto & it : b_map)
         {
-            par_string += it->first + ',';
+            par_string += it.first + ',';
         }
         //cout << b << endl;
     }
@@ -221,14 +218,14 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     string var_string = "var:";
     string fun_string = "fun:";
     int odes_size = 0;
-    for(auto it = odes.begin(); it != odes.end(); it++)
+    for(auto & ode : odes)
     {
-        if((pdrh::par_map.find(it->first) == pdrh::par_map.end()) &&
-            (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
-            (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
+        if((pdrh::par_map.find(ode.first) == pdrh::par_map.end()) &&
+            (pdrh::rv_map.find(ode.first) == pdrh::rv_map.end()) &&
+            (pdrh::dd_map.find(ode.first) == pdrh::dd_map.end()))
         {
-            var_string += it->first + ',';
-            fun_string += pdrh::node_to_string_infix(it->second) + ',';
+            var_string += ode.first + ',';
+            fun_string += pdrh::node_to_string_infix(ode.second) + ',';
             odes_size++;
         }
     }
@@ -249,12 +246,12 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     capd::ITimeMap timeMap(solver);
 
     //setting parameter values
-    for(box b : boxes)
+    for(const box& b : boxes)
     {
         map<string, capd::interval> b_map = b.get_map();
-        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        for(auto & it : b_map)
         {
-            vectorField.setParameter(it->first, it->second);
+            vectorField.setParameter(it.first, it.second);
         }
     }
 
@@ -262,9 +259,9 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     capd::IVector c(odes_size);
     map<string, capd::interval> init_map = init.get_map();
     int i = 0;
-    for(auto it = init_map.begin(); it != init_map.end(); it++)
+    for(auto & it : init_map)
     {
-        c[i] = it->second;
+        c[i] = it.second;
         i++;
     }
     capd::C0HORect2Set s(c);
@@ -273,17 +270,17 @@ box ap::solve_odes(map<string, pdrh::node *> odes, box init, capd::interval time
     capd::IVector result = timeMap(time, s);
     map<string, capd::interval> res_map;
     i = 0;
-    for(auto it = odes.begin(); it != odes.end(); it++)
+    for(auto & ode : odes)
     {
-        if((pdrh::par_map.find(it->first) == pdrh::par_map.end()) &&
-           (pdrh::rv_map.find(it->first) == pdrh::rv_map.end()) &&
-           (pdrh::dd_map.find(it->first) == pdrh::dd_map.end()))
+        if((pdrh::par_map.find(ode.first) == pdrh::par_map.end()) &&
+           (pdrh::rv_map.find(ode.first) == pdrh::rv_map.end()) &&
+           (pdrh::dd_map.find(ode.first) == pdrh::dd_map.end()))
         {
-            res_map.insert(make_pair(it->first, result[i]));
+            res_map.insert(make_pair(ode.first, result[i]));
             i++;
         }
     }
-    return box(res_map);
+    return {res_map};
 }
 
 // boxes - vector of parameter boxes, init - initial box, time - time horizon
@@ -292,12 +289,12 @@ box ap::solve_odes_nonrig(map<string, pdrh::node *> odes, box init, capd::interv
     // creating capd string here
     // declaring parameters
     string par_string = "par:";
-    for(box b : boxes)
+    for(const box& b : boxes)
     {
         map<string, capd::interval> b_map = b.get_map();
-        for(auto it = b_map.begin(); it != b_map.end(); it++)
+        for(auto & it : b_map)
         {
-            par_string += it->first + ',';
+            par_string += it.first + ',';
         }
         //cout << b << endl;
     }

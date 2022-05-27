@@ -86,7 +86,7 @@ string pdrh::node_to_string_infix(pdrh::node* n)
  * @param index - an identifier.
  * @return node with fixed index as string.
  */
-string pdrh::node_fix_index(pdrh::node* n, int step, string index)
+string pdrh::node_fix_index(pdrh::node* n, int step, const string& index)
 {
     stringstream s;
     // checking whether n is an operation node
@@ -101,7 +101,46 @@ string pdrh::node_fix_index(pdrh::node* n, int step, string index)
     }
     else
     {
-//        if(pdrh::var_map.find(n->value) != pdrh::var_map.end())
+        // only performing a soft check here whether the value is digit or an identifier
+        if(isdigit(n->value.front()) || n->value == "true" || n->value == "false")
+        {
+            s << " " << n->value;
+        }
+        else
+        {
+            s  << " " << n->value << "_" << step << "_" << index;
+        }
+    }
+    return s.str();
+}
+
+/**
+ * Getting a string representation of the node in prefix notation with the fixed index.
+ *
+ * @param n - pointer to the root of the expression tree.
+ * @param step - depth in the path.
+ * @param index - an identifier.
+ * @return node with fixed index as string.
+ */
+string pdrh::node_fix_index_negation(pdrh::node* n, int step, string index)
+{
+    stringstream s;
+    // checking whether n is an operation node
+    if(!n->operands.empty())
+    {
+        if (n->value == ">=" || n-> value == ">") {
+            s << "(<=";
+        } else if (n->value == "<=" || n->value == "<" ) {
+            s << "(>=";
+        } else s << "(" << n->value;
+        for(pdrh::node* op : n->operands)
+        {
+            s << pdrh::node_fix_index(op, step, index);
+        }
+        s << ")";
+    }
+    else
+    {
         // only performing a soft check here whether the value is digit or an identifier
         if(isdigit(n->value.front()) || n->value == "true" || n->value == "false")
         {
@@ -505,15 +544,17 @@ node* pdrh::get_node_neg_by_value(node* root, vector<string> values)
 {
     pdrh::node *root_copy = new pdrh::node();
     pdrh::copy_tree(root_copy, root);
+
     pdrh::node* time_node = new pdrh::node;
     pdrh::get_first_node_by_value(root_copy, time_node, values);
-    //cout << "Node before removing time node: " << pdrh::node_to_string_prefix(root) << endl;
+
     if(pdrh::is_node_empty(time_node)) return NULL;
     // creating a negation node
     pdrh::node* not_node = new node("not", {root_copy});
+
     // creating a resulting node
     pdrh::node* res_node = new node("and", {time_node, not_node});
-    //cout << "RES TIME NODE: " << pdrh::node_to_string_prefix(res_node) << endl;
+    cout << "RES TIME NODE: " << pdrh::node_to_string_prefix(res_node) << endl;
     return res_node;
 }
 

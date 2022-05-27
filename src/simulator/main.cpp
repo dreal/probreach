@@ -161,13 +161,15 @@ void parse_cmd(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
     parse_cmd(argc, argv);
+
     // opening pdrh file
     FILE *pdrhfile = fopen(in_file.c_str(), "r");
     if (!pdrhfile)
     {
-        cerr << "Couldn't open the file: " << endl;
+        cerr << "Couldn't open the file: '" << in_file.c_str() << "'\n : " << strerror(errno) <<  endl;
         exit(EXIT_FAILURE);
     }
+
     // set lex to read from it instead of defaulting to STDIN:
     yyin = pdrhfile;
     // parse through the input until there is no more:

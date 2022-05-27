@@ -75,12 +75,14 @@ namespace pdrh
     std::string node_to_string_prefix(node*);
     std::string node_to_string_infix(node*);
 
-    std::string node_fix_index(node*, int, std::string);
+    std::string node_fix_index(node*, int, const std::string&);
     bool is_node_empty(node*);
 
     // we might not need these methods in future
     void get_first_node_by_value(node*, node*, std::vector<std::string>);
     pdrh::node* get_node_neg_by_value(pdrh::node*, std::vector<std::string>);
+
+    std::string node_fix_index_negation(node *n, int step, std::string index);
 }
 
 #endif //PROBREACH_NODE_H

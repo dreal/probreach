@@ -224,7 +224,7 @@ int main(int argc, char *argv[]) {
     //initialize mu generator
     gsl_qrng *m = gsl_qrng_alloc(gsl_qrng_sobol, static_cast<unsigned int>(pdrh::par_map.size()));
     // getting domain of mu parameterS
-    int NondetParCount=pdrh::par_map.size();
+    int NondetParCount = pdrh::par_map.size();
      cout<<"NondetParCount"<<NondetParCount<<endl;
     box mu_domain = pdrh2box::get_nondet_domain();
     CLOG_IF(global_config.verbose, INFO, "algorithm") << "Nondet_domain = " << mu_domain;

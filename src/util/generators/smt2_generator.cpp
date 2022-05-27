@@ -2,6 +2,7 @@
 // Created by fedor on 06/11/17.
 //
 
+#include <sstream>
 #include "pdrh_config.h"
 #include "smt2_generator.h"
 
@@ -125,7 +126,7 @@ string smt2_generator::generate_flow_invt_check_c(mode *m , interval time, box i
 
     // declaring the logic type
     s << "(set-logic QF_NRA_ODE)" << endl;
-
+    cout << "Calling generate_flow_invt_check_c version 1\n";
     // declaring functions and their bounds
     s << "; declaring functions and their bounds" << endl;
     for(auto it = m->flow_map.begin(); it != m->flow_map.end(); it++)
@@ -220,7 +221,7 @@ string smt2_generator::generate_jump_check(mode *m , vector<mode::jump> jumps, b
 
     // declaring the logic type
     s << "(set-logic QF_NRA_ODE)" << endl;
-
+    cout<< "Calling generate_jump_check version 1\n";
     // declaring functions and their bounds
     s << "; declaring functions and their bounds" << endl;
     for(auto it = m->flow_map.begin(); it != m->flow_map.end(); it++)
@@ -308,10 +309,7 @@ string smt2_generator::generate_jump_check(mode *m , vector<mode::jump> jumps, b
     s << "(assert (or " << endl;
     for(mode::jump jump : jumps)
     {
-//        if(jump.guard->operands.front()->value != "counter" && jump.guard->operands.back()->value != "counter")
-//        {
-            s << pdrh::node_fix_index(jump.guard, 0, "t") << endl;
-//        }
+        s << pdrh::node_fix_index(jump.guard, 0, "t") << endl;
     }
     s << "))" << endl;
 
@@ -332,25 +330,32 @@ string smt2_generator::generate_jump_check(mode *m , vector<mode::jump> jumps, b
 string smt2_generator::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
 {
     stringstream s;
+    s.precision(16);
     // setting logic
     s << "(set-logic QF_NRA_ODE)" << endl;
     // declaring variables and defining bounds
+    short count = 0;
     for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
     {
+        count++;
         s << "(declare-fun " << it->first << " () Real)" << endl;
         for(int i = 0; i < path.size(); i++)
         {
             s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
             s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-            if(it->second.first->value != "-infty")
-            {
-                s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-                s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-            }
-            if(it->second.second->value != "infty")
-            {
-                s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
-                s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
+            if (count > 4) {
+                if(it->second.first->value != "-infty")
+                {
+                    s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
+                    s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
+                    s << "\n";
+                }
+                if(it->second.second->value != "infty")
+                {
+                    s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
+                    s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
+                    s << "\n";
+                }
             }
         }
     }
@@ -458,39 +463,41 @@ string smt2_generator::reach_to_smt2(vector<pdrh::mode*> path, vector<box> boxes
     return s.str();
 }
 
-
+// 2.3 with not goal
 string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> boxes)
 {
     stringstream s;
+    s.precision(16);
+
     // setting logic
     s << "(set-logic QF_NRA_ODE)" << endl;
-    // checking whether either of last jumps have a time node
-//    pdrh::node* timed_node_neg;
-//    for(pdrh::state st : pdrh::goal)
-//    {
-//        timed_node_neg = pdrh::get_time_node_neg(st.prop);
-//        if(timed_node_neg)
-//        {
-//            break;
-//        }
-//    }
+
+    short count = 0;
     // declaring variables and defining bounds
     for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
     {
+        count++;
         s << "(declare-fun " << it->first << " () Real)" << endl;
         for(int i = 0; i < path.size(); i++)
         {
+
+            // Exclude assertions
             s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
             s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-            if(it->second.first->value != "-infty")
-            {
-                s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-                s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-            }
-            if(it->second.second->value != "infty")
-            {
-                s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
-                s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
+
+            if (count > 4) {
+                if(it->second.first->value != "-infty")
+                {
+                    s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
+                    s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
+                    s << "\n";
+                }
+                if(it->second.second->value != "infty")
+                {
+                    s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
+                    s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
+                    s << "\n";
+                }
             }
         }
     }
@@ -500,33 +507,41 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> box
         s << "(declare-fun time_" << i << " () Real)" << endl;
         s << "(assert (>= time_" << i << " " << pdrh::node_fix_index(path.at(i)->time.first, i, "0") << "))" << endl;
         s << "(assert (<= time_" << i << " " << pdrh::node_fix_index(path.at(i)->time.second, i, "0") << "))" << endl;
+        s << "\n";
     }
+
     // declaring local time and bounds
-    //if (!timed_node_neg)
-    //{
     s << "(declare-fun local_time () Real)" << endl;
     for(unsigned long i = 0; i < path.size() - 1; i++)
     {
         s << "(declare-fun local_time_" << i << "_0 () Real)" << endl;
-        s << "(declare-fun local_time_" << i << "_t () Real)" << endl;
+
         s << "(assert (= local_time_" << i << "_0 " << pdrh::node_fix_index(path.at(i)->time.first, i, "0") <<
-          "))" << endl;
+             "))" << endl;
+        s << "\n";
+
+        s << "(declare-fun local_time_" << i << "_t () Real)" << endl;
         s << "(assert (>= local_time_" << i << "_t " << pdrh::node_fix_index(path.at(i)->time.first, i, "0") <<
           "))" << endl;
         s << "(assert (<= local_time_" << i << "_t " << pdrh::node_fix_index(path.at(i)->time.second, i, "0") <<
           "))" << endl;
+        s << "\n";
     }
+
     // last mode
-    //s << "(declare-fun local_time () Real)" << endl;
     s << "(declare-fun local_time_" << path.size() - 1 << "_0 () Real)" << endl;
-    s << "(declare-fun local_time_" << path.size() - 1 << "_t () Real)" << endl;
+
     s << "(assert (= local_time_" << path.size() - 1 << "_0 " << pdrh::node_fix_index(path.back()->time.first, path.size() - 1, "0") <<
       "))" << endl;
+    s << "\n";
+
+    s << "(declare-fun local_time_" << path.size() - 1 << "_t () Real)" << endl;
     s << "(assert (>= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.first, path.size() - 1, "0") <<
       "))" << endl;
     s << "(assert (<= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.second, path.size() - 1, "0") <<
       "))" << endl;
-    //}
+    s << "\n";
+
     // defining odes
     for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
     {
@@ -537,26 +552,26 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> box
             {
                 s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
             }
-            // introducing local time if defined
-            //if(!timed_node_neg)
-            //{
             s << "(= d/dt[local_time] 1.0)";
-            //}
             s << "))" << endl;
         }
     }
+
     // defining the negated reachability formula
     s << "(assert (and (and " << endl;
+
     // defining initial states
     s << "(or ";
     for(pdrh::state st : pdrh::init)
     {
         if(path.front()->id == st.id)
         {
-            s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")";
+            s << pdrh::node_fix_index(st.prop, 0, "0");
         }
     }
     s << ")" << endl;
+    s << endl;
+
     // defining boxes bounds
     for(box b : boxes)
     {
@@ -569,52 +584,52 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> box
                 s << "(<= " << it->first << "_" << i << "_0 " << it->second.rightBound() << ")" << endl;
                 s << "(>= " << it->first << "_" << i << "_t " << it->second.leftBound() << ")" << endl;
                 s << "(<= " << it->first << "_" << i << "_t " << it->second.rightBound() << ")" << endl;
+
             }
         }
     }
+
+
+
+    s << ")" << endl;
+
     // defining trajectory
     int step = 0;
+    s << "(and ";
     for(pdrh::mode* m : path)
     {
         // defining integrals
-        s << "(= [";
+        s << "\n(= [";
         for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
         {
             s << ode_it->first << "_" << step << "_t ";
         }
-        // defining local time if enabled
-        //if((step == path.size() - 1) && (!timed_node_neg))
-        //if(!timed_node_neg)
-        //{
         s << "local_time_" << step << "_t";
-        //}
         s << "] (integral 0.0 time_" << step << " [";
         for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
         {
             s << ode_it->first << "_" << step << "_0 ";
         }
-        // defining local time if enabled
-        //if((step == path.size() - 1) && (!timed_node_neg))
-        //if(!timed_node_neg)
-        //{
         s << "local_time_" << step << "_0";
-        //}
         s << "] flow_" << m->id << "))" << endl;
-        // defining invariants
-        for(pdrh::node* invt : m->invts)
-        {
-            s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
-        }
+
+
+
         // checking the current depth
         if(step < path.size() - 1)
         {
+            // defining invariants
+            for(pdrh::node* invt : m->invts)
+            {
+                s << "(forall_t " << m->id << " [0.0 time_" << step << "] " << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
+            }
+            s << ")";
             // defining jumps
             for (pdrh::mode::jump j : m->jumps)
             {
-                //cout << "Jumping from " << m->id << " to " << j.next_id << "(control " << path.at(step+1)->id << ")" << endl;
                 if(j.next_id == path.at(step+1)->id)
                 {
-                    //cout << "Recording the jumping from " << m->id << " to " << j.next_id << "(control " << path.at(step+1)->id << ")" << endl;
+                    s << "\n(and ";
                     s << pdrh::node_fix_index(j.guard, step, "t") << endl;
                     if (step < path.size() - 1)
                     {
@@ -627,62 +642,58 @@ string smt2_generator::reach_c_to_smt2(vector<pdrh::mode*> path, vector<box> box
                 }
             }
         }
-        step++;
-    }
-    s << ")";
-    // defining goal
-    s << "(and ";
-    for(pdrh::state st : pdrh::goal)
-    {
-        if(path.back()->id == st.id)
-        {
-            //pdrh::node* timed_node_neg = ap::get_time_node_neg(st.prop);
-            // defining time vars
-            vector<string> time_vars = global_config.time_var_name;
-            time_vars.push_back(global_config.sample_time);
-            pdrh::node* timed_node_neg = pdrh::get_node_neg_by_value(st.prop, time_vars);
-            if(!timed_node_neg)
-            {
-                // checking if there is a not in front of the guard predicate because dReal does not work nicely
-                // with double negation
-                s << "(= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.second, path.size() - 1, "0") <<
-                  ")" << endl;
-                if(st.prop->value == "not")
-                {
-                    s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (" <<
-                      pdrh::node_fix_index(st.prop->operands.front(), path.size() - 1, "t") << "))";
-                }
-                    // transforming the negation of disjunction into the conjunction of negations
-                else if(st.prop->value == "or")
-                {
-                    for(pdrh::node* n : st.prop->operands)
-                    {
-                        s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " <<
-                          pdrh::node_fix_index(n, path.size() - 1, "t") << "))";
+        else{
+            for(pdrh::state st : pdrh::goal) {
+                if(path.back()->id == st.id) {
+                    vector<string> time_vars = global_config.time_var_name;
+                    time_vars.push_back(global_config.sample_time);
+                    pdrh::node* timed_node_neg = pdrh::get_node_neg_by_value(st.prop, time_vars);
+                    if(!timed_node_neg) {
+                        if(st.prop->value == "not") {
+                            s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (" <<
+                              pdrh::node_fix_index(st.prop->operands.front(), path.size() - 1, "t") << "))";
+                        }
+                        else if(st.prop->value == "or") {
+                            for(pdrh::node* n : st.prop->operands) {
+                                s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " <<
+                                  pdrh::node_fix_index(n, path.size() - 1, "t") << "))";
+                            }
+                        } else {
+                            s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not "
+                              << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << "))";
+                        }
+                    } else {
+                        s << pdrh::node_fix_index(timed_node_neg, path.size() - 1, "t");
+                        delete timed_node_neg;
                     }
                 }
-                else
-                {
-                    s << "(forall_t " << st.id << " [0 time_" << path.size() - 1 << "] (not " << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << "))";
-                }
             }
-            else
+            s << ")\n(or ";
+            // defining goalinvariants
+            for(pdrh::node* invt : m->invts)
             {
-                s << pdrh::node_fix_index(timed_node_neg, path.size() - 1, "t");
-                delete timed_node_neg;
+                s << "(not " << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
             }
         }
+        step++;
     }
-    s << ")))" << endl;
+
+    // defining goal
+    s << "(= local_time_" << path.size() - 1 << "_t " << pdrh::node_fix_index(path.back()->time.second, path.size() - 1, "0") <<
+      "))" << endl;
+
+
+    s << "))" << endl;
     // final statements
     s << "(check-sat)" << endl;
     s << "(exit)" << endl;
     return s.str();
 }
 
-
+// 2.2 with not jump
 string smt2_generator::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vector<box> boxes)
 {
+    // Redirect to the goal state if last jump is reached
     if(depth == path.size() - 1)
     {
         return smt2_generator::reach_c_to_smt2(path, boxes);
@@ -690,73 +701,79 @@ string smt2_generator::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vec
     else
     {
         stringstream s;
+        s.precision(16);
         // setting logic
-        s << "(set-logic QF_NRA_ODE)" << endl;
-        // checking whether either of last jumps have a time node
-//        pdrh::node* timed_node_neg;
-//        for(pdrh::mode::jump j : path.at(depth)->jumps)
-//        {
-//            timed_node_neg = pdrh::get_time_node_neg(j.guard);
-//            if(timed_node_neg)
-//            {
-//                //cout << "Found timed node: " << pdrh::node_to_string_prefix(timed_node_neg) << endl;
-//                break;
-//            }
-//        }
+        s << "(set-logic QF_NRA_ODE)" << endl << endl;
+
+        short count = 0;
         // declaring variables and defining bounds
         for(auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
         {
+            count++;
             s << "(declare-fun " << it->first << " () Real)" << endl;
             for(int i = 0; i <= depth; i++)
             {
+                // Exclude assertions
                 s << "(declare-fun " << it->first << "_" << i << "_0 () Real)" << endl;
                 s << "(declare-fun " << it->first << "_" << i << "_t () Real)" << endl;
-                if(it->second.first->value != "-infty")
-                {
-                    s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-                    s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
-                }
-                if(it->second.second->value != "infty")
-                {
-                    s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
-                    s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
+                if (count > 4) {
+                    if(it->second.first->value != "-infty")
+                    {
+                        s << "(assert (>= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
+                        s << "(assert (>= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.first) << "))" << endl;
+                        s << "\n";
+                    }
+                    if(it->second.second->value != "infty")
+                    {
+                        s << "(assert (<= " << it->first << "_" << i << "_0 " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
+                        s << "(assert (<= " << it->first << "_" << i << "_t " << pdrh::node_to_string_prefix(it->second.second) << "))" << endl;
+                        s << "\n";
+                    }
                 }
             }
         }
-        // declaring time
+
+        // declaring global time
         for(int i = 0; i <= depth; i++)
         {
             s << "(declare-fun time_" << i << " () Real)" << endl;
             s << "(assert (>= time_" << i << " " << pdrh::node_fix_index(path.at(i)->time.first, i, "0") << "))" << endl;
             s << "(assert (<= time_" << i << " " << pdrh::node_fix_index(path.at(i)->time.second, i, "0") << "))" << endl;
+            s << "\n";
         }
-        // declaring local time and bounds
-//        if (!timed_node_neg)
-//        {
-        s << "(declare-fun local_time () Real)" << endl;
-        //cout << "HERE" << endl;
+
+        // declaring local time for each jump
+        s << "(declare-fun local_time () Real)" << endl << endl;
         for(unsigned long i = 0; i < depth; i++)
         {
             s << "(declare-fun local_time_" << i << "_0 () Real)" << endl;
-            s << "(declare-fun local_time_" << i << "_t () Real)" << endl;
+
+
             s << "(assert (= local_time_" << i << "_0 " << pdrh::node_fix_index(path.at(i)->time.first, i, "0") <<
               "))" << endl;
+            s << "\n";
+
+            s << "(declare-fun local_time_" << i << "_t () Real)" << endl;
             s << "(assert (>= local_time_" << i << "_t " << pdrh::node_fix_index(path.at(i)->time.first, i, "0") <<
               "))" << endl;
             s << "(assert (<= local_time_" << i << "_t " << pdrh::node_fix_index(path.at(i)->time.second, i, "0") <<
               "))" << endl;
+            s << "\n";
         }
-        // last mode
-        //s << "(declare-fun local_time () Real)" << endl;
+
         s << "(declare-fun local_time_" << depth << "_0 () Real)" << endl;
+
+        s << "(assert (= local_time_"
+        << depth << "_0 " << pdrh::node_fix_index(path.at(depth)->time.first, depth, "0") << "))" << endl;
+        s << "\n";
+
         s << "(declare-fun local_time_" << depth << "_t () Real)" << endl;
-        s << "(assert (= local_time_" << depth << "_0 " << pdrh::node_fix_index(path.at(depth)->time.first, depth, "0") <<
-          "))" << endl;
-        s << "(assert (>= local_time_" << depth << "_t " << pdrh::node_fix_index(path.at(depth)->time.first, depth, "0") <<
-          "))" << endl;
-        s << "(assert (<= local_time_" << depth << "_t " << pdrh::node_fix_index(path.at(depth)->time.second, depth, "0") <<
-          "))" << endl;
-//        }
+        s << "(assert (>= local_time_" << depth << "_t "
+        << pdrh::node_fix_index(path.at(depth)->time.first, depth, "0") << "))" << endl;
+        s << "(assert (<= local_time_" << depth << "_t "
+        << pdrh::node_fix_index(path.at(depth)->time.second, depth, "0") << "))" << endl << endl;
+        s << "\n";
+
         // defining odes
         int step = 0;
         for(auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
@@ -768,11 +785,7 @@ string smt2_generator::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vec
                 {
                     s << "(= d/dt[" << ode_it->first << "] " << pdrh::node_to_string_prefix(ode_it->second) << ")";
                 }
-                // introducing local time if defined
-                //if((!timed_node_neg))
-                //{
                 s << "(= d/dt[local_time] 1.0)";
-                //}
                 s << "))" << endl;
             }
             if(step >= depth)
@@ -783,16 +796,18 @@ string smt2_generator::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vec
         }
         // defining the negated reachability formula
         s << "(assert (and (and " << endl;
-        // defining initial states
+
+        // defining initial states and boxes bounds
         s << "(or ";
         for(pdrh::state st : pdrh::init)
         {
             if(path.front()->id == st.id)
             {
-                s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")";
+                s << pdrh::node_fix_index(st.prop, 0, "0");
             }
         }
-        s << ")" << endl;
+        s << ")" << endl << endl;
+
         // defining boxes bounds
         for(box b : boxes)
         {
@@ -808,32 +823,33 @@ string smt2_generator::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vec
                 }
             }
         }
+
+
+        s << ")" << endl << endl;
+
         // defining trajectory
+        s << "(and ";
         for(int i = 0; i <= depth; i++)
         {
             pdrh::mode* m = path.at(i);
-            // defining integrals
-            s << "(= [";
+
+            // defining integrals, a.k.a. flows
+            s << "\n(= [";
             for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
             {
                 s << ode_it->first << "_" << i << "_t ";
             }
-            // defining local time if enabled
-            //if(!timed_node_neg)
-            //{
             s << "local_time_" << i << "_t";
-            //}
             s << "] (integral 0.0 time_" << i << " [";
             for(auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
             {
                 s << ode_it->first << "_" << i << "_0 ";
             }
-            // defining local time if enabled
-            //if(!timed_node_neg)
-            //{
+
             s << "local_time_" << i << "_0";
             //}
-            s << "] flow_" << m->id << "))" << endl;
+            s << "] flow_" << m->id << ")))" << endl;
+
             // defining invariants
             for(pdrh::node* invt : m->invts)
             {
@@ -848,6 +864,7 @@ string smt2_generator::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vec
                     // getting only the jumps leading to the next mode in the path
                     if(j.next_id == path.at(i+1)->id)
                     {
+                        s << "\n(and ";
                         s << pdrh::node_fix_index(j.guard, i, "t") << endl;
                         if(i < path.size() - 1)
                         {
@@ -859,62 +876,100 @@ string smt2_generator::reach_c_to_smt2(int depth, vector<pdrh::mode *> path, vec
                         }
                     }
                 }
+            }/* else {
+                for(pdrh::mode::jump j : path.at(depth)->jumps) {
+                    if(j.next_id == path.at(depth+1)->id) {
+
+                        // extracting time variables
+                        vector<string> time_vars = global_config.time_var_name;
+                        time_vars.push_back(global_config.sample_time);
+                        pdrh::node* timed_node_neg = pdrh::get_node_neg_by_value(j.guard, time_vars);
+
+                        if (!timed_node_neg) {
+                            // checking if there is a not in front of the guard predicate because dReal does not work nicely
+                            // with double negation
+                            if(j.guard->value == "not") {
+                                s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (" <<
+                                  pdrh::node_fix_index(j.guard->operands.front(), depth, "t") << "))";
+                            }
+                                // transforming the negation of disjunction into the conjunction of negations
+                            else if(j.guard->value == "or") {
+                                for(pdrh::node* n : j.guard->operands) {
+                                    s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (not " <<
+                                      pdrh::node_fix_index(n, depth, "t") << "))";
+                                }
+                            } else {
+                                s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (not " <<
+                                  pdrh::node_fix_index(j.guard, depth, "t") << "))";
+                            }
+                        }
+                        else {
+                            s << pdrh::node_fix_index(timed_node_neg, depth, "t");
+                            delete timed_node_neg;
+                        }
+                    }
+                }
+                s << "\n(or ";
+                // defining invariants
+                for(pdrh::node* invt : m->invts)
+                {
+                    s << "(not " << pdrh::node_fix_index(invt, i, "t") << ")";
+                }
             }
         }
-        s << ")" << endl;
+
+        s << "(= local_time_" << depth << "_t " << pdrh::node_fix_index(path.at(depth)->time.second, depth, "0") <<
+          ")" << endl;
+        s << ")))" << endl;
+        */
+        }
+
         // defining the last jump
-        s << "(and ";
-        for(pdrh::mode::jump j : path.at(depth)->jumps)
-        {
-            if(j.next_id == path.at(depth+1)->id)
-            {
-                //pdrh::node* timed_node_neg = ap::get_time_node_neg(j.guard);
+        s << endl << endl << "(and " << endl << endl;
+        for(pdrh::mode::jump j : path.at(depth)->jumps) {
+            if(j.next_id == path.at(depth+1)->id) {
+
                 // extracting time variables
                 vector<string> time_vars = global_config.time_var_name;
                 time_vars.push_back(global_config.sample_time);
                 pdrh::node* timed_node_neg = pdrh::get_node_neg_by_value(j.guard, time_vars);
-                if (!timed_node_neg)
-                {
+
+                if (!timed_node_neg) {
                     // checking if there is a not in front of the guard predicate because dReal does not work nicely
                     // with double negation
+                    s << "(or ";
+                    for(pdrh::node* invt : path.at(depth)->invts)
+                    {
+                        s << "(and " << pdrh::node_fix_index(invt, depth, "t") << endl;
+                        s << pdrh::node_fix_index_negation(invt, depth, "t") << ")" << endl;
+                    }
+                    s << ")" << endl;
                     s << "(= local_time_" << depth << "_t " << pdrh::node_fix_index(path.at(depth)->time.second, depth, "0") <<
                       ")" << endl;
-                    if(j.guard->value == "not")
-                    {
-                        /*
-                        pdrh::node *guard_without_negation = new pdrh::node();
-                        pdrh::copy_tree(guard_without_negation, j.guard->operands.front());
-                        s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (" <<
-                        pdrh::node_fix_index(guard_without_negation, depth, "t") << "))";
-                        delete guard_without_negation;
-                        */
+
+                    if(j.guard->value == "not") {
                         s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (" <<
                           pdrh::node_fix_index(j.guard->operands.front(), depth, "t") << "))";
                     }
                         // transforming the negation of disjunction into the conjunction of negations
-                    else if(j.guard->value == "or")
-                    {
-                        for(pdrh::node* n : j.guard->operands)
-                        {
+                    else if(j.guard->value == "or") {
+                        for(pdrh::node* n : j.guard->operands) {
                             s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (not " <<
-                              pdrh::node_fix_index(n, depth, "t") << "))";
+                            pdrh::node_fix_index(n, depth, "t") << "))";
                         }
-                    }
-                    else
-                    {
+                    } else {
                         s << "(forall_t " << path.at(depth)->id << " [0 time_" << depth << "] (not " <<
-                          pdrh::node_fix_index(j.guard, depth, "t") << "))";
+                        pdrh::node_fix_index(j.guard, depth, "t") << "))";
                     }
                 }
-                else
-                {
+                else {
                     s << pdrh::node_fix_index(timed_node_neg, depth, "t");
                     delete timed_node_neg;
                 }
             }
         }
         s << ")))" << endl;
-        // asserting the time point for the last mode
+
         // final statements
         s << "(check-sat)" << endl;
         s << "(exit)" << endl;

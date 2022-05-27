@@ -1,13 +1,19 @@
 //
 // Created by fedor on 26/02/16.
+// Modified by Jevgenij on 13/04/22
 //
 
 #include <unistd.h>
 #include <omp.h>
+
+#include <utility>
 #include "smt2_generator.h"
 #include "decision_procedure.h"
 #include "dreal_wrapper.h"
 #include "pdrh_config.h"
+#include "sstream"
+
+#include "easylogging++.h"
 
 using namespace std;
 
@@ -20,13 +26,11 @@ using namespace std;
  * @param solver_opt - string of solver options.
  * @return satisfiability of reachability for the given set of paths and parameter boxes.
  */
-int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box> boxes, string solver_bin, string solver_opt)
+int decision_procedure::evaluate(const vector<vector<pdrh::mode *>>& paths, const vector<box>& boxes, const string& solver_bin, const string& solver_opt)
 {
     int undet_counter = 0;
-    for(vector<pdrh::mode*> path : paths)
+    for(const vector<pdrh::mode*>& path : paths)
     {
-//        stringstream s;
-//        for(pdrh::mode* m : path) s << m->id << " ";
         int res = evaluate(path, boxes, solver_bin, solver_opt);
         if(res == decision_procedure::result::SAT)
         {
@@ -53,7 +57,7 @@ int decision_procedure::evaluate(vector<vector<pdrh::mode *>> paths, vector<box>
  * @param solver_opt - string of solver options.
  * @return satisfiability of reachability for the given path and parameter boxes.
  */
-int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
+int decision_procedure::evaluate(const vector<pdrh::mode *>& path, const vector<box>& boxes, string solver_bin, const string& solver_opt)
 {
     // evaluating the delta-sat formula
     int first_res = decision_procedure::evaluate_delta_sat(path, boxes, global_config.solver_bin, solver_opt);
@@ -64,13 +68,15 @@ int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes, s
     else if(first_res == decision_procedure::result::SAT)
     {
         // evaluating complement
-        int second_res = decision_procedure::evaluate_complement(path, boxes, solver_bin, solver_opt);
+        int second_res = decision_procedure::evaluate_complement(path, boxes, std::move(solver_bin), solver_opt);
         if(second_res == decision_procedure::result::UNSAT)
         {
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Complement: UNSAT";
             return decision_procedure::result::SAT;
         }
         else if(second_res == decision_procedure::result::SAT)
         {
+            CLOG_IF(global_config.verbose, INFO, "algorithm") << "Complement: SAT";
             return decision_procedure::result::UNDET;
         }
     }
@@ -85,7 +91,7 @@ int decision_procedure::evaluate(vector<pdrh::mode *> path, vector<box> boxes, s
  * @param solver_opt - string of solver options.
  * @return delta-satisfiability of reachability for the given path and parameter boxes.
  */
-int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box> boxes, string solver_bin, string solver_opt)
+int decision_procedure::evaluate_delta_sat(const vector<pdrh::mode *>& path, vector<box> boxes, string solver_bin, string solver_opt)
 {
     // default value for the thread number
     int thread_num = 0;
@@ -96,21 +102,20 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
     std::string filename = std::string(global_config.model_filename);
     size_t ext_index = filename.find_last_of('.');
     std::string raw_filename = filename.substr(0, ext_index);
+
     // creating a name for the smt2 file
     std::stringstream f_stream;
     f_stream << raw_filename << "_" << path.size() - 1 << "_0_" << thread_num << ".smt2";
     std::string smt_filename = f_stream.str();
+
     // writing to the file
     std::ofstream smt_file;
 
     smt_file.open(smt_filename.c_str());
+
     // will work for one initial and one state only
-//    smt_file << pdrh2box::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes);
     smt_file << smt2_generator::reach_to_smt2(path, boxes);
     smt_file.close();
-//    cout << pdrh2box::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes) << endl;
-//    exit(EXIT_SUCCESS);
-
     if(global_config.debug)
     {
         cout << "Thread: " << omp_get_thread_num() << endl;
@@ -118,7 +123,6 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
         cout << smt2_generator::reach_to_smt2(path, boxes) << endl;
     }
 
-//    cout << "Solver options: " << solver_opt << endl;
     // calling dreal here
     // solver_opt.append(" --model");
     int first_res = dreal::execute(solver_bin, smt_filename, solver_opt);
@@ -132,7 +136,6 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
         if((std::remove(smt_filename.c_str()) == 0) &&
            (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
         {
-            //LOG(DEBUG) << "Removed auxiliary files";
             return decision_procedure::UNSAT;
         }
         else
@@ -146,22 +149,6 @@ int decision_procedure::evaluate_delta_sat(vector<pdrh::mode *> path, vector<box
         if((std::remove(smt_filename.c_str()) == 0) &&
            (std::remove(std::string(smt_filename + ".output").c_str()) == 0))
         {
-//            box b = dreal::parse_model(string(smt_filename + ".model"));
-//            cout << "Solution box: " << b << endl;
-//            std::remove(string(smt_filename + ".model").c_str());
-//            map<string, pdrh::node*> reset_map = pdrh::modes.front().jumps.front().reset;
-//            map<string, capd::interval> init_map;
-//            for(auto it = reset_map.begin(); it != reset_map.end(); it++)
-//            {
-//                init_map.insert(make_pair(it->first, pdrh::node_to_interval(it->second, b)));
-//            }
-//            box init_box(init_map);
-//            cout << "New init box: " << init_box << endl;
-//            pdrh::state new_init_state;
-//            new_init_state.id = pdrh::modes.front().jumps.front().next_id;
-//            new_init_state.prop = pdrh::box_to_node(init_box);
-//            cout << "New init state: " << new_init_state.id << ": " << pdrh::node_to_string_prefix(new_init_state.prop) << endl;
-            //LOG(DEBUG) << "Removed auxiliary files";
             return decision_procedure::SAT;
         }
         else
@@ -203,8 +190,6 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
         ofstream smt_c_file;
         smt_c_file.open(smt_c_filename.c_str());
         smt_c_file << smt2_generator::reach_c_to_smt2(i, path, boxes);
-//        cout << pdrh2box::reach_c_to_smt2(i, path, boxes) << endl;
-//        exit(EXIT_SUCCESS);
         if(global_config.debug)
         {
             cout << "Thread: " << omp_get_thread_num() << endl;
@@ -214,6 +199,8 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
         smt_c_file.close();
         // calling dreal here
         int second_res = dreal::execute(solver_bin, smt_c_filename, solver_opt);
+        //if (i != path.size()-1) CLOG_IF(global_config.verbose, INFO, "algorithm") << "Formula " << i << ": \n" << smt2_generator::reach_c_to_smt2(i, path, boxes);
+        CLOG_IF(global_config.verbose, INFO, "algorithm") << "Formula " << i << " is " << second_res;
         if(second_res == -1)
         {
             return decision_procedure::ERROR;
@@ -221,8 +208,7 @@ int decision_procedure::evaluate_complement(vector<pdrh::mode *> path, vector<bo
         else if(second_res == 1)
         {
             if((remove(smt_c_filename.c_str()) != 0) ||
-               (remove(std::string(smt_c_filename + ".output").c_str()) != 0))
-            {
+               (remove(std::string(smt_c_filename + ".output").c_str()) != 0)) {
                 return decision_procedure::ERROR;
             }
         }

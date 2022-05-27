@@ -85,8 +85,10 @@ capd::interval measure::p_measure(box b, double e)
     {
         if(pdrh::rv_map.find(it->first) != pdrh::rv_map.cend())
         {
-            res *= measure::integral(it->first, pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])), it->second, measure::precision(e, edges.size())).first;
-            //res *= measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size())).first;
+            res *= measure::integral(it->first,
+                                     pdrh::node_to_string_infix(std::get<0>(pdrh::rv_map[it->first])),
+                                     it->second,
+                                     measure::precision(e, edges.size())).first;
         }
         else if(pdrh::dd_map.find(it->first) != pdrh::dd_map.cend())
         {

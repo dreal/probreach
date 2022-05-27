@@ -15,16 +15,16 @@ namespace decision_procedure
     enum result {SAT, UNSAT, UNDET, ERROR};
 
     // evaluating all paths
-    int evaluate(vector<vector<pdrh::mode *>>, vector<box>, string, string);
+    int evaluate(const vector<vector<pdrh::mode *>>&, const vector<box>&, const string&, const string&);
 
     // evaluates a path
-    int evaluate(vector<pdrh::mode *>, vector<box>, string, string);
+    int evaluate(const vector<pdrh::mode *>&, const vector<box>&, string, const string&);
 
     // first argument is the path to be evaluated,
     // second argument is the set of nondet boxes
     // third argument is the path to the solver binary
     // fourt argument is the string of solver options
-    int evaluate_delta_sat(vector<pdrh::mode*>, vector<box>, string, string);
+    int evaluate_delta_sat(const vector<pdrh::mode*>&, vector<box>, string, string);
 
     // first argument is the path to be evaluated,
     // second argument is the set of nondet boxes

@@ -1,0 +1,69 @@
+// ARCH 2023 Minimal example B, variant 2
+
+
+#define TMAX 10
+
+//For TMAX = 10, four-core CPU
+//time ./formal_verifier -k 1 -e 0.005 --partition-prob  case_b2.pdrh 
+//[3.4906579929660614e-01,3.5286414471420319e-01] | 3.7983454175970488e-03
+
+//real	0m23.580s
+//user	1m4.904s
+//sys	0m13.339s
+
+
+//For TMAX = 12, four-core CPU
+//time ./formal_verifier -k 1 -e 0.005 --partition-prob  case_b2.pdrh 
+//[4.4651246572725339e-01,4.5026208720019439e-01] | 3.7496214729410005e-03
+
+//real	2m30.030s
+//user	3m20.663s
+//sys	2m28.762s
+
+
+[-1,100] x; 
+[0,100] x_2; 
+[0,20] tau; // time
+
+dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 1/0.1) x_1;
+dist_normal(5, 2) y;
+
+{
+    mode 0;
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = 2;
+        d/dt[x_2] = 0;
+    jump:
+    // instead of introducing a mode and variable y, just add 2 to tau
+    (and (tau = x_2) (tau < x_1) (tau < 5.8)) ==> @2 (and (x' = x) (tau' = tau + 2));
+    (and (tau = x_2) (tau < x_1) (tau < 5.8)) ==> @3 (and (x' = x) (tau' = tau + 2));
+}
+
+{
+    mode 2;         // goal mode
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = -3;
+        d/dt[x_2] = 0;
+    jump:
+}
+
+{
+    mode 3;
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = 0;
+        d/dt[x_2] = 0;
+    jump:
+}
+
+
+init:
+@0 (and (x = 0) (tau = 0) (x_2 = sqrt(y*y)));
+
+goal:
+@2 (and (tau <= TMAX) (x <= -1));

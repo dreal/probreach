@@ -1,0 +1,45 @@
+
+// ARCH 2023 Minimal example D, variant 1
+
+//time ./formal_verifier -k 1 -e 0.005 --partition-prob case_d1.pdrh 
+//[1.8301478543506761e-01,1.8773645712961792e-01] | 4.7216716945503168e-03
+
+//real	1m4.409s
+//user	1m43.385s
+//sys	1m10.322s
+
+
+[-1,100] x; 
+[0,20] tau; // time
+
+dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 1/0.1) x_1;
+dist_pdf(0.08 * exp((-0.08)*x_2), 0, inf, 1/0.08) x_2;
+
+{
+    mode 0;
+
+    time: [0, 10];
+    
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = 2;
+    jump:
+    (and (tau = x_2) (tau < x_1) (tau < 5.8) (x <= 6)) ==> @1 (and (x' = x) (tau' = tau));
+}
+
+
+{
+    mode 1;         // goal mode
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = -3;
+    jump:
+}
+
+
+init:
+@0 (and (x = 0) (tau = 0));
+
+goal:
+@1 (and (tau <= 10) (x <= -1));

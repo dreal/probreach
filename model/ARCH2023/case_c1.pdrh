@@ -1,0 +1,60 @@
+
+// ARCH 2023 Minimal example C, variant 1
+
+// This model is NOT correct!!!
+
+
+
+#define TMAX 10
+
+//For TMAX = 10, four-core CPU
+
+//For TMAX = 12, four-core CPU
+
+
+[-1,100] x; 
+[-1,100] y; 
+[0,20] tau; // time
+
+dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 1/0.1) x_1;
+dist_pdf(0.08 * exp((-0.08)*x_2), 0, inf, 1/0.08) x_2;
+//dist_normal(0, sqrt(2)) noise;
+
+{
+    mode 0;
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = 2;
+        d/dt[y]   = 0;
+    jump:
+    (and (tau = x_2) (tau < x_1) (tau < 5.8)) ==> @1 (and (x' = x) (tau' = tau) (y' = y));
+}
+
+{
+    mode 1;         // delay mode
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = 0;
+        d/dt[y]   = 1;
+       // d/dt[y]   = 1 + noise;
+    jump:
+    (y = 2) ==> @2 (and (x' = x) (tau' = tau) (y' = y));
+}
+
+{
+    mode 2;         // goal mode
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = -3;
+        d/dt[y]   = 0;
+    jump:
+}
+
+init:
+@0 (and (x = 0) (tau = 0) (y = 0));
+
+goal:
+@2 (and (tau <= TMAX) (x <= -1));

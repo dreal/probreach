@@ -1,20 +1,29 @@
 
 // ARCH 2023 Minimal example A, variant 2
 
-//time ./formal_verifier -k 1 -e 0.005 --partition-prob  case_a2.pdrh 
-//[4.4651246572725334e-01,4.5026208720019428e-01] | 3.7496214729409449e-03
+//Assuming dreal is in the path
+// Four-core CPU
+//time ./formal_verifier -k 1 -e 0.005 --partition-prob case_a2.pdrh 
+//[4.6422970553476423e-01,4.6788460184513325e-01] | 3.6548963103690268e-03
 
-//real	2m56.899s
-//user	4m0.474s
-//sys	2m53.068s
+//real	1m24.400s
+//user	3m54.771s
+//sys	0m52.185s
 
 
 [-1,100] x; 
-[0,100] x_2; 
+[-1,100] x_2; 
 [0,20] tau; // time
 
-dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 1/0.1) x_1;
-dist_normal(5, 2) y;
+#define mu 5
+#define sigma 1.414213562
+#define pi 3.14159265359
+
+dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 0) x_1;
+
+// Folded normal distribution
+dist_normal(mu, sigma) y;
+//dist_pdf(exp(-((x_2-mu)^2)/(2*sigma^2))/(sigma*sqrt(2*pi))+ exp(-((x_2+mu)^2)/(2*sigma^2))/(sigma*sqrt(2*pi)), 0, inf, 0) x_2;
 
 {
     mode 0;

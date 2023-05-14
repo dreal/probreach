@@ -2,20 +2,27 @@
 // ARCH 2023 Minimal example D, variant 2
 
 
-//time ./formal_verifier -k 1 -e 0.005 --partition-prob  case_d2.pdrh 
-//[1.2907388713658791e-01,1.3259272590435867e-01] | 3.5188387677707600e-03
+//Assumes dreal is in the path!
+//Four-core CPU
 
-//real	0m40.351s
-//user	1m50.722s
-//sys	0m24.095s
+//time ./formal_verifier -k 1 -e 0.005 --partition-prob case_d2.pdrh 
+//[6.0625081408151871e-02,6.4318562869195559e-02] | 3.6934814610436878e-03
+
+//real	0m15.618s
+//user	0m39.552s
+//sys	0m10.302s
 
 
 [-1,100] x; 
 [0,2000] x_2; 
 [0,20] tau; // time
 
-dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 1/0.1) x_1;
-dist_normal(5, 2) y;
+#define mu 5
+#define sigma 1.414213562
+#define pi 3.14159265359
+
+dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 0) x_1;
+dist_normal(mu, sigma) y;
 
 {
     mode 0;
@@ -25,7 +32,7 @@ dist_normal(5, 2) y;
         d/dt[x]   = 2;
         d/dt[x_2] = 0;
     jump:
-    (and (tau = x_2) (tau <= x_1) (x <= 6)) ==> @1 (and (x' = x) (tau' = tau) (x_2' = x_2));
+    (and (tau = x_2) (tau <= x_1) (x < 6)) ==> @1 (and (x' = x) (tau' = tau) (x_2' = x_2));
 }
 
 {
@@ -43,3 +50,4 @@ init:
 
 goal:
 @1 (and (tau <= 10) (x <= -1));
+

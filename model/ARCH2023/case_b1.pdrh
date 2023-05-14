@@ -1,38 +1,37 @@
 // ARCH 2023 Minimal example B, variant 1
 
 
-#define TMAX 10
+#define TMAX 12
 
+//Assumes dreal is in the path!
 
 //For TMAX = 10, four-core CPU
-//time ./formal_verifier -k 1 -e 0.005 --partition-prob case_b1.pdrh 
-//[2.7318104625317968e-01,2.7624420521942300e-01] | 3.0631589662433178e-03
+//time ./formal_verifier -k 1 -e 0.001 --partition-prob case_b1.pdrh 
+//[2.6624287163869087e-01,2.6686636016518983e-01] | 6.2348852649896092e-04
 
-//real	0m16.545s
-//user	0m22.274s
-//sys	0m15.044s
+//real	0m28.872s
+//user	1m16.157s
+//sys	0m20.486s
 
 
 //For TMAX = 12, four-core CPU
-//time ./formal_verifier -k 1 -e 0.005 --partition-prob case_b1.pdrh 
-//[2.8632455143548746e-01,2.9104623812769653e-01] | 4.7216866922090706e-03
+//time ./formal_verifier -k 1 -e 0.001 --partition-prob case_b1.pdrh 
+//[2.8762080758570635e-01,2.8858315849698063e-01] | 9.6235091127427896e-04
 
-//real	1m23.025s
-//user	1m49.526s
-//sys	1m16.595s
+//real	3m23.205s
+//user	9m18.283s
+//sys	2m26.923s
 
 
 [-1,100] x; 
 [0,20] tau; // time
 
-dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 1/0.1) x_1;
-dist_pdf(0.08 * exp((-0.08)*x_2), 0, inf, 1/0.08) x_2;
+dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 0) x_1;
+dist_pdf(0.08 * exp((-0.08)*x_2), 0, inf, 0) x_2;
 
 {
     mode 0;
-
     time: [0, 10];
-
     flow:
         d/dt[tau] = 1;
         d/dt[x]   = 2;

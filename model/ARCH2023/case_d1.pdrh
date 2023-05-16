@@ -1,16 +1,26 @@
-
 // ARCH 2023 Minimal example D, variant 1
 
-//Assumes dreal is in the path!
-//Four-core CPU
+// Assumes dReal is in the path!
 
-//time ./formal_verifier -k 1 -e 0.005 --partition-prob case_d1.pdrh 
-//[1.8301478543506774e-01,1.8773645712961853e-01] | 4.7216716945507886e-03
-
-//real	0m50.486s
-//user	2m4.820s
-//sys	0m31.988s
-
+// This experiment is performed on a Linux VM
+// ProbReach version: 1.4 (68e9d301d88273916d7277ac592636483a26721b)
+// dReal version: v3.16.05 (commit 3cc1370a5789)
+// OS: Ubuntu 22.04.2 LTS
+// RAM: 8GB
+// CPU info: 
+// 	Manufacturer: Intel Core Processor (Skylake)
+//	Cache size: 16384 KB
+//	Frequency (MHz): 2591.785
+//
+// How to run: 
+//	time ./formal_verifier -t 4 -k 1 -e 0.005 --partition-prob case_d1.pdrh
+//
+// Output:
+//	[1.8301478543506772e-01,1.8773645712961831e-01] | 4.7216716945505943e-03
+//
+//	real	1m4.179s
+//	user	3m18.808s
+//	sys	0m39.204s 
 
 [-1,100] x; 
 [0,20] tau; // time

@@ -1,22 +1,34 @@
-
 // ARCH 2023 Minimal example A, variant 2
 
-//Assuming dreal is in the path
-// Four-core CPU
-//time ./formal_verifier -k 1 -e 0.005 --partition-prob case_a2.pdrh 
-//[4.6422970553476423e-01,4.6788460184513325e-01] | 3.6548963103690268e-03
+// Assuming dReal is in the path
 
-//real	1m24.400s
-//user	3m54.771s
-//sys	0m52.185s
-
+// This experiment is performed on a Linux VM
+// ProbReach version: 1.4 (68e9d301d88273916d7277ac592636483a26721b)
+// dReal version: v3.16.05 (commit 3cc1370a5789)
+// OS: Ubuntu 22.04.2 LTS
+// RAM: 8GB
+// CPU info: 
+// 	Manufacturer: Intel Core Processor (Skylake)
+//	Cache size: 16384 KB
+//	Frequency (MHz): 2591.785
+//
+// How to run: 
+//	time ./formal_verifier -t 4 -k 1 -e 0.005 --partition-prob case_a2.pdrh
+//
+// Output:
+//	[4.4651246572725334e-01,4.5026208720019412e-01] | 3.7496214729407784e-03
+//
+//	real	1m49.294s
+//	user	5m41.576s
+//	sys	1m15.245s 
 
 [-1,100] x; 
 [-1,100] x_2; 
 [0,20] tau; // time
 
 #define mu 5
-#define sigma 1.414213562
+//#define sigma 1.414213562
+#define sigma 2
 #define pi 3.14159265359
 
 dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 0) x_1;

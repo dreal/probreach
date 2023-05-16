@@ -1,29 +1,38 @@
 // ARCH 2023 Minimal example B, variant 1
 
+// Assumes dReal is in the path!
 
+// This experiment is performed on a Linux VM
+// ProbReach version: 1.4 (68e9d301d88273916d7277ac592636483a26721b)
+// dReal version: v3.16.05 (commit 3cc1370a5789)
+// OS: Ubuntu 22.04.2 LTS
+// RAM: 8GB
+// CPU info: 
+// 	Manufacturer: Intel Core Processor (Skylake)
+//	Cache size: 16384 KB
+//	Frequency (MHz): 2591.785
+//
+// How to run: 
+//	time ./formal_verifier -t 4 -k 1 -e 0.005 --partition-prob case_b1.pdrh
+//
+// Output (for TMAX = 10):
+//	[2.4860302565844650e-01,2.5225256046379213e-01] | 3.6495348053456333e-03
+//
+//	real	3m25.166s
+//	user	10m10.590s
+//	sys	2m38.041s
+//
+// Output (for TMAX = 12):
+//	[2.8632455143548763e-01,2.9104623812769687e-01] | 4.7216866922092371e-03
+//
+//	real	1m1.517s
+//	user	3m6.581s
+//	sys	0m38.138s
+
+//#define TMAX 10
 #define TMAX 12
 
-//Assumes dreal is in the path!
-
-//For TMAX = 10, four-core CPU
-//time ./formal_verifier -k 1 -e 0.001 --partition-prob case_b1.pdrh 
-//[2.6624287163869087e-01,2.6686636016518983e-01] | 6.2348852649896092e-04
-
-//real	0m28.872s
-//user	1m16.157s
-//sys	0m20.486s
-
-
-//For TMAX = 12, four-core CPU
-//time ./formal_verifier -k 1 -e 0.001 --partition-prob case_b1.pdrh 
-//[2.8762080758570635e-01,2.8858315849698063e-01] | 9.6235091127427896e-04
-
-//real	3m23.205s
-//user	9m18.283s
-//sys	2m26.923s
-
-
-[-1,100] x; 
+[-10000,10000] x; 
 [0,20] tau; // time
 
 dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 0) x_1;
@@ -65,4 +74,4 @@ init:
 @0 (and (x = 0) (tau = 0));
 
 goal:
-@2 (and (tau <= TMAX) (x <= -1));
+@2 (and (tau = TMAX) (x <= -1));

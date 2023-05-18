@@ -12,15 +12,27 @@
 //	Cache size: 16384 KB
 //	Frequency (MHz): 2591.785
 //
-// How to run: 
-//	time ./formal_verifier -t 4 -k 1 -e 0.005 --partition-prob case_a2.pdrh
+// How to run the formal approach: 
+//	time ./formal_verifier -t 6 -k 1 -e 0.005 --partition-prob case_a2.pdrh
 //
 // Output:
-//	[4.4651246572725334e-01,4.5026208720019412e-01] | 3.7496214729407784e-03
+//  [4.4651246572725356e-01,4.5026208720019384e-01] | 3.7496214729402788e-03
 //
-//	real	1m49.294s
-//	user	5m41.576s
-//	sys	1m15.245s 
+//  real	1m27.802s
+//  user	6m58.464s
+//  sys	1m10.553s
+//
+//
+// How to run the statistical approach (Bayesian estimations algorithm, default confidence value = 0.99):
+//  time ./mc_verifier -t 6 -k 1 -e 0.005 case_a2.pdrh
+//
+// Output:
+//  [4.4730670945956230e-01,4.5730670945956226e-01] | 9.9999999999999534e-03
+//
+//  real	7m19.144s
+//  user	36m36.666s
+//  sys	7m6.221s
+
 
 [-1,100] x; 
 [-1,100] x_2; 
@@ -31,7 +43,7 @@
 #define sigma 2
 #define pi 3.14159265359
 
-dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 0) x_1;
+dist_exp(0.1) x_1;
 
 // Folded normal distribution
 dist_normal(mu, sigma) y;

@@ -12,21 +12,33 @@
 //	Cache size: 16384 KB
 //	Frequency (MHz): 2591.785
 //
-// How to run: 
-//	time ./formal_verifier -t 4 -k 1 -e 0.005 --partition-prob case_d1.pdrh
+// How to run the formal approach: 
+//	time ./formal_verifier -t 6 -k 1 -e 0.005 --partition-prob case_d1.pdrh
 //
 // Output:
-//	[1.8301478543506772e-01,1.8773645712961831e-01] | 4.7216716945505943e-03
+//  [1.8456993919712225e-01,1.8849551525252142e-01] | 3.9255760553991714e-03
 //
-//	real	1m4.179s
-//	user	3m18.808s
-//	sys	0m39.204s 
+//  real	1m58.211s
+//  user	9m23.837s
+//  sys	1m51.691s
+//
+//
+// How to run the statistical approach (Bayesian estimations algorithm, default confidence value = 0.99):
+//  time ./mc_verifier -t 6 -k 1 -e 0.005 case_d1.pdrh
+//
+// Output:
+//  [1.8063381685858132e-01,1.9063381685858133e-01] | 1.0000000000000009e-02
+//
+//  real	2m23.512s
+//  user	11m40.649s
+//  sys	2m35.628s
+
 
 [-1,100] x; 
 [0,20] tau; // time
 
-dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 0) x_1;
-dist_pdf(0.08 * exp((-0.08)*x_2), 0, inf, 0) x_2;
+dist_exp(0.1) x_1;
+dist_exp(0.08) x_2;
 
 {
     mode 0;

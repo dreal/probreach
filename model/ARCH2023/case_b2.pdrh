@@ -12,25 +12,44 @@
 //	Cache size: 16384 KB
 //	Frequency (MHz): 2591.785
 //
-// How to run: 
-//	time ./formal_verifier -t 4 -k 1 -e 0.005 --partition-prob case_b2.pdrh
+// How to run the formal approach: 
+//	time ./formal_verifier -t 6 -k 1 -e 0.005 --partition-prob case_b2.pdrh
 //
 // Output (for TMAX = 10):
-//	[3.0758950754787606e-01,3.1086201484295206e-01] | 3.2725072950759992e-03
+//  [3.0758950754787623e-01,3.1086201484295217e-01] | 3.2725072950759437e-03
 //
-//	real	2m15.388s
-//	user	7m2.185s
-//	sys	1m22.731s
+//  real	1m22.429s
+//  user	6m14.805s
+//  sys	1m11.032s
 //
 // Output (for TMAX = 12):
-//	[4.4651246572725339e-01,4.5026208720019451e-01] | 3.7496214729411115e-03
+//  [4.4651246572725356e-01,4.5026208720019417e-01] | 3.7496214729406119e-03
 //
-//	real	1m57.507s
-//	user	5m51.619s
-//	sys	1m26.131s
+//  real	1m18.099s
+//  user	6m9.543s
+//  sys	1m6.999s
+//
+//
+// How to run the statistical approach (Bayesian estimations algorithm, default confidence value = 0.99):
+//  time ./mc_verifier -t 6 -k 1 -e 0.005 case_b2.pdrh
+//
+// Output (for TMAX = 10):
+//  [3.0549352295128140e-01,3.1549352295128136e-01] | 9.9999999999999534e-03
+//
+//  real	3m52.740s
+//  user	18m29.273s
+//  sys	4m39.618s
+//
+// Output (for TMAX = 12):
+//  [4.4178710267550886e-01,4.5180234773991923e-01] | 1.0015245064410372e-02
+//
+//  real	5m43.193s
+//  user	27m34.222s
+//  sys	6m35.023s
 
-//#define TMAX 10
-#define TMAX 12
+
+#define TMAX 10
+//#define TMAX 12
 
 [-10000,10000] x; 
 [0,100] x_2; 
@@ -41,7 +60,7 @@
 #define sigma 2
 #define pi 3.14159265359
 
-dist_pdf(0.1 * exp((-0.1)*x_1), 0, inf, 0) x_1;
+dist_exp(0.1) x_1;
 dist_normal(mu, sigma) y;
 
 {

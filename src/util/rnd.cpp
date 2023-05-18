@@ -16,6 +16,8 @@
 #include <gsl/gsl_cdf.h>
 #include <vector>
 
+#include <iostream>
+
 using namespace std;
 
 box rnd::get_random_sample(gsl_rng* r)
@@ -42,7 +44,7 @@ box rnd::get_random_sample(gsl_rng* r)
         }
         else if(pdrh::distribution::exp.find(it->first) != pdrh::distribution::exp.cend())
         {
-            edges.insert(make_pair(it->first, gsl_ran_exponential(r, pdrh2box::node_to_interval(
+            edges.insert(make_pair(it->first, gsl_ran_exponential(r, 1 / pdrh2box::node_to_interval(
                     pdrh::distribution::exp[it->first]).mid().leftBound())));
         }
         else if(pdrh::distribution::gamma.find(it->first) != pdrh::distribution::gamma.cend())

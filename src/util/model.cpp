@@ -898,8 +898,8 @@ pdrh::node* pdrh::distribution::normal_to_node(string var, node* mu, node* sigma
 
 pdrh::node* pdrh::distribution::exp_to_node(string var, node* lambda)
 {
-    pdrh::node* plus_node = new node("+", {lambda, new node(var)});
-    pdrh::node* unary_minus_node = new node("-", {plus_node});
+    pdrh::node* times_node = new node("*", {lambda, new node(var)});
+    pdrh::node* unary_minus_node = new node("-", {times_node});
     pdrh::node* exp_node = new node("exp", {unary_minus_node});
     return new node("*", {exp_node, lambda});
 }

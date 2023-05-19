@@ -1,0 +1,71 @@
+
+// ARCH 2023 Minimal example B, variant 2 (delay modelled with an extra mode/location)
+
+
+//For TMAX = 10, six-core CPU, 12 threads
+//time ./formal_verifier -k 2 -e 0.005 --partition-prob case_b2_delaymode.pdrh 
+//[3.0536352604483463e-01,3.0861117780655029e-01] | 3.2476517617156531e-03
+
+//real	1m1.151s
+//user	9m13.135s
+//sys	1m46.098s
+
+
+//For TMAX = 12, six-core CPU, 12 threads
+//time ./formal_verifier -k 2 -e 0.005 --partition-prob case_b2_delaymode.pdrh 
+//[4.4428648422421185e-01,4.4800764955448502e-01] | 3.7211653302731684e-03
+
+//real	1m7.973s
+//user	10m37.876s
+//sys	1m51.549s
+
+
+#define TMAX 12
+
+#define mu 5
+#define sigma 2
+
+[-100,100] x; 
+[-100,100] y; 
+[0,20] tau; // time
+
+dist_exp(0.1) x_1;
+dist_normal(mu, sigma) x_2;
+
+{
+    mode 0;
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = 2;
+        d/dt[y]   = 0;
+    jump:
+    (and (tau = x_2) (tau < x_1) (tau < 5.8) ) ==> @1 (and (x' = x) (tau' = tau) (y' = y));
+}
+
+{
+    mode 1;         // delay mode
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = 0;
+    	d/dt[y]	  = 1;
+    jump:
+    (and (y <= 2) (y >= 2)) ==> @2 (and (x' = x) (tau' = tau) (y' = y));
+}
+
+{
+    mode 2;		// goal mode
+    time: [0, 10];
+    flow:
+        d/dt[tau] = 1;
+        d/dt[x]   = -3;
+        d/dt[y]   = 0;
+    jump:
+}
+
+init:
+@0 (and (x = 0) (tau = 0) (y = 0));
+
+goal:
+@2 (and (tau = TMAX) (x <= -1));

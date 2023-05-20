@@ -48,6 +48,15 @@
 
 
 //For TMAX = 12, six-core CPU, 12 threads; sigma = 1
+//time ./mc_verifier -k 2 -e 0.001 -c 0.999 case_c1.pdrh 
+//[1.8590165453744364e-01,1.8790165453744362e-01] | 1.9999999999999740e-03
+
+//real	99m16.778s
+//user	918m19.892s
+//sys	235m49.702s
+
+
+//For TMAX = 12, six-core CPU, 12 threads; sigma = 1
 //time ./formal_verifier -k 2 -e 0.05 --partition-prob case_c1.pdrh 
 //[1.9606987964526940e-01,2.4064372147927468e-01] | 4.4573841834005284e-02
 

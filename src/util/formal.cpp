@@ -108,7 +108,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                         solver_opt = global_config.solver_opt;
                         s << solver_opt << " --precision " <<
                           measure::volume(rv).leftBound() * global_config.solver_precision_ratio;
-                        global_config.solver_opt = s.str();
+                        //global_config.solver_opt = s.str();
                     }
                     int res = decision_procedure::evaluate(path, boxes, global_config.solver_bin, s.str());
                     // setting old precision

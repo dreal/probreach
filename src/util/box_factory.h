@@ -29,8 +29,6 @@ box merge(box, box);
 box get_mean(std::vector<box>);
 box get_stddev(std::vector<box>);
 box get_keys_diff(box, box);
-box sqrt(box);
-box log(box);
 box get_cover(std::vector<box>);
 bool compatible(std::vector<box>);
 box map_box(box, box);

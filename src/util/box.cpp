@@ -1,75 +1,18 @@
 //
 // Created by fedor on 26/12/15.
 //
-#include "box.h"
-
 #include <capd/capdlib.h>
 #include <capd/intervals/lib.h>
 
 #include <algorithm>
 #include <cmath>
 
+#include "box.h"
+
 using namespace std;
 
-// returns true if box is empty
-bool box::empty() const
+box::box()
 {
-  return (get_map().size() == 0);
-}
-
-bool box::contains(box b) const
-{
-  map<string, capd::interval> edges = get_map();
-  map<string, capd::interval> b_edges = b.get_map();
-  for (auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
-  {
-    if (edges.find(it->first) != edges.cend())
-    {
-      if (!edges[it->first].contains(it->second))
-      {
-        // cout << "Variable \"" << it->first << "\" " << edges[it->first] << "
-        // " << it->second << endl;
-        return false;
-      }
-    }
-    else
-    {
-      ostringstream s;
-      s << "The target box does not contain variable: \"" << it->first << "\"";
-      throw invalid_argument(s.str());
-    }
-  }
-  return true;
-}
-
-bool box::intersects(box b) const
-{
-  map<string, capd::interval> edges = get_map();
-  for (auto it = edges.cbegin(); it != edges.cend(); it++)
-  {
-    if (b.get_map().find(it->first) != b.get_map().cend())
-    {
-      if (!(it->second.contains(b.get_map()[it->first].leftBound()) ||
-            it->second.contains(b.get_map()[it->first].rightBound()) ||
-            b.get_map()[it->first].contains(it->second.leftBound()) ||
-            b.get_map()[it->first].contains(it->second.rightBound())))
-      {
-        return false;
-      }
-    }
-    else
-    {
-      ostringstream s;
-      s << "The target box does not contain variable: \"" << it->first << "\"";
-      throw invalid_argument(s.str());
-    }
-  }
-  return true;
-}
-
-bool box::compatible(box b) const
-{
-  return get_keys_diff(b).empty() && b.get_keys_diff(*this).empty();
 }
 
 box::box(std::map<std::string, capd::interval> e)
@@ -84,12 +27,11 @@ box::box(std::map<std::string, capd::interval> e)
       throw std::invalid_argument(s.str());
     }
   }
-  this->edges = e;
+  edges = e;
 }
 
 box::box(vector<box> boxes)
 {
-  std::map<string, capd::interval> edges;
   for (box b : boxes)
   {
     std::map<string, capd::interval> b_map = b.get_map();
@@ -98,9 +40,9 @@ box::box(vector<box> boxes)
       edges.insert(make_pair(it->first, it->second));
     }
   }
-  this->edges = edges;
 }
 
+// Constructs a box from its string representation (e.g., "a[0,1];b[-3,4];")
 box::box(string line)
 {
   // removing whitespaces
@@ -134,23 +76,78 @@ box::box(string line)
         interval_string.substr(
           pos3 + 1, interval_string.length() - pos3 - 2))));
   }
-  this->edges = b_map;
+  edges = b_map;
+}
+
+// Returns true if the box does not have any edges
+bool box::empty() const
+{
+  return edges.empty();
+}
+
+bool box::contains(box b) const
+{
+  map<string, capd::interval> edges = get_map();
+  map<string, capd::interval> b_edges = b.get_map();
+  for (auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+  {
+    if (edges.find(it->first) != edges.cend())
+    {
+      if (!edges[it->first].contains(it->second))
+      {
+        return false;
+      }
+    }
+    else
+    {
+      ostringstream s;
+      s << "The target box does not contain variable: \"" << it->first << "\"";
+      throw invalid_argument(s.str());
+    }
+  }
+  return true;
+}
+
+bool box::intersects(box b) const
+{
+  for (auto it = edges.cbegin(); it != edges.cend(); it++)
+  {
+    if (b.get_map().find(it->first) != b.get_map().cend())
+    {
+      if (!(it->second.contains(b.get_map()[it->first].leftBound()) ||
+            it->second.contains(b.get_map()[it->first].rightBound()) ||
+            b.get_map()[it->first].contains(it->second.leftBound()) ||
+            b.get_map()[it->first].contains(it->second.rightBound())))
+      {
+        return false;
+      }
+    }
+    else
+    {
+      ostringstream s;
+      s << "The target box does not contain variable: \"" << it->first << "\"";
+      throw invalid_argument(s.str());
+    }
+  }
+  return true;
+}
+
+bool box::compatible(box b) const
+{
+  return (get_vars() == b.get_vars());
 }
 
 std::map<std::string, capd::interval> box::get_map() const
 {
-  return this->edges;
+  return edges;
 }
 
 std::ostream &operator<<(std::ostream &os, const box &b)
 {
   std::map<std::string, capd::interval> e = b.get_map();
   for (auto it = e.cbegin(); it != e.cend(); it++)
-  {
-    // os << it->first << ":" << it->second << "; | " <<
-    // capd::intervals::width(it->second) << endl;
     os << it->first << ":" << it->second << "; ";
-  }
+
   return os;
 }
 
@@ -295,9 +292,7 @@ box operator/(const box &lhs, double rhs)
   return box(res);
 }
 
-/**
- * Returns the edges of the box
- */
+// Returns the list of invervals comprising the box edges
 std::vector<capd::interval> box::get_intervals() const
 {
   std::vector<capd::interval> i;
@@ -308,17 +303,15 @@ std::vector<capd::interval> box::get_intervals() const
   return i;
 }
 
-/**
- * Returns the variables of the box
- */
-std::vector<std::string> box::get_vars() const
+// Returns the box variables
+std::set<std::string> box::get_vars() const
 {
-  std::vector<std::string> v;
+  std::set<std::string> vars;
   for (auto it = edges.cbegin(); it != edges.cend(); it++)
   {
-    v.push_back(it->first);
+    vars.insert(it->first);
   }
-  return v;
+  return vars;
 }
 
 box box::get_mean()
@@ -348,7 +341,6 @@ box box::get_stddev()
 
 double box::max_coordinate_value()
 {
-  map<string, capd::interval> edges = get_map();
   double max = edges.cbegin()->second.leftBound();
   for (auto it = edges.cbegin(); it != edges.cend(); it++)
   {
@@ -362,7 +354,6 @@ double box::max_coordinate_value()
 
 double box::max_side_width()
 {
-  map<string, capd::interval> edges = get_map();
   double max = capd::intervals::width(edges.cbegin()->second);
   for (auto it = edges.cbegin(); it != edges.cend(); it++)
   {
@@ -376,7 +367,6 @@ double box::max_side_width()
 
 double box::min_side_width()
 {
-  map<string, capd::interval> edges = get_map();
   double min = capd::intervals::width(edges.cbegin()->second);
   for (auto it = edges.cbegin(); it != edges.cend(); it++)
   {
@@ -416,7 +406,28 @@ box box::fmod(int mod)
   return box(res);
 }
 
+box box::sqrt()
+{
+  map<string, capd::interval> res;
+  for (auto it = edges.cbegin(); it != edges.cend(); it++)
+  {
+    res.insert(make_pair(it->first, capd::intervals::sqrt(it->second)));
+  }
+  return box(res);
+}
+
+box box::log()
+{
+  map<string, capd::interval> res;
+  for (auto it = edges.cbegin(); it != edges.cend(); it++)
+  {
+    res.insert(make_pair(it->first, capd::intervals::log(it->second)));
+  }
+  return box(res);
+}
+
+// Removes specified variable (together with its interval) from the box
 void box::erase(string var)
 {
-  this->edges.erase(var);
+  edges.erase(var);
 }

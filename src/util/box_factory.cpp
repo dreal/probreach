@@ -366,29 +366,7 @@ box box_factory::get_stddev(vector<box> q)
   {
     sum = sum + (b.get_mean() - mean) * (b.get_mean() - mean);
   }
-  return box_factory::sqrt(sum / div);
-}
-
-box box_factory::sqrt(box b)
-{
-  map<string, capd::interval> b_map = b.get_map();
-  map<string, capd::interval> res;
-  for (auto it = b_map.cbegin(); it != b_map.cend(); it++)
-  {
-    res.insert(make_pair(it->first, capd::intervals::sqrt(it->second)));
-  }
-  return box(res);
-}
-
-box box_factory::log(box b)
-{
-  map<string, capd::interval> b_map = b.get_map();
-  map<string, capd::interval> res;
-  for (auto it = b_map.cbegin(); it != b_map.cend(); it++)
-  {
-    res.insert(make_pair(it->first, capd::intervals::log(it->second)));
-  }
-  return box(res);
+  return (sum / div).sqrt();
 }
 
 box box_factory::get_keys_diff(box lhs, box rhs)

@@ -314,8 +314,8 @@ rnd::update_beta_dist(vector<box> q, box domain, box prev_alpha, box prev_beta)
   box n(n_map), one(one_map), c1(zero_map), c2(zero_map);
   for (box b : q_norm)
   {
-    c1 = c1 + box_factory::log(b);
-    c2 = c2 + box_factory::log(one - b);
+    c1 = c1 + b.log();
+    c2 = c2 + (one - b).log();
   }
   c1 = c1 / n;
   c2 = c2 / n;

@@ -13,9 +13,7 @@ private:
   std::map<std::string, capd::interval> edges;
 
 public:
-  box()
-  {
-  }
+  box();
   box(std::map<std::string, capd::interval>);
   box(std::string);
   box(std::vector<box>);
@@ -31,7 +29,8 @@ public:
 
   std::map<std::string, capd::interval> get_map() const;
   std::vector<capd::interval> get_intervals() const;
-  std::vector<std::string> get_vars() const;
+  std::set<std::string> get_vars() const;
+  
   bool empty() const;
   bool contains(box) const;
   bool intersects(box) const;
@@ -40,6 +39,8 @@ public:
   box get_mean();
   box get_stddev();
   box fmod(int);
+  box sqrt();
+  box log();
   double max_coordinate_value();
   double max_side_width();
   double min_side_width();

@@ -13,9 +13,7 @@ using namespace std;
 
 namespace csvparser
 {
-    map<string, vector<pair<pdrh::node*, pdrh::node*>>> parse(string);
+map<string, vector<pair<pdrh::node *, pdrh::node *>>> parse(string);
 }
 
 #endif //PROBREACH_CSVPARSER_H
-
-

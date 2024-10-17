@@ -12,6 +12,6 @@ using namespace std;
 
 TEST(generate_isat_model, normal)
 {
-    model m = parse_pdrh("/home/fedor/isat/model/cars/stop-nonlinear.pdrh");
-    cout << isat_generator::generate_isat_model(m);
+  model m = parse_pdrh("/home/fedor/isat/model/cars/stop-nonlinear.pdrh");
+  cout << isat_generator::generate_isat_model(m);
 }

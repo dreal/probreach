@@ -9,17 +9,21 @@
 class ProbitRegressionPosterior : public GpPosterior
 {
 public:
-	ProbitRegressionPosterior(std::shared_ptr<GpDataset> inputData, std::shared_ptr<std::vector<double> > mean, std::shared_ptr<std::vector<double> > var);
-	virtual ~ProbitRegressionPosterior(void);
-private:
+  ProbitRegressionPosterior(
+    std::shared_ptr<GpDataset> inputData,
+    std::shared_ptr<std::vector<double>> mean,
+    std::shared_ptr<std::vector<double>> var);
+  virtual ~ProbitRegressionPosterior(void);
 
-	std::shared_ptr<std::vector<double> > probabilities;
-	std::shared_ptr<std::vector<double> > cached_denominator;
+private:
+  std::shared_ptr<std::vector<double>> probabilities;
+  std::shared_ptr<std::vector<double>> cached_denominator;
+
 public:
-	static double standardNormalCDF(double x);
-	std::shared_ptr<std::vector<double> > getClassProbabilities(void);
-	virtual std::shared_ptr<std::vector<double> > getLowerBound(double beta);
-	virtual std::shared_ptr<std::vector<double> > getUpperBound(double beta);
+  static double standardNormalCDF(double x);
+  std::shared_ptr<std::vector<double>> getClassProbabilities(void);
+  virtual std::shared_ptr<std::vector<double>> getLowerBound(double beta);
+  virtual std::shared_ptr<std::vector<double>> getUpperBound(double beta);
 };
 
 #endif

@@ -4,9 +4,6 @@ LocalOptimisation::LocalOptimisation()
 {
 }
 
-
 LocalOptimisation::~LocalOptimisation()
 {
 }
-
-

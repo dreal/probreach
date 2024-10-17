@@ -4,8 +4,8 @@
 class Context
 {
 public:
-	Context();
-	~Context();
+  Context();
+  ~Context();
 };
 
 #endif

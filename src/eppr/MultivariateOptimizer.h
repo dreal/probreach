@@ -6,8 +6,8 @@
 class MultivariateOptimizer
 {
 public:
-	MultivariateOptimizer();
-	virtual ~MultivariateOptimizer();
+  MultivariateOptimizer();
+  virtual ~MultivariateOptimizer();
 };
 
 #endif

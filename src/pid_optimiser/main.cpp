@@ -20,7 +20,7 @@
 #include "stability.h"
 
 #ifdef _OPENMP
-    #include<omp.h>
+#include <omp.h>
 #endif
 
 extern "C"
@@ -62,7 +62,6 @@ using namespace naive;
 //    int num_threads = 1;
 //#endif
 //
-
 
 //// printing help message
 //void print_help()
@@ -242,142 +241,160 @@ using namespace naive;
 //    }
 //}
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-//    cout << dreal::solver_bin << endl;
-//    cout << dreal::cmd_args << endl;
-    // parsing command line arguments
-    // parse_cmd(argc, argv);
-    // parsing pdrh config here
-    parse_pdrh_config(argc, argv);
-    // opening pdrh file
-    FILE *pdrhfile = fopen(global_config.model_filename.c_str(), "r");
-    if (!pdrhfile)
+  //    cout << dreal::solver_bin << endl;
+  //    cout << dreal::cmd_args << endl;
+  // parsing command line arguments
+  // parse_cmd(argc, argv);
+  // parsing pdrh config here
+  parse_pdrh_config(argc, argv);
+  // opening pdrh file
+  FILE *pdrhfile = fopen(global_config.model_filename.c_str(), "r");
+  if (!pdrhfile)
+  {
+    cerr << "Couldn't open the file: " << endl;
+    exit(EXIT_FAILURE);
+  }
+  // set lex to read from it instead of defaulting to STDIN:
+  yyin = pdrhfile;
+  // parse through the input until there is no more:
+  do
+  {
+    yyparse();
+  } while (!feof(yyin));
+
+  cout << "Precision prob: " << global_config.precision_prob << endl;
+
+  START_EASYLOGGINGPP(argc, argv);
+  el::Logger *algorithm_logger = el::Loggers::getLogger("algorithm");
+
+  //    global_config.verbose_result = true;
+  ////    global_config.bayesian_flag = true;
+  //    global_config.reach_depth_max = max_depth;
+  //    global_config.reach_depth_min = min_depth;
+
+  //    cout << "Accuracy: " << acc << endl;
+
+  //    cout << pdrh::model_to_string() << endl;
+
+  // the main algorithm is here
+  box nondet_domain = pdrh2box::get_nondet_domain();
+  cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
+  // copying the parameter map
+  map<string, pair<pdrh::node *, pdrh::node *>> init_par_map;
+  for (auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
+  {
+    init_par_map[it->first] = make_pair(
+      pdrh::copy_node(it->second.first), pdrh::copy_node(it->second.second));
+  }
+  // nondeterministic parameters names
+  vector<string> param_names = {"Kp", "Ki", "Kd"};
+  cout << "Param map:" << endl;
+  for (auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
+  {
+    cout << it->first << "[" << pdrh::node_to_string_infix(it->second.first)
+         << ", " << pdrh::node_to_string_infix(it->second.second) << "]"
+         << endl;
+  }
+  // changing the domain to start with the simplest controller
+  pdrh::node *zero_node = new pdrh::node("0");
+  for (string param : param_names)
+  {
+    pdrh::par_map[param] = make_pair(zero_node, zero_node);
+    cout << param << " : "
+         << pdrh::node_to_string_infix(pdrh::par_map[param].first) << endl;
+  }
+  pair<box, capd::interval> res = make_pair(box(), capd::interval(0.0));
+  if (global_config.min_prob)
+    res.second = capd::interval(1.0);
+  // iterating through all parameter values
+  for (string param : param_names)
+  {
+    // increasing complexity of the controller
+    pdrh::par_map[param] = init_par_map[param];
+    cout << "Domain of nondeterministic parameters: "
+         << pdrh2box::get_nondet_domain() << endl;
+    capd::interval conf_intersection(0);
+    // adjusting discretisation until both intervals intersect by more than 80%
+    // use the size of optimised conf interval instead of the accuracy value of the statistical algorithm
+    while (capd::intervals::width(conf_intersection) <
+           global_config.precision_prob)
     {
-        cerr << "Couldn't open the file: " << endl;
-        exit(EXIT_FAILURE);
+      // cross entropy algorithm is used here
+      global_config.decision_method = 2;
+      cout << "Solving optimisation problem for the discretised system" << endl;
+      cout << "Discretisation using " << global_config.ode_discretisation
+           << " points" << endl;
+      pair<box, capd::interval> opt_res =
+        algorithm::evaluate_npha_cross_entropy_normal(
+          global_config.reach_depth_min,
+          global_config.reach_depth_max,
+          global_config.sample_size,
+          global_config.iter_num,
+          global_config.precision_prob,
+          global_config.conf,
+          stability::is_stable);
+      cout << "Optimisation result: " << endl;
+      cout << opt_res.first << "   |   " << opt_res.second << endl;
+      global_config.decision_method = 1;
+      cout << "Computing confidence interval with guarantees:" << endl;
+      capd::interval prob = algorithm::evaluate_pha_bayesian(
+        global_config.reach_depth_min,
+        global_config.reach_depth_max,
+        global_config.precision_prob,
+        global_config.conf,
+        {opt_res.first});
+      cout << "The verification result:" << endl;
+      cout << opt_res.first << "   |   " << prob << endl;
+      capd::intervals::intersection(opt_res.second, prob, conf_intersection);
+      cout << "Intersection of the two confidence intervals: "
+           << conf_intersection << endl;
+      // increasing the number of points used for odes discretisation
+      if (
+        capd::intervals::width(conf_intersection) <
+        global_config.precision_prob)
+      {
+        global_config.ode_discretisation *= 2;
+      }
+      // updating the result
+      // the case of minimising the probability value
+      if (global_config.min_prob)
+      {
+        // comparing probability intervals by their mid points
+        if (prob.mid() <= res.second.mid())
+          res = make_pair(opt_res.first, prob);
+      }
+      // maximising the probability
+      else
+      {
+        // comparing probability intervals by their mid points
+        if (prob.mid() >= res.second.mid())
+          res = make_pair(opt_res.first, prob);
+      }
+      cout << "Best result so far:" << endl;
+      cout << res.first << "   |   " << res.second << endl;
+      if (
+        capd::intervals::width(conf_intersection) <
+          global_config.precision_prob &&
+        (conf_intersection.rightBound() >= 1 ||
+         conf_intersection.leftBound() <= 0))
+      {
+        break;
+      }
     }
-    // set lex to read from it instead of defaulting to STDIN:
-    yyin = pdrhfile;
-    // parse through the input until there is no more:
-    do
-    {
-        yyparse();
-    }
-    while (!feof(yyin));
+    cout << "Updating controller's complexity" << endl << endl;
+    // doubling the number of samples per iteration
+    global_config.sample_size *= 2;
+    // incrementing the number of iterations
+    global_config.iter_num++;
+  }
+  // removing zero node
+  delete zero_node;
+  cout << "Final verdict:" << endl;
+  cout << res.first << "   |   " << res.second << endl;
 
-    cout << "Precision prob: " << global_config.precision_prob << endl;
+  el::Loggers::unregisterLogger("algorithm");
 
-    START_EASYLOGGINGPP(argc, argv);
-    el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
-
-//    global_config.verbose_result = true;
-////    global_config.bayesian_flag = true;
-//    global_config.reach_depth_max = max_depth;
-//    global_config.reach_depth_min = min_depth;
-
-//    cout << "Accuracy: " << acc << endl;
-
-//    cout << pdrh::model_to_string() << endl;
-
-    // the main algorithm is here
-    box nondet_domain = pdrh2box::get_nondet_domain();
-    cout << "Domain of nondeterministic parameters: " << nondet_domain << endl;
-    // copying the parameter map
-    map<string, pair<pdrh::node*, pdrh::node*>> init_par_map;
-    for(auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
-    {
-        init_par_map[it->first] = make_pair(pdrh::copy_node(it->second.first), pdrh::copy_node(it->second.second));
-    }
-    // nondeterministic parameters names
-    vector<string> param_names = {"Kp", "Ki", "Kd"};
-    cout << "Param map:" << endl;
-    for(auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
-    {
-        cout << it->first << "[" << pdrh::node_to_string_infix(it->second.first) << ", " << pdrh::node_to_string_infix(it->second.second) << "]" << endl;
-    }
-    // changing the domain to start with the simplest controller
-    pdrh::node *zero_node = new pdrh::node("0");
-    for(string param : param_names)
-    {
-        pdrh::par_map[param] = make_pair(zero_node, zero_node);
-        cout << param << " : " << pdrh::node_to_string_infix(pdrh::par_map[param].first) << endl;
-    }
-    pair<box, capd::interval> res = make_pair(box(), capd::interval(0.0));
-    if(global_config.min_prob) res.second = capd::interval(1.0);
-    // iterating through all parameter values
-    for(string param : param_names)
-    {
-        // increasing complexity of the controller
-        pdrh::par_map[param] = init_par_map[param];
-        cout << "Domain of nondeterministic parameters: " << pdrh2box::get_nondet_domain() << endl;
-        capd::interval conf_intersection(0);
-        // adjusting discretisation until both intervals intersect by more than 80%
-        // use the size of optimised conf interval instead of the accuracy value of the statistical algorithm
-        while(capd::intervals::width(conf_intersection) < global_config.precision_prob)
-        {
-            // cross entropy algorithm is used here
-            global_config.decision_method = 2;
-            cout << "Solving optimisation problem for the discretised system" << endl;
-            cout << "Discretisation using " << global_config.ode_discretisation << " points" << endl;
-            pair<box, capd::interval> opt_res = algorithm::evaluate_npha_cross_entropy_normal(global_config.reach_depth_min,
-                                                                                              global_config.reach_depth_max,
-                                                                                              global_config.sample_size,
-                                                                                              global_config.iter_num,
-                                                                                              global_config.precision_prob,
-                                                                                              global_config.conf,
-                                                                                              stability::is_stable);
-            cout << "Optimisation result: " << endl;
-            cout << opt_res.first << "   |   " << opt_res.second << endl;
-            global_config.decision_method = 1;
-            cout << "Computing confidence interval with guarantees:" << endl;
-            capd::interval prob = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min,
-                                                                   global_config.reach_depth_max,
-                                                                   global_config.precision_prob,
-                                                                   global_config.conf, {opt_res.first});
-            cout << "The verification result:" << endl;
-            cout << opt_res.first << "   |   " << prob << endl;
-            capd::intervals::intersection(opt_res.second, prob, conf_intersection);
-            cout << "Intersection of the two confidence intervals: " << conf_intersection << endl;
-            // increasing the number of points used for odes discretisation
-            if(capd::intervals::width(conf_intersection) < global_config.precision_prob)
-            {
-                global_config.ode_discretisation *= 2;
-            }
-            // updating the result
-            // the case of minimising the probability value
-            if(global_config.min_prob)
-            {
-                // comparing probability intervals by their mid points
-                if(prob.mid() <= res.second.mid()) res = make_pair(opt_res.first, prob);
-            }
-            // maximising the probability
-            else
-            {
-                // comparing probability intervals by their mid points
-                if(prob.mid() >= res.second.mid()) res = make_pair(opt_res.first, prob);
-            }
-            cout << "Best result so far:" << endl;
-            cout << res.first << "   |   " << res.second << endl;
-            if(capd::intervals::width(conf_intersection) < global_config.precision_prob && (conf_intersection.rightBound() >= 1 || conf_intersection.leftBound() <= 0))
-            {
-                break;
-            }
-        }
-        cout << "Updating controller's complexity" << endl << endl;
-        // doubling the number of samples per iteration
-        global_config.sample_size *= 2;
-        // incrementing the number of iterations
-        global_config.iter_num++;
-    }
-    // removing zero node
-    delete zero_node;
-    cout << "Final verdict:" << endl;
-    cout << res.first << "   |   " << res.second << endl;
-
-    el::Loggers::unregisterLogger("algorithm");
-
-
-    return 0;
+  return 0;
 }
-

@@ -20,12 +20,12 @@
 #include "decision_procedure.h"
 
 #ifdef _OPENMP
-    #include<omp.h>
+#include <omp.h>
 #endif
 
 extern "C"
 {
-    #include "pdrhparser.h"
+#include "pdrhparser.h"
 }
 
 INITIALIZE_EASYLOGGINGPP
@@ -36,58 +36,66 @@ extern "C" FILE *yyin;
 using namespace std;
 using namespace pdrh;
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    // setting precision for the output to 16 digits
-    cout << setprecision(16);
-    // parse command line
-    parse_pdrh_config(argc, argv);
+  // setting precision for the output to 16 digits
+  cout << setprecision(16);
+  // parse command line
+  parse_pdrh_config(argc, argv);
 
-    // opening pdrh file
-    FILE *pdrhfile = fopen(global_config.model_filename.c_str(), "r");
-    if (!pdrhfile)
-    {
-        cerr << "Couldn't open the file: " << endl;
-        exit(EXIT_FAILURE);
-    }
-    // set lex to read from it instead of defaulting to STDIN:
-    yyin = pdrhfile;
-    // parse through the input until there is no more:
-    do
-    {
-        yyparse();
-    }
-    while (!feof(yyin));
+  // opening pdrh file
+  FILE *pdrhfile = fopen(global_config.model_filename.c_str(), "r");
+  if (!pdrhfile)
+  {
+    cerr << "Couldn't open the file: " << endl;
+    exit(EXIT_FAILURE);
+  }
+  // set lex to read from it instead of defaulting to STDIN:
+  yyin = pdrhfile;
+  // parse through the input until there is no more:
+  do
+  {
+    yyparse();
+  } while (!feof(yyin));
 
-    START_EASYLOGGINGPP(argc, argv);
-    el::Logger* algorithm_logger = el::Loggers::getLogger("algorithm");
+  START_EASYLOGGINGPP(argc, argv);
+  el::Logger *algorithm_logger = el::Loggers::getLogger("algorithm");
 
-    // setting the model type
-    pdrh::set_model_type();
+  // setting the model type
+  pdrh::set_model_type();
 
-    // only the following cases are supported in the formal setting
-    if(pdrh::model_type == pdrh::PHA)
-    {
-        capd::interval probability = algorithm::evaluate_pha_bayesian(global_config.reach_depth_min, global_config.reach_depth_max,
-                                                                      global_config.precision_prob, global_config.conf, {});
-        cout << scientific << probability << " | " << capd::intervals::width(probability) << endl;
-    }
-    else if(pdrh::model_type == pdrh::NPHA)
-    {
+  // only the following cases are supported in the formal setting
+  if (pdrh::model_type == pdrh::PHA)
+  {
+    capd::interval probability = algorithm::evaluate_pha_bayesian(
+      global_config.reach_depth_min,
+      global_config.reach_depth_max,
+      global_config.precision_prob,
+      global_config.conf,
+      {});
+    cout << scientific << probability << " | "
+         << capd::intervals::width(probability) << endl;
+  }
+  else if (pdrh::model_type == pdrh::NPHA)
+  {
+    pair<box, capd::interval> probability =
+      algorithm::evaluate_npha_cross_entropy_normal(
+        global_config.reach_depth_min,
+        global_config.reach_depth_max,
+        global_config.sample_size,
+        global_config.iter_num,
+        global_config.precision_prob,
+        global_config.conf);
+    cout << probability.first << " | " << probability.second << " | "
+         << capd::intervals::width(probability.second) << endl;
+  }
+  else
+  {
+    cerr << "Unrecognised model type" << endl;
+    exit(EXIT_FAILURE);
+  }
 
-        pair<box, capd::interval> probability = algorithm::evaluate_npha_cross_entropy_normal(global_config.reach_depth_min, global_config.reach_depth_max,
-                                                                                          global_config.sample_size, global_config.iter_num,
-                                                                                          global_config.precision_prob, global_config.conf);
-        cout << probability.first << " | " << probability.second << " | " << capd::intervals::width(probability.second) << endl;
-    }
-    else
-    {
-        cerr << "Unrecognised model type" << endl;
-        exit(EXIT_FAILURE);
-    }
+  el::Loggers::unregisterLogger("algorithm");
 
-    el::Loggers::unregisterLogger("algorithm");
-
-    return 0;
+  return 0;
 }
-

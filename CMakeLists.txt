@@ -144,5 +144,5 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/src/translator/CMakeLists.txt)
 # enabling testing
 find_package(GTest)
 if(GTest_FOUND)
-  include(${CMAKE_CURRENT_SOURCE_DIR}/test/util/CMakeLists.txt)
+  include("${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
 endif(GTest_FOUND)

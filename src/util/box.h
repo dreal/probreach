@@ -33,8 +33,8 @@ public:
   
   bool empty() const;
   bool contains(box) const;
-  bool intersects(box) const;
   bool compatible(box) const;
+  bool intersects(box) const;
   box get_keys_diff(box) const;
   box get_mean();
   box get_stddev();

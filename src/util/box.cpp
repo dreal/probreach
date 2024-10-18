@@ -11,10 +11,13 @@
 
 using namespace std;
 
+/// Creates a box that does not contain any intervals.
 box::box()
 {
 }
 
+/// Creates a box from a map, where keys represent variables names,
+/// and values contain their corresponding intervals.
 box::box(std::map<std::string, capd::interval> e)
 {
   for (auto it = e.cbegin(); it != e.cend(); it++)
@@ -42,7 +45,7 @@ box::box(vector<box> boxes)
   }
 }
 
-// Constructs a box from its string representation (e.g., "a[0,1];b[-3,4];")
+/// Constructs a box from its string representation (e.g., "a[0,1];b[-3,4];").
 box::box(string line)
 {
   // removing whitespaces
@@ -79,11 +82,48 @@ box::box(string line)
   edges = b_map;
 }
 
-// Returns true if the box does not have any edges
+/// Returns true if the box does not have any edges
 bool box::empty() const
 {
   return edges.empty();
 }
+
+/// Removes specified variable (together with its interval) from the box
+void box::erase(string var)
+{
+  edges.erase(var);
+}
+
+/// Returns a map representation of the box, whether the map keys contain
+/// the edges names, and the map values contain the intervals 
+/// representing the edges
+std::map<std::string, capd::interval> box::get_map() const
+{
+  return edges;
+}
+
+/// Returns the list of invervals comprising the box edges
+std::vector<capd::interval> box::get_intervals() const
+{
+  std::vector<capd::interval> i;
+  for (auto it = edges.cbegin(); it != edges.cend(); it++)
+  {
+    i.push_back(it->second);
+  }
+  return i;
+}
+
+/// Returns the box variables
+std::set<std::string> box::get_vars() const
+{
+  std::set<std::string> vars;
+  for (auto it = edges.cbegin(); it != edges.cend(); it++)
+  {
+    vars.insert(it->first);
+  }
+  return vars;
+}
+
 
 bool box::contains(box b) const
 {
@@ -135,11 +175,6 @@ bool box::intersects(box b) const
 bool box::compatible(box b) const
 {
   return (get_vars() == b.get_vars());
-}
-
-std::map<std::string, capd::interval> box::get_map() const
-{
-  return edges;
 }
 
 std::ostream &operator<<(std::ostream &os, const box &b)
@@ -292,28 +327,6 @@ box operator/(const box &lhs, double rhs)
   return box(res);
 }
 
-// Returns the list of invervals comprising the box edges
-std::vector<capd::interval> box::get_intervals() const
-{
-  std::vector<capd::interval> i;
-  for (auto it = edges.cbegin(); it != edges.cend(); it++)
-  {
-    i.push_back(it->second);
-  }
-  return i;
-}
-
-// Returns the box variables
-std::set<std::string> box::get_vars() const
-{
-  std::set<std::string> vars;
-  for (auto it = edges.cbegin(); it != edges.cend(); it++)
-  {
-    vars.insert(it->first);
-  }
-  return vars;
-}
-
 box box::get_mean()
 {
   map<string, capd::interval> edges = get_map();
@@ -424,10 +437,4 @@ box box::log()
     res.insert(make_pair(it->first, capd::intervals::log(it->second)));
   }
   return box(res);
-}
-
-// Removes specified variable (together with its interval) from the box
-void box::erase(string var)
-{
-  edges.erase(var);
 }

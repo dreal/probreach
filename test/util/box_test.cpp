@@ -7,16 +7,17 @@
 
 using namespace std;
 
-TEST(box, string_constructor_ok)
+TEST(box, string_constructor_normal)
 {
   map<string, capd::interval> edges;
   edges.insert(make_pair("a", capd::interval("0", "1")));
   edges.insert(make_pair("b", capd::interval("-0.1", "0.1")));
   edges.insert(make_pair("c_index", capd::interval("0", "0")));
   EXPECT_EQ(box(edges), box("a : [0,1];b:[ -0.1, 0.1];c_index:[0,  0];"));
+  EXPECT_EQ(box(edges), box("b:[ -0.1, 0.1];c_index:[0,  0];a : [0,1];"));
 }
 
-TEST(box, string_constructor_no_trailing_semicolon)
+TEST(box, string_constructor_excpetion)
 {
   EXPECT_THROW(
     box("a : [0,1];b:[ -0.1, 0.1];c_index:[0,  0]"), invalid_argument);
@@ -53,6 +54,13 @@ TEST(get_vars, normal_test)
   EXPECT_TRUE(b.get_vars() == set<string>({"a", "c", "b"}));
   EXPECT_TRUE(b.get_vars() == set<string>({"b", "c", "a"}));
   EXPECT_FALSE(b.get_vars() == set<string>({"b", "c", "d"}));
+}
+
+TEST(get_vars, empty_boxes)
+{
+  EXPECT_TRUE(box().get_vars() == box().get_vars());
+  box b("c:[-0.43,342];a:[0,1];b:[0,1];");
+  EXPECT_FALSE(b.get_vars() == box().get_vars());
 }
 
 TEST(get_map, immutability)

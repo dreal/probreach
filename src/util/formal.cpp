@@ -3,7 +3,7 @@
 //
 
 #include <capd/intervals/lib.h>
-#include "easylogging++.h"
+//#include "easylogging++.h"
 #include "pdrh_config.h"
 #include "measure.h"
 #include "box_factory.h"
@@ -25,9 +25,9 @@ int formal::evaluate_ha(int min_depth, int max_depth)
 
 capd::interval formal::evaluate_pha(int min_depth, int max_depth)
 {
-  CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
-  CLOG_IF(global_config.verbose, INFO, "algorithm")
-    << "Obtaining partition of domain of continuous random parameters";
+  //CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
+  //CLOG_IF(global_config.verbose, INFO, "algorithm")
+  //  << "Obtaining partition of domain of continuous random parameters";
   // getting partition of domain of continuous random variables
   std::vector<box> init_rv_partition = measure::get_rv_partition();
   // getting domain of continuous random variables
@@ -46,7 +46,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
   }
   capd::interval probability(0, 1);
   // checking if there are any continuous random variables
-  CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
+  //CLOG_IF(global_config.verbose, INFO, "algorithm") << "P = " << probability;
   // generating all paths of lengths [min_depth, max_depth]
   std::vector<std::vector<pdrh::mode *>> paths =
     pdrh::get_all_paths(min_depth, max_depth);
@@ -68,8 +68,8 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
       // sorting boxes by probability value
       if (global_config.sort_rv_flag)
       {
-        CLOG_IF(global_config.verbose, INFO, "algorithm")
-          << "Sorting the partition of domain of continuous random parameters";
+        //CLOG_IF(global_config.verbose, INFO, "algorithm")
+        //  << "Sorting the partition of domain of continuous random parameters";
         sort(
           rv_partition.begin(),
           rv_partition.end(),
@@ -82,20 +82,20 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
         box rv = rv_partition.at(i);
         // calculating probability measure of the box
         // initially p_box = [1.0, 1.0]
-        CLOG_IF(global_config.verbose, INFO, "algorithm")
-          << "====================";
+        //CLOG_IF(global_config.verbose, INFO, "algorithm")
+        //  << "====================";
         capd::interval p_box(1);
         if (!dd.empty())
         {
           p_box *= measure::p_dd_measure(dd);
-          CLOG_IF(global_config.verbose, INFO, "algorithm") << "dd_box: " << dd;
+          //CLOG_IF(global_config.verbose, INFO, "algorithm") << "dd_box: " << dd;
         }
         if (!rv.empty())
         {
           p_box *= measure::p_measure(rv, global_config.precision_prob);
-          CLOG_IF(global_config.verbose, INFO, "algorithm") << "rv_box: " << rv;
+          //CLOG_IF(global_config.verbose, INFO, "algorithm") << "rv_box: " << rv;
         }
-        CLOG_IF(global_config.verbose, INFO, "algorithm") << "p_box: " << p_box;
+        //CLOG_IF(global_config.verbose, INFO, "algorithm") << "p_box: " << p_box;
         // evaluating boxes
         std::vector<box> boxes{dd, rv};
         // undetermined answers counter
@@ -115,9 +115,9 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
             p_stream << m->id << " ";
           }
           // removing trailing whitespace
-          CLOG_IF(global_config.verbose, INFO, "algorithm")
-            << "Path: "
-            << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
+          //CLOG_IF(global_config.verbose, INFO, "algorithm")
+          //  << "Path: "
+          //  << p_stream.str().substr(0, p_stream.str().find_last_of(" "));
           std::stringstream s;
 // changing solver precision
 #pragma omp critical
@@ -143,9 +143,9 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                   probability.leftBound() + p_box.leftBound(),
                   probability.rightBound());
               }
-              CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-              CLOG_IF(global_config.verbose, INFO, "algorithm")
-                << "P = " << probability;
+              //CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+             // CLOG_IF(global_config.verbose, INFO, "algorithm")
+              //  << "P = " << probability;
               /*
                                 if(capd::intervals::width(probability) <= global_config.precision_prob)
                                 {
@@ -156,18 +156,18 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
               break;
 
             case decision_procedure::UNSAT:
-              CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+              //CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
               unsat_counter++;
               break;
             case decision_procedure::UNDET:
-              CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-              CLOG_IF(global_config.verbose, INFO, "algorithm")
-                << "P = " << probability;
+              //CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+              //CLOG_IF(global_config.verbose, INFO, "algorithm")
+              //  << "P = " << probability;
               undet_counter++;
               break;
             case decision_procedure::ERROR:
-              CLOG(ERROR, "algorithm")
-                << "Error occurred while calling the solver";
+              //CLOG(ERROR, "algorithm")
+              //  << "Error occurred while calling the solver";
               exit(EXIT_FAILURE);
 
             default:
@@ -186,8 +186,8 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
             // if the box is undetermined on either path
             if (undet_counter > 0)
             {
-              CLOG_IF(global_config.verbose, INFO, "algorithm")
-                << "Bisect " << rv;
+              //CLOG_IF(global_config.verbose, INFO, "algorithm")
+              //  << "Bisect " << rv;
               std::vector<box> rv_bisect = box_factory::bisect(rv);
               rv_stack.insert(
                 rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
@@ -201,8 +201,8 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                   probability.leftBound(),
                   probability.rightBound() - p_box.leftBound());
               }
-              CLOG_IF(global_config.verbose, INFO, "algorithm")
-                << "P = " << probability;
+              //CLOG_IF(global_config.verbose, INFO, "algorithm")
+              //  << "P = " << probability;
             }
           }
         };
@@ -221,8 +221,8 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
     {
       capd::interval dd_measure = measure::p_dd_measure(dd);
       res_prob += probability * dd_measure;
-      CLOG_IF(global_config.verbose, INFO, "algorithm")
-        << "P(" << dd << ") = " << probability * dd_measure;
+      //CLOG_IF(global_config.verbose, INFO, "algorithm")
+      //  << "P(" << dd << ") = " << probability * dd_measure;
     }
     else
     {
@@ -235,9 +235,9 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
 std::map<box, capd::interval>
 formal::evaluate_npha(int min_depth, int max_depth)
 {
-  CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
-  CLOG_IF(global_config.verbose, INFO, "algorithm")
-    << "Obtaining domain of nondeterministic parameters";
+  //CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
+  //CLOG_IF(global_config.verbose, INFO, "algorithm")
+  //  << "Obtaining domain of nondeterministic parameters";
   // getting parameter domain
   box nd_domain = pdrh2box::get_nondet_domain();
   // initially partition is the entire parameter domain
@@ -245,16 +245,16 @@ formal::evaluate_npha(int min_depth, int max_depth)
   // if flag is enabled the domain is partitioned up to precision_nondet
   if (global_config.partition_nondet)
   {
-    CLOG_IF(global_config.verbose, INFO, "algorithm")
-      << "Obtaining partition of nondeterministic domain";
+    //CLOG_IF(global_config.verbose, INFO, "algorithm")
+    //  << "Obtaining partition of nondeterministic domain";
     nd_partition.clear();
     //nd_partition = box_factory::partition(nd_domain, global_config.precision_nondet);
     nd_partition =
       box_factory::partition(nd_domain, global_config.partition_nondet_map);
   }
   // getting partition of domain of continuous random variables
-  CLOG_IF(global_config.verbose, INFO, "algorithm")
-    << "Obtaining partition of domain of continuous random parameters";
+  //CLOG_IF(global_config.verbose, INFO, "algorithm")
+  //  << "Obtaining partition of domain of continuous random parameters";
   std::vector<box> rv_partition = measure::get_rv_partition();
   if (rv_partition.empty())
   {
@@ -286,8 +286,8 @@ formal::evaluate_npha(int min_depth, int max_depth)
   // sorting boxes by probability value
   if (global_config.sort_rv_flag)
   {
-    CLOG_IF(global_config.verbose, INFO, "algorithm")
-      << "Sorting the partition of domain of continuous random parameters";
+    //CLOG_IF(global_config.verbose, INFO, "algorithm")
+    //  << "Sorting the partition of domain of continuous random parameters";
     sort(
       rv_partition.begin(),
       rv_partition.end(),
@@ -370,27 +370,27 @@ formal::evaluate_npha(int min_depth, int max_depth)
           capd::interval p_box(1.0, 1.0);
 #pragma omp critical
           {
-            CLOG_IF(global_config.verbose, INFO, "algorithm")
-              << "====================";
+            //CLOG_IF(global_config.verbose, INFO, "algorithm")
+            //  << "====================";
             if (!nd.empty())
             {
-              CLOG_IF(global_config.verbose, INFO, "algorithm")
-                << "nd_box: " << nd;
+              //CLOG_IF(global_config.verbose, INFO, "algorithm")
+              //  << "nd_box: " << nd;
             }
             if (!dd.empty())
             {
               //p_box *= measure::p_dd_measure(dd);
-              CLOG_IF(global_config.verbose, INFO, "algorithm")
-                << "dd_box: " << dd;
+              //CLOG_IF(global_config.verbose, INFO, "algorithm")
+              //  << "dd_box: " << dd;
             }
             if (!rv.empty())
             {
               p_box *= measure::p_measure(rv, global_config.precision_prob);
-              CLOG_IF(global_config.verbose, INFO, "algorithm")
-                << "rv_box: " << rv;
+              //CLOG_IF(global_config.verbose, INFO, "algorithm")
+              //  << "rv_box: " << rv;
             }
-            CLOG_IF(global_config.verbose, INFO, "algorithm")
-              << "p_box: " << p_box;
+            //CLOG_IF(global_config.verbose, INFO, "algorithm")
+            //  << "p_box: " << p_box;
           }
           std::stringstream s;
           std::string solver_opt;
@@ -406,8 +406,8 @@ formal::evaluate_npha(int min_depth, int max_depth)
             {
               s << global_config.solver_precision_ratio;
             }
-            CLOG_IF(global_config.verbose, INFO, "algorithm")
-              << "Solver options: " << s.str();
+            //CLOG_IF(global_config.verbose, INFO, "algorithm")
+            //  << "Solver options: " << s.str();
           }
           switch (decision_procedure::evaluate(
             paths, vector<box>{nd, dd, rv}, global_config.solver_bin, s.str()))
@@ -421,9 +421,9 @@ formal::evaluate_npha(int min_depth, int max_depth)
                 p_map[nd].leftBound() + p_box.leftBound(),
                 p_map[nd].rightBound());
             }
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-            CLOG_IF(global_config.verbose, INFO, "algorithm")
-              << "P = " << p_map[nd];
+            //CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
+            //CLOG_IF(global_config.verbose, INFO, "algorithm")
+            //  << "P = " << p_map[nd];
           }
           break;
 
@@ -436,20 +436,20 @@ formal::evaluate_npha(int min_depth, int max_depth)
                 p_map[nd].leftBound(),
                 p_map[nd].rightBound() - p_box.leftBound());
             }
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-            CLOG_IF(global_config.verbose, INFO, "algorithm")
-              << "P = " << p_map[nd];
+            //CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
+            //CLOG_IF(global_config.verbose, INFO, "algorithm")
+            //  << "P = " << p_map[nd];
           }
           break;
 
           case decision_procedure::result::UNDET:
 #pragma omp critical
           {
-            CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-            CLOG_IF(global_config.verbose, INFO, "algorithm")
-              << "P = " << p_map[nd];
-            CLOG_IF(global_config.verbose, INFO, "algorithm")
-              << "Bisect " << rv;
+            //CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
+            //CLOG_IF(global_config.verbose, INFO, "algorithm")
+             // << "P = " << p_map[nd];
+            //CLOG_IF(global_config.verbose, INFO, "algorithm")
+            //  << "Bisect " << rv;
             std::vector<box> rv_bisect = box_factory::bisect(rv);
             rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
             // updating total partition
@@ -468,8 +468,8 @@ formal::evaluate_npha(int min_depth, int max_depth)
         {
           if (p_map.find(nd) == p_map.end())
           {
-            CLOG(ERROR, "algorithm")
-              << "The box " << nd << " is not in the map";
+            //CLOG(ERROR, "algorithm")
+            //  << "The box " << nd << " is not in the map";
             exit(EXIT_FAILURE);
           }
           capd::interval probability;
@@ -477,10 +477,10 @@ formal::evaluate_npha(int min_depth, int max_depth)
           if (
             capd::intervals::width(probability) <= global_config.precision_prob)
           {
-            CLOG_IF(global_config.verbose, INFO, "algorithm")
-              << "Epsilon is satisfied. Updating resulting probability map "
-                 "with "
-              << nd;
+            //CLOG_IF(global_config.verbose, INFO, "algorithm")
+            //  << "Epsilon is satisfied. Updating resulting probability map "
+            //     "with "
+            //  << nd;
             p_map.erase(nd);
             partition_map.erase(nd);
             res_map[nd] = probability; // * dd_measure;
@@ -488,16 +488,16 @@ formal::evaluate_npha(int min_depth, int max_depth)
           // sorting newly obtained boxes
           if (global_config.sort_rv_flag)
           {
-            CLOG_IF(global_config.verbose, INFO, "algorithm")
-              << "Sorting bisected boxes";
+            //CLOG_IF(global_config.verbose, INFO, "algorithm")
+            //  << "Sorting bisected boxes";
             sort(
               rv_stack.begin(),
               rv_stack.end(),
               measure::compare_boxes_by_p_measure);
           }
           // updating partition map only in case if probability value does not satisfy the probability precision
-          CLOG_IF(global_config.verbose, INFO, "algorithm")
-            << "Updating partition map";
+          //CLOG_IF(global_config.verbose, INFO, "algorithm")
+          //  << "Updating partition map";
           if (partition_map.find(nd) != partition_map.cend())
           {
             partition_map[nd] = rv_stack;
@@ -532,8 +532,8 @@ formal::evaluate_npha(int min_depth, int max_depth)
       //exit(EXIT_SUCCESS);
 
       // updating probability and partition maps
-      CLOG_IF(global_config.verbose, INFO, "algorithm")
-        << "Updating probability map";
+      //CLOG_IF(global_config.verbose, INFO, "algorithm")
+      //  << "Updating probability map";
       std::map<box, capd::interval> tmp_map = p_map;
       for (auto it = tmp_map.cbegin(); it != tmp_map.cend(); it++)
       {
@@ -542,7 +542,7 @@ formal::evaluate_npha(int min_depth, int max_depth)
         if (!nd.empty())
         {
           // bisecting the nondeterministic box
-          CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << nd;
+          //CLOG_IF(global_config.verbose, INFO, "algorithm") << "Bisect " << nd;
           std::vector<box> tmp_boxes;
           // checking if the --ignore-nondet flag is up
           if (global_config.ignore_nondet)

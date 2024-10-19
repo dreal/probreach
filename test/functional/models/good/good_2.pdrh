@@ -1,0 +1,17 @@
+#define n 0.0
+
+[0, 1] x;
+[0, 1] time;
+[0, 1] tau;
+dist_uniform(0, 1) r;
+
+{
+  mode 1;
+  flow:
+    d/dt[x] = 0;
+    d/dt[tau] = 1;
+  jump:
+}
+
+init : @1(and(x = r)(tau = 0));
+goal : @1(and(tau = 1)(and(x <= 0.9 * n + 0.1)(x >= 0.9 * n)));

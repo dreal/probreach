@@ -5,7 +5,6 @@
 #include <vector>
 #include <gsl/gsl_matrix.h>
 
-
 //#include "MatrixGSL.h"
 //#include "DoubleMatrix.h"
 //
@@ -15,14 +14,19 @@
 class DebugLogMatrix
 {
 public:
-	DebugLogMatrix();
-	~DebugLogMatrix();
-	static void printMatrix(char* desc, int id, std::shared_ptr<std::vector<double> > arg);
-	static void printMatrix(char* desc, int id, std::vector<double>& arg);
-	static void printMatrix(char* desc, int id, gsl_vector* arg);
-	static void printMatrix(char* desc, int id, std::shared_ptr<std::vector<std::vector<double> > > arg);
-	static void printMatrix(char* desc, int id, std::vector<std::vector<double> >&  arg);
-	static void printMatrix(char* desc, int id, gsl_matrix* arg);
-	static void printMatrix(char* desc, int id, double arg);
+  DebugLogMatrix();
+  ~DebugLogMatrix();
+  static void
+  printMatrix(char *desc, int id, std::shared_ptr<std::vector<double>> arg);
+  static void printMatrix(char *desc, int id, std::vector<double> &arg);
+  static void printMatrix(char *desc, int id, gsl_vector *arg);
+  static void printMatrix(
+    char *desc,
+    int id,
+    std::shared_ptr<std::vector<std::vector<double>>> arg);
+  static void
+  printMatrix(char *desc, int id, std::vector<std::vector<double>> &arg);
+  static void printMatrix(char *desc, int id, gsl_matrix *arg);
+  static void printMatrix(char *desc, int id, double arg);
 };
 #endif

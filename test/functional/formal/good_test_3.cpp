@@ -48,7 +48,7 @@ static void parse_pdrh_model(string filepath)
 TEST(formal_good_test_3, testing_good_3_pdrh)
 {
   parse_pdrh_model(
-    string(PROBREACH_TEST_MODELS_DIR) + string("/good/good_1.pdrh"));
+    string(PROBREACH_TEST_MODELS_DIR) + string("/good/good_3.pdrh"));
   // setting precision for computing the probability interval
   global_config.precision_prob = 1e-3;
   // computing the probability now

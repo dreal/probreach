@@ -25,6 +25,12 @@ add_executable(formal_good_test_3
 target_link_libraries(formal_good_test_3 probreach_formal -lgtest)
 add_test(formal_good_test_3 "${PROBREACH_BINARY_DIR}/test/functional/formal/formal_good_test_3")
 
+add_executable(formal_good_test_4 
+  ${PROBREACH_TEST_DIR}/functional/formal/good_test_4.cpp
+  ${PROBREACH_TEST_DIR}/main_test.cpp)
+target_link_libraries(formal_good_test_4 probreach_formal -lgtest)
+add_test(formal_good_test_4 "${PROBREACH_BINARY_DIR}/test/functional/formal/formal_good_test_4")
+
 add_executable(formal_bad_test_1 
   ${PROBREACH_TEST_DIR}/functional/formal/bad_test_1.cpp
   ${PROBREACH_TEST_DIR}/main_test.cpp)
@@ -42,3 +48,9 @@ add_executable(formal_bad_test_3
   ${PROBREACH_TEST_DIR}/main_test.cpp)
 target_link_libraries(formal_bad_test_3 probreach_formal -lgtest)
 add_test(formal_bad_test_3 "${PROBREACH_BINARY_DIR}/test/functional/formal/formal_bad_test_3")
+
+add_executable(formal_bad_test_4
+  ${PROBREACH_TEST_DIR}/functional/formal/bad_test_4.cpp
+  ${PROBREACH_TEST_DIR}/main_test.cpp)
+target_link_libraries(formal_bad_test_4 probreach_formal -lgtest)
+add_test(formal_bad_test_4 "${PROBREACH_BINARY_DIR}/test/functional/formal/formal_bad_test_4")

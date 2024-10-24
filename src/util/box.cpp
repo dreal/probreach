@@ -11,13 +11,10 @@
 
 using namespace std;
 
-/// Creates a box that does not contain any intervals.
 box::box()
 {
 }
 
-/// Creates a box from a map, where keys represent variables names,
-/// and values contain their corresponding intervals.
 box::box(std::map<std::string, capd::interval> e)
 {
   for (auto it = e.cbegin(); it != e.cend(); it++)
@@ -45,7 +42,6 @@ box::box(vector<box> boxes)
   }
 }
 
-/// Constructs a box from its string representation (e.g., "a[0,1];b[-3,4];").
 box::box(string line)
 {
   // removing whitespaces
@@ -82,27 +78,21 @@ box::box(string line)
   edges = b_map;
 }
 
-/// Returns true if the box does not have any edges
 bool box::empty() const
 {
   return edges.empty();
 }
 
-/// Removes specified variable (together with its interval) from the box
 void box::erase(string var)
 {
   edges.erase(var);
 }
 
-/// Returns a map representation of the box, whether the map keys contain
-/// the edges names, and the map values contain the intervals 
-/// representing the edges
 std::map<std::string, capd::interval> box::get_map() const
 {
   return edges;
 }
 
-/// Returns the list of invervals comprising the box edges
 std::vector<capd::interval> box::get_intervals() const
 {
   std::vector<capd::interval> i;
@@ -113,7 +103,6 @@ std::vector<capd::interval> box::get_intervals() const
   return i;
 }
 
-/// Returns the box variables
 std::set<std::string> box::get_vars() const
 {
   std::set<std::string> vars;
@@ -124,50 +113,35 @@ std::set<std::string> box::get_vars() const
   return vars;
 }
 
-
 bool box::contains(box b) const
 {
-  map<string, capd::interval> edges = get_map();
+  // only go further if the boxes are compatible
+  if (!compatible(b))
+    return false;
+  // going through all the edges
   map<string, capd::interval> b_edges = b.get_map();
-  for (auto it = b_edges.cbegin(); it != b_edges.cend(); it++)
+  for (auto it = edges.cbegin(), it2 = b_edges.cbegin(); it != edges.cend();
+       it++, it2++)
   {
-    if (edges.find(it->first) != edges.cend())
-    {
-      if (!edges[it->first].contains(it->second))
-      {
-        return false;
-      }
-    }
-    else
-    {
-      ostringstream s;
-      s << "The target box does not contain variable: \"" << it->first << "\"";
-      throw invalid_argument(s.str());
-    }
+    if (!it->second.contains(it2->second))
+      return false;
   }
   return true;
 }
 
 bool box::intersects(box b) const
 {
-  for (auto it = edges.cbegin(); it != edges.cend(); it++)
+  // only go further if the boxes are compatible
+  if (!compatible(b))
+    return false;
+  // going through all the edges
+  map<string, capd::interval> b_edges = b.get_map();
+  for (auto it = edges.cbegin(), it2 = b_edges.cbegin(); it != edges.cend();
+       it++, it2++)
   {
-    if (b.get_map().find(it->first) != b.get_map().cend())
-    {
-      if (!(it->second.contains(b.get_map()[it->first].leftBound()) ||
-            it->second.contains(b.get_map()[it->first].rightBound()) ||
-            b.get_map()[it->first].contains(it->second.leftBound()) ||
-            b.get_map()[it->first].contains(it->second.rightBound())))
-      {
-        return false;
-      }
-    }
-    else
-    {
-      ostringstream s;
-      s << "The target box does not contain variable: \"" << it->first << "\"";
-      throw invalid_argument(s.str());
-    }
+    capd::interval inter;
+    if (!capd::intervals::intersection(it->second, it2->second, inter))
+      return false;
   }
   return true;
 }

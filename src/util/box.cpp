@@ -301,7 +301,7 @@ box operator/(const box &lhs, double rhs)
   return box(res);
 }
 
-box box::get_mean()
+box box::mid()
 {
   map<string, capd::interval> edges = get_map();
   map<string, capd::interval> mu_map;

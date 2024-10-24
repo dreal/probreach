@@ -345,7 +345,7 @@ box box_factory::get_mean(vector<box> q)
   box res(init_map), div(div_map);
   for (box b : q)
   {
-    res = res + b.get_mean();
+    res = res + b.mid();
   }
   return res / div;
 }
@@ -364,7 +364,7 @@ box box_factory::get_stddev(vector<box> q)
   box sum(init_map), div(div_map);
   for (box b : q)
   {
-    sum = sum + (b.get_mean() - mean) * (b.get_mean() - mean);
+    sum = sum + (b.mid() - mean) * (b.mid() - mean);
   }
   return (sum / div).sqrt();
 }

@@ -303,12 +303,9 @@ box operator/(const box &lhs, double rhs)
 
 box box::mid()
 {
-  map<string, capd::interval> edges = get_map();
   map<string, capd::interval> mu_map;
   for (auto it = edges.cbegin(); it != edges.cend(); it++)
-  {
-    mu_map.insert(make_pair(it->first, it->second.mid()));
-  }
+    mu_map[it->first] = it->second.mid();
   return box(mu_map);
 }
 

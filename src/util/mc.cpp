@@ -386,7 +386,7 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(
   CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
   CLOG_IF(global_config.verbose_result, INFO, "algorithm")
     << "Domain of nondeterministic parameters: " << domain;
-  box mean = domain.get_mean();
+  box mean = domain.mid();
   box sigma = domain.get_stddev();
   box var = sigma * sigma;
   vector<pair<box, capd::interval>> samples;

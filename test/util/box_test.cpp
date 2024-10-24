@@ -81,41 +81,39 @@ TEST(get_map, immutability)
   EXPECT_FALSE(edges == b.get_map());
 }
 
-TEST(contains, one_box_contains_another)
+TEST(contains, cases)
 {
   box b("a:[0,1];b:[0,1];c:[0,1];");
   EXPECT_TRUE(b.contains(box("a:[0,0.5];b:[0.5,0.5];c:[0.5,1];")));
-}
-
-TEST(contains, boxes_intersect)
-{
-  box b("a:[0,1];b:[0,1];c:[0,1];");
   EXPECT_FALSE(b.contains(box("a:[0.1,1.1];b:[0,1];c:[0,1];")));
-}
-
-TEST(contains, boxes_are_equal)
-{
-  box b("a:[0,1];b:[0,1];c:[0,1];");
   EXPECT_TRUE(b.contains(box("a:[0.0,1.0];b:[0,1];c:[0,1];")));
+  EXPECT_TRUE(box().contains(box()));
 }
 
-TEST(intersects, boxes_intersect)
+TEST(intersects, cases)
 {
   box b("a:[0,1];b:[0,1];c:[0,1];");
   EXPECT_TRUE(b.intersects(box("a:[0,1];b:[0,1];c:[0,1];")));
   EXPECT_TRUE(b.intersects(box("a:[1,2];b:[1,2];c:[1,2];")));
   EXPECT_TRUE(b.intersects(box("a:[0.78,0.78];b:[0.78,0.78];c:[0.78,0.78];")));
-}
-
-TEST(intersects, boxes_do_not_intersect)
-{
-  box b("a:[0,1];b:[0,1];c:[0,1];");
   EXPECT_FALSE(b.intersects(box("a:[1.0001,2];b:[1,2];c:[1,2];")));
   EXPECT_FALSE(b.intersects(box("a:[1.0001,1.9];b:[1,2];c:[1,2];")));
+  EXPECT_TRUE(b.contains(box("a:[0,0.5];b:[0.5,0.5];c:[0.5,1];")));
+  EXPECT_TRUE(box().intersects(box()));
 }
 
-TEST(intersects, one_box_contains_another)
+TEST(mid, normal)
 {
-  box b("a:[0,1];b:[0,1];c:[0,1];");
-  EXPECT_TRUE(b.contains(box("a:[0,0.5];b:[0.5,0.5];c:[0.5,1];")));
+  map<string, capd::interval> b_map{
+    {"a", capd::interval(0, 1)},
+    {"b", capd::interval(-1, 1)},
+    {"c", capd::interval(-4.1, 3.2)}};
+  box b(b_map);
+  map<string, capd::interval> mid_map{
+    {"a", capd::interval(0.49999, 0.50001)},
+    {"b", capd::interval(-0.00001, 0.00001)},
+    {"c", capd::interval(-0.45001, -0.44999)}};
+  box mid(mid_map);
+  EXPECT_TRUE(mid.contains(b.mid()));
+  EXPECT_EQ(box().mid(), box());
 }

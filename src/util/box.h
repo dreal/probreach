@@ -61,7 +61,9 @@ public:
   /// one dimension, and false if the two boxes are disjoint or not compatible.
   bool intersects(box) const;
   box get_keys_diff(box) const;
-  box get_mean();
+  
+  /// Returns a the middle point of the box
+  box mid();
   box get_stddev();
   box fmod(int);
   box sqrt();

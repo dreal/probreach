@@ -132,6 +132,31 @@ if(GSL_FOUND)
   include_directories("${GSL_INCLUDE_DIRS}")
 endif(GSL_FOUND)
 
+# searching for dReal
+find_package(dReal)
+if(DREAL_FOUND AND DREAL_WORKS)
+  message(STATUS "Found dReal: ${DREAL_BIN_PATH}")
+  message(STATUS "dReal works; version: ${DREAL_VERSION}")
+else(DREAL_FOUND AND DREAL_WORKS)
+  if(DREAL_FOUND AND NOT DREAL_WORKS)
+    message(STATUS "Found dReal: ${DREAL_BIN_PATH} but it does not work")
+  endif(DREAL_FOUND AND NOT DREAL_WORKS)
+  set(DREAL_URL "https://github.com/dreal/dreal3/releases/download/v3.16.05/dReal-3.16.05-linux.tar.gz")
+  set(DREAL_EXTERNAL_BIN_PATH "${PROBREACH_BINARY_DIR}/external/bin")
+  message(STATUS "dReal not found")
+  message(STATUS ">>> dReal version from \"${DREAL_URL}\" will be automatically downloaded to \"${DREAL_EXTERNAL_BIN_PATH}\"")
+  ExternalProject_Add(
+    dreal
+    URL ${DREAL_URL}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  execute_process(
+    COMMAND "cp ${PROBREACH_BINARY_DIR}/dreal-prefix/src/dreal/bin/dReal ${PROBREACH_BINARY_DIR}"
+    COMMAND "rm -rf ${PROBREACH_BINARY_DIR}/dreal-prefix/")
+endif(DREAL_FOUND AND DREAL_WORKS)
+
 # adding CMakeLists.txt files that specify executables
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/simulator/CMakeLists.txt)
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/pid_optimiser/CMakeLists.txt)

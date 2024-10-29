@@ -100,12 +100,6 @@ ELSE(CAPD_FOUND)
       --with-filib=no
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
-    LOG_DOWNLOAD 1
-    LOG_UPDATE 1
-    LOG_CONFIGURE 1
-    LOG_BUILD 1
-    LOG_TEST 1
-    LOG_INSTALL 1
     INSTALL_COMMAND make install)
 	
   set(CAPD_INCLUDE_DIR "${CAPD_INSTALL_PATH}/include")
@@ -141,21 +135,35 @@ else(DREAL_FOUND AND DREAL_WORKS)
   if(DREAL_FOUND AND NOT DREAL_WORKS)
     message(STATUS "Found dReal: ${DREAL_BIN_PATH} but it does not work")
   endif(DREAL_FOUND AND NOT DREAL_WORKS)
+  # setting some variables
   set(DREAL_URL "https://github.com/dreal/dreal3/releases/download/v3.16.05/dReal-3.16.05-linux.tar.gz")
-  set(DREAL_EXTERNAL_BIN_PATH "${PROBREACH_BINARY_DIR}/external/bin")
+  set(DREAL_EXTERNAL_TMP_PATH "${PROBREACH_BINARY_DIR}/external/tmp")
+  set(DREAL_EXTERNAL_EXTRACT_PATH "${PROBREACH_BINARY_DIR}/external/dreal")
+  set(DREAL_BIN_PATH "${DREAL_EXTERNAL_EXTRACT_PATH}/bin/dReal" CACHE INTERNAL "")
   message(STATUS "dReal not found")
-  message(STATUS ">>> dReal version from \"${DREAL_URL}\" will be automatically downloaded to \"${DREAL_EXTERNAL_BIN_PATH}\"")
+  message(STATUS ">>> dReal version from \"${DREAL_URL}\" will be automatically downloaded to \"${DREAL_BIN_PATH}\"")
   ExternalProject_Add(
     dreal
-    URL ${DREAL_URL}
+    PREFIX        ${DREAL_EXTERNAL_EXTRACT_PATH}
+    SOURCE_DIR    ${DREAL_EXTERNAL_EXTRACT_PATH}
+    DOWNLOAD_DIR  "${DREAL_EXTERNAL_TMP_PATH}/download"
+    TMP_DIR       "${DREAL_EXTERNAL_TMP_PATH}/tmp"
+    STAMP_DIR     "${DREAL_EXTERNAL_TMP_PATH}/dreal-stamp"
+    BINARY_DIR    "${DREAL_EXTERNAL_TMP_PATH}/dreal-build"
+    URL           ${DREAL_URL}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
   )
-  execute_process(
-    COMMAND "cp ${PROBREACH_BINARY_DIR}/dreal-prefix/src/dreal/bin/dReal ${PROBREACH_BINARY_DIR}"
-    COMMAND "rm -rf ${PROBREACH_BINARY_DIR}/dreal-prefix/")
+  add_custom_command(
+    OUTPUT ""
+    DEPENDS dreal
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${DREAL_EXTERNAL_TMP_PATH})
 endif(DREAL_FOUND AND DREAL_WORKS)
+
+configure_file(
+  "${PROBREACH_SOURCE_DIR}/env_config.h.in"
+  "${PROBREACH_SOURCE_DIR}/env_config.h")
 
 # adding CMakeLists.txt files that specify executables
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/simulator/CMakeLists.txt)

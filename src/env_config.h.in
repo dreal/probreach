@@ -1,0 +1,3 @@
+// Verious environment variables
+#define DREAL_BIN_PATH "@DREAL_BIN_PATH@"
+

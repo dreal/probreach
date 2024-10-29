@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include "env_config.h"
 
 struct pdrh_config
 {
@@ -18,7 +19,7 @@ struct pdrh_config
   double integral_pdf_step = 1e-01;
   // solver options
   //string solver_bin = SOLVER_BIN;
-  std::string solver_bin = "dReal";
+  std::string solver_bin = DREAL_BIN_PATH;
   std::string solver_opt = "";
   //    solver::type solver_type = solver::type::UNKNOWN_SOLVER;
   //    std::string secondary_solver_bin = "";

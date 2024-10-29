@@ -5,7 +5,7 @@
 #  DREAL_BIN_PATH - dReal executable path
 
 # trying different locations
-set(DREAL_BIN_PATHS ${DREAL_BIN_PATHS} ${DREAL_EXTERNAL_BIN_PATH})
+set(DREAL_BIN_PATHS ${DREAL_BIN_PATHS} ${DREAL_BIN_PATH})
 set(DREAL_BIN_PATHS ${DREAL_BIN_PATHS} "/usr/bin/dReal")
 set(DREAL_BIN_PATHS ${DREAL_BIN_PATHS} "/usr/local/bin/dReal")
 

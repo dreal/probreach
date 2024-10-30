@@ -68,15 +68,18 @@ set_source_files_properties(${PROBREACH_BINARY_DIR}/parser/pdrh/pdrhlexer.c GENE
 # including the parser directory
 include_directories("${PROBREACH_BINARY_DIR}/parser/pdrh")
 
-# building and installing CAPD
-set(CAPD_BUILD_PATH ${PROBREACH_BINARY_DIR}/external CACHE INTERNAL "")
-set(CAPD_INSTALL_PATH ${PROBREACH_BINARY_DIR} CACHE INTERNAL "")
+# searching for CAPD
 find_package(CAPD)
 IF(CAPD_FOUND)
   message(STATUS "Found CAPD (headers: ${CAPD_INCLUDE_DIR}; libs: ${CAPD_LIBRARIES})")
   add_custom_target(capd)
 ELSE(CAPD_FOUND)
+  # setting some variables before building CAPD
   set(CAPD_URL "https://sourceforge.net/projects/capd/files/5.1.2/src/capd-capdDynSys-5.1.2.tar.gz")
+  set(CAPD_TMP_PATH "${PROBREACH_BINARY_DIR}/external/tmp-capd")
+  set(CAPD_INSTALL_PATH "${PROBREACH_BINARY_DIR}/external/capd" CACHE INTERNAL "")
+  set(CAPD_INCLUDE_DIR "${CAPD_INSTALL_PATH}/include")
+  set(CAPD_LIBRARIES "${CAPD_INSTALL_PATH}/lib/libcapd.a")
   message(STATUS "CAPD not found at ${CAPD_INSTALL_PATH}")
   message(STATUS ">>> CAPD version from ${CAPD_URL} will be automatically installed to ${CAPD_INSTALL_PATH}")
   message(STATUS ">>> If you want to specify a different location, please specify the following variables:")
@@ -88,10 +91,15 @@ ELSE(CAPD_FOUND)
   message(STATUS ">>>   CAPD_LIBRARIES - path to \"libcapd.a\"")
   message(STATUS "")
   ExternalProject_Add(capd
-    PREFIX ${CAPD_BUILD_PATH}
-    URL ${CAPD_URL}
+    PREFIX        ${CAPD_TMP_PATH}
+    SOURCE_DIR    "${CAPD_TMP_PATH}/src"
+    DOWNLOAD_DIR  "${CAPD_TMP_PATH}/download"
+    TMP_DIR       "${CAPD_TMP_PATH}/tmp"
+    STAMP_DIR     "${CAPD_TMP_PATH}/capd-stamp"
+    INSTALL_DIR   ${CAPD_INSTALL_PATH}
+    URL           ${CAPD_URL}
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${CAPD_BUILD_PATH}/src/capd/configure
+    CONFIGURE_COMMAND ${CAPD_TMP_PATH}/src/configure
       C=${CMAKE_C_COMPILER}
       XX=${CMAKE_CXX_COMPILER}
       --prefix=${CAPD_INSTALL_PATH}
@@ -101,10 +109,9 @@ ELSE(CAPD_FOUND)
     BUILD_COMMAND make
     BUILD_IN_SOURCE 1
     INSTALL_COMMAND make install)
-	
-  set(CAPD_INCLUDE_DIR "${CAPD_INSTALL_PATH}/include")
-  set(CAPD_LIBRARIES "${CAPD_INSTALL_PATH}/lib/libcapd.a")
-	set(CAPD_FOUND ON)
+  add_custom_command(
+    TARGET capd
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CAPD_TMP_PATH})
 ENDIF(CAPD_FOUND)
 # including CAPD headers
 include_directories("${CAPD_INCLUDE_DIR}")
@@ -137,13 +144,12 @@ else(DREAL_FOUND AND DREAL_WORKS)
   endif(DREAL_FOUND AND NOT DREAL_WORKS)
   # setting some variables
   set(DREAL_URL "https://github.com/dreal/dreal3/releases/download/v3.16.05/dReal-3.16.05-linux.tar.gz")
-  set(DREAL_EXTERNAL_TMP_PATH "${PROBREACH_BINARY_DIR}/external/tmp")
+  set(DREAL_EXTERNAL_TMP_PATH "${PROBREACH_BINARY_DIR}/external/tmp-dreal")
   set(DREAL_EXTERNAL_EXTRACT_PATH "${PROBREACH_BINARY_DIR}/external/dreal")
   set(DREAL_BIN_PATH "${DREAL_EXTERNAL_EXTRACT_PATH}/bin/dReal" CACHE INTERNAL "")
   message(STATUS "dReal not found")
   message(STATUS ">>> dReal version from \"${DREAL_URL}\" will be automatically downloaded to \"${DREAL_BIN_PATH}\"")
-  ExternalProject_Add(
-    dreal
+  ExternalProject_Add(dreal
     PREFIX        ${DREAL_EXTERNAL_EXTRACT_PATH}
     SOURCE_DIR    ${DREAL_EXTERNAL_EXTRACT_PATH}
     DOWNLOAD_DIR  "${DREAL_EXTERNAL_TMP_PATH}/download"
@@ -153,11 +159,9 @@ else(DREAL_FOUND AND DREAL_WORKS)
     URL           ${DREAL_URL}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-  )
+    INSTALL_COMMAND "")
   add_custom_command(
-    OUTPUT ""
-    DEPENDS dreal
+    TARGET dreal
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${DREAL_EXTERNAL_TMP_PATH})
 endif(DREAL_FOUND AND DREAL_WORKS)
 

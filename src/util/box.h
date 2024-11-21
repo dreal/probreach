@@ -18,6 +18,17 @@ public:
 
   /// Creates a box from a map, where keys represent variables names,
   /// and values contain their corresponding intervals.
+  ///
+  /// DISCLAIMER: an interval with end-points represented by "string" values
+  ///             might be different from an interval where the same end-point
+  ///             values are represented by "double".
+  ///
+  ///             This is due to how "string" intervals are converted 
+  ///             to their "double" representation.
+  ///
+  ///             For example, capd::interval("0", "0") is not the same as
+  ///             capd::interval(0, 0). In this case, the former is more
+  ///             like [-4.94066e-324,4.94066e-324], while the latter is [0,0].
   box(std::map<std::string, capd::interval>);
 
   /// Constructs a box from its string representation (e.g., "a[0,1];b[-3,4];").
@@ -28,6 +39,9 @@ public:
   /// of the box into the specified stream.
   friend std::ostream &operator<<(std::ostream &, const box &);
   friend bool operator<(const box &, const box &);
+
+  /// Check if two boxes are equal (i.e., the variable set is the same, and the
+  /// corresponding intervals are equal).
   friend bool operator==(const box &, const box &);
   friend box operator+(const box &, const box &);
   friend box operator-(const box &, const box &);

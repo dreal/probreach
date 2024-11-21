@@ -187,25 +187,7 @@ bool operator<(const box &lhs, const box &rhs)
 
 bool operator==(const box &lhs, const box &rhs)
 {
-  // checking if dimensions of the boxes are the same
-  if (lhs.get_vars() != rhs.get_vars())
-  {
-    std::stringstream s;
-    s << "Variables of the compared boxes are not the same";
-    throw std::invalid_argument(s.str());
-  }
-  std::map<std::string, capd::interval> lhs_map = lhs.get_map();
-  std::map<std::string, capd::interval> rhs_map = rhs.get_map();
-  for (auto it = lhs_map.cbegin(); it != lhs_map.cend(); it++)
-  {
-    if (
-      (it->second.leftBound() != rhs_map[it->first].leftBound()) ||
-      (it->second.rightBound() != rhs_map[it->first].rightBound()))
-    {
-      return false;
-    }
-  }
-  return true;
+  return (lhs.get_map() == rhs.get_map());
 }
 
 box operator+(const box &lhs, const box &rhs)

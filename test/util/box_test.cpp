@@ -17,10 +17,19 @@ TEST(box, string_constructor_normal)
   EXPECT_EQ(box(edges), box("b:[ -0.1, 0.1];c_index:[0,  0];a : [0,1];"));
 }
 
-TEST(box, string_constructor_excpetion)
+TEST(box, string_constructor_exception)
 {
   EXPECT_THROW(
     box("a : [0,1];b:[ -0.1, 0.1];c_index:[0,  0]"), invalid_argument);
+}
+
+TEST(to_stream, normal_test)
+{
+  box b("a : [1,1];b:[ -0.1, 0.1];c_index:[-1,  1];");
+  stringstream ss;
+  ss.str("");
+  ss << b;
+  EXPECT_EQ(ss.str(), "a:[1,1]; b:[-0.1,0.1]; c_index:[-1,1]; ");
 }
 
 TEST(compatible, compatible_boxes)
@@ -117,3 +126,36 @@ TEST(mid, normal)
   EXPECT_TRUE(mid.contains(b.mid()));
   EXPECT_EQ(box().mid(), box());
 }
+
+TEST(equals_operator, normal)
+{
+  map<string, capd::interval> b1_map{
+    {"a", capd::interval(0, 1)},
+    {"b", capd::interval(-1, 1)},
+    {"c", capd::interval(-4.1, 3.2)}};
+  box a(b1_map);
+  map<string, capd::interval> b2_map{
+    {"a", capd::interval(0.49999, 0.50001)},
+    {"b", capd::interval(-0.00001, 0.00001)},
+    {"c", capd::interval(-0.45001, -0.44999)}};
+  box b(b2_map);
+  EXPECT_FALSE(a == b);
+  EXPECT_FALSE(b == a);
+  map<string, capd::interval> b3_map{
+    {"a", capd::interval(0.49999, 0.50001)},
+    {"b", capd::interval(-0.00001, 0.00001)},
+    {"c", capd::interval(-0.45001, -0.44999)}};
+  box c(b3_map);
+  EXPECT_FALSE(a == c);
+  EXPECT_TRUE(b == c);
+  EXPECT_TRUE(c == b);
+  EXPECT_TRUE(box() == box());
+  EXPECT_FALSE(a == box());
+  box d("a:[0.49999,0.50001];b:[-0.00001,0.00001];c:[-0.45001,-0.44999];");
+  box e("a:[0.49999, 0.50001 ];b:[ -0.00001, 0.00001] ;c:[-0.45001,-0.44999];");
+  EXPECT_TRUE(d == e);
+}
+
+
+
+

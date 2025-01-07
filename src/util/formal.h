@@ -12,7 +12,7 @@
 namespace formal
 {
 // evaluating reachability in a hybrid automata
-// arg1: min depth, 
+// arg1: min depth,
 // arg2: max depth
 int evaluate_ha(int, int);
 
@@ -21,20 +21,20 @@ int evaluate_ha(int, int);
 // arg2: max depth
 capd::interval evaluate_pha(int, int);
 
-// evaluating the upper bound of the reachability probability 
+// evaluating the upper bound of the reachability probability
 // arg1: min depth,
 // arg2: max depth
 capd::interval evaluate_pha_upper_bound(int, int);
 
-// evaluating the reachability probability in 
+// evaluating the reachability probability in
 // a nondeterministic probabilistic hybrid automata
-// arg1: min depth, 
+// arg1: min depth,
 // arg2: max depth
 std::map<box, capd::interval> evaluate_npha(int, int);
 
-// evaluating the upper bound of the reachability probability in 
+// evaluating the upper bound of the reachability probability in
 // a nondeterministic probabilistic hybrid automata
-// arg1: min depth, 
+// arg1: min depth,
 // arg2: max depth
 std::map<box, capd::interval> evaluate_npha_upper_bound(int, int);
 } // namespace formal

@@ -30,7 +30,7 @@ public:
   std::map<std::string, capd::interval> get_map() const;
   std::vector<capd::interval> get_intervals() const;
   std::set<std::string> get_vars() const;
-  
+
   bool empty() const;
   bool contains(box) const;
   bool compatible(box) const;

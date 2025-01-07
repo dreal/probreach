@@ -206,13 +206,15 @@ capd::interval algorithm::evaluate_pha_bayesian(
     switch (global_config.decision_method)
     {
     case 0:
-      if(global_config.delta_sat)
+      if (global_config.delta_sat)
       {
-        res = decision_procedure::evaluate_delta_sat(paths, boxes, global_config.solver_bin, global_config.solver_opt);
+        res = decision_procedure::evaluate_delta_sat(
+          paths, boxes, global_config.solver_bin, global_config.solver_opt);
       }
       else
-      {  
-        res = decision_procedure::evaluate(paths, boxes, global_config.solver_bin, global_config.solver_opt);
+      {
+        res = decision_procedure::evaluate(
+          paths, boxes, global_config.solver_bin, global_config.solver_opt);
       }
       break;
     case 1:

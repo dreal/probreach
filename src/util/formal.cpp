@@ -14,9 +14,6 @@
 
 using namespace std;
 
-
-
-
 int formal::evaluate_ha(int min_depth, int max_depth)
 {
   vector<vector<pdrh::mode *>> paths =
@@ -148,7 +145,7 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
                   probability.rightBound());
               }
               //CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-             // CLOG_IF(global_config.verbose, INFO, "algorithm")
+              // CLOG_IF(global_config.verbose, INFO, "algorithm")
               //  << "P = " << probability;
               /*
                                 if(capd::intervals::width(probability) <= global_config.precision_prob)
@@ -298,11 +295,13 @@ formal::evaluate_npha(int min_depth, int max_depth)
     pdrh::get_all_paths(min_depth, max_depth);
   // initializing probability map
   std::map<box, capd::interval> p_map;
-  capd::interval rv_domain_measure = measure::p_measure(rv_domain, global_config.precision_prob);
+  capd::interval rv_domain_measure =
+    measure::p_measure(rv_domain, global_config.precision_prob);
   // temporary solution. This will need to be fixed
-  if(rv_domain_measure.leftBound() > 1)
+  if (rv_domain_measure.leftBound() > 1)
     rv_domain_measure.setLeftBound(1);
-  capd::interval total_probability = capd::interval(0, 2 - rv_domain_measure.leftBound());
+  capd::interval total_probability =
+    capd::interval(0, 2 - rv_domain_measure.leftBound());
   for (box nd : nd_partition)
   {
     p_map.insert(std::make_pair(nd, total_probability));
@@ -320,7 +319,7 @@ formal::evaluate_npha(int min_depth, int max_depth)
     res_map.insert(make_pair(it->first, capd::interval(0.0)));
     final_map.insert(make_pair(it->first, capd::interval(0.0)));
   }
-  if(global_config.verbose)
+  if (global_config.verbose)
     std::cout << "formal NPHA: before the algorithm\n";
   // algorithm
   for (box dd : dd_partition)
@@ -332,12 +331,12 @@ formal::evaluate_npha(int min_depth, int max_depth)
       dd_measure = measure::p_dd_measure(dd);
     }
 
-    if(global_config.verbose)
+    if (global_config.verbose)
       std::cout << "formal NPHA: before the while loop\n";
     // probability map computation starts here
     while (p_map.size() > 0)
     {
-      if(global_config.verbose)
+      if (global_config.verbose)
         std::cout << "formal NPHA: inside the main while loop\n";
       // updating the nd_partition
       nd_partition.clear();
@@ -350,7 +349,7 @@ formal::evaluate_npha(int min_depth, int max_depth)
       for (int j = 0; j < nd_partition.size(); j++)
       {
         box nd = nd_partition.at(j);
-        if(global_config.verbose)
+        if (global_config.verbose)
           std::cout << "formal NPHA: current ND box: " << nd << "\n";
 #pragma omp critical
         {
@@ -363,8 +362,8 @@ formal::evaluate_npha(int min_depth, int max_depth)
         for (int i = 0; i < rv_partition.size(); i++)
         {
           box rv = rv_partition.at(i);
-          
-          if(global_config.verbose)
+
+          if (global_config.verbose)
             std::cout << "formal NPHA: current RV box: " << rv << "\n";
           // calculating probability measure of the box rv; initally p_box = [1.0, 1.0]
           capd::interval p_box(1.0, 1.0);
@@ -396,10 +395,11 @@ formal::evaluate_npha(int min_depth, int max_depth)
           }
           int res = decision_procedure::evaluate(
             paths, vector<box>{nd, dd, rv}, global_config.solver_bin, s.str());
-          
-          if(global_config.verbose)
-            std::cout << "formal NPHA: decision procedure result = " << res << "\n";
-          
+
+          if (global_config.verbose)
+            std::cout << "formal NPHA: decision procedure result = " << res
+                      << "\n";
+
           switch (res)
           {
           case decision_procedure::result::SAT:
@@ -442,9 +442,10 @@ formal::evaluate_npha(int min_depth, int max_depth)
           }
           break;
           }
-          
-          if(global_config.verbose)
-            cout << "formal NPHA: current probability = P(" << nd << ") = " << p_map[nd] << "\n";
+
+          if (global_config.verbose)
+            cout << "formal NPHA: current probability = P(" << nd
+                 << ") = " << p_map[nd] << "\n";
         }
 #pragma omp critical
         {
@@ -608,17 +609,19 @@ formal::evaluate_npha_upper_bound(int min_depth, int max_depth)
     pdrh::get_all_paths(min_depth, max_depth);
   // initializing probability map
   std::map<box, capd::interval> p_map;
-  capd::interval rv_domain_measure = measure::p_measure(rv_domain, global_config.precision_prob);
+  capd::interval rv_domain_measure =
+    measure::p_measure(rv_domain, global_config.precision_prob);
   // temporary solution. This will need to be fixed
   //if(rv_domain_measure.leftBound() > 1)
   //  rv_domain_measure.setLeftBound(1);
-  capd::interval total_probability = capd::interval(0, 2 - rv_domain_measure.leftBound());
+  capd::interval total_probability =
+    capd::interval(0, 2 - rv_domain_measure.leftBound());
   // initialising the probability map
-  if(global_config.verbose)
-    std::cout << "formal NPHA: initialising the probability map\n"; 
+  if (global_config.verbose)
+    std::cout << "formal NPHA: initialising the probability map\n";
   for (box nd : nd_partition)
   {
-    if(global_config.verbose)
+    if (global_config.verbose)
       std::cout << "P (" << nd << ") = " << total_probability << "\n";
     p_map.insert(std::make_pair(nd, total_probability));
   }
@@ -635,7 +638,7 @@ formal::evaluate_npha_upper_bound(int min_depth, int max_depth)
     res_map.insert(make_pair(it->first, capd::interval(0.0)));
     final_map.insert(make_pair(it->first, capd::interval(0.0)));
   }
-  if(global_config.verbose)
+  if (global_config.verbose)
     std::cout << "formal NPHA: starting the algorithm\n";
   // algorithm
   for (box dd : dd_partition)
@@ -647,7 +650,7 @@ formal::evaluate_npha_upper_bound(int min_depth, int max_depth)
       dd_measure = measure::p_dd_measure(dd);
     }
 
-    if(global_config.verbose)
+    if (global_config.verbose)
       std::cout << "formal NPHA: iterating through the probability map\n";
     // probability map computation starts here
     while (p_map.size() > 0)
@@ -663,7 +666,7 @@ formal::evaluate_npha_upper_bound(int min_depth, int max_depth)
       for (int j = 0; j < nd_partition.size(); j++)
       {
         box nd = nd_partition.at(j);
-        if(global_config.verbose)
+        if (global_config.verbose)
           std::cout << "formal NPHA: current ND box: " << nd << "\n";
 
 #pragma omp critical
@@ -676,8 +679,8 @@ formal::evaluate_npha_upper_bound(int min_depth, int max_depth)
         for (int i = 0; i < rv_partition.size(); i++)
         {
           box rv = rv_partition.at(i);
-          
-          if(global_config.verbose)
+
+          if (global_config.verbose)
             std::cout << "formal NPHA: current RV box: " << rv << "\n";
           // calculating probability measure of the box rv; initally p_box = [1.0, 1.0]
           capd::interval p_box(1.0, 1.0);
@@ -708,16 +711,16 @@ formal::evaluate_npha_upper_bound(int min_depth, int max_depth)
               s << global_config.solver_precision_ratio;
             }
           }
-          if(global_config.verbose)
+          if (global_config.verbose)
             std::cout << "formal NPHA: running the decision procedure\n";
           int res = decision_procedure::evaluate_delta_sat(
             paths, vector<box>{nd, dd, rv}, global_config.solver_bin, s.str());
-          
-          if(global_config.verbose)
-            std::cout << "formal NPHA: decision procedure result = " << res << "\n";
+
+          if (global_config.verbose)
+            std::cout << "formal NPHA: decision procedure result = " << res
+                      << "\n";
           switch (res)
           {
-
           case decision_procedure::result::UNSAT:
 #pragma omp critical
           {
@@ -729,10 +732,10 @@ formal::evaluate_npha_upper_bound(int min_depth, int max_depth)
             }
           }
           break;
-
           }
-          if(global_config.verbose)
-            cout << "formal NPHA: current probability = P(" << nd << ") = " << p_map[nd] << "\n";
+          if (global_config.verbose)
+            cout << "formal NPHA: current probability = P(" << nd
+                 << ") = " << p_map[nd] << "\n";
         }
 #pragma omp critical
         {

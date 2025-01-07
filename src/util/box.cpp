@@ -95,7 +95,7 @@ void box::erase(string var)
 }
 
 /// Returns a map representation of the box, whether the map keys contain
-/// the edges names, and the map values contain the intervals 
+/// the edges names, and the map values contain the intervals
 /// representing the edges
 std::map<std::string, capd::interval> box::get_map() const
 {
@@ -123,7 +123,6 @@ std::set<std::string> box::get_vars() const
   }
   return vars;
 }
-
 
 bool box::contains(box b) const
 {

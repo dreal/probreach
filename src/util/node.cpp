@@ -13,7 +13,6 @@
 using namespace std;
 using namespace pdrh;
 
-
 node::node(double v)
 {
   std::stringstream ss;
@@ -21,7 +20,6 @@ node::node(double v)
   ss << v;
   this->value = ss.str();
 }
-
 
 std::ostream &pdrh::operator<<(std::ostream &os, const node &n)
 {
@@ -44,7 +42,7 @@ std::ostream &pdrh::operator<<(std::ostream &os, const node &n)
   }
   else
     os << n.value;
-  
+
   return os;
 }
 

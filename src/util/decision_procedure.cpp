@@ -262,7 +262,7 @@ int decision_procedure::evaluate_complement(
     smt_c_file.close();
     // calling dreal here
     int second_res = dreal::execute(solver_bin, smt_c_filename, solver_opt);
-  
+
     if (global_config.debug)
       cout << "dReal result = " << second_res << "\n";
 

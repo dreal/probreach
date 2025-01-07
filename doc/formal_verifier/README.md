@@ -1,62 +1,31 @@
 # ProbReach Formal Verifier
 
-<!--
-The ProbReach simulator provides simulation of the provided *.pdrh* model and produces *.json* file as output.
-
-## Required packages
-    
-   - [gcc/g++](https://gcc.gnu.org/) 4.9 or greater.
-   - [GNU Bison](https://www.gnu.org/software/bison/) and [Flex](https://github.com/westes/flex)
-      
-        ```sudo apt-get install bison flex``` 
-        
-   - [CMake](https://cmake.org/), if not already present on your system.
-
-## How to build
-
-```
-git clone https://github.com/dreal/probreach.git probreach
-cd probreach
-mkdir -p build/release
-cd build/release
-cmake ../../
-make simulate
-```
+The ProbReach verifier computes rigorous probability enclosures using exhaustive exploration of the system parameter space.
 
 ## Usage
 
-	simulate <options> <file.pdrh/file.drh>
+	formal_verifier <options> <file.pdrh/file.drh>
 
-options:
+Some of the most frequently used options are shown below (alternatively, use -h flag to see all available options):
 ```
--h - displays help message
--v - displays the tool version
--l - minimum depth of every simulation path (default = 0)
--u - maximum depth of every simulation path (default = 0)
--p - maximum number of simulation paths (default = 1)
--n - number of points used in IVP solving (default = 1)
--o - full path to the output file (default = output.json)
--v - prints out the current version of ProbReach
+general options:
+-t <int> - number of CPU cores (default: <max>)
+-h/--help - displays help message
+--solver <path> - full path to the solver
+--verbose - outputs computation details (defualt: 0)
+--version - displays current version of the tool
+
+reachability options:
+-k <int> - defines the reachability depth (should not be used together with options -l and -u; default: 0)
+-l <int> - defines the reachability depth lower bound (should not be used without -u; default: 0)
+-u <int> - defines the reachability depth upper bound (should not be used without -l; default: 0)
+
+formal method options:
+-e <double> - length of the probability enclosure (default: 0.001). The algorithm will try to refine the size of the reachabilty probability interval to be smaller or equal to the provided value. Note that when the system features nondeterministic parameter, the algorithm may never meet the required precision. Also, when --upper-bound flag is provided, option -e is ignored
+--upper-bound - refine only the upper bound of the reachability probability (in this case the lower probability bound will be always set at 0) (default: 0)
+--partition-prob <param1> <value1> ... - defines the precision values for computing a partition of the continuons random parameters
+--partition-nondet <param1> <value1> ... - defines the precision values for computing a partition of the nondeterministic parameters
+--precision-ratio <double> - used to define precision passed to the solver as (solver-precision = min-box-dimension * precision-ratio) (default: 0.001)
 ```
 
 
-# Visualisation
-
-The visulisation of the produced *.json* file is performed via a python script ```visualise.py``` 
-located in ```probreach/src/python``` directory. This script requires [pandas](https://pandas.pydata.org/) package. 
-
-## Usage
-
-	python visualise.py <var 1> <var 2> ... <var n> <path/to/output/file.json>
-
-If no variables are specified in the command line, then all variables are visualised.
-
-# Usage example
-
-```
-./simulate -u 300 -n 10 -o output.json ~/probreach/model/insulin-infusion/discrete-pid.pdrh
-python ~/probreach/src/python/visualise.py Q1 u C output.json 
-```
-The commands above produce the following output:
-
--->

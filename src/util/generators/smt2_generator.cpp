@@ -380,7 +380,7 @@ smt2_generator::reach_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
   stringstream s;
   // setting logic
   s << "(set-logic QF_NRA_ODE)" << endl;
-  // declaring variables and defining bounds
+  s << "\n; declaring variables and defining bounds\n";
   for (auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
   {
     s << "(declare-fun " << it->first << " () Real)" << endl;
@@ -404,7 +404,7 @@ smt2_generator::reach_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
       }
     }
   }
-  // declaring time pdrh::node_fix_index(reset_it->second, step, "t")
+  s << "\n; declaring TIME variables and bounds\n";
   for (int i = 0; i < path.size(); i++)
   {
     s << "(declare-fun time_" << i << " () Real)" << endl;
@@ -413,7 +413,7 @@ smt2_generator::reach_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
     s << "(assert (<= time_" << i << " "
       << pdrh::node_fix_index(path.at(i)->time.second, i, "0") << "))" << endl;
   }
-  // defining odes
+  s << "\n; defining ODEs\n";
   for (auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
   {
     if (find(path.cbegin(), path_it, *path_it) == path_it)
@@ -429,43 +429,46 @@ smt2_generator::reach_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
       s << "))" << endl;
     }
   }
-  // defining the reachability formula
-  s << "(assert (and " << endl;
-  // defining initial states
-  s << "(or ";
+  for (box b : boxes)
+  {
+    // skipping if there are any empty boxes
+    if(b.empty())
+      continue;
+    s << "\n; defining parameter box: " << b << "\n";
+    std::map<string, capd::interval> m = b.get_map();
+    for (int i = 0; i < path.size(); i++)
+    {
+      s << "(assert (and \n";
+      for (auto it = m.cbegin(); it != m.cend(); it++)
+      {
+        s << "\t(>= " << it->first << "_" << i << "_0 " << it->second.leftBound()
+          << ")" << endl;
+        s << "\t(<= " << it->first << "_" << i << "_0 " << it->second.rightBound()
+          << ")" << endl;
+        s << "\t(>= " << it->first << "_" << i << "_t " << it->second.leftBound()
+          << ")" << endl;
+        s << "\t(<= " << it->first << "_" << i << "_t " << it->second.rightBound()
+          << ")" << endl;
+      }
+      s << "))\n";
+    }
+  }
+  s << "\n; defining initial states\n";
+  s << "(assert (or \n";
   for (pdrh::state st : pdrh::init)
   {
     if (st.id == path.front()->id)
     {
-      s << "(" << pdrh::node_fix_index(st.prop, 0, "0") << ")" << endl;
+      s << "\t(" << pdrh::node_fix_index(st.prop, 0, "0") << ")" << endl;
     }
   }
-  s << ")" << endl;
-  // defining boxes bounds
-  for (box b : boxes)
-  {
-    std::map<string, capd::interval> m = b.get_map();
-    for (int i = 0; i < path.size(); i++)
-    {
-      for (auto it = m.cbegin(); it != m.cend(); it++)
-      {
-        s << "(>= " << it->first << "_" << i << "_0 " << it->second.leftBound()
-          << ")" << endl;
-        s << "(<= " << it->first << "_" << i << "_0 " << it->second.rightBound()
-          << ")" << endl;
-        s << "(>= " << it->first << "_" << i << "_t " << it->second.leftBound()
-          << ")" << endl;
-        s << "(<= " << it->first << "_" << i << "_t " << it->second.rightBound()
-          << ")" << endl;
-      }
-    }
-  }
-  // defining trajectory
+  s << "))" << endl;
   int step = 0;
   for (pdrh::mode *m : path)
   {
-    // defining integrals
-    s << "(= [";
+    s << "\n; step " << step << ", mode " << m->id << "\n";
+    s << "; flow\n";
+    s << "(assert (= [";
     for (auto ode_it = m->odes.cbegin(); ode_it != m->odes.cend(); ode_it++)
     {
       s << ode_it->first << "_" << step << "_t ";
@@ -475,12 +478,12 @@ smt2_generator::reach_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
     {
       s << ode_it->first << "_" << step << "_0 ";
     }
-    s << "] flow_" << m->id << "))" << endl;
-    // defining invariants
+    s << "] flow_" << m->id << ")))\n";
+    s << "; invariants\n";
     for (pdrh::node *invt : m->invts)
     {
-      s << "(forall_t " << m->id << " [0.0 time_" << step << "] "
-        << pdrh::node_fix_index(invt, step, "t") << ")" << endl;
+      s << "(assert (forall_t " << m->id << " [0.0 time_" << step << "] "
+        << pdrh::node_fix_index(invt, step, "t") << "))" << endl;
     }
     // checking the current depth
     if (step < path.size() - 1)
@@ -491,28 +494,33 @@ smt2_generator::reach_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
         // only the jumps to the next mode in the path
         if (j.next_id == path.at(step + 1)->id)
         {
-          s << pdrh::node_fix_index(j.guard, step, "t") << endl;
+          s << "; jump from " << m->id << " to " << path.at(step + 1)->id << "\n";
+          s << "; guard\n";
+          s << "(assert (" << pdrh::node_fix_index(j.guard, step, "t") << "))\n";
+          s << "; reset\n";
+          s << "(assert (and ";
           for (auto reset_it = j.reset.cbegin(); reset_it != j.reset.cend();
                reset_it++)
           {
             s << "(= " << reset_it->first << "_" << step + 1 << "_0 "
               << pdrh::node_fix_index(reset_it->second, step, "t") << ")";
           }
+          s << "))\n";
         }
       }
     }
     step++;
   }
-  // defining goal
-  s << "(or ";
+  s << "\n; defining the GOAL\n";
+  s << "(assert (or \n";
   for (pdrh::state st : pdrh::goal)
   {
     if (st.id == path.back()->id)
     {
-      s << "(" << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << ")";
+      s << "\t(" << pdrh::node_fix_index(st.prop, path.size() - 1, "t") << ")\n";
     }
   }
-  s << ")))" << endl;
+  s << "))" << endl;
   // final statements
   s << "(check-sat)" << endl;
   s << "(exit)" << endl;
@@ -525,17 +533,7 @@ smt2_generator::reach_c_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
   stringstream s;
   // setting logic
   s << "(set-logic QF_NRA_ODE)" << endl;
-  // checking whether either of last jumps have a time node
-  //    pdrh::node* timed_node_neg;
-  //    for(pdrh::state st : pdrh::goal)
-  //    {
-  //        timed_node_neg = pdrh::get_time_node_neg(st.prop);
-  //        if(timed_node_neg)
-  //        {
-  //            break;
-  //        }
-  //    }
-  // declaring variables and defining bounds
+  s << "\n; declaring variables and defining bounds\n";
   for (auto it = pdrh::var_map.cbegin(); it != pdrh::var_map.cend(); it++)
   {
     s << "(declare-fun " << it->first << " () Real)" << endl;
@@ -559,7 +557,7 @@ smt2_generator::reach_c_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
       }
     }
   }
-  // declaring time
+  s << "\n; declaring TIME variables\n";
   for (int i = 0; i < path.size(); i++)
   {
     s << "(declare-fun time_" << i << " () Real)" << endl;
@@ -568,9 +566,7 @@ smt2_generator::reach_c_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
     s << "(assert (<= time_" << i << " "
       << pdrh::node_fix_index(path.at(i)->time.second, i, "0") << "))" << endl;
   }
-  // declaring local time and bounds
-  //if (!timed_node_neg)
-  //{
+  s << "\n; declaring LOCAL TIME and bounds\n";
   s << "(declare-fun local_time () Real)" << endl;
   for (unsigned long i = 0; i < path.size() - 1; i++)
   {
@@ -584,7 +580,7 @@ smt2_generator::reach_c_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
       << pdrh::node_fix_index(path.at(i)->time.second, i, "0") << "))" << endl;
   }
   // last mode
-  //s << "(declare-fun local_time () Real)" << endl;
+  s << "(declare-fun local_time () Real)" << endl;
   s << "(declare-fun local_time_" << path.size() - 1 << "_0 () Real)" << endl;
   s << "(declare-fun local_time_" << path.size() - 1 << "_t () Real)" << endl;
   s << "(assert (= local_time_" << path.size() - 1 << "_0 "
@@ -596,8 +592,7 @@ smt2_generator::reach_c_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
   s << "(assert (<= local_time_" << path.size() - 1 << "_t "
     << pdrh::node_fix_index(path.back()->time.second, path.size() - 1, "0")
     << "))" << endl;
-  //}
-  // defining odes
+  s << "\n; defining ODEs\n";
   for (auto path_it = path.cbegin(); path_it != path.cend(); path_it++)
   {
     if (std::find(path.cbegin(), path_it, *path_it) == path_it)
@@ -610,15 +605,11 @@ smt2_generator::reach_c_to_smt2(vector<pdrh::mode *> path, vector<box> boxes)
         s << "(= d/dt[" << ode_it->first << "] "
           << pdrh::node_to_string_prefix(ode_it->second) << ")";
       }
-      // introducing local time if defined
-      //if(!timed_node_neg)
-      //{
       s << "(= d/dt[local_time] 1.0)";
-      //}
       s << "))" << endl;
     }
   }
-  // defining the negated reachability formula
+  s << "\n; defining the negated reachability formula\n";
   s << "(assert (and (and " << endl;
   // defining initial states
   s << "(or ";

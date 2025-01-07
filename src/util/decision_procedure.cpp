@@ -29,8 +29,6 @@ int decision_procedure::evaluate(
   int undet_counter = 0;
   for (vector<pdrh::mode *> path : paths)
   {
-    //        stringstream s;
-    //        for(pdrh::mode* m : path) s << m->id << " ";
     int res = evaluate(path, boxes, solver_bin, solver_opt);
     if (res == decision_procedure::result::SAT)
     {
@@ -87,6 +85,33 @@ int decision_procedure::evaluate(
 }
 
 /**
+ * Evaluates delta-reachability for a set of paths and parameter boxes.
+ *
+ * @param paths - set of paths to evaluate.
+ * @param boxes - set of parameter boxes to evaluate.
+ * @param solver_bin - full path to solver binary.
+ * @param solver_opt - string of solver options.
+ * @return satisfiability of reachability for the given set of paths and parameter boxes.
+ */
+int decision_procedure::evaluate_delta_sat(
+  vector<vector<pdrh::mode *>> paths,
+  vector<box> boxes,
+  string solver_bin,
+  string solver_opt)
+{
+  int undet_counter = 0;
+  for (vector<pdrh::mode *> path : paths)
+  {
+    int res = evaluate_delta_sat(path, boxes, solver_bin, solver_opt);
+    if (res == decision_procedure::result::SAT)
+    {
+      return res;
+    }
+  }
+  return decision_procedure::result::UNSAT;
+}
+
+/**
  * Evaluates delta-reachability for a path and a set of parameter boxes.
  *
  * @param path - path to evaluate.
@@ -120,7 +145,6 @@ int decision_procedure::evaluate_delta_sat(
 
   smt_file.open(smt_filename.c_str());
   // will work for one initial and one state only
-  //    smt_file << pdrh2box::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes);
   smt_file << smt2_generator::reach_to_smt2(path, boxes);
   smt_file.close();
   //    cout << pdrh2box::reach_to_smt2(pdrh::init.front(), pdrh::goal.front(), path, boxes) << endl;
@@ -137,6 +161,9 @@ int decision_procedure::evaluate_delta_sat(
   // calling dreal here
   // solver_opt.append(" --model");
   int first_res = dreal::execute(solver_bin, smt_filename, solver_opt);
+
+  if (global_config.debug)
+    cout << "dReal result = " << first_res << "\n";
 
   if (first_res == -1)
   {
@@ -226,8 +253,6 @@ int decision_procedure::evaluate_complement(
     ofstream smt_c_file;
     smt_c_file.open(smt_c_filename.c_str());
     smt_c_file << smt2_generator::reach_c_to_smt2(i, path, boxes);
-    //        cout << pdrh2box::reach_c_to_smt2(i, path, boxes) << endl;
-    //        exit(EXIT_SUCCESS);
     if (global_config.debug)
     {
       cout << "Thread: " << omp_get_thread_num() << endl;
@@ -237,6 +262,10 @@ int decision_procedure::evaluate_complement(
     smt_c_file.close();
     // calling dreal here
     int second_res = dreal::execute(solver_bin, smt_c_filename, solver_opt);
+  
+    if (global_config.debug)
+      cout << "dReal result = " << second_res << "\n";
+
     if (second_res == -1)
     {
       return decision_procedure::ERROR;

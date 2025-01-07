@@ -71,7 +71,6 @@ int dreal::execute(std::string bin, std::string input, std::string args)
 {
   stringstream s;
   s << bin << " " << args << " " << input << " > " << input << ".output";
-  //s << bin << " " << args << " --visualize " << input << " > " << input << ".output && cp " << input << ".json " << input << "." << time(0) << ".json";
   int res = system(s.str().c_str());
   if (res != 0)
   {

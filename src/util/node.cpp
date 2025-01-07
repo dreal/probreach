@@ -8,9 +8,45 @@
 #include <random>
 #include <cmath>
 #include <algorithm>
+#include <iomanip>
 
 using namespace std;
 using namespace pdrh;
+
+
+node::node(double v)
+{
+  std::stringstream ss;
+  ss << std::setprecision(16);
+  ss << v;
+  this->value = ss.str();
+}
+
+
+std::ostream &pdrh::operator<<(std::ostream &os, const node &n)
+{
+  if (n.operands.size() > 1)
+  {
+    os << "(";
+    for (int i = 0; i < n.operands.size() - 1; i++)
+    {
+      os << n.operands.at(i);
+      os << n.value;
+    }
+    os << n.operands.at(n.operands.size() - 1) << ")";
+  }
+  else if (n.operands.size() == 1)
+  {
+    if (n.value == "-")
+      os << "(" << n.value << n.operands.front() << ")";
+    else
+      os << n.value << "(" << n.operands.front() << ")";
+  }
+  else
+    os << n.value;
+  
+  return os;
+}
 
 /**
  * Getting a string representation of the node in prefix notation.
@@ -47,35 +83,7 @@ string pdrh::node_to_string_prefix(pdrh::node *n)
 string pdrh::node_to_string_infix(pdrh::node *n)
 {
   stringstream s;
-  // checking whether n is an operation node
-  if (n->operands.size() > 1)
-  {
-    s << "(";
-    for (int i = 0; i < n->operands.size() - 1; i++)
-    {
-      s << pdrh::node_to_string_infix(n->operands.at(i));
-      s << n->value;
-    }
-    s << pdrh::node_to_string_infix(n->operands.at(n->operands.size() - 1))
-      << ")";
-  }
-  else if (n->operands.size() == 1)
-  {
-    if (n->value == "-")
-    {
-      s << "(" << n->value << pdrh::node_to_string_infix(n->operands.front())
-        << ")";
-    }
-    else
-    {
-      s << n->value << "(" << pdrh::node_to_string_infix(n->operands.front())
-        << ")";
-    }
-  }
-  else
-  {
-    s << n->value;
-  }
+  s << *n;
   return s.str();
 }
 
@@ -441,14 +449,6 @@ bool pdrh::node_zero_crossing(
     expr->value == ">=" || expr->value == ">" || expr->value == "=" ||
     expr->value == "<" || expr->value == "<=")
   {
-    //        cout << "Subnode: " << node_to_string_infix(expr) << endl;
-    //        cout << "Left:" << endl;
-    //        for(auto it = left.begin(); it != left.end(); it++) cout << it->first << ": " << it->second << endl;
-    //        cout << "Right:" << endl;
-    //        for(auto it = right.begin(); it != right.end(); it++) cout << it->first << ": " << it->second << endl;
-    //        cout << (node_to_double(expr->operands.front(), left) - node_to_double(expr->operands.back(), left)) << " | " <<
-    //                    (node_to_double(expr->operands.front(), right) - node_to_double(expr->operands.back(), right)) << endl;
-    //        cout << "==========" << endl;
     return (node_to_double(expr->operands.front(), left) -
             node_to_double(expr->operands.back(), left)) *
              (node_to_double(expr->operands.front(), right) -

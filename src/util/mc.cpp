@@ -206,7 +206,14 @@ capd::interval algorithm::evaluate_pha_bayesian(
     switch (global_config.decision_method)
     {
     case 0:
-      res = decision_procedure::evaluate(paths, boxes, dreal::solver_bin, "");
+      if(global_config.delta_sat)
+      {
+        res = decision_procedure::evaluate_delta_sat(paths, boxes, global_config.solver_bin, global_config.solver_opt);
+      }
+      else
+      {  
+        res = decision_procedure::evaluate(paths, boxes, global_config.solver_bin, global_config.solver_opt);
+      }
       break;
     case 1:
       res = ap::verify(min_depth, max_depth, boxes);
@@ -478,13 +485,13 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(
         CLOG_IF(global_config.verbose_result, INFO, "algorithm")
           << "The sample is outside the domain";
         outliers++;
-        if (global_config.max_prob)
+        if (global_config.min_prob)
         {
-          probability = capd::interval(-numeric_limits<double>::infinity());
+          probability = capd::interval(numeric_limits<double>::infinity());
         }
         else
         {
-          probability = capd::interval(numeric_limits<double>::infinity());
+          probability = capd::interval(-numeric_limits<double>::infinity());
         }
       }
       CLOG_IF(global_config.verbose_result, INFO, "algorithm")
@@ -493,13 +500,13 @@ pair<box, capd::interval> algorithm::evaluate_npha_cross_entropy_normal(
     }
     CLOG_IF(global_config.verbose_result, INFO, "algorithm")
       << "Number of outliers: " << outliers << endl;
-    if (global_config.max_prob)
+    if (global_config.min_prob)
     {
-      sort(samples.begin(), samples.end(), measure::compare_pairs::descending);
+      sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
     }
     else
     {
-      sort(samples.begin(), samples.end(), measure::compare_pairs::ascending);
+      sort(samples.begin(), samples.end(), measure::compare_pairs::descending);
     }
     vector<pair<box, capd::interval>> elite;
     copy_n(

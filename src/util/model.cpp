@@ -3,11 +3,14 @@
 //
 
 #include "model.h"
+#include "pdrh2box.h"
 #include <string.h>
 #include <iomanip>
 #include <cmath>
 #include <sstream>
 #include <algorithm>
+#include <capd/capdlib.h>
+#include <capd/intervals/lib.h>
 
 using namespace std;
 
@@ -694,163 +697,6 @@ std::map<std::string, double> pdrh::init_to_map(pdrh::state init)
   return res;
 }
 
-/*
-void pdrh::push_psy_goal(int mode_id, box b)
-{
-    pdrh::state st;
-    st.id = mode_id;
-    map<string, capd::interval> m = b.get_map();
-    vector<pdrh::node*> operands;
-    for(auto it = m.cbegin(); it != m.cend(); it++)
-    {
-        pdrh::node* var = pdrh::push_terminal_node(it->first);
-        stringstream s;
-        s << it->second.leftBound();
-        pdrh::node* left_bound = pdrh::push_terminal_node(s.str());
-        s.str("");
-        s << it->second.rightBound();
-        pdrh::node* right_bound = pdrh::push_terminal_node(s.str());
-        s.str("");
-        vector<pdrh::node*> tmp;
-        tmp.push_back(var);
-        tmp.push_back(left_bound);
-        pdrh::node* left_constraint = pdrh::push_operation_node(">=", tmp);
-        operands.push_back(left_constraint);
-        tmp.clear();
-        tmp.push_back(var);
-        tmp.push_back(right_bound);
-        pdrh::node* right_constraint = pdrh::push_operation_node("<=", tmp);
-        operands.push_back(right_constraint);
-        tmp.clear();
-    }
-    st.prop = pdrh::push_operation_node("and", operands);
-    pdrh::goal = vector<pdrh::state>{ st };
-    // updating time bounds
-    pdrh::var_map.insert(make_pair("tau", make_pair(pdrh::push_operation_node("0"), m["tau"])));
-    pdrh::push_time_bounds(pdrh::push_terminal_node("0"), m["tau"]);
-}
-*/
-/*
-void pdrh::push_psy_c_goal(int mode_id, box b)
-{
-    pdrh::state st;
-    st.id = mode_id;
-    std::map<std::string, capd::interval> m = b.get_map();
-    std::vector<pdrh::node*> operands;
-    for(auto it = m.cbegin(); it != m.cend(); it++)
-    {
-        // using everything except for time tau
-        if(strcmp(it->first.c_str(), "tau") != 0)
-        {
-            pdrh::node *var = pdrh::push_terminal_node(it->first);
-            std::stringstream s;
-            s << it->second.leftBound();
-            pdrh::node *left_bound = pdrh::push_terminal_node(s.str());
-            s.str("");
-            s << it->second.rightBound();
-            pdrh::node *right_bound = pdrh::push_terminal_node(s.str());
-            s.str("");
-            std::vector<pdrh::node *> tmp;
-            tmp.push_back(var);
-            tmp.push_back(left_bound);
-            pdrh::node *left_constraint = pdrh::push_operation_node("<", tmp);
-            operands.push_back(left_constraint);
-            tmp.clear();
-            tmp.push_back(var);
-            tmp.push_back(right_bound);
-            pdrh::node *right_constraint = pdrh::push_operation_node(">", tmp);
-            operands.push_back(right_constraint);
-            tmp.clear();
-        }
-    }
-    pdrh::node* or_node = pdrh::push_operation_node("or", operands);
-    // adding time as a constraint
-    std::stringstream s;
-    s << m["tau"].leftBound();
-    pdrh::node *left_time_bound = pdrh::push_operation_node("=", std::vector<pdrh::node*>{ pdrh::push_terminal_node("tau"), pdrh::push_terminal_node(s.str())});
-    s.str("");
-    //s << m["tau"].rightBound();
-    //pdrh::node *right_time_bound = pdrh::push_operation_node("<=", std::vector<pdrh::node*>{ pdrh::push_terminal_node("tau"), pdrh::push_terminal_node(s.str())});
-    //st.prop = pdrh::push_operation_node("and", std::vector<pdrh::node*>{left_time_bound, right_time_bound, or_node});
-    st.prop = pdrh::push_operation_node("and", std::vector<pdrh::node*>{left_time_bound, or_node});
-    pdrh::goal = std::vector<pdrh::state>{ st };
-    // updating time bounds
-    pdrh::var_map["tau"] = capd::interval(0, m["tau"].leftBound());
-    pdrh::push_time_bounds(capd::interval(0, m["tau"].leftBound()));
-}
-*/
-
-// mode, step, box
-/*
-vector<tuple<int, box>> pdrh::series_to_boxes(map<string, vector<capd::interval>> time_series)
-{
-    vector<std::tuple<int, box>> res;
-    for(int i = 0; i < time_series.cbegin()->second.size(); i++)
-    {
-        map<string, capd::interval> m;
-        for(auto it = time_series.cbegin(); it != time_series.cend(); it++)
-        {
-            if((strcmp(it->first.c_str(), "Mode") != 0) && (strcmp(it->first.c_str(), "Step") != 0))
-            {
-                if(strcmp(it->first.c_str(), "Time") == 0)
-                {
-                    m.insert(std::make_pair("tau", it->second.at(i)));
-                }
-                else
-                {
-                    m.insert(std::make_pair(it->first, it->second.at(i)));
-                }
-            }
-        }
-        res.push_back(std::make_tuple((int) time_series["Mode"].at(i).leftBound(), box(m)));
-    }
-    return res;
-}
-*/
-
-/*
-vector<pdrh::state> pdrh::series_to_goals(map<string, vector<pair<pdrh::node*, pdrh::node*>>> time_series)
-{
-    vector<pdrh::state> res;
-    for(int i = 0; i < time_series.cbegin()->second.size(); i++)
-    {
-        pdrh::state goal;
-        vector<pdrh::node*> operands;
-        for(auto it = time_series.cbegin(); it != time_series.cend(); it++)
-        {
-            if(strcmp(it->first.c_str(), "Step") != 0)
-            {
-                if(strcmp(it->first.c_str(), "Mode") == 0)
-                {
-                    istringstream is(pdrh::node_to_string_prefix(it->second.at(i).first));
-                    is >> goal.id;
-                }
-                else if(strcmp(it->first.c_str(), "Time") == 0)
-                {
-                    //pdrh::node* left_node = pdrh::push_operation_node(">=", {push_terminal_node(global_config.time_var_name), it->second.at(i).first});
-                    //pdrh::node* right_node = pdrh::push_operation_node("<=", {push_terminal_node(global_config.time_var_name), it->second.at(i).second});
-                    //operands.push_back(pdrh::push_operation_node("and", {left_node, right_node}));
-                    operands.push_back(pdrh::push_operation_node("=", {push_terminal_node(global_config.time_var_name), it->second.at(i).first}));
-                }
-                else
-                {
-                    if(!pdrh::is_node_empty(it->second.at(i).first) &&
-                            !pdrh::is_node_empty(it->second.at(i).second))
-                    {
-                        pdrh::node* left_node = pdrh::push_operation_node(">=", {push_terminal_node(it->first), it->second.at(i).first});
-                        pdrh::node* right_node = pdrh::push_operation_node("<=", {push_terminal_node(it->first), it->second.at(i).second});
-                        operands.push_back(pdrh::push_operation_node("and", {left_node, right_node}));
-                    }
-                }
-            }
-        }
-        goal.prop = push_operation_node("and", operands);
-        res.push_back(goal);
-    }
-    return res;
-}
-*/
-
 vector<pdrh::mode *> pdrh::get_psy_path(
   map<string, vector<pair<pdrh::node *, pdrh::node *>>> time_series)
 {
@@ -871,22 +717,6 @@ vector<pdrh::mode *> pdrh::get_psy_path(
   }
   return path;
 }
-
-/*
-std::vector<pdrh::mode*> pdrh::get_psy_path(std::map<std::string, std::vector<capd::interval>> time_series)
-{
-    std::vector<pdrh::mode*> path;
-    path.push_back(pdrh::get_mode(pdrh::init.front().id));
-    for(int i = 1; i < time_series.cbegin()->second.size(); i++)
-    {
-        if(time_series["Mode"].at(i).leftBound() != time_series["Mode"].at(i - 1).leftBound())
-        {
-            path.push_back(pdrh::get_mode((int) time_series["Mode"].at(i).leftBound()));
-        }
-    }
-    return path;
-}
-*/
 
 void pdrh::distribution::push_uniform(string var, pdrh::node *a, pdrh::node *b)
 {
@@ -913,9 +743,14 @@ void pdrh::distribution::push_exp(string var, pdrh::node *lambda)
 
 pdrh::node *pdrh::distribution::uniform_to_node(node *a, node *b)
 {
-  node *n1 = new node("1");
-  node *op1 = new node("-", {b, a});
-  return new node("/", {n1, op1});
+  capd::interval support(
+    pdrh::node_to_string_infix(a), pdrh::node_to_string_infix(b));
+  capd::interval a_interval = pdrh2box::node_to_interval(a);
+  capd::interval b_interval = pdrh2box::node_to_interval(b);
+  // relaxing the bounds to account for rounding errors (temporary solution)
+  double value_double =
+    1 / ((b_interval.rightBound() + 1e-14) - (a_interval.leftBound() - 1e-14));
+  return new node(value_double);
 }
 
 pdrh::node *
@@ -943,16 +778,6 @@ pdrh::node *pdrh::distribution::exp_to_node(string var, node *lambda)
   return new node("*", {exp_node, lambda});
 }
 
-//void pdrh::push_prob_partition_prec(string var, capd::interval prec)
-//{
-//    global_config.partition_prob_map.insert(make_pair(var, prec));
-//}
-//
-//void pdrh::push_nondet_partition_prec(string var, capd::interval prec)
-//{
-//    global_config.partition_nondet_map.insert(make_pair(var, prec));
-//}
-
 void pdrh::set_model_type()
 {
   if (
@@ -960,7 +785,6 @@ void pdrh::set_model_type()
     pdrh::syn_map.empty())
   {
     pdrh::model_type = pdrh::type::HA;
-    //pdrh::model_type = pdrh::type::NPHA;
   }
   else if (
     pdrh::rv_map.empty() && pdrh::dd_map.empty() && pdrh::par_map.empty())
@@ -969,7 +793,6 @@ void pdrh::set_model_type()
   }
   else if (pdrh::par_map.empty())
   {
-    //        pdrh::model_type = pdrh::type::NPHA;
     pdrh::model_type = pdrh::type::PHA;
   }
   else
@@ -977,45 +800,6 @@ void pdrh::set_model_type()
     pdrh::model_type = pdrh::type::NPHA;
   }
 }
-
-//void update_reset(pdrh::mode::jump& j)
-//{
-//    // variables
-//    for(auto it = pdrh::var_map.begin(); it != pdrh::var_map.end(); it++)
-//    {
-//        if(j.reset.find(it->first) == j.reset.end())
-//        {
-//            cout << it->first << " not in reset" << endl;
-//            j.reset.insert(make_pair(it->first, new pdrh::node(it->first)));
-//        }
-//    }
-//    // nondeterministic parameters
-//    for(auto it = pdrh::par_map.begin(); it != pdrh::par_map.end(); it++)
-//    {
-//        j.reset.insert(make_pair(it->first, new pdrh::node(it->first)));
-//    }
-//    // discrete random parameters
-//    for(auto it = pdrh::dd_map.begin(); it != pdrh::dd_map.end(); it++)
-//    {
-//        j.reset.insert(make_pair(it->first, new pdrh::node(it->first)));
-//    }
-//    // continuous random parameters
-//    for(auto it = pdrh::rv_map.begin(); it != pdrh::rv_map.end(); it++)
-//    {
-//        j.reset.insert(make_pair(it->first, new pdrh::node(it->first)));
-//    }
-//}
-//
-//void pdrh::update_resets()
-//{
-//    for(pdrh::mode m : pdrh::modes)
-//    {
-//        for(pdrh::mode::jump j : m.jumps)
-//        {
-//            update_reset(j);
-//        }
-//    }
-//}
 
 /**
  * Outputs trajectory into a stream

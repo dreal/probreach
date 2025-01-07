@@ -3,7 +3,6 @@
 //
 
 #include <capd/intervals/lib.h>
-//#include "easylogging++.h"
 #include "pdrh_config.h"
 #include "measure.h"
 #include "box_factory.h"
@@ -14,6 +13,9 @@
 #include "decision_procedure.h"
 
 using namespace std;
+
+
+
 
 int formal::evaluate_ha(int min_depth, int max_depth)
 {
@@ -53,7 +55,6 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
   //resulting probability
   capd::interval res_prob(0.0);
   // evaluating boxes
-  //#pragma omp parallel for
   for (box dd : dd_partition)
   {
     if (pdrh::rv_map.size() > 0)
@@ -62,6 +63,10 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
         2 - measure::p_measure(rv_domain, global_config.precision_prob)
               .leftBound());
     vector<box> rv_partition = init_rv_partition;
+    // setting the right bound to 1 if it is smaller due to rounding errors
+    // in the calculations earlier. This will need to be addressed.
+    //if(probability.rightBound() < 1)
+    //  probability.setRightBound(1);
     std::vector<box> rv_stack;
     while (capd::intervals::width(probability) > global_config.precision_prob)
     {
@@ -75,7 +80,6 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
           rv_partition.end(),
           measure::compare_boxes_by_p_measure);
       }
-//for(box rv : rv_partition)
 #pragma omp parallel for
       for (size_t i = 0; i < rv_partition.size(); i++)
       {
@@ -235,9 +239,6 @@ capd::interval formal::evaluate_pha(int min_depth, int max_depth)
 std::map<box, capd::interval>
 formal::evaluate_npha(int min_depth, int max_depth)
 {
-  //CLOG_IF(global_config.verbose, INFO, "algorithm") << setprecision(16);
-  //CLOG_IF(global_config.verbose, INFO, "algorithm")
-  //  << "Obtaining domain of nondeterministic parameters";
   // getting parameter domain
   box nd_domain = pdrh2box::get_nondet_domain();
   // initially partition is the entire parameter domain
@@ -245,16 +246,11 @@ formal::evaluate_npha(int min_depth, int max_depth)
   // if flag is enabled the domain is partitioned up to precision_nondet
   if (global_config.partition_nondet)
   {
-    //CLOG_IF(global_config.verbose, INFO, "algorithm")
-    //  << "Obtaining partition of nondeterministic domain";
     nd_partition.clear();
-    //nd_partition = box_factory::partition(nd_domain, global_config.precision_nondet);
     nd_partition =
       box_factory::partition(nd_domain, global_config.partition_nondet_map);
   }
   // getting partition of domain of continuous random variables
-  //CLOG_IF(global_config.verbose, INFO, "algorithm")
-  //  << "Obtaining partition of domain of continuous random parameters";
   std::vector<box> rv_partition = measure::get_rv_partition();
   if (rv_partition.empty())
   {
@@ -271,7 +267,6 @@ formal::evaluate_npha(int min_depth, int max_depth)
   // performing extra partition if the probability partition map is defined
   else
   {
-    //cout << "rv partition size before extra partition: " << rv_partition.size() << endl;
     vector<box> tmp_vector;
     for (box b : rv_partition)
     {
@@ -281,13 +276,10 @@ formal::evaluate_npha(int min_depth, int max_depth)
         tmp_vector.cend(), extra_partition.cbegin(), extra_partition.cend());
     }
     rv_partition = tmp_vector;
-    //cout << "rv partition size after extra partition:" << rv_partition.size() << endl;
   }
   // sorting boxes by probability value
   if (global_config.sort_rv_flag)
   {
-    //CLOG_IF(global_config.verbose, INFO, "algorithm")
-    //  << "Sorting the partition of domain of continuous random parameters";
     sort(
       rv_partition.begin(),
       rv_partition.end(),
@@ -306,10 +298,11 @@ formal::evaluate_npha(int min_depth, int max_depth)
     pdrh::get_all_paths(min_depth, max_depth);
   // initializing probability map
   std::map<box, capd::interval> p_map;
-  capd::interval total_probability = capd::interval(
-    0,
-    2 -
-      measure::p_measure(rv_domain, global_config.precision_prob).leftBound());
+  capd::interval rv_domain_measure = measure::p_measure(rv_domain, global_config.precision_prob);
+  // temporary solution. This will need to be fixed
+  if(rv_domain_measure.leftBound() > 1)
+    rv_domain_measure.setLeftBound(1);
+  capd::interval total_probability = capd::interval(0, 2 - rv_domain_measure.leftBound());
   for (box nd : nd_partition)
   {
     p_map.insert(std::make_pair(nd, total_probability));
@@ -327,6 +320,8 @@ formal::evaluate_npha(int min_depth, int max_depth)
     res_map.insert(make_pair(it->first, capd::interval(0.0)));
     final_map.insert(make_pair(it->first, capd::interval(0.0)));
   }
+  if(global_config.verbose)
+    std::cout << "formal NPHA: before the algorithm\n";
   // algorithm
   for (box dd : dd_partition)
   {
@@ -337,24 +332,26 @@ formal::evaluate_npha(int min_depth, int max_depth)
       dd_measure = measure::p_dd_measure(dd);
     }
 
+    if(global_config.verbose)
+      std::cout << "formal NPHA: before the while loop\n";
     // probability map computation starts here
     while (p_map.size() > 0)
     {
+      if(global_config.verbose)
+        std::cout << "formal NPHA: inside the main while loop\n";
       // updating the nd_partition
       nd_partition.clear();
-      //cout << "ND partition NOW:" << endl;
       for (auto it = p_map.cbegin(); it != p_map.cend(); it++)
       {
         nd_partition.push_back(it->first);
-        //cout << it->first << endl;
       }
 // iterating through the boxes
-//for(box nd : nd_partition)
 #pragma omp parallel for schedule(dynamic)
       for (int j = 0; j < nd_partition.size(); j++)
       {
         box nd = nd_partition.at(j);
-
+        if(global_config.verbose)
+          std::cout << "formal NPHA: current ND box: " << nd << "\n";
 #pragma omp critical
         {
           rv_partition = partition_map[nd];
@@ -366,31 +363,21 @@ formal::evaluate_npha(int min_depth, int max_depth)
         for (int i = 0; i < rv_partition.size(); i++)
         {
           box rv = rv_partition.at(i);
+          
+          if(global_config.verbose)
+            std::cout << "formal NPHA: current RV box: " << rv << "\n";
           // calculating probability measure of the box rv; initally p_box = [1.0, 1.0]
           capd::interval p_box(1.0, 1.0);
 #pragma omp critical
           {
-            //CLOG_IF(global_config.verbose, INFO, "algorithm")
-            //  << "====================";
-            if (!nd.empty())
-            {
-              //CLOG_IF(global_config.verbose, INFO, "algorithm")
-              //  << "nd_box: " << nd;
-            }
             if (!dd.empty())
             {
-              //p_box *= measure::p_dd_measure(dd);
-              //CLOG_IF(global_config.verbose, INFO, "algorithm")
-              //  << "dd_box: " << dd;
+              p_box *= measure::p_dd_measure(dd);
             }
             if (!rv.empty())
             {
               p_box *= measure::p_measure(rv, global_config.precision_prob);
-              //CLOG_IF(global_config.verbose, INFO, "algorithm")
-              //  << "rv_box: " << rv;
             }
-            //CLOG_IF(global_config.verbose, INFO, "algorithm")
-            //  << "p_box: " << p_box;
           }
           std::stringstream s;
           std::string solver_opt;
@@ -406,11 +393,14 @@ formal::evaluate_npha(int min_depth, int max_depth)
             {
               s << global_config.solver_precision_ratio;
             }
-            //CLOG_IF(global_config.verbose, INFO, "algorithm")
-            //  << "Solver options: " << s.str();
           }
-          switch (decision_procedure::evaluate(
-            paths, vector<box>{nd, dd, rv}, global_config.solver_bin, s.str()))
+          int res = decision_procedure::evaluate(
+            paths, vector<box>{nd, dd, rv}, global_config.solver_bin, s.str());
+          
+          if(global_config.verbose)
+            std::cout << "formal NPHA: decision procedure result = " << res << "\n";
+          
+          switch (res)
           {
           case decision_procedure::result::SAT:
 #pragma omp critical
@@ -421,9 +411,6 @@ formal::evaluate_npha(int min_depth, int max_depth)
                 p_map[nd].leftBound() + p_box.leftBound(),
                 p_map[nd].rightBound());
             }
-            //CLOG_IF(global_config.verbose, INFO, "algorithm") << "SAT";
-            //CLOG_IF(global_config.verbose, INFO, "algorithm")
-            //  << "P = " << p_map[nd];
           }
           break;
 
@@ -436,20 +423,12 @@ formal::evaluate_npha(int min_depth, int max_depth)
                 p_map[nd].leftBound(),
                 p_map[nd].rightBound() - p_box.leftBound());
             }
-            //CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNSAT";
-            //CLOG_IF(global_config.verbose, INFO, "algorithm")
-            //  << "P = " << p_map[nd];
           }
           break;
 
           case decision_procedure::result::UNDET:
 #pragma omp critical
           {
-            //CLOG_IF(global_config.verbose, INFO, "algorithm") << "UNDET";
-            //CLOG_IF(global_config.verbose, INFO, "algorithm")
-             // << "P = " << p_map[nd];
-            //CLOG_IF(global_config.verbose, INFO, "algorithm")
-            //  << "Bisect " << rv;
             std::vector<box> rv_bisect = box_factory::bisect(rv);
             rv_stack.insert(rv_stack.end(), rv_bisect.begin(), rv_bisect.end());
             // updating total partition
@@ -463,13 +442,14 @@ formal::evaluate_npha(int min_depth, int max_depth)
           }
           break;
           }
+          
+          if(global_config.verbose)
+            cout << "formal NPHA: current probability = P(" << nd << ") = " << p_map[nd] << "\n";
         }
 #pragma omp critical
         {
           if (p_map.find(nd) == p_map.end())
           {
-            //CLOG(ERROR, "algorithm")
-            //  << "The box " << nd << " is not in the map";
             exit(EXIT_FAILURE);
           }
           capd::interval probability;
@@ -477,10 +457,6 @@ formal::evaluate_npha(int min_depth, int max_depth)
           if (
             capd::intervals::width(probability) <= global_config.precision_prob)
           {
-            //CLOG_IF(global_config.verbose, INFO, "algorithm")
-            //  << "Epsilon is satisfied. Updating resulting probability map "
-            //     "with "
-            //  << nd;
             p_map.erase(nd);
             partition_map.erase(nd);
             res_map[nd] = probability; // * dd_measure;
@@ -488,52 +464,297 @@ formal::evaluate_npha(int min_depth, int max_depth)
           // sorting newly obtained boxes
           if (global_config.sort_rv_flag)
           {
-            //CLOG_IF(global_config.verbose, INFO, "algorithm")
-            //  << "Sorting bisected boxes";
             sort(
               rv_stack.begin(),
               rv_stack.end(),
               measure::compare_boxes_by_p_measure);
           }
           // updating partition map only in case if probability value does not satisfy the probability precision
-          //CLOG_IF(global_config.verbose, INFO, "algorithm")
-          //  << "Updating partition map";
           if (partition_map.find(nd) != partition_map.cend())
           {
             partition_map[nd] = rv_stack;
           }
-          //}
-          //                cout << "Probability map after " << nd << " was processed" << endl;
-          //                for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
-          //                {
-          //                    std::cout << it2->first << " | " << it2->second << std::endl;
-          //                }
-          //                cout << "Resulting map after " << nd << " was processed" << endl;
-          //                for(auto it2 = res_map.begin(); it2 != res_map.end(); it2++)
-          //                {
-          //                    std::cout << it2->first << " | " << it2->second << std::endl;
-          //                }
-          //                cout << "----------------------------------" << endl;
-          //exit(EXIT_FAILURE);
         }
       }
-      //            cout << "----------------------------------" << endl;
-      //            cout << "Probability map after all boxes are processed" << endl;
-      //            for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
-      //            {
-      //                std::cout << it2->first << " | " << it2->second << std::endl;
-      //            }
-      //            cout << "Resulting map after all boxes are processed" << endl;
-      //            for(auto it2 = res_map.begin(); it2 != res_map.end(); it2++)
-      //            {
-      //                std::cout << it2->first << " | " << it2->second << std::endl;
-      //            }
-      //            cout << "----------------------------------" << endl;
-      //exit(EXIT_SUCCESS);
 
       // updating probability and partition maps
-      //CLOG_IF(global_config.verbose, INFO, "algorithm")
-      //  << "Updating probability map";
+      std::map<box, capd::interval> tmp_map = p_map;
+      for (auto it = tmp_map.cbegin(); it != tmp_map.cend(); it++)
+      {
+        box nd = it->first;
+        // checking if the system features nondeterministic parameters
+        if (!nd.empty())
+        {
+          // bisecting the nondeterministic box
+          std::vector<box> tmp_boxes;
+          // checking if the --ignore-nondet flag is up
+          if (global_config.ignore_nondet)
+          {
+            tmp_boxes = box_factory::bisect(nd);
+          }
+          else
+          {
+            tmp_boxes =
+              box_factory::bisect(nd, global_config.partition_nondet_map);
+          }
+          capd::interval tmp_prob_value = p_map[nd];
+          std::vector<box> tmp_rv_partition = partition_map[nd];
+          capd::interval tmp_final_prob_value = final_map[nd];
+          // removing probability and partition for the bisected box
+          p_map.erase(nd);
+          partition_map.erase(nd);
+          res_map.erase(nd);
+          final_map.erase(nd);
+          // updating probability and partition maps
+          if (tmp_boxes.size() > 1)
+          {
+            for (box b : tmp_boxes)
+            {
+              p_map.insert(make_pair(b, tmp_prob_value));
+              partition_map.insert(make_pair(b, tmp_rv_partition));
+              res_map.insert(make_pair(b, tmp_prob_value));
+              final_map.insert(make_pair(b, tmp_final_prob_value));
+            }
+          }
+          else
+          {
+            res_map.insert(make_pair(nd, tmp_prob_value));
+            final_map.insert(make_pair(nd, tmp_final_prob_value));
+          }
+        }
+      }
+    }
+    // probability map computation finishes here
+
+    // mutiplying every enclosure in the map by dd_measure
+    for (auto it = final_map.begin(); it != final_map.end(); it++)
+    {
+      final_map[it->first] += res_map[it->first] * dd_measure;
+    }
+
+    // updating p_map and partition_map for the next iteration
+    partition_map.clear();
+    p_map.clear();
+    res_map.clear();
+    for (auto it = final_map.begin(); it != final_map.end(); it++)
+    {
+      p_map.insert(make_pair(it->first, total_probability));
+      res_map.insert(make_pair(it->first, capd::interval(0.0)));
+      partition_map.insert(make_pair(it->first, total_partition));
+    }
+  }
+
+  return final_map;
+}
+
+std::map<box, capd::interval>
+formal::evaluate_npha_upper_bound(int min_depth, int max_depth)
+{
+  // getting parameter domain
+  box nd_domain = pdrh2box::get_nondet_domain();
+  // initially partition is the entire parameter domain
+  std::vector<box> nd_partition{nd_domain};
+  // if flag is enabled the domain is partitioned up to precision_nondet
+  if (global_config.partition_nondet)
+  {
+    nd_partition.clear();
+    nd_partition =
+      box_factory::partition(nd_domain, global_config.partition_nondet_map);
+  }
+  // getting partition of domain of continuous random variables
+  std::vector<box> rv_partition = measure::get_rv_partition();
+  if (rv_partition.empty())
+  {
+    rv_partition.push_back(box());
+  }
+  // getting domain of continuous random variables
+  box rv_domain = measure::bounds::get_rv_domain();
+  // here we start with entire domain instead of partition
+  if (!global_config.partition_prob)
+  {
+    rv_partition.clear();
+    rv_partition.push_back(rv_domain);
+  }
+  // performing extra partition if the probability partition map is defined
+  else
+  {
+    std::vector<box> tmp_vector;
+    for (box b : rv_partition)
+    {
+      vector<box> extra_partition =
+        box_factory::partition(b, global_config.partition_prob_map);
+      tmp_vector.insert(
+        tmp_vector.cend(), extra_partition.cbegin(), extra_partition.cend());
+    }
+    rv_partition = tmp_vector;
+  }
+  // sorting boxes by probability value
+  if (global_config.sort_rv_flag)
+  {
+    sort(
+      rv_partition.begin(),
+      rv_partition.end(),
+      measure::compare_boxes_by_p_measure);
+  }
+  // getting partition of domain of discrete random variables
+  std::vector<box> dd_partition = measure::get_dd_partition();
+  // fix for now
+  if (dd_partition.empty())
+  {
+    dd_partition.push_back(box());
+  }
+  // generating all paths of lengths [min_depth, max_depth]
+  std::vector<std::vector<pdrh::mode *>> paths =
+    pdrh::get_all_paths(min_depth, max_depth);
+  // initializing probability map
+  std::map<box, capd::interval> p_map;
+  capd::interval rv_domain_measure = measure::p_measure(rv_domain, global_config.precision_prob);
+  // temporary solution. This will need to be fixed
+  //if(rv_domain_measure.leftBound() > 1)
+  //  rv_domain_measure.setLeftBound(1);
+  capd::interval total_probability = capd::interval(0, 2 - rv_domain_measure.leftBound());
+  // initialising the probability map
+  if(global_config.verbose)
+    std::cout << "formal NPHA: initialising the probability map\n"; 
+  for (box nd : nd_partition)
+  {
+    if(global_config.verbose)
+      std::cout << "P (" << nd << ") = " << total_probability << "\n";
+    p_map.insert(std::make_pair(nd, total_probability));
+  }
+  // initializing partition map
+  std::map<box, std::vector<box>> partition_map;
+  for (box nd : nd_partition)
+  {
+    partition_map.insert(std::make_pair(nd, rv_partition));
+  }
+  vector<box> total_partition = rv_partition;
+  std::map<box, capd::interval> res_map, final_map;
+  for (auto it = p_map.begin(); it != p_map.end(); it++)
+  {
+    res_map.insert(make_pair(it->first, capd::interval(0.0)));
+    final_map.insert(make_pair(it->first, capd::interval(0.0)));
+  }
+  if(global_config.verbose)
+    std::cout << "formal NPHA: starting the algorithm\n";
+  // algorithm
+  for (box dd : dd_partition)
+  {
+    // calculating the discrete measure
+    capd::interval dd_measure(1.0);
+    if (!dd.empty())
+    {
+      dd_measure = measure::p_dd_measure(dd);
+    }
+
+    if(global_config.verbose)
+      std::cout << "formal NPHA: iterating through the probability map\n";
+    // probability map computation starts here
+    while (p_map.size() > 0)
+    {
+      // updating the nd_partition
+      nd_partition.clear();
+      for (auto it = p_map.cbegin(); it != p_map.cend(); it++)
+      {
+        nd_partition.push_back(it->first);
+      }
+
+#pragma omp parallel for schedule(dynamic)
+      for (int j = 0; j < nd_partition.size(); j++)
+      {
+        box nd = nd_partition.at(j);
+        if(global_config.verbose)
+          std::cout << "formal NPHA: current ND box: " << nd << "\n";
+
+#pragma omp critical
+        {
+          rv_partition = partition_map[nd];
+        }
+
+        vector<box> rv_stack;
+
+        for (int i = 0; i < rv_partition.size(); i++)
+        {
+          box rv = rv_partition.at(i);
+          
+          if(global_config.verbose)
+            std::cout << "formal NPHA: current RV box: " << rv << "\n";
+          // calculating probability measure of the box rv; initally p_box = [1.0, 1.0]
+          capd::interval p_box(1.0, 1.0);
+#pragma omp critical
+          {
+            if (!dd.empty())
+            {
+              p_box *= measure::p_dd_measure(dd);
+            }
+            if (!rv.empty())
+            {
+              p_box *= measure::p_measure(rv, global_config.precision_prob);
+            }
+          }
+          std::stringstream s;
+          std::string solver_opt;
+
+#pragma omp critical
+          {
+            solver_opt = global_config.solver_opt;
+            s << solver_opt << " --precision ";
+            if (!rv.empty())
+            {
+              s << rv.min_side_width() * global_config.solver_precision_ratio;
+            }
+            else
+            {
+              s << global_config.solver_precision_ratio;
+            }
+          }
+          if(global_config.verbose)
+            std::cout << "formal NPHA: running the decision procedure\n";
+          int res = decision_procedure::evaluate_delta_sat(
+            paths, vector<box>{nd, dd, rv}, global_config.solver_bin, s.str());
+          
+          if(global_config.verbose)
+            std::cout << "formal NPHA: decision procedure result = " << res << "\n";
+          switch (res)
+          {
+
+          case decision_procedure::result::UNSAT:
+#pragma omp critical
+          {
+            if (p_box.leftBound() > 0)
+            {
+              p_map[nd] = capd::interval(
+                p_map[nd].leftBound(),
+                p_map[nd].rightBound() - p_box.leftBound());
+            }
+          }
+          break;
+
+          }
+          if(global_config.verbose)
+            cout << "formal NPHA: current probability = P(" << nd << ") = " << p_map[nd] << "\n";
+        }
+#pragma omp critical
+        {
+          capd::interval probability;
+          probability = p_map[nd];
+          // sorting newly obtained boxes
+          if (global_config.sort_rv_flag)
+          {
+            sort(
+              rv_stack.begin(),
+              rv_stack.end(),
+              measure::compare_boxes_by_p_measure);
+          }
+          // updating partition map only in case if probability value does not satisfy the probability precision
+          if (partition_map.find(nd) != partition_map.cend())
+          {
+            partition_map[nd] = rv_stack;
+          }
+        }
+      }
+
+      // updating probability and partition maps
       std::map<box, capd::interval> tmp_map = p_map;
       for (auto it = tmp_map.cbegin(); it != tmp_map.cend(); it++)
       {
@@ -580,18 +801,6 @@ formal::evaluate_npha(int min_depth, int max_depth)
           }
         }
       }
-      //            cout << "----------------------------------" << endl;
-      //            cout << "Probability map after it's been updated" << endl;
-      //            for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
-      //            {
-      //                std::cout << it2->first << " | " << it2->second << std::endl;
-      //            }
-      //            cout << "Resulting map after it's been updated" << endl;
-      //            for(auto it2 = res_map.begin(); it2 != res_map.end(); it2++)
-      //            {
-      //                std::cout << it2->first << " | " << it2->second << std::endl;
-      //            }
-      //            cout << "----------------------------------" << endl;
     }
     // probability map computation finishes here
 
@@ -601,25 +810,6 @@ formal::evaluate_npha(int min_depth, int max_depth)
       final_map[it->first] += res_map[it->first] * dd_measure;
     }
 
-    //        cout << "Final map after " << dd << endl;
-    //        for(auto it = final_map.begin(); it != final_map.end(); it++)
-    //        {
-    //            cout << it->first << " | " << it->second << endl;
-    //        }
-    //        cout << "----------------------------------" << endl;
-
-    //return final_map;
-    // multiplying every enclosure by probability measure of discrete parameter
-    //        for(auto it = res_map.begin(); it != res_map.end(); it++)
-    //        {
-    //            it->second *= measure::p_dd_measure(dd);
-    //        }
-    //        cout << "Resulting map before it's been multiplied by dd measure" << endl;
-    //        for(auto it2 = res_map.begin(); it2 != res_map.end(); it2++)
-    //        {
-    //            std::cout << it2->first << " | " << it2->second << std::endl;
-    //        }
-    //        cout << "----------------------------------" << endl;
     // updating p_map and partition_map for the next iteration
     partition_map.clear();
     p_map.clear();
@@ -630,28 +820,7 @@ formal::evaluate_npha(int min_depth, int max_depth)
       res_map.insert(make_pair(it->first, capd::interval(0.0)));
       partition_map.insert(make_pair(it->first, total_partition));
     }
-    //        cout << "Total partition: " << endl;
-    //        for(box b : total_partition)
-    //        {
-    //            cout << b << endl;
-    //        }
-    //        exit(EXIT_FAILURE);
-    //        cout << "Updated probability map after the end of the loop" << endl;
-    //        for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
-    //        {
-    //            std::cout << it2->first << " | " << it2->second << std::endl;
-    //        }
   }
 
-  // cout << "Resulting map after adding" << endl;
-  // for(auto it2 = res_map.begin(); it2 != res_map.end(); it2++)
-  // {
-  //     cout << it2->first << " | " << it2->second << std::endl;
-  // }
-  // cout << "Final p_map" << endl;
-  // for(auto it2 = p_map.begin(); it2 != p_map.end(); it2++)
-  // {
-  //     cout << it2->first << " | " << it2->second << std::endl;
-  // }
   return final_map;
 }

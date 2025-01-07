@@ -7,6 +7,7 @@
 #include "model.h"
 #include "pdrh_config.h"
 #include "pdrh2box.h"
+#include <iomanip>
 
 using namespace std;
 using namespace pdrh;
@@ -96,7 +97,6 @@ capd::interval measure::p_measure(box b, double e)
                it->second,
                measure::precision(e, edges.size()))
                .first;
-      //res *= measure::integral(it->first, measure::rv_map[it->first], it->second, power(e, 1/edges.size())).first;
     }
     else if (pdrh::dd_map.find(it->first) != pdrh::dd_map.cend())
     {
@@ -335,7 +335,8 @@ std::string measure::distribution::uniform(capd::interval a, capd::interval b)
   // numbers in scientific notation as parameters
   s.precision(16);
   s << fixed;
-  s << "1 / (" << b.leftBound() << " - (" << a.leftBound() << "))";
+  s << "1 / (" << b.rightBound() << " - (" << a.leftBound() << "))";
+  std::cout << "measure: uniform fun = " << s.str() << "\n";
   return s.str();
 }
 
@@ -344,7 +345,6 @@ std::vector<box> measure::get_rv_partition()
   std::map<std::string, std::vector<capd::interval>> partition_map;
   for (auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
   {
-    //cout << "RV: " << it->first << endl;
     // setting initial rv bounds
     capd::interval init_domain(
       -numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
@@ -398,7 +398,6 @@ std::vector<box> measure::get_dd_partition()
 
 box measure::bounds::get_rv_domain()
 {
-  std::vector<box> init_rv_partition = measure::get_rv_partition();
   map<std::string, vector<capd::interval>> domain_map;
   for (auto it = pdrh::rv_map.cbegin(); it != pdrh::rv_map.cend(); it++)
   {

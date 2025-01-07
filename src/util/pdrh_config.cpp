@@ -128,14 +128,7 @@ void parse_pdrh_config(int argc, char *argv[])
     else if (strcmp(argv[i], "--min-prob") == 0)
     {
       global_config.min_prob = true;
-      global_config.max_prob = false;
     }
-    //        // cross entropy normal flag
-    //        else if(strcmp(argv[i], "--cross-entropy-beta") == 0)
-    //        {
-    //            global_config.cross_entropy_beta = true;
-    //            global_config.cross_entropy_normal = false;
-    //        }
     // reachability depth (min = max)
     else if (strcmp(argv[i], "-k") == 0)
     {
@@ -145,7 +138,7 @@ void parse_pdrh_config(int argc, char *argv[])
       global_config.reach_depth_min = global_config.reach_depth_max;
       if (global_config.reach_depth_max < 0)
       {
-        cerr << "-k cannot be negative";
+        cerr << "-k cannot be negative\n";
         exit(EXIT_FAILURE);
       }
     }
@@ -157,14 +150,14 @@ void parse_pdrh_config(int argc, char *argv[])
       is >> global_config.reach_depth_min;
       if (global_config.reach_depth_min < 0)
       {
-        cerr << "-l cannot be negative";
+        cerr << "-l cannot be negative\n";
         exit(EXIT_FAILURE);
       }
-      //            else if(global_config.reach_depth_min > global_config.reach_depth_max)
-      //            {
-      //                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
-      //                exit(EXIT_FAILURE);
-      //            }
+      //else if(global_config.reach_depth_min > global_config.reach_depth_max)
+      //{
+      //    CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
+      //    exit(EXIT_FAILURE);
+      //}
     }
     // maximum reachability depth
     else if (strcmp(argv[i], "-u") == 0)
@@ -174,14 +167,14 @@ void parse_pdrh_config(int argc, char *argv[])
       is >> global_config.reach_depth_max;
       if (global_config.reach_depth_max < 0)
       {
-        cerr << "-u cannot be negative";
+        cerr << "-u cannot be negative\n";
         exit(EXIT_FAILURE);
       }
-      //            else if(global_config.reach_depth_min > global_config.reach_depth_max)
-      //            {
-      //                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
-      //                exit(EXIT_FAILURE);
-      //            }
+      //else if(global_config.reach_depth_min > global_config.reach_depth_max)
+      //{
+      //    CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
+      //    exit(EXIT_FAILURE);
+      //}
     }
     // maximum reachability depth
     else if (strcmp(argv[i], "--decision-method") == 0)
@@ -189,13 +182,8 @@ void parse_pdrh_config(int argc, char *argv[])
       i++;
       istringstream is(argv[i]);
       is >> global_config.decision_method;
-      //            else if(global_config.reach_depth_min > global_config.reach_depth_max)
-      //            {
-      //                CLOG(ERROR, "config") << "Minimum reachaility depth cannot be smaller than the maximum one";
-      //                exit(EXIT_FAILURE);
-      //            }
     }
-    // maximum reachability depth
+    // ODE discretisation grid
     else if (strcmp(argv[i], "-n") == 0)
     {
       i++;
@@ -203,14 +191,13 @@ void parse_pdrh_config(int argc, char *argv[])
       is >> global_config.ode_discretisation;
       if (global_config.ode_discretisation < 0)
       {
-        cerr << "-n must be positive";
+        cerr << "-n must be positive\n";
         exit(EXIT_FAILURE);
       }
     }
     // nondeterministic precision
     else if (strcmp(argv[i], "--precision-nondet") == 0)
     {
-      //global_config.partition_nondet = true;
       i++;
       bool map_end = false;
       while (!map_end)
@@ -228,13 +215,11 @@ void parse_pdrh_config(int argc, char *argv[])
           if (is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
           {
             cerr << "partition precision for variable \"" << var
-                 << "\" is not defined";
+                 << "\" is not defined\n";
             exit(EXIT_FAILURE);
           }
           else
           {
-            //istringstream val_is(argv[i]);
-            //pdrh::push_nondet_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
             global_config.partition_nondet_map.insert(make_pair(var, argv[i]));
             i++;
           }
@@ -249,7 +234,7 @@ void parse_pdrh_config(int argc, char *argv[])
       is >> global_config.solver_precision_ratio;
       if (global_config.solver_precision_ratio <= 0)
       {
-        cerr << "--precision-ratio should be positive";
+        cerr << "--precision-ratio should be positive\n";
         exit(EXIT_FAILURE);
       }
     }
@@ -261,7 +246,7 @@ void parse_pdrh_config(int argc, char *argv[])
       is >> global_config.integral_pdf_step;
       if (global_config.integral_pdf_step <= 0)
       {
-        cerr << "--integral-pdf-step should be positive";
+        cerr << "--integral-pdf-step should be positive\n";
         exit(EXIT_FAILURE);
       }
     }
@@ -277,15 +262,7 @@ void parse_pdrh_config(int argc, char *argv[])
     {
       i++;
       global_config.solver_bin = string(argv[i]);
-      //            global_config.solver_type = solver::detect_solver(global_config.solver_bin);
     }
-    //        // solver binary
-    //        else if(strcmp(argv[i], "--secondary-solver") == 0)
-    //        {
-    //            i++;
-    //            global_config.secondary_solver_bin = string(argv[i]);
-    ////            global_config.secondary_solver_type = solver::detect_solver(global_config.secondary_solver_bin);
-    //        }
     // time variable name
     else if (strcmp(argv[i], "--time-var-name") == 0)
     {
@@ -300,10 +277,7 @@ void parse_pdrh_config(int argc, char *argv[])
         }
         else
         {
-          //                    if(find(global_config.time_var_name.begin(), global_config.time_var_name.end(), argv[i]) == global_config.time_var_name.end())
-          //                    {
           global_config.time_var_name.push_back(argv[i]);
-          //                    }
           i++;
         }
       }
@@ -330,8 +304,6 @@ void parse_pdrh_config(int argc, char *argv[])
           {
             global_config.controller.plant_output.push_back(argv[i]);
           }
-          //                    sort(global_config.controller.plant_output.begin(),
-          //                         global_config.controller.plant_output.end());
           i++;
         }
       }
@@ -358,8 +330,6 @@ void parse_pdrh_config(int argc, char *argv[])
           {
             global_config.controller.controller_output.push_back(argv[i]);
           }
-          //                    sort(global_config.controller.controller_output.begin(),
-          //                         global_config.controller.controller_output.end());
           i++;
         }
       }
@@ -378,47 +348,11 @@ void parse_pdrh_config(int argc, char *argv[])
         }
         else
         {
-          //                    if(find(global_config.controller.controller_input.begin(), global_config.controller.controller_input.end(), argv[i]) == global_config.controller.controller_input.end())
-          //                    {
           global_config.controller.controller_input.push_back(argv[i]);
-          //                    }
           i++;
         }
       }
     }
-    // noise variance map
-    //        else if(strcmp(argv[i], "--noise-variance") == 0)
-    //        {
-    //            //global_config.partition_nondet = true;
-    //            i++;
-    //            bool map_end = false;
-    //            while (!map_end)
-    //            {
-    //                if (is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
-    //                {
-    //                    map_end = true;
-    //                    i--;
-    //                }
-    //                else
-    //                {
-    //                    istringstream var_is(argv[i]);
-    //                    string var = var_is.str();
-    //                    i++;
-    //                    if (is_flag(argv[i]) || is_drh(argv[i]) || is_pdrh(argv[i]))
-    //                    {
-    //                        CLOG(ERROR, "config") << "partition precision for variable \"" << var << "\" is not defined";
-    //                        exit(EXIT_FAILURE);
-    //                    }
-    //                    else
-    //                    {
-    //                        istringstream val_is(argv[i]);
-    //                        global_config.controller.noise_variance.insert(
-    //                                make_pair(var, capd::interval(val_is.str(), val_is.str()).rightBound()));
-    //                        i++;
-    //                    }
-    //                }
-    //            }
-    //        }
     // global_time variable
     else if (strcmp(argv[i], "--global-time") == 0)
     {
@@ -461,64 +395,6 @@ void parse_pdrh_config(int argc, char *argv[])
         exit(EXIT_FAILURE);
       }
     }
-    //        // chernoff bound accuracy
-    //        else if(strcmp(argv[i], "--chernoff-acc") == 0)
-    //        {
-    //            global_config.chernoff_flag = true;
-    //            global_config.stat_flag = true;
-    //            i++;
-    //            istringstream is(argv[i]);
-    //            is >> global_config.chernoff_acc;
-    //            if (global_config.chernoff_acc <= 0)
-    //            {
-    //                cerr << "accuracy of Chernoff bound should be positive";
-    //                exit(EXIT_FAILURE);
-    //            }
-    //        }
-    //        // chernoff bound confidence
-    //        else if(strcmp(argv[i], "--chernoff-conf") == 0)
-    //        {
-    //            global_config.chernoff_flag = true;
-    //            global_config.stat_flag = true;
-    //            i++;
-    //            istringstream is(argv[i]);
-    //            is >> global_config.chernoff_conf;
-    //            if ((global_config.chernoff_conf < 0) ||
-    //                    (global_config.chernoff_conf >= 1))
-    //            {
-    //                cerr << "confidence of Chernoff bound should be within [0, 1)";
-    //                exit(EXIT_FAILURE);
-    //            }
-    //        }
-    //        // bayesian accuracy
-    //        else if(strcmp(argv[i], "--bayesian-acc") == 0)
-    //        {
-    //            global_config.bayesian_flag = true;
-    //            global_config.stat_flag = true;
-    //            i++;
-    //            istringstream is(argv[i]);
-    //            is >> global_config.bayesian_acc;
-    //            if (global_config.bayesian_acc <= 0)
-    //            {
-    //                cerr << "accuracy for Bayesian simulations should be positive";
-    //                exit(EXIT_FAILURE);
-    //            }
-    //        }
-    //        // bayesian confidence
-    //        else if(strcmp(argv[i], "--bayesian-conf") == 0)
-    //        {
-    //            global_config.bayesian_flag = true;
-    //            global_config.stat_flag = true;
-    //            i++;
-    //            istringstream is(argv[i]);
-    //            is >> global_config.bayesian_conf;
-    //            if ((global_config.bayesian_conf < 0) ||
-    //                (global_config.bayesian_conf >= 1))
-    //            {
-    //                cerr << "confidence for Bayesian simulations should be within [0, 1)";
-    //                exit(EXIT_FAILURE);
-    //            }
-    //        }
     // qmc conf
     else if (strcmp(argv[i], "--qmc-conf") == 0)
     {
@@ -579,10 +455,15 @@ void parse_pdrh_config(int argc, char *argv[])
         exit(EXIT_FAILURE);
       }
     }
-    // merge flag
+    // use only the first formula for sampling
     else if (strcmp(argv[i], "--delta-sat") == 0)
     {
       global_config.delta_sat = true;
+    }
+    // reduce only the upper bound in formal methods
+    else if (strcmp(argv[i], "--upper-bound") == 0)
+    {
+      global_config.upper_p_bound_flag = true;
     }
     // merge flag
     else if (strcmp(argv[i], "--merge-boxes") == 0)
@@ -615,8 +496,6 @@ void parse_pdrh_config(int argc, char *argv[])
           }
           else
           {
-            //                        istringstream val_is(argv[i]);
-            //                        pdrh::push_prob_partition_prec(var, capd::interval(val_is.str(), val_is.str()));
             global_config.partition_prob_map.insert(make_pair(var, argv[i]));
             i++;
           }
@@ -633,16 +512,6 @@ void parse_pdrh_config(int argc, char *argv[])
     {
       global_config.partition_nondet = true;
     }
-    // partition the synthesized parameters
-    else if (strcmp(argv[i], "--partition-psy") == 0)
-    {
-      global_config.partition_psy = true;
-    }
-    //        // xml_output
-    //        else if(strcmp(argv[i], "--xml-output") == 0)
-    //        {
-    //            global_config.xml_output = true;
-    //        }
     // solution-guided
     else if (strcmp(argv[i], "--guided") == 0)
     {
@@ -755,13 +624,6 @@ void parse_pdrh_config(int argc, char *argv[])
     print_usage();
     exit(EXIT_FAILURE);
   }
-  //    CLOG_IF(global_config.verbose, INFO, "config") << "OK";
-  // checking secondary solver type
-  //    if(global_config.secondary_solver_type == solver::type::UNKNOWN_SOLVER)
-  //    {
-  //        global_config.secondary_solver_type = global_config.solver_type;
-  //        global_config.secondary_solver_bin = global_config.solver_bin;
-  //    }
 }
 
 void print_usage()
@@ -810,12 +672,6 @@ void print_usage()
   cout << "statistical model checking options:" << endl;
   cout << "-c <double> - confidence value (default: " << global_config.conf
        << ")" << endl;
-  //    cout << "--bayesian-acc <double> - half-length of the confidence interval in Bayesian estimations (default: " << global_config.bayesian_acc << ")" << endl;
-  //    cout << "--bayesian-conf <double> - confidence value in Bayesian estimations (default: " << global_config.bayesian_conf << ")" << endl;
-  //    cout << "--cross-entropy - enables Cross-Entropy algorithm (default: " << global_config.cross_entropy_flag << ")" << endl;
-  //    cout << "--cross-entropy-term-arg <double> - termination argument (variance) for Cross-Entropy algorithm (default: " << global_config.cross_entropy_term_arg << ")" << endl;
-  //    cout << "--chernoff-acc <double> - half-length of the confidence interval in Chernoff-Hoeffding method (default: " << global_config.chernoff_acc << ")" << endl;
-  //    cout << "--chernoff-conf <double> - confidence value in Chernoff-Hoeffding method (default: " << global_config.chernoff_conf << ")" << endl;
   cout << "--elite-ratio <double> - defines the fraction of the sample size - "
           "elite samples which are used in Cross-Entropy algorithm for "
           "updating the distribution parameters (default: "

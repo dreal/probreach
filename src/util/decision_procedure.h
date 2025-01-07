@@ -46,6 +46,16 @@ int evaluate_delta_sat(
 // second argument is the set of nondet boxes
 // third argument is the path to the solver binary
 // fourt argument is the string of solver options
+int evaluate_delta_sat(
+  std::vector<std::vector<pdrh::mode *>>,
+  std::vector<box>,
+  std::string,
+  std::string);
+
+// first argument is the path to be evaluated,
+// second argument is the set of nondet boxes
+// third argument is the path to the solver binary
+// fourt argument is the string of solver options
 int evaluate_complement(
   std::vector<pdrh::mode *>,
   std::vector<box>,

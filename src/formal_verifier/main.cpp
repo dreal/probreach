@@ -70,8 +70,18 @@ int main(int argc, char *argv[])
   }
   else if (pdrh::model_type == pdrh::NPHA)
   {
-    map<box, capd::interval> probability_map = formal::evaluate_npha(
-      global_config.reach_depth_min, global_config.reach_depth_max);
+    map<box, capd::interval> probability_map;
+    if(global_config.upper_p_bound_flag)
+    {
+      probability_map = formal::evaluate_npha_upper_bound(
+        global_config.reach_depth_min, global_config.reach_depth_max);
+    }
+    else
+    {
+      probability_map = formal::evaluate_npha(
+        global_config.reach_depth_min, global_config.reach_depth_max);
+    }
+    // outputting the probability map
     for (auto it = probability_map.cbegin(); it != probability_map.cend(); it++)
     {
       cout << scientific << it->first << " | " << it->second << " | "

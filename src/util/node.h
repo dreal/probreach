@@ -12,36 +12,38 @@
 namespace pdrh
 {
 // node of the tree of mathematical expression
-struct node
+class node
 {
+public:
   // either a name of operation or a value of the operand (const or identifier)
   std::string value;
   // vector is empty if the node is terminal and non-empty if the node is
   // operation node
   std::vector<node *> operands;
 
-  inline node(const node &rhs) : value(rhs.value), operands(rhs.operands)
+  // Create a "node" from a "string" value.
+  node(std::string value) : value(value)
   {
   }
 
-  inline node(const std::string value, const std::vector<node *> operands)
+  // Create a "node" from a "double" value. A double is converted to its
+  // string representation using the first 16 digit after the decimal point
+  node(double v);
+
+  node(const node &rhs) : value(rhs.value), operands(rhs.operands)
+  {
+  }
+
+  node(const std::string value, const std::vector<node *> operands)
     : value(value), operands(operands)
   {
   }
 
-  inline node(const std::string value) : value(value)
+  node()
   {
   }
 
-  inline node(const double value) : value(std::to_string(value))
-  {
-  }
-
-  inline node()
-  {
-  }
-
-  inline node &operator=(const node &rhs)
+  node &operator=(const node &rhs)
   {
     value = rhs.value;
     operands = rhs.operands;
@@ -49,15 +51,17 @@ struct node
   }
 
   // implement the correct comparison of two vectors
-  inline bool operator==(const node &rhs)
+  bool operator==(const node &rhs)
   {
     return (value == rhs.value) && (operands == rhs.operands);
   }
 
-  inline bool operator!=(const node &rhs)
+  bool operator!=(const node &rhs)
   {
     return !(*this == rhs);
   }
+
+  friend std::ostream &operator<<(std::ostream &os, const node &n);
 };
 
 node *copy_node(node *);

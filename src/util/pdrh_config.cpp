@@ -195,9 +195,10 @@ void parse_pdrh_config(int argc, char *argv[])
         exit(EXIT_FAILURE);
       }
     }
-    // nondeterministic precision
-    else if (strcmp(argv[i], "--precision-nondet") == 0)
+    // partition nondeterministic parameter according to the given precision
+    else if (strcmp(argv[i], "--partition-nondet") == 0)
     {
+      global_config.partition_nondet = true;
       i++;
       bool map_end = false;
       while (!map_end)
@@ -507,11 +508,6 @@ void parse_pdrh_config(int argc, char *argv[])
     {
       global_config.decompose = true;
     }
-    // partition continuous nondeterministic parameter
-    else if (strcmp(argv[i], "--partition-nondet") == 0)
-    {
-      global_config.partition_nondet = true;
-    }
     // solution-guided
     else if (strcmp(argv[i], "--guided") == 0)
     {
@@ -634,78 +630,94 @@ void print_usage()
   cout << "	ProbReach <options> <file.pdrh/file.drh> <solver-options>" << endl;
   cout << endl;
   cout << "general options:" << endl;
-  cout << "-h/--help - displays help message" << endl;
-  cout << "-k <int> - defines the reachability depth (default: the shortest "
-          "path length if exists)"
-       << endl;
-  cout << "-l <int> - defines the reachability depth lower bound (cannot be "
-          "used without -u; default: the shortest path length if exists)"
-       << endl;
-  cout << "-u <int> - defines the reachability depth upper bound (cannot be "
-          "used without -l; default: the shortest path length if exists)"
-       << endl;
   cout << "-t <int> - number of CPU cores (default: "
        << global_config.max_num_threads << ") (max "
        << global_config.max_num_threads << ")" << endl;
-  cout << "--verbose - outputs computation details (default: "
-       << global_config.verbose << ")" << endl;
-  cout << "--verbose-result - outputs the runtime and the number of samples "
-          "(statistical model checking only; default: "
-       << global_config.verbose_result << ")" << endl;
-  cout << "--version - displays current version of the tool" << endl;
-  cout << endl;
-  cout << "solver related options:" << endl;
-  cout << "--delta-sat - uses the delta-sat answer of dReal to conclude about "
-          "satisfiability of the evaluated formula (statistical model checking "
-          "and hybrid automata only; default: "
-       << global_config.delta_sat << ")" << endl;
+  cout << "-h/--help - displays help message" << endl;
   cout << "--solver <path> - full path to the solver (default: "
        << global_config.solver_bin << ")" << endl;
+  cout << "--verbose - outputs computation details (default: "
+       << global_config.verbose << ")" << endl;
+  cout << "--version - displays current version of the tool" << endl;
   cout << endl;
-  cout << "special options:" << endl;
-  cout << "--time-var-name <string> - the name of the variable representing "
-          "time in the model (default: ";
-  for (string var : global_config.time_var_name)
-    cout << var << ", ";
-  cout << ")" << endl;
+
+  cout << "reachability options:" << endl;
+  cout << "-k <int> - defines the reachability depth "
+       << "(should not be used together with options -l and -u; default: "
+       << global_config.reach_depth_min << ")" << endl;
+  cout << "-l <int> - defines the reachability depth lower bound "
+       << "(should not be used without -u; default: "
+       << global_config.reach_depth_min << ")" << endl;
+  cout << "-u <int> - defines the reachability depth upper bound "
+       << "(should not be used without -l; default: "
+       << global_config.reach_depth_max << ")" << endl;
   cout << endl;
-  cout << "statistical model checking options:" << endl;
-  cout << "-c <double> - confidence value (default: " << global_config.conf
-       << ")" << endl;
-  cout << "--elite-ratio <double> - defines the fraction of the sample size - "
-          "elite samples which are used in Cross-Entropy algorithm for "
-          "updating the distribution parameters (default: "
-       << global_config.elite_ratio << ")" << endl;
-  cout << "--min-prob - computes confidence interval for the minimum "
-          "reachability probability (default: "
-       << global_config.min_prob << ")" << endl;
-  cout << "--sample-size <int> - number of sample per iteration of "
-          "Cross-Entropy algorithm (default: "
-       << global_config.sample_size << ")" << endl;
-  cout << endl;
+
   cout << "formal method options:" << endl;
-  cout << "-e/--precision-prob <double> - length of the probability enclosure "
+  cout << "-e <double> - length of the probability enclosure "
           "(default: "
-       << global_config.precision_prob << ")" << endl;
+       << global_config.precision_prob
+       << "). The algorithm will try to refine the size of the reachabilty "
+          "probability interval to be smaller or equal to the provided value. "
+          "Note that when the system features nondeterministic parameter, the "
+          "algorithm may never meet the required precision. Also, when "
+          "--upper-bound flag is provided, option -e is ignored"
+       << endl;
+  cout << "--upper-bound - refine only the upper bound of the reachability "
+          "probability (in this case the lower probability bound will be "
+          "always set at 0) (default: "
+       << global_config.upper_p_bound_flag << ")" << endl;
+  cout
+    << "--partition-prob <param1> <value1> ... - defines the precision values "
+       "for computing a partition of the continuons random parameters"
+    << endl;
+  cout << "--partition-nondet <param1> <value1> ... - defines the precision "
+          "values "
+          "for computing a partition of the nondeterministic parameters"
+       << endl;
+  cout << "--precision-ratio <double> - used to define precision passed to the "
+          "solver as (solver-precision = min-box-dimension * precision-ratio) "
+          "(default: "
+       << global_config.solver_precision_ratio << ")" << endl;
   cout << "--integral-inf-coeff <double> - ratio for the continuous random "
           "variables with unbounded support (default: "
        << global_config.integral_inf_coeff << ")" << endl;
   cout << "--integral-pdf-step <double> - step value used for bounding domains "
           "of unbounded continuous random variables (default "
        << global_config.integral_pdf_step << ")" << endl;
-  cout << "--partition-nondet - partitions the domain nondeterministic "
-          "parameters up to the value defined in --precision-nondet (default: "
-       << global_config.partition_nondet << ")" << endl;
-  cout << "--partition-prob - obtains a partition of the domain of continuous "
-          "random parameters satisfying -e/--precision-prob (default: "
-       << global_config.partition_prob << ")" << endl;
-  cout << "--precision-nondet [<var> <double>] - defines the precision vector "
-          "for the nondeterministic parameters"
-       << endl;
-  cout << "--precision-ratio <double> - used to define precision passed to the "
-          "solver as (solver-precision = min-box-dimension * precision-ratio) "
-          "(default: "
-       << global_config.solver_precision_ratio << ")" << endl;
+  cout << endl;
+
+  cout << "statistical model checking options:" << endl;
+  cout << "-e <double> - half length of the confidence interval containing the "
+          "reachability probability value "
+       << "(default: " << global_config.precision_prob << ")" << endl;
+  cout << "-c <double> - confidence value (default: " << global_config.conf
+       << ")" << endl;
+  cout << "--elite-ratio <double> - defines the fraction of the sample size - "
+          "elite samples which are used in Cross-Entropy algorithm for "
+          "updating the distribution parameters (default: "
+       << global_config.elite_ratio << ")" << endl;
+  cout << "--delta-sat - uses the delta-sat answer of dReal to conclude about "
+          "satisfiability of the evaluated formula (statistical model checking "
+          "and hybrid automata only; default: "
+       << global_config.delta_sat << ")" << endl;
+  cout << "--min-prob - computes confidence interval for the minimum "
+          "reachability probability (default: "
+       << global_config.min_prob << ")" << endl;
+  cout << "--sample-size <int> - number of sample per iteration of "
+          "Cross-Entropy algorithm (default: "
+       << global_config.sample_size << ")" << endl;
+  cout << "--verbose-result - outputs only some computation details "
+          "(this will output less details than --verbose; default: "
+       << global_config.verbose_result << ")" << endl;
+  cout << endl;
+
+  cout << "special options:" << endl;
+  cout << "--time-var-name <string> - the name of the variable representing "
+          "time in the model (default: ";
+  for (string var : global_config.time_var_name)
+    cout << var << ", ";
+  cout << ")" << endl;
   cout << endl;
 }
 

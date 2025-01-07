@@ -4,7 +4,7 @@ The ProbReach verifier computes rigorous probability enclosures using exhaustive
 
 ## Usage
 
-	formal_verifier <options> <file.pdrh/file.drh>
+	./formal_verifier <options> <file.pdrh/file.drh>
 
 Some of the most frequently used options are shown below (alternatively, use -h flag to see all available options):
 ```
